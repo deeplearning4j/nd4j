@@ -5,8 +5,6 @@ description: ""
 ---
 {% include JB/setup %}
 
-# Overview
-
 In order to use ND4J, you will need to have several tools installed in your machine:
 
 1. [Java](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#1-java)
