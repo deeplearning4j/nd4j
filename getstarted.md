@@ -17,7 +17,7 @@ Installing these tools might take a few hours, so sit tight. This tutorial will 
 
 <iframe width="750" height="560" src="//www.youtube.com/embed/D0TrW9ht2Qo" frameborder="0" allowfullscreen></iframe>
 
-# 1. Java
+# <a name="1-java">1. Java</a>
 
 ### What it is
 [Java](http://en.wikipedia.org/wiki/Java_%28programming_language%29) is yor [programming language](http://en.wikipedia.org/wiki/Comparison_of_programming_languages) of choice.
