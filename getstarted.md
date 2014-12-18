@@ -6,13 +6,11 @@ description: ""
 {% include JB/setup %}
 
 In order to use ND4J, you will need to have several tools installed in your machine:
-http://nd4j.org/getstarted.html
 
 1. [Java](#1-java)
-1. [Java](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#1-java)
-2. [Github](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#2-github)
-3. [Maven](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#3-maven)
-4. [IDE for Java](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#4-ide-for-java)
+2. [Github](#2-github)
+3. [Maven](#3-maven)
+4. [IDE for Java](#4-ide-for-java)
 
 Installing these tools might take a few hours, so sit tight. This tutorial will guide you until you can run a few simple examples that illustrate how ND4J works.
 
@@ -37,7 +35,7 @@ If you don't have Java 7 installed on your machine, download the [Java Developme
 
 		Mac OS X x64 185.94 MB -  jdk-7u67-macosx-x71.dmg
 
-# 2. GitHub
+# <a id="2-github">2. GitHub</a>
 
 ### What it is
 [Github](http://en.wikipedia.org/wiki/GitHub) is a web-based [Revision Control System](http://en.wikipedia.org/wiki/Revision_control), _the [de facto host](http://opensource.com/life/12/11/code-hosting-comparison) for open source projects_ (click [here](http://en.wikipedia.org/wiki/Comparison_of_open-source_software_hosting_facilities) for a comparison between existing open-source software hosting facilities).
@@ -54,7 +52,7 @@ To clone the ND4J files, enter this command into your terminal (Mac) or Git Shel
 
       git clone https://github.com/SkymindIO/nd4j
 
-# 3. Maven
+# <a id="3-maven">3. Maven</a>
 
 ### What it is
 Maven is an automated build tool for Java projects (among other [things](http://maven.apache.org/what-is-maven.html)), that basically knows where the latest version of the libraries (ND4J .jar files) are, and downloads them automatically into your computer, ready to reference.
@@ -76,8 +74,7 @@ If you want to develop for ND4J, just *git clone* the software (explained above)
 
     mvn clean install -DskipTests -Dmaven.javadoc.skip=true
 
-
-# 4. IDE for Java
+# <a id="4-ide-for-java">4. IDE for Java</a>
 
 ### What it is
 An Integrated Development Environment ([IDE](http://encyclopedia.thefreedictionary.com/integrated+development+environment)) will allow you to edit the source code, debug it and build it with a few clicks. The ones suggested here will use your installed version of Java, will talk with GitHub and Maven, which will take care of the dependencies for you. Visit our [dependencies](http://nd4j.org/dependencies.html) page to know how to 'easily' change the dependencies later on.
