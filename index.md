@@ -5,7 +5,7 @@ tagline:
 ---
 {% include JB/setup %}
 
-# ND4J: ND-Arrays for the JVM
+# ND4J: N-Dimentional-Arrays (ND) for the Java Virtual Machine (JVM)
 
 ND4J -- n-dimensional arrays for Java -- is a scientific computing library for [linear algebra and matrix manipulation](../elementwise.html) on the JVM. It's like Numpy for Java, and  meant to be used in production environments rather than as a research tool.
 
