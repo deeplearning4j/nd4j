@@ -7,6 +7,7 @@ description: ""
 
 In order to use ND4J, you will need to have several tools installed in your machine:
 http://nd4j.org/getstarted.html
+
 1. [Java](#1-java)
 1. [Java](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#1-java)
 2. [Github](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#2-github)
