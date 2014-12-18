@@ -7,7 +7,7 @@ tagline:
 
 # ND4J: N-Dimentional-arrays (ND) for Java (4J)
 
-ND4J is a **scientific computing library** for **linear algebra and matrix manipulation** (see [examples](../elementwise.html)) on the JVM. It is meant to be used in **production environments** rather than as a research tool. It's like NumPy, but for Java instead of Python
+ND4J is a **scientific computing library** for **linear algebra and matrix manipulation** (see [examples](../elementwise.html)) on the JVM. It is meant to be used in **production environments** rather than as a research tool. It's like NumPy, but for Java instead of Python.
 
 ND4J includes:
 
@@ -15,8 +15,8 @@ ND4J includes:
 * **Multiplatform** functionality including GPUs.
 * **Linear algebra** and **signal processing** functions.
 
-A usability gap has separated Java, Scala and Clojure programmers from the most powerful tools in data analysis, like Numpy and Matlab. With ND4J, scientific computing tools are now open source, distributed, and integrated with GPUs. Think [SLF4J](http://www.slf4j.org/). 
+A usability gap has long enough separated Java, Scala and Clojure programmers from the most powerful tools in data analysis, like [NumPy](http://www.slf4j.org/) or [Matlab](http://www.mathworks.com/). With ND4J, scientific computing tools are now **open source**, **distributed**, and **integrated** with **GPUs**.
 
-Now imagine Numpy with Theano built into it. That's what you get with ND4J. It gives engineers in production environments an easy way to port their algorithms and interface with other libraries native to the Java ecosystem. 
+Think [SLF4J](http://www.slf4j.org/). Now imagine Numpy with [Theano](http://deeplearning.net/software/theano/) built into it. That's what you get with ND4J. It gives engineers in **production environments** an easy way to port their algorithms and interface with other libraries native to the Java ecosystem. 
 
 [Get started](../getstarted.html).
