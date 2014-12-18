@@ -6,8 +6,8 @@ description: ""
 {% include JB/setup %}
 
 In order to use ND4J, you will need to have several tools installed in your machine:
-
-1. [Java](https://github.com/SkymindIO/nd4j/blob/gh-pages/getstarted.md#1-java)
+http://nd4j.org/getstarted.html
+1. [Java](http://nd4j.org/getstarted.html#1-java)
 1. [Java](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#1-java)
 2. [Github](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#2-github)
 3. [Maven](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#3-maven)
