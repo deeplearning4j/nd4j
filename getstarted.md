@@ -7,10 +7,10 @@ description: ""
 
 In order to use ND4J, you will need to have several tools installed in your machine:
 
-1. [Java](#1-java)
-2. [Github](#2-github)
-3. [Maven](#3-maven)
-4. [IDE for Java](#4-ide-for-java)
+1. [Java](#1-java), so you can compile your new projects ([download](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)).
+2. [Github](#2-github), to integrate the ND4J development community (download for [Mac](https://mac.github.com/) or [Windows](https://windows.github.com/)).
+3. [Maven](#3-maven), so you don't have to worry about the .jar files ([download](https://maven.apache.org/download.cgi)).
+4. [IDE for Java](#4-ide-for-java), as an Integrated Development Environment that uses all above ([download](https://www.jetbrains.com/idea/download/)).
 
 Installing these tools might take a few hours, so sit tight. This tutorial will guide you until you can run a few simple examples that illustrate how ND4J works.
 
@@ -41,7 +41,7 @@ If you don't have Java 7 installed on your machine, download the [Java Developme
 [Github](http://en.wikipedia.org/wiki/GitHub) is a web-based [Revision Control System](http://en.wikipedia.org/wiki/Revision_control), _the [de facto host](http://opensource.com/life/12/11/code-hosting-comparison) for open source projects_ (click [here](http://en.wikipedia.org/wiki/Comparison_of_open-source_software_hosting_facilities) for a comparison between existing open-source software hosting facilities).
 
 ### Why you need it
-If you just want to use the ND4J libraries, you do not need GitHub, Maven will take care of the .jar files. However, if you are planning to contribute to the [ND4J](https://github.com/SkymindIO/nd4j) or the [DeepLearning4J](https://github.com/SkymindIO/deeplearning4j) project, you are very welcome to report bugs. By the way, thanks for all the people already doing so.
+If you just want to use the ND4J libraries, you do not necessarily need to install GitHub. However, if you are planning to contribute to the ND4J or the [DeepLearning4J](https://github.com/SkymindIO/deeplearning4j) project, you are very welcome to report bugs, or even to contribute with your own code. By the way, thanks for all the people already doing so.
 
 ### Is it already installed?
 Just check your installed programs.
@@ -51,6 +51,8 @@ Download GitHub for [Mac](https://mac.github.com/), [Windows](https://windows.gi
 To clone the ND4J files, enter this command into your terminal (Mac) or Git Shell (Windows):
 
       git clone https://github.com/SkymindIO/nd4j
+      
+Alternatively, for those that dod not install GitHub, you can click on the '[download ZIP](https://github.com/SkymindIO/nd4j/archive/master.zip)' button from the [ND4J GitHub page](https://github.com/SkymindIO/nd4j), then unzip the file (you can use [7-zip](http://www.7-zip.org/download.html) to do that).
 
 # <a id="3-maven">3. Maven</a>
 
@@ -58,7 +60,9 @@ To clone the ND4J files, enter this command into your terminal (Mac) or Git Shel
 Maven is an automated build tool for Java projects (among other [things](http://maven.apache.org/what-is-maven.html)), that basically knows where the latest version of the libraries (ND4J .jar files) are, and downloads them automatically into your computer, ready to reference.
 
 ### Why you need it
-Maven will allow you to install both ND4J and Deeplearning4j projects with a single command. Moreover, it integrates with an Integrated Development Environment ([IDE](https://github.com/globalcaos/nd4j/blob/gh-pages/getstarted.md#4-ide-for-java)), which you will install later (see below). If you really know what you are doing, and still do not align with Maven's paradigm, you can alternatively bypass it visiting our [downloads](http://nd4j.org/downloads.html) page.
+Maven will allow you to install both ND4J and Deeplearning4j projects with a single command. Moreover, it integrates with the Integrated Development Environments ([IDE](#4-ide-for-java)), which you will install later (see below).
+
+Again, if you really know what you are doing, and do not want to install Maven's, you can find the .jar files in our [downloads](http://nd4j.org/downloads.html) page. For an expert user it might be faster, but more complicated due to dependencies.
 
 ### Is it already installed?
 To see if Maven is installed in your machine, enter the following into the command line:
@@ -80,7 +84,7 @@ If you want to develop for ND4J, just *git clone* the software (explained above)
 An Integrated Development Environment ([IDE](http://encyclopedia.thefreedictionary.com/integrated+development+environment)) will allow you to edit the source code, debug it and build it with a few clicks. The ones suggested here will use your installed version of Java, will talk with GitHub and Maven, which will take care of the dependencies for you. Visit our [dependencies](http://nd4j.org/dependencies.html) page to know how to 'easily' change the dependencies later on.
 
 ### Why you need it
-You want to set up a hassle-free development environment so that you only worry about your code.
+You want to set up a hassle-free development environment so that you only worry about your code. IDEs typically come with Maven support, but we prefer you to install [Maven](#3-maven) so you can run commands directly as instructed previously.
 
 ### Is it already installed?
 Just check your installed programs.
