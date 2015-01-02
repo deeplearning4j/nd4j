@@ -107,6 +107,6 @@ For further questions or feedback please contact us through our [Google Groups F
 Useful links:
 
 * ND4J [project](http://nd4j.org/) and [Github repository](https://github.com/SkymindIO/nd4j).
-* DeepLearning4J [project](http://deeplearning4j.org/) and [Github repository](https://github.com/SkymindIO/deeplearning4j).
+* DeepLearning4J [project](http://deeplearning4j.org/) and [Github repository](https://github.com/SkymindIO/deeplearning4j) (using ND4J).
 
 
