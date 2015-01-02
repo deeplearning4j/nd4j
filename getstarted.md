@@ -98,7 +98,7 @@ Now you can easily import the ND4J project via [Intellij](http://stackoverflow.c
 
 # Next Steps
 
-Now you're ready to run the examples cited in our [documentation](elementwise.html). We recommend that you launch your IDE, load the ND4J project and open the examples subdirectory. Locate one of them and click run. If everything was installed correctly you should see numbers appear as the program output. You can start inspecting/messing with the code.
+Now you're ready to run the [examples](elementwise.html). We recommend that you launch your IDE, load the ND4J project and open the examples subdirectory. Locate one of them and click run. If everything was installed correctly you should see numbers appear as the program output. You can start inspecting/messing with the code.
 
 Once you are comfortable with the examples, you might want to change the dependencies defined in the POM files. Learn how to change the [dependencies here](dependencies.html).
 
