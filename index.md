@@ -17,7 +17,7 @@ ND4J includes:
 * **Multiplatform** functionality including GPUs.
 * **Linear algebra** and **signal processing** functions.
 
-A usability gap has long enough separated Java, Scala and Clojure programmers from the most powerful tools in data analysis, like [NumPy](http://www.slf4j.org/) or [Matlab](http://www.mathworks.com/). With ND4J, which is like NumPy, but for Java instead of Python, scientific computing tools are now **open source**, **distributed**, and **integrated** with **GPUs**.
+A usability gap has long enough separated Java, Scala and Clojure programmers from the most powerful tools in data analysis, like [NumPy](http://www.numpy.org/) or [Matlab](http://www.mathworks.com/). With ND4J, which is like NumPy, but for Java instead of Python, scientific computing tools are now **open source**, **distributed**, and **integrated** with **GPUs**.
 
 Think [SLF4J](http://www.slf4j.org/). Now imagine Numpy with [Theano](http://deeplearning.net/software/theano/) built into it. That's what you get with ND4J. It gives engineers in **production environments** an easy way to port their algorithms and interface with other libraries native to the Java ecosystem. 
 
