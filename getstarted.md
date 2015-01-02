@@ -62,7 +62,7 @@ Maven is an automated build tool for Java projects (among other [things](http://
 ### Why you need it
 Maven will allow you to install both ND4J and Deeplearning4j projects with a single command. Moreover, it integrates with the Integrated Development Environments ([IDE](#4-ide-for-java)), which you will install later (see below).
 
-Again, if you really know what you are doing, and do not want to install Maven's, you can find the .jar files in our [downloads](http://nd4j.org/downloads.html) page. For an expert user it might be faster, but more complicated due to dependencies.
+Again, if you really know what you are doing, and do not want to install Maven's, you can find the .jar files in our [downloads](downloads.html) page. For an expert user it might be faster, but more complicated due to dependencies.
 
 ### Is it already installed?
 To see if Maven is installed in your machine, enter the following into the command line:
@@ -81,7 +81,7 @@ If you want to develop for ND4J, just *git clone* the software (explained above)
 # <a id="4-ide-for-java">4. IDE for Java</a>
 
 ### What it is
-An Integrated Development Environment ([IDE](http://encyclopedia.thefreedictionary.com/integrated+development+environment)) will allow you to edit the source code, debug it and build it with a few clicks. The ones suggested here will use your installed version of Java, will talk with GitHub and Maven, which will take care of the dependencies for you. Visit our [dependencies](http://nd4j.org/dependencies.html) page to know how to 'easily' change the dependencies later on.
+An Integrated Development Environment ([IDE](http://encyclopedia.thefreedictionary.com/integrated+development+environment)) will allow you to edit the source code, debug it and build it with a few clicks. The ones suggested here will use your installed version of Java, will talk with GitHub and Maven, which will take care of the dependencies for you. Visit our [dependencies](dependencies.html) page to know how to 'easily' change the dependencies later on.
 
 ### Why you need it
 You want to set up a hassle-free development environment so that you only worry about your code. IDEs typically come with Maven support, but we prefer you to install [Maven](#3-maven) so you can run commands directly as instructed previously.
@@ -100,7 +100,7 @@ Now you can easily import the ND4J project via [Intellij](http://stackoverflow.c
 
 Now you're ready to run the examples cited in our [documentation](elementwise.html). We recommend that you launch your IDE, load the ND4J project and open the examples subdirectory. Locate one of them and click run. If everything was installed correctly you should see numbers appear as the program output. You can start inspecting/messing with the code.
 
-Once you are comfortable with the examples, you might want to change the dependencies defined in the POM files. Learn how to change the [dependencies here](http://nd4j.org/dependencies.html).
+Once you are comfortable with the examples, you might want to change the dependencies defined in the POM files. Learn how to change the [dependencies here](dependencies.html).
 
 For further questions or feedback please contact us through our [Google Groups Forum](https://groups.google.com/forum/#!forum/nd4j).
 
