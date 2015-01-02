@@ -9,7 +9,7 @@ tagline:
 
 ### N-Dimensional Linear Algebra, made *intuitive* and *fast*.
 
-ND4J is a **scientific computing library** for **linear algebra and matrix manipulation** (see [examples](../elementwise.html)) on the JVM. It is meant to be used in **production environments** rather than as a research tool, which means that the routines have been carefully crafted to run **fast** and with **minimum RAM** requirements.
+ND4J is a **scientific computing library** for **linear algebra and matrix manipulation** (see [examples](elementwise.html)) on the JVM. It is meant to be used in **production environments** rather than as a research tool, which means that the routines have been carefully crafted to run **fast** and with **minimum RAM** requirements.
 
 ND4J includes:
 
@@ -21,7 +21,7 @@ A usability gap has long enough separated Java, Scala and Clojure programmers fr
 
 Think [SLF4J](http://www.slf4j.org/). Now imagine Numpy with [Theano](http://deeplearning.net/software/theano/) built into it. That's what you get with ND4J. It gives engineers in **production environments** an easy way to port their algorithms and interface with other libraries native to the Java ecosystem. 
 
-#[Get started!](../getstarted.html)
+#[Get started!](getstarted.html)
 
 
 ### ND4J Specifics
@@ -66,4 +66,4 @@ Which results in:
            [9.0 ,13.0]
            ]
 
-#[Get started!](../getstarted.html)
+#[Get started!](getstarted.html)
