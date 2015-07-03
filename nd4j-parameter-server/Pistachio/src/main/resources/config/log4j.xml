@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<!-- ===================================================================== -->
+<!--                                                                       -->
+<!--  Log4j Configuration                                                  -->
+<!--                                                                       -->
+<!-- ===================================================================== -->
+<!-- $Id: log4j.xml.yin 817 2009-04-21 21:50:36Z tmccune $ -->
+<!--
+   | For more configuration infromation and examples see the Jakarta Log4j
+   | owebsite: http://jakarta.apache.org/log4j
+ -->
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/" debug="false">
+    <!-- ================================= -->
+    <!-- Preserve messages in a local file -->
+    <!-- ================================= -->
+    <!-- A time/date based rolling appender -->
+    <appender name="FILE" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="../logs/pisachios.log"/>
+        <param name="Append" value="true"/>
+        <param name="MaxFileSize" value="1024MB"/>
+        <param name="MaxBackupIndex" value="30"/>
+        <param name="Threshold" value="DEBUG"/>
+        <!-- Note that log4j does not flush buffers on close - messages in the unflushed buffer will be lost
+                         when the file is rotated and when the process exits. -->
+        <param name="BufferedIO" value="false"/>
+        <param name="BufferSize" value="8096"/>
+        <param name="immediateFlush" value="true"/>
+        <!-- Rollover at midnight each day by default -->
+        <!--    <param name="DatePattern" value="'.'yyyy-MM-dd"/>-->
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- The default pattern: Date Priority [Category] Message\n -->
+            <param name="ConversionPattern" value="=%d{ISO8601} %5p [%t] (%c) - %m%n"/>
+        </layout>
+    </appender>
+    <!-- ============================== -->
+    <!-- Append messages to the console -->
+    <!-- ============================== -->
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <param name="Threshold" value="DEBUG"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <!-- The default pattern: Date Priority [Category] Message\n -->
+            <param name="ConversionPattern" value="=%d{ISO8601} %5p [%t] (%c) - %m%n"/>
+        </layout>
+    </appender>
+    <!-- Limit the JSR77 categories -->
+    <category name="org.apache.zookeeper">
+        <priority value="ERROR"/>
+    </category>
+    <root>
+        <priority value="DEBUG"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</log4j:configuration>

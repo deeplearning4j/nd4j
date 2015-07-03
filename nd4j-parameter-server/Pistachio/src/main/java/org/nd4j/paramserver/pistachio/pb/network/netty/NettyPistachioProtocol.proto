@@ -1,0 +1,59 @@
+/*
+ * Copyright 2014 Yahoo! Inc. Licensed under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or
+ * agreed to in writing, software distributed under the License is distributed on
+ * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and
+ * limitations under the License. See accompanying LICENSE file.
+ */
+package org.nd4j.paramserver.pistachio.pb.network.netty;
+
+// How to generate
+// ===============
+// $ cd example
+// $ protoc src/main/java/com/yahoo/ads/pb/network/netty/NettyPistachioProtocol.proto \
+//          --java_out=src/main/java
+//
+// Add @SuppressWarnings("all") to the generated code not to pollute IDE task list.
+
+option optimize_for = SPEED;
+
+
+enum RequestType {
+    LOOKUP = 1;
+    STORE = 2;
+    PROCESS_EVENT = 3;
+    MULTI_LOOKUP = 4;
+    MULTI_PROCESS_EVENT = 5;
+    DELETE = 6;
+    GETNEXT = 7;
+    JUMP = 8;
+}
+
+message Request {
+  optional RequestType type = 1;
+  optional bytes id = 2;
+  optional uint32 request_id = 3;
+  optional uint32 thread_id = 4;
+  optional uint64 partition = 5;
+  optional bytes data = 6;
+  repeated bytes events = 7;
+  optional string jar_server_url = 8;
+  optional string process_class = 9;
+  optional bool callback = 10;
+  repeated bytes ids = 11;
+  repeated Request requests = 12;
+  optional uint64 versionid = 13;
+}
+
+message Response {
+  optional bytes id = 1;
+  optional bool succeeded = 2;
+  optional string error_message = 3;
+  optional bytes data = 4;
+  optional uint32 request_id = 5;
+  optional uint32 thread_id = 6;
+  repeated Response responses = 7;
+}
