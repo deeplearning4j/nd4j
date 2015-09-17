@@ -1036,6 +1036,24 @@ public class Nd4j {
     }
 
 
+
+    /**
+     * Create a buffer based on the data type
+     *
+     * @param data the data to create the buffer with
+     * @return the created buffer
+     */
+    public static DataBuffer createBuffer(byte[] data,int length) {
+        DataBuffer ret;
+        if (dataType() == DataBuffer.Type.DOUBLE)
+            ret = DATA_BUFFER_FACTORY_INSTANCE.createDouble(data,length);
+        else
+            ret = DATA_BUFFER_FACTORY_INSTANCE.createFloat(data,length);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
+
     public static void setFactory(NDArrayFactory factory) {
         INSTANCE = factory;
     }

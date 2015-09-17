@@ -156,6 +156,10 @@ public abstract class BaseDataBuffer implements DataBuffer {
         }
     }
 
+    public BaseDataBuffer(byte[] data, int length) {
+        this(Unpooled.wrappedBuffer(data),length);
+    }
+
 
     @Override
     public AllocationMode allocationMode() {

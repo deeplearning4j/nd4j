@@ -181,7 +181,7 @@ public class Shape {
             }
 
             INDArray ret = Nd4j.create(arr.shape());
-            Shape.iterate(arr,ret,new CopyCoordinateFunction(arr,ret));
+            ret.assign(arr);
 
             return ret;
         }
@@ -248,12 +248,7 @@ public class Shape {
 
 
             final INDArray ret = Nd4j.create(arr.shape(),order);
-            Shape.iterate(arr, new CoordinateFunction() {
-                @Override
-                public void process(int[]... coord) {
-                    ret.putScalar(coord[0],arr.getDouble(coord[0]));
-                }
-            });
+            ret.put(NDArrayIndex.createCoveringShape(ret.shape()), arr);
 
 
             return ret;
@@ -394,7 +389,7 @@ public class Shape {
         idim = 1;
         do {
             loopFunction2.perform(idim, info, info.getA(), dataA, info.getB(), dataB);
-            for (; idim < ndim; idim--) {
+            for (; idim < ndim; idim++) {
                 if (++coord[idim] == shape[idim]) {
                     coord[idim] = 0;
                     dataA -= (shape[idim] - 1) * stridesA[idim];
@@ -801,7 +796,11 @@ public class Shape {
     }
 
 
-
+    /**
+     * Assign one array to another
+     * @param destination the destination array
+     * @param source the source array
+     */
     public static void assignArray(INDArray destination, INDArray source) {
         int[] newStrides;
         if(source.rank() > destination.rank()) {
@@ -828,16 +827,17 @@ public class Shape {
                 .nDim(destination.rank()).shape(destination.shape()).a(destination.data())
                 .aStrides(destination.stride()).b(source.data()).bStrides(newStrides)
                 .aOffset(destination.offset()).bOffset(source.offset()).build().computeOut();
-        int[] offsets = new int[2];
         int[] coords = new int[rawIter.getNDim()];
-        Shape.raw2dLoop(0
-                ,rawIter.getNDim(),
-                coords
-                ,rawIter.getShape()
-                ,offsets[0]
-                ,rawIter.getAStrides()
-                ,offsets[1]
-                ,rawIter.getBStrides(),rawIter,new CopyLoopFunction());
+        int length = ArrayUtil.prod(rawIter.getShape());
+        for(int i = 0; i < length - 1; i++)
+            Shape.raw2dLoop(i
+                    ,rawIter.getNDim(),
+                    coords
+                    ,rawIter.getShape()
+                    ,rawIter.getAOffset() + (i * rawIter.getAStrides()[0])
+                    ,rawIter.getAStrides()
+                    ,rawIter.getBOffset() + (i * rawIter.getBStrides()[0])
+                    ,rawIter.getBStrides(),rawIter,new CopyLoopFunction());
     }
 
 

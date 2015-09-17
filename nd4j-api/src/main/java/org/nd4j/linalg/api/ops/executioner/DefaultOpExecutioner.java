@@ -486,7 +486,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
             int[] shape = {1,m};
             int[] strides =  Nd4j.getStrides(shape,op.x().ordering());
             //need to retain strides for column vectors
-            if(opArr.isMatrix() && dimension.length == 1 && dimension[0] == 0) {
+            if(opArr.isMatrix() && dimension.length == 1 && dimension[0] == 0 || opArr.isSquare()) {
                 for (int i = 0; i < op.x().tensorssAlongDimension(dimension); i++) {
                     Op op2 = op.opForDimension(i, dimension);
                     double result = execAndReturn((Accumulation) op2).currentResult().doubleValue();
