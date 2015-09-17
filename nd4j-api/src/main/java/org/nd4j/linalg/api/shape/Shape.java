@@ -192,7 +192,7 @@ public class Shape {
      * @param order the order of the returned array
      * @return a copy of the array with elements set to zero offset, and with specified order
      */
-    public static INDArray toOffsetZeroCopy(INDArray arr, char order ){
+    public static INDArray toOffsetZeroCopy(final INDArray arr, char order) {
 
         if (arr.isRowVector()) {
             if (arr instanceof IComplexNDArray) {
@@ -246,8 +246,13 @@ public class Shape {
                 }
             }
 
-            INDArray ret = Nd4j.create(arr.shape(),order);
-            Shape.iterate(arr,ret,new CopyCoordinateFunction(arr,ret));
+            final INDArray ret = Nd4j.create(arr.shape(),order);
+            Shape.iterate(arr, new CoordinateFunction() {
+                @Override
+                public void process(int[]... coord) {
+                    ret.putScalar(coord[0],arr.getDouble(coord[0]));
+                }
+            });
 
             return ret;
         }
