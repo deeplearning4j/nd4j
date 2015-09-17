@@ -246,6 +246,7 @@ public class Shape {
                 }
             }
 
+
             final INDArray ret = Nd4j.create(arr.shape(),order);
             Shape.iterate(arr, new CoordinateFunction() {
                 @Override
@@ -253,6 +254,7 @@ public class Shape {
                     ret.putScalar(coord[0],arr.getDouble(coord[0]));
                 }
             });
+
 
             return ret;
         }
