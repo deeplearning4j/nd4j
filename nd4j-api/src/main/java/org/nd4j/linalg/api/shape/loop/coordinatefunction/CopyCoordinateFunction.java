@@ -15,6 +15,6 @@ public class CopyCoordinateFunction implements CoordinateFunction {
 
     @Override
     public void process(int[]... coord) {
-        to.putScalar(coord[1],from.getDouble(coord[1]));
+        to.putScalar(coord[0],from.getDouble(coord[1]));
     }
 }

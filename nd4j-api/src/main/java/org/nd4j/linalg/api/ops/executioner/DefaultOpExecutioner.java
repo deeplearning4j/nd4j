@@ -486,7 +486,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
             int[] shape = {1,m};
             int[] strides =  Nd4j.getStrides(shape,op.x().ordering());
             //need to retain strides for column vectors
-            if(opArr.isMatrix() && dimension.length == 1 && dimension[0] == 0) {
+            if(opArr.isMatrix() && dimension.length == 1 && dimension[0] == 0 || opArr.isSquare()) {
                 for (int i = 0; i < op.x().tensorssAlongDimension(dimension); i++) {
                     Op op2 = op.opForDimension(i, dimension);
                     double result = execAndReturn((Accumulation) op2).currentResult().doubleValue();
@@ -516,17 +516,18 @@ public class DefaultOpExecutioner implements OpExecutioner {
 
 
     @Override
-    public INDArray execAndReturn(TransformOp op, int...dimension) {
+    public INDArray execAndReturn(final TransformOp op, int...dimension) {
         if(dimension.length == op.x().rank())
             dimension = new int[] {Integer.MAX_VALUE};
         if(dimension.length == 1)
             return execAndReturnVector(op,dimension[0]);
         else {
-            for (int i = 0; i < op.x().tensorssAlongDimension(dimension); i++) {
-                Op op2 = op.opForDimension(i, dimension);
-                exec(op2);
-                op.z().tensorAlongDimension(i, dimension).assign(op2.z());
-            }
+         Shape.iterate(op.x(), new CoordinateFunction() {
+             @Override
+             public void process(int[]... coord) {
+                 apply(op,coord[0],coord[0]);
+             }
+         });
 
             return op.z();
 

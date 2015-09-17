@@ -44,6 +44,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.SubOp;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.shape.loop.coordinatefunction.CoordinateFunction;
 import org.nd4j.linalg.api.shape.loop.two.CopyLoopFunction;
+import org.nd4j.linalg.api.shape.loop.two.LoopFunction2;
 import org.nd4j.linalg.api.shape.loop.two.RawArrayIterationInformation2;
 import org.nd4j.linalg.factory.NDArrayFactory;
 import org.nd4j.linalg.factory.Nd4j;
@@ -1057,29 +1058,16 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         }
 
-        else if(Arrays.equals(this.shape(),arr.shape())) {
-            Shape.iterate(this, new CoordinateFunction() {
-                @Override
-                public void process(int[]... coord) {
-                    putScalar(coord[0],arr.getDouble(coord[0]));
-                }
-            });
-        }
 
-        else if(arr.rank() == rank()) {
-            Shape.iterate(this, arr, new CoordinateFunction() {
-                @Override
-                public void process(int[]... coord) {
-                    putScalar(coord[0],arr.getDouble(coord[1]));
-                }
-            });
+        else if (Arrays.equals(arr.shape(),this.shape())) {
+            Shape.assignArray(this,arr);
         }
 
         else {
-            NdIndexIterator iterator = new NdIndexIterator(this.shape());
-            NdIndexIterator otherIter = new NdIndexIterator(arr.shape());
-            for(int i = 0; i < length(); i++) {
-                putScalar(iterator.next(),arr.getDouble(otherIter.next()));
+            NdIndexIterator iterator = new NdIndexIterator('c', true, this.shape());
+            NdIndexIterator otherIter = new NdIndexIterator('c', true, arr.shape());
+            for (int i = 0; i < length(); i++) {
+                putScalar(iterator.next(), arr.getDouble(otherIter.next()));
             }
         }
 
