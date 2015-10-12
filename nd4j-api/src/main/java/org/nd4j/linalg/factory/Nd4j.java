@@ -557,7 +557,25 @@ public class Nd4j {
      * @return
      */
     public static INDArray argMax(INDArray arr,int...dimension) {
-        return Nd4j.getExecutioner().exec(new IAMax(arr),dimension);
+        int[] retShape = ArrayUtil.removeIndex(arr.shape(), dimension);
+        //ensure vector is proper shape
+        if(retShape.length == 1) {
+            if(dimension[0] == 0)
+                retShape = new int[] {1,retShape[0]};
+            else
+                retShape = new int[] {retShape[0],1};
+
+        }
+        else if(retShape.length == 0) {
+            retShape = new int[] {1,1};
+        }
+
+
+        INDArray ret = Nd4j.create(retShape);
+        for(int i = 0; i < arr.tensorssAlongDimension(dimension); i++) {
+            ret.putScalarUnsafe(i * ret.elementWiseStride(),Nd4j.getBlasWrapper().iamax(arr.tensorAlongDimension(i,dimension)));
+        }
+        return ret;
     }
 
     /**

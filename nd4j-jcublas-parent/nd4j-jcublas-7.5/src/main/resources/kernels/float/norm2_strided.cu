@@ -19,8 +19,8 @@ __device__ float postProcess(float reduction,int n,int xOffset,float *dx,int inc
 }
 
 extern "C"
-__global__ void norm2_strided_float(int n, int xOffset,float *dx,int incx,float *params,float *result) {
-             transform(n,xOffset,dx,incx,params,result);
+__global__ void norm2_strided_float(int n, int xOffset,float *dx,int incx,float *params,float *result,int i,int blockSize) {
+             transform(n,xOffset,dx,incx,params,result,i,blockSize);
 }
 
 

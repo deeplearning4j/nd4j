@@ -230,7 +230,7 @@ public class KernelFunctionLoader {
     private void compileAndLoad(Properties props, String key, String dataType,int compiledAttempts) throws IOException {
         String f = props.getProperty(key);
         StringBuffer sb = new StringBuffer();
-        sb.append("nvcc -g -G ");
+        sb.append("nvcc -g -G -lineinfo ");
         sb.append(" --include-path ");
         String tmpDir = System.getProperty("java.io.tmpdir");
         StringBuffer dir = new StringBuffer();

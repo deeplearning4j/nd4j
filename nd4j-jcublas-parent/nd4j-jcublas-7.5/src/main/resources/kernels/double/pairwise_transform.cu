@@ -4,7 +4,7 @@
 __device__ double op(double d1,double d2,double *params);
 __device__ double op(double d1,double *params);
 
-__device__ void transform(int n,int xOffset,int yOffset, double *dx, double *dy,int incx,int incy,double *params,double *result) {
+__device__ void transform(int n,int xOffset,int yOffset, double *dx, double *dy,int incx,int incy,double *params,double *result,int blockSize) {
 
     int totalThreads = gridDim.x * blockDim.x;
     int tid = threadIdx.x;

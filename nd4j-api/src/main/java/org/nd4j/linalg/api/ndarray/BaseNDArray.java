@@ -1059,6 +1059,10 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         }
 
+        else if(ordering() == arr.ordering() && arr.elementWiseStride() > 0 && elementWiseStride() > 0) {
+           data().copyAtStride(arr.data(),arr.length(),elementWiseStride(),arr.elementWiseStride(),offset(),arr.offset());
+        }
+
         else if(Arrays.equals(this.shape(),arr.shape())) {
             Shape.iterate(this, new CoordinateFunction() {
                 @Override
@@ -1320,7 +1324,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if (Double.isNaN(n.doubleValue()))
             n = Nd4j.EPS_THRESHOLD;
 
-        Nd4j.getExecutioner().exec(new ScalarReverseSubtraction(linearView(), null, result.linearView(), result.length(), n));
+        Nd4j.getExecutioner().exec(new ScalarReverseSubtraction(this, null, result, result.length(), n));
 
         if (Nd4j.ENFORCE_NUMERICAL_STABILITY)
             Nd4j.clearNans(result);
@@ -1337,7 +1341,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         if (Double.isNaN(n.doubleValue()))
             n = Nd4j.EPS_THRESHOLD;
-        Nd4j.getExecutioner().exec(new ScalarDivision(linearView(), null, result.linearView(), result.length(), n));
+        Nd4j.getExecutioner().exec(new ScalarDivision(this, null, result, result.length(), n));
 
 
         if (Nd4j.ENFORCE_NUMERICAL_STABILITY)
@@ -1392,7 +1396,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         if (Double.isNaN(n.doubleValue()))
             n = Nd4j.EPS_THRESHOLD;
-        Nd4j.getExecutioner().exec(new ScalarAdd(linearView(), null, result.linearView(), result.length(), n));
+        Nd4j.getExecutioner().exec(new ScalarAdd(this, null, result, result.length(), n));
         return this;
     }
 

@@ -25,8 +25,8 @@ __device__ float postProcess(float reduction,int n,int xOffset,float *dx,int inc
 }
 
 extern "C"
-__global__ void euclidean_strided_float(int n, int xOffset,int yOffset,float *dx,float *dy,int incx,int incy,float *extraParams,float *result) {
-              transform_pair(n,xOffset,yOffset,dx,dy,incx,incy,extraParams,result);
+__global__ void euclidean_strided_float(int n, int xOffset,int yOffset,float *dx,float *dy,int incx,int incy,float *extraParams,float *result,int i,int blockSize) {
+              transform_pair(n,xOffset,yOffset,dx,dy,incx,incy,extraParams,result,i,blockSize);
 
  }
 

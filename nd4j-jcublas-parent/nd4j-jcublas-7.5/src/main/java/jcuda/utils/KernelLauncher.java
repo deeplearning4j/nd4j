@@ -1016,7 +1016,6 @@ public class KernelLauncher {
             }
         }
 
-
         cuLaunchKernel(function,
                 gridSize.x, gridSize.y, gridSize.z,
                 blockSize.x, blockSize.y, blockSize.z,
@@ -1024,15 +1023,12 @@ public class KernelLauncher {
                 Pointer.to(kernelParameters), null
         );
 
-        ContextHolder.syncStream();
-        try {
-            //SimpleJCublas.sync();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
     }
 
+    public CUfunction getFunction() {
+        return function;
+    }
 
     /**
      * The extension of the given file name is replaced with "ptx".

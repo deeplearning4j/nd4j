@@ -6,7 +6,7 @@ extern "C"
 //an op for the kernel
 __device__ float op(float d1,float *params);
 
-__device__ void transform(int n,int idx,float *dy,int incy,float *params,float *result) {
+__device__ void transform(int n,int idx,float *dy,int incy,float *params,float *result,int blockSize) {
 	int totalThreads = gridDim.x * blockDim.x;
 	int tid = threadIdx.x;
 	int i = blockIdx.x * blockDim.x + tid;

@@ -20,8 +20,8 @@ __device__ double postProcess(double reduction,int n,int xOffset,double *dx,int 
 }
 
 extern "C"
-__global__ void norm1_strided_double(int n, int xOffset,double *dx,int incx,double *params,double *result) {
-             transform(n,xOffset,dx,incx,params,result);
+__global__ void norm1_strided_double(int n, int xOffset,double *dx,int incx,double *params,double *result,int i,int blockSize) {
+             transform(n,xOffset,dx,incx,params,result,i,blockSize);
 }
 
 

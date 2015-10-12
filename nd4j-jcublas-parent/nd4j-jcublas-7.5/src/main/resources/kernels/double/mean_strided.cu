@@ -22,8 +22,8 @@ __device__ double postProcess(double reduction,int n,int xOffset,double *dx,int 
 
 
 extern "C"
-__global__ void mean_strided_double(int n, int xOffset,double *dx,int incx,double *extraParams,double *result) {
-             transform(n,xOffset,dx,incx,extraParams,result);
+__global__ void mean_strided_double(int n, int xOffset,double *dx,int incx,double *extraParams,double *result,int i,int blockSize) {
+             transform(n,xOffset,dx,incx,extraParams,result,i,blockSize);
 }
 
 

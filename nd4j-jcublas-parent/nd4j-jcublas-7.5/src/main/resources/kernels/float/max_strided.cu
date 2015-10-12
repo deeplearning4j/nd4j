@@ -22,8 +22,8 @@ __device__ float postProcess(float reduction,int n,int xOffset,float *dx,int inc
 }
 
 extern "C"
-__global__ void max_strided_float(int n, int xOffset,float *dx,int incx,float *extraParams,float *result) {
-             transform(n,xOffset,dx,incx,extraParams,result);
+__global__ void max_strided_float(int n, int xOffset,float *dx,int incx,float *extraParams,float *result,int i,int blockSize) {
+             transform(n,xOffset,dx,incx,extraParams,result,i,blockSize);
 }
 
 

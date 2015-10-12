@@ -24,7 +24,7 @@ Perform a reduction
 @param extraParams extra parameters used for calculations
 @param result where to store the result of the reduction
 */
-__device__ void transform_pair(int n, int xOffset,int yOffset,double *dx,double *dy,int incx,int incy,double *extraParams,double *result) {
+__device__ void transform_pair(int n, int xOffset,int yOffset,double *dx,double *dy,int incx,int incy,double *extraParams,double *result,int i,int blockSize) {
         extern __shared__ double sPartials[];
         const int tid = threadIdx.x;
         int totalThreads = gridDim.x * blockDim.x;
@@ -63,7 +63,7 @@ __device__ void transform_pair(int n, int xOffset,int yOffset,double *dx,double 
         }
 
         if ( tid == 0 ) {
-            result[blockIdx.x] = postProcess(sPartials[0],n,xOffset,dx,incx,extraParams,result);
+            result[i] = postProcess(sPartials[0],n,xOffset,dx,incx,extraParams,result);
         }
 
 }
@@ -79,7 +79,7 @@ Perform a reduction
 @param extraParams extra parameters used for calculations
 @param result where to store the result of the reduction
 */
-__device__ void transform(int n, int xOffset,double *dx,int incx,double *extraParams,double *result) {
+__device__ void transform(int n, int xOffset,double *dx,int incx,double *extraParams,double *result,int i2,int blockSize) {
         extern __shared__ double sPartials[];
         const int tid = threadIdx.x;
         int totalThreads = gridDim.x * blockDim.x;
@@ -98,8 +98,8 @@ __device__ void transform(int n, int xOffset,double *dx,int incx,double *extraPa
         // accumulate the intermediate sums in the remainder range.
         int floorPow2 = blockDim.x;
 
-        if ( floorPow2 & (floorPow2 - 1) ) {
-            while ( floorPow2 & (floorPow2 - 1) ) {
+        if (floorPow2 & (floorPow2 - 1)) {
+            while (floorPow2 & (floorPow2 - 1)) {
                 floorPow2 &= floorPow2 - 1;
             }
             if ( tid >= floorPow2 ) {
@@ -117,8 +117,8 @@ __device__ void transform(int n, int xOffset,double *dx,int incx,double *extraPa
             __syncthreads();
         }
 
-        if ( tid == 0 ) {
-            result[blockIdx.x] = postProcess(sPartials[0],n,xOffset,dx,incx,extraParams,result);
+        if (tid == 0) {
+            result[i2] = postProcess(sPartials[0],n,xOffset,dx,incx,extraParams,result);
         }
 
 }
