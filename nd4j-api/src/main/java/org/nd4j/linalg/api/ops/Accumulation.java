@@ -131,6 +131,17 @@ public interface Accumulation extends Op {
     /** @see #getAndSetFinalResult(double) */
     float getAndSetFinalResult(float accum);
 
+    /** Calculate the final result. unlike {@link #getAndSetFinalResult(double)}, the result is
+     * merely calculated and returned, not stored in the Accumulation op itself.
+     * @param accum The accumulated result
+     * @param n the number of elements accumulated
+     * @return calculated final result
+     */
+    double calculateFinalResult(double accum, int n);
+
+    /** @see #calculateFinalResult(double, int) */
+    float calculateFinalResult(float accum, int n);
+
     /** Complex version of getAndSetFinalResult().
      * @see #getAndSetFinalResult(double)
      */

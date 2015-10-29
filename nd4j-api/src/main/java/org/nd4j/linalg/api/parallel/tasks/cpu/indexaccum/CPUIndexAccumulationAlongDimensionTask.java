@@ -14,6 +14,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
@@ -86,26 +87,57 @@ public class CPUIndexAccumulationAlongDimensionTask extends BaseCPUTask<INDArray
     @Override
     protected INDArray compute() {
         //Fork join
-        int nTensors = op.x().tensorssAlongDimension(dimensions);
+        INDArray x = op.x();
+        INDArray y = op.y();
+        int nTensors = x.tensorssAlongDimension(dimensions);
         List<RecursiveTask<Pair<Double,Integer>>> subTasks = new ArrayList<>(nTensors);
-
-        for( int i=0; i<nTensors; i++ ){
-            IndexAccumulation opOnDimension = (IndexAccumulation)op.opForDimension(i,dimensions);
-            INDArray x2 = opOnDimension.x();
-            INDArray y2 = opOnDimension.y();
-
-            boolean canDoDirectly;
-            if(y2 == null) canDoDirectly = OpExecutionerUtil.canDoOpDirectly(x2);
-            else canDoDirectly = OpExecutionerUtil.canDoOpDirectly(x2, y2);
-
-            RecursiveTask<Pair<Double,Integer>> task;
-            if(canDoDirectly){
-                task = new CPUIndexAccumulationTask(opOnDimension,threshold,true);
+        
+        if(dimensions.length == 1 && !op.isPassThrough() && x.ordering()=='c' && Arrays.equals(op.x().stride(), Nd4j.getStrides(x.shape(), x.ordering()))
+                && (y==null || (y.ordering() == 'c' && Arrays.equals(op.y().stride(), Nd4j.getStrides(y.shape(), y.ordering())))) ){
+            //Op along 1d -> need to calculate 1d tensor. Can use fast 1d tensor stats here
+            OpExecutionerUtil.Tensor1DStats t1dx = OpExecutionerUtil.get1DTensorStats(x,dimensions[0]);
+            int n = t1dx.getTensorLength();
+            int ewsx = t1dx.getElementWiseStride();
+            if(y == null ) {
+                for (int i = 0; i < nTensors; i++) {
+                    int offsetX = t1dx.getFirstTensorOffset() + i * t1dx.getTensorStartSeparation();
+                    RecursiveTask<Pair<Double, Integer>> task = new CPUIndexAccumulationTask(op, threshold, n, offsetX, 0,
+                            ewsx, 0, 0, true);
+                    task.fork();
+                    subTasks.add(task);
+                }
             } else {
-                task = new CPUIndexAccumulationViaTensorTask(op,threshold,true);
+                OpExecutionerUtil.Tensor1DStats t1dy = OpExecutionerUtil.get1DTensorStats(y,dimensions[0]);
+                int ewsy = t1dy.getElementWiseStride();
+                for (int i = 0; i < nTensors; i++) {
+                    int offsetX = t1dx.getFirstTensorOffset() + i * t1dx.getTensorStartSeparation();
+                    int offsetY = t1dy.getFirstTensorOffset() + i * t1dy.getTensorStartSeparation();
+                    RecursiveTask<Pair<Double, Integer>> task = new CPUIndexAccumulationTask(op, threshold, n, offsetX, offsetY,
+                            ewsx, ewsy, 0, true);
+                    task.fork();
+                    subTasks.add(task);
+                }
             }
-            task.fork();
-            subTasks.add(task);
+
+        } else {
+            for (int i = 0; i < nTensors; i++) {
+                IndexAccumulation opOnDimension = (IndexAccumulation) op.opForDimension(i, dimensions);
+                INDArray x2 = opOnDimension.x();
+                INDArray y2 = opOnDimension.y();
+
+                boolean canDoDirectly;
+                if (y2 == null) canDoDirectly = OpExecutionerUtil.canDoOpDirectly(x2);
+                else canDoDirectly = OpExecutionerUtil.canDoOpDirectly(x2, y2);
+
+                RecursiveTask<Pair<Double, Integer>> task;
+                if (canDoDirectly) {
+                    task = new CPUIndexAccumulationTask(opOnDimension, threshold, true);
+                } else {
+                    task = new CPUIndexAccumulationViaTensorTask(op, threshold, true);
+                }
+                task.fork();
+                subTasks.add(task);
+            }
         }
 
         int[] retShape = ArrayUtil.removeIndex(op.x().shape(), dimensions);

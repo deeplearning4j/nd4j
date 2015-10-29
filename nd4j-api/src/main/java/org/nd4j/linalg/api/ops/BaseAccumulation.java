@@ -169,9 +169,21 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         return accum;
     }
 
+
+
     @Override
     public IComplexNumber getAndSetFinalResult(IComplexNumber accum){
         this.finalResultComplex = accum;
+        return accum;
+    }
+
+    @Override
+    public double calculateFinalResult(double accum, int n) {
+        return accum;
+    }
+
+    @Override
+    public float calculateFinalResult(float accum, int n) {
         return accum;
     }
 

@@ -1,6 +1,5 @@
 package org.nd4j.linalg.api.parallel.tasks.cpu.accumulation;
 
-import lombok.AllArgsConstructor;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Accumulation;
 import org.nd4j.linalg.api.ops.executioner.OpExecutionerUtil;
@@ -12,6 +11,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.RecursiveTask;
@@ -72,20 +72,53 @@ public class CPUAccumulationAlongDimensionTask extends BaseCPUTask<INDArray> {
     @Override
     public INDArray compute() {
         //Fork Join: Recursive decomposition
-        int nTensors = op.x().tensorssAlongDimension(dimensions);
+        INDArray x = op.x();
+        INDArray y = op.y();
+        int nTensors = x.tensorssAlongDimension(dimensions);
         List<RecursiveTask<Double>> subTasks = new ArrayList<>(nTensors);
-
-        for (int i = 0; i < nTensors; i++) {
-            RecursiveTask<Double> task = new OpForDimTaskFJ(i);
-            task.fork();
-            subTasks.add(task);
-        }
 
         int[] retShape = ArrayUtil.removeIndex(op.x().shape(), dimensions);
         INDArray out = Nd4j.create(retShape);
-        int i = 0;
-        for(RecursiveTask<Double> task : subTasks){
-            out.putScalar(i++, task.join());
+
+        if(dimensions.length == 1 && !op.isPassThrough() && x.ordering()=='c' && Arrays.equals(op.x().stride(), Nd4j.getStrides(x.shape(), x.ordering()))
+                && (y==null || (y.ordering() == 'c' && Arrays.equals(op.y().stride(), Nd4j.getStrides(y.shape(), y.ordering())))) ){
+            //Op along 1d -> need to calculate 1d tensor. Can use fast 1d tensor stats here
+            OpExecutionerUtil.Tensor1DStats t1dx = OpExecutionerUtil.get1DTensorStats(x,dimensions[0]);
+            int n = t1dx.getTensorLength();
+            int ewsx = t1dx.getElementWiseStride();
+            if(y == null ) {
+                for (int i = 0; i < nTensors; i++) {
+                    int offsetX = t1dx.getFirstTensorOffset() + i * t1dx.getTensorStartSeparation();
+                    RecursiveTask<Double> task = new CPUAccumulationTask(op, threshold, n, offsetX, 0, ewsx, 0, false);
+                    task.fork();
+                    subTasks.add(task);
+                }
+            } else {
+                OpExecutionerUtil.Tensor1DStats t1dy = OpExecutionerUtil.get1DTensorStats(y,dimensions[0]);
+                int ewsy = t1dy.getElementWiseStride();
+                for (int i = 0; i < nTensors; i++) {
+                    int offsetX = t1dx.getFirstTensorOffset() + i * t1dx.getTensorStartSeparation();
+                    int offsetY = t1dy.getFirstTensorOffset() + i * t1dy.getTensorStartSeparation();
+                    RecursiveTask<Double> task = new CPUAccumulationTask(op, threshold, n, offsetX, offsetY, ewsx, ewsy, false);
+                    task.fork();
+                    subTasks.add(task);
+                }
+            }
+
+            int i = 0;
+            for(RecursiveTask<Double> task : subTasks){
+                out.putScalar(i++, op.calculateFinalResult(task.join(),n));
+            }
+        } else {
+            for (int i = 0; i < nTensors; i++) {
+                RecursiveTask<Double> task = new OpForDimTaskFJ(i);
+                task.fork();
+                subTasks.add(task);
+            }
+            int i = 0;
+            for(RecursiveTask<Double> task : subTasks){
+                out.putScalar(i++, task.join());
+            }
         }
         op.setZ(out);
         return out;
