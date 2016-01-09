@@ -21,6 +21,26 @@ import java.util.List;
  */
 public class NDArrayCreationUtil {
 
+    public static List<Pair<INDArray,String>> getTestArrays(int seed, int... shape){
+        if(shape.length < 1 || shape.length > 6) throw new UnsupportedOperationException("Expect shape to be 1 to 6 dimensions (is: " + shape.length + ")");
+        switch(shape.length){
+            case 1:
+                return getAllTestMatricesWithShape(1,shape[0],seed);
+            case 2:
+                return getAllTestMatricesWithShape(shape[0],shape[1],seed);
+            case 3:
+                return getAll3dTestArraysWithShape(seed,shape);
+            case 4:
+                return getAll4dTestArraysWithShape(seed,shape);
+            case 5:
+                return getAll5dTestArraysWithShape(seed,shape);
+            case 6:
+                return getAll6dTestArraysWithShape(seed,shape);
+            default:
+                throw new RuntimeException();
+        }
+    }
+
     /** Get an array of INDArrays (2d) all with the specified shape. Pair<INDArray,String> returned to aid
      * debugging: String contains information on how to reproduce the matrix (i.e., which function, and arguments)
      * Each NDArray in the returned array has been obtained by applying an operation such as transpose, tensorAlongDimension,

@@ -51,6 +51,7 @@ public class CPUTransformAlongDimensionTask extends BaseCPUAction {
         return null;
     }
 
+    /*
     @Override
     protected void compute() {
         //Fork join
@@ -68,7 +69,8 @@ public class CPUTransformAlongDimensionTask extends BaseCPUAction {
 
             RecursiveAction task;
             if(canDoDirectly){
-                task = new CPUTransformOpAction(opOnDimension,threshold);
+//                task = new CPUTransformOpAction(opOnDimension,threshold);
+                throw new UnsupportedOperationException("Not implemented");
             } else {
                 task = new CPUTransformOpViaTensorTask(opOnDimension,threshold);
             }
@@ -79,5 +81,5 @@ public class CPUTransformAlongDimensionTask extends BaseCPUAction {
         for(RecursiveAction t : subTasks){
             t.join();
         }
-    }
+    }*/
 }

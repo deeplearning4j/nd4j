@@ -66,7 +66,6 @@ public  class ConvolutionTests extends BaseNd4jTest {
 
     @Test
     public void testCompareIm2ColImpl() {
-
         int[] miniBatches = {1, 3, 5};
         int[] depths = {1, 3, 5};
         int[] inHeights = {5,21};
@@ -114,6 +113,8 @@ public  class ConvolutionTests extends BaseNd4jTest {
 
                                                     for( boolean cAll : coverall ) {
 
+                                                        String msg = type + "," + mode + "," + m + "," + d + "," + h + "," + w + "," + sh + "," + sw + "," + kh + "," + kw  + "," + ph + "," + pw;
+
                                                         INDArray in = Nd4j.rand(new int[]{m, d, h, w});
                                                         assertEquals(in.data().allocationMode(), mode);
                                                         assertEquals(in.data().dataType(), type);
@@ -121,7 +122,7 @@ public  class ConvolutionTests extends BaseNd4jTest {
                                                         INDArray outOrig = OldConvolution.im2col(in, kh, kw, sh, sw, ph, pw, -1, cAll); //Old implementation
                                                         INDArray outNew = Convolution.im2col(in, kh, kw, sh, sw, ph, pw, cAll);         //Current implementation
 
-                                                        assertEquals(outOrig,outNew);
+                                                        assertEquals(msg,outOrig,outNew);
                                                     }
                                                 }
                                             }
@@ -137,8 +138,43 @@ public  class ConvolutionTests extends BaseNd4jTest {
     }
 
     @Test
-    public void testCompareIm2Col() throws Exception {
+    public void testCompareIm2ColImplSingleTest() {
+        //Single test: mainly to aid in debugging
 
+        DataBuffer.Type type = DataBuffer.Type.FLOAT;
+        DataBuffer.AllocationMode mode = DataBuffer.AllocationMode.DIRECT;
+
+        Nd4j.factory().setDType(type);
+        Nd4j.dtype = type;
+        Nd4j.alloc = mode;
+
+        int m  = 1;
+        int d = 1;
+        int h = 5;
+        int w = 5;
+        int sh = 1;
+        int sw = 1;
+        int kh = 1;
+        int kw = 1;
+        int ph = 0;
+        int pw = 1;
+        if ((w - kw + 2 * pw) % sw != 0 || (h - kh + 2 * ph) % sh != 0) fail(); //(w-kp+2*pw)/sw + 1 is not an integer,  i.e., number of outputs doesn't fit
+        boolean cAll = true;
+
+        String msg = type + "," + mode + "," + m + "," + d + "," + h + "," + w + "," + sh + "," + sw + "," + kh + "," + kw  + "," + ph + "," + pw;
+
+        INDArray in = Nd4j.rand(new int[]{m, d, h, w});
+        assertEquals(in.data().allocationMode(), mode);
+        assertEquals(in.data().dataType(), type);
+
+        INDArray outOrig = OldConvolution.im2col(in, kh, kw, sh, sw, ph, pw, -1, cAll); //Old implementation
+        INDArray outNew = Convolution.im2col(in, kh, kw, sh, sw, ph, pw, cAll);         //Current implementation
+
+        assertEquals(msg,outOrig,outNew);
+    }
+
+    @Test
+    public void testCompareCol2Im() throws Exception {
         int[] miniBatches = {1, 3, 5};
         int[] depths = {1, 3, 5};
         int[] inHeights = {5,21};

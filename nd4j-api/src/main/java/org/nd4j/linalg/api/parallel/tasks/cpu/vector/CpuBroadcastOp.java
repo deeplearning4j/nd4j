@@ -25,30 +25,9 @@ public class CpuBroadcastOp extends BaseCPUAction {
     }
 
     @Override
-    public Void blockUntilComplete() {
-        if(future==null){
-            //invokeAsync() not called?
-            invokeAsync();
-        }
-
-        try{
-            future.get();
-        }catch(Exception e){
-            throw new RuntimeException(e);
-        }
-
-        if(subTasks!=null) {
-            //i.e., for Callable/ExecutorService execution
-            for (Task<Void> task : subTasks) {
-                task.blockUntilComplete();
-            }
-        }
-
-        return null;
-    }
-
-    @Override
     public Void call() {
+        throw new UnsupportedOperationException("Not implemnted");
+        /*
         INDArray x = op.x();
         INDArray y = op.y();
         INDArray z = op.z();
@@ -121,10 +100,14 @@ public class CpuBroadcastOp extends BaseCPUAction {
             }
         }
         return null;
-    }
 
+    }*/
+
+        /*
     @Override
     protected void compute() {
+        throw new UnsupportedOperationException();
+        /*
         //Fork join
         INDArray x = op.x();
         INDArray y = op.y();
@@ -201,9 +184,11 @@ public class CpuBroadcastOp extends BaseCPUAction {
         for(RecursiveAction a : subTasks ){
             a.join();
         }
+        */
     }
 
     /** helper class for doing a single vector op */
+    /*
     private class SingleVectorAction extends BaseCPUAction {
 
         private SingleVectorAction(int threshold, int n, int offsetX, int offsetY, int offsetZ, int incrX, int incrY, int incrZ){
@@ -459,4 +444,5 @@ public class CpuBroadcastOp extends BaseCPUAction {
             return null;
         }
     }
+    */
 }

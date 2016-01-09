@@ -3,22 +3,24 @@ package org.nd4j.linalg.api.parallel.tasks.cpu.misc;
 import io.netty.buffer.ByteBuf;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.parallel.tasks.CPUTaskExecutor;
 import org.nd4j.linalg.api.parallel.tasks.Task;
-import org.nd4j.linalg.api.parallel.tasks.TaskExecutorProvider;
 import org.nd4j.linalg.convolution.Convolution;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-/** Parallel Im2Col implementation
+/**
+ * Parallel Im2Col implementation
+ *
  * @author Alex Black
  */
-public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDArray> {
-    protected Future<INDArray> future;
-    protected List<CPUIm2ColTask> subTasks;    //For callable execution
+public class CPUIm2ColTask implements Task<INDArray>, Future<INDArray> {
+    protected final AtomicInteger splitCount = new AtomicInteger(0);
+    protected final int maxSplits;
+    protected final CountDownLatch latch;
+    protected volatile boolean cancelled = false;
 
     protected final INDArray img;
     protected INDArray out;
@@ -31,32 +33,14 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
     protected final boolean coverAll;
     protected final int parallelThreshold;
 
-    protected final int exampleFrom;
-    protected final int exampleTo;
-    protected final int depthFrom;
-    protected final int depthTo;
-    protected final int xOutFrom;
-    protected final int xOutTo;
-    protected final int yOutFrom;
-    protected final int yOutTo;
+    protected final int depth;
+    protected final int outWidth;
+    protected final int outHeight;
 
     public CPUIm2ColTask(INDArray img, int kernelHeight, int kernelWidth, int strideY, int strideX, int padHeight,
                          int padWidth, boolean coverAll, int parallelThreshold) {
-        this(img, getNewOutputArray(img, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth, coverAll),
-                kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                0, img.size(0), //example ranges
-                0, img.size(1), //depth ranges
-                0, Convolution.outSize(img.size(2), kernelHeight, strideY, padHeight, coverAll), //yOut ranges (along height)
-                0, Convolution.outSize(img.size(3), kernelWidth, strideX, padWidth, coverAll), //xOut ranges (along width)
-                coverAll, parallelThreshold);
-        //NOTE: Ranges above are [from,to) i.e., exclusive of to, inclusive of from
-    }
-
-    public CPUIm2ColTask(INDArray img, INDArray out, int kernelHeight, int kernelWidth, int strideY, int strideX, int padHeight, int padWidth,
-                         int exampleFrom, int exampleTo, int depthFrom, int depthTo, int yOutFrom, int yOutTo, int xOutFrom, int xOutTo,
-                         boolean coverAll, int parallelThreshold) {
         this.img = img;
-        this.out = out;
+        this.out = getNewOutputArray(img, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth, coverAll);
         this.kernelHeight = kernelHeight;
         this.kernelWidth = kernelWidth;
         this.strideY = strideY;
@@ -66,14 +50,11 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         this.coverAll = coverAll;
         this.parallelThreshold = parallelThreshold;
 
-        this.exampleFrom = exampleFrom;
-        this.exampleTo = exampleTo;
-        this.depthFrom = depthFrom;
-        this.depthTo = depthTo;
-        this.xOutFrom = xOutFrom;
-        this.xOutTo = xOutTo;
-        this.yOutFrom = yOutFrom;
-        this.yOutTo = yOutTo;
+        this.depth = img.size(1);
+        this.maxSplits = img.size(0) * depth; //examples * depth
+        this.latch = new CountDownLatch(maxSplits);
+        this.outHeight = out.size(4);
+        this.outWidth = out.size(5);
     }
 
 
@@ -93,144 +74,47 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         return Nd4j.create(n, c, kernelHeight, kernelWidth, outHeight, outWidth);
     }
 
-
-    @Override
-    protected INDArray compute() {
-        //Fork join
-        splitOrExecute(true);
-        return out;
+    private int[] mapSplitIndexToExampleAndDepth(int splitIdx) {
+        //TODO: consider strides etc, false sharing etc when doing this
+        int[] arr = new int[2];
+        arr[0] = splitIdx / depth;
+        arr[1] = splitIdx % depth;
+        return arr;
     }
+
 
     @Override
     public INDArray call() {
-        //Callable / ExecutorService
-        splitOrExecute(true);
+
+        DataBuffer dbIn = img.data();
+        int thisIdx = splitCount.getAndIncrement();
+        while (thisIdx < maxSplits) {
+            int[] arr = mapSplitIndexToExampleAndDepth(thisIdx);
+            int e = arr[0];
+            int d = arr[1];
+
+            if (dbIn.allocationMode() == DataBuffer.AllocationMode.HEAP) {
+                if (dbIn.dataType() == DataBuffer.Type.FLOAT) {
+                    doHeapFloat(e, d);
+                } else {
+                    doHeapDouble(e, d);
+                }
+            } else {
+                if (dbIn.dataType() == DataBuffer.Type.FLOAT) {
+                    doDirectFloat(e, d);
+                } else {
+                    doDirectDouble(e, d);
+                }
+            }
+
+            latch.countDown();
+            thisIdx = splitCount.getAndIncrement();
+        }
+
         return null;
     }
 
-    private void splitOrExecute(final boolean forkJoin){
-        if(!forkJoin) subTasks = new ArrayList<>();
-
-        if (parallelThreshold != Integer.MAX_VALUE && opSize() > parallelThreshold) {
-            //Split. First on examples, then on depth, then on xOut, then on yOut
-
-            CPUIm2ColTask first;
-            CPUIm2ColTask second;
-            int temp;
-            if ((temp = exampleTo - exampleFrom) > 1) { //exampleTo is exclusive -> single example has to-from=1
-                int countFirst = temp / 2;
-
-                first = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleFrom + countFirst,   //If countFirst=1, then want want to=from+1 exclusive, i.e., to=from inclusive
-                        depthFrom, depthTo, yOutFrom, yOutTo, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                if( forkJoin ) first.fork();
-                else{
-                    first.invokeAsync();
-                    subTasks.add(first);
-                }
-
-                second = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom + countFirst, exampleTo,
-                        depthFrom, depthTo, yOutFrom, yOutTo, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                if( forkJoin ) second.fork();
-                else{
-                    second.invokeAsync();
-                    subTasks.add(second);
-                }
-
-            } else if ((temp = depthTo - depthFrom) > 1) {
-                //Split on depth
-                int countFirst = temp / 2;
-                first = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom, depthFrom + countFirst,
-                        yOutFrom, yOutTo, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                first.fork();
-
-                second = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom + countFirst, depthTo,
-                        yOutFrom, yOutTo, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                second.fork();
-
-            } else if ((temp = yOutTo - yOutFrom) > 1) {
-                //split on output:
-                int countFirst = temp / 2;
-                first = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom, depthTo,
-                        yOutFrom, yOutFrom + countFirst, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                if( forkJoin ) first.fork();
-                else{
-                    first.invokeAsync();
-                    subTasks.add(first);
-                }
-
-                second = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom, depthTo,
-                        yOutFrom + countFirst, yOutTo, xOutFrom, xOutTo, coverAll, parallelThreshold);
-                if( forkJoin ) second.fork();
-                else{
-                    second.invokeAsync();
-                    subTasks.add(second);
-                }
-
-            } else if ((temp = xOutTo - xOutFrom) > 1) {
-                int countFirst = temp / 2;
-                first = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom, depthTo,
-                        yOutFrom, yOutTo, xOutFrom, xOutFrom+countFirst, coverAll, parallelThreshold);
-                if( forkJoin ) first.fork();
-                else{
-                    first.invokeAsync();
-                    subTasks.add(first);
-                }
-
-                second = new CPUIm2ColTask(img, out, kernelHeight, kernelWidth, strideY, strideX, padHeight, padWidth,
-                        exampleFrom, exampleTo, depthFrom, depthTo,
-                        yOutFrom, yOutTo, xOutFrom+countFirst, xOutTo, coverAll, parallelThreshold);
-                if( forkJoin ) second.fork();
-                else{
-                    second.invokeAsync();
-                    subTasks.add(second);
-                }
-
-            } else {
-                //single image patch on one channel exceeds parallel threshold
-                execute();
-                return;
-            }
-
-            if(forkJoin) {
-                first.join();
-                second.join();
-            }
-        } else {
-            //Execute directly
-            execute();
-        }
-    }
-
-    private int opSize() {
-        return (exampleTo - exampleFrom) * (depthTo - depthFrom) * (xOutTo - xOutFrom) * (yOutTo - yOutFrom) * kernelHeight * kernelWidth;
-    }
-
-    private void execute() {
-        DataBuffer dbIn = img.data();
-
-        if (dbIn.allocationMode() == DataBuffer.AllocationMode.HEAP) {
-            if (dbIn.dataType() == DataBuffer.Type.FLOAT) {
-                doHeapFloat();
-            } else {
-                doHeapDouble();
-            }
-        } else {
-            if(dbIn.dataType() == DataBuffer.Type.FLOAT) {
-                doDirectFloat();
-            } else {
-                doDirectDouble();
-            }
-        }
-    }
-
-    private void doHeapFloat(){
+    private void doHeapFloat(int ex, int d) {
         DataBuffer dbIn = img.data();
         DataBuffer dbOut = out.data();
 
@@ -257,79 +141,75 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         float[] fIn = (float[]) dbIn.array();
         float[] fOut = (float[]) dbOut.array();
 
-        for (int ex = exampleFrom; ex < exampleTo; ex++) {
-            for (int d = depthFrom; d < depthTo; d++) {
-                inIndices[0] = ex;
-                inIndices[1] = d;
-                outIndices[0] = ex;
-                outIndices[1] = d;
+        inIndices[0] = ex;
+        inIndices[1] = d;
+        outIndices[0] = ex;
+        outIndices[1] = d;
 
-                for (int x = xOutFrom; x < xOutTo; x++) {  //Along width
-                    for (int y = yOutFrom; y < yOutTo; y++) {  //along height
-                        outIndices[4] = y;
-                        outIndices[5] = x;
-                        int baseOffsetOut = getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
+        for (int x = 0; x < outWidth; x++) {  //Along width
+            for (int y = 0; y < outHeight; y++) {  //along height
+                outIndices[4] = y;
+                outIndices[5] = x;
+                int baseOffsetOut = getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
 
-                        if(padding){
-                            int i = y * strideY - padHeight;    //index along height of first element of patch in original img
-                            int j = x * strideX - padWidth;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                if (padding) {
+                    int i = y * strideY - padHeight;    //index along height of first element of patch in original img
+                    int j = x * strideX - padWidth;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2 <= outStride3) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxX = baseOffsetOut + patchX * outStride3;
-                                    int inBufferIdxX = baseOffsetIn + patchX * inStride3;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            fOut[outBufferIdxX + patchY * outStride2] = 0f; //padding
-                                        else {
-                                            fOut[outBufferIdxX + patchY * outStride2] = fIn[inBufferIdxX + patchY * inStride2];
-                                        }
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxY = baseOffsetOut + patchY * outStride2;
-                                    int inBufferIdxY = baseOffsetIn + patchY * inStride2;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            fOut[outBufferIdxY + patchX * outStride3] = 0f; //padding
-                                        else {
-                                            fOut[outBufferIdxY + patchX * outStride3] = fIn[inBufferIdxY + patchX * inStride3];
-                                        }
-                                    }
+                    int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2 <= outStride3) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxX = baseOffsetOut + patchX * outStride3;
+                            int inBufferIdxX = baseOffsetIn + patchX * inStride3;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    fOut[outBufferIdxX + patchY * outStride2] = 0f; //padding
+                                else {
+                                    fOut[outBufferIdxX + patchY * outStride2] = fIn[inBufferIdxX + patchY * inStride2];
                                 }
                             }
-                        } else {
-                            //No padding
-                            int i = y * strideY;    //index along height of first element of patch in original img
-                            int j = x * strideX;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxY = baseOffsetOut + patchY * outStride2;
+                            int inBufferIdxY = baseOffsetIn + patchY * inStride2;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    fOut[outBufferIdxY + patchX * outStride3] = 0f; //padding
+                                else {
+                                    fOut[outBufferIdxY + patchX * outStride3] = fIn[inBufferIdxY + patchX * inStride3];
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //No padding
+                    int i = y * strideY;    //index along height of first element of patch in original img
+                    int j = x * strideX;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2 <= outStride3) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxX = baseOffsetOut + patchX * outStride3;
-                                    int inBufferIdxX = baseOffsetIn + patchX * inStride3;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        fOut[outBufferIdxX + patchY * outStride2] = fIn[inBufferIdxX + patchY * inStride2];
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxY = baseOffsetOut + patchY * outStride2;
-                                    int inBufferIdxY = baseOffsetIn + patchY * inStride2;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        fOut[outBufferIdxY + patchX*outStride3] = fIn[inBufferIdxY + patchX*inStride3];
-                                    }
-                                }
+                    int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2 <= outStride3) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxX = baseOffsetOut + patchX * outStride3;
+                            int inBufferIdxX = baseOffsetIn + patchX * inStride3;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                fOut[outBufferIdxX + patchY * outStride2] = fIn[inBufferIdxX + patchY * inStride2];
+                            }
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxY = baseOffsetOut + patchY * outStride2;
+                            int inBufferIdxY = baseOffsetIn + patchY * inStride2;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                fOut[outBufferIdxY + patchX * outStride3] = fIn[inBufferIdxY + patchX * inStride3];
                             }
                         }
                     }
@@ -338,7 +218,8 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         }
     }
 
-    private void doHeapDouble(){
+
+    private void doHeapDouble(int ex, int d) {
         DataBuffer dbIn = img.data();
         DataBuffer dbOut = out.data();
 
@@ -365,79 +246,75 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         double[] dIn = (double[]) dbIn.array();
         double[] dOut = (double[]) dbOut.array();
 
-        for (int ex = exampleFrom; ex < exampleTo; ex++) {
-            for (int d = depthFrom; d < depthTo; d++) {
-                inIndices[0] = ex;
-                inIndices[1] = d;
-                outIndices[0] = ex;
-                outIndices[1] = d;
+        inIndices[0] = ex;
+        inIndices[1] = d;
+        outIndices[0] = ex;
+        outIndices[1] = d;
 
-                for (int x = xOutFrom; x < xOutTo; x++) {  //Along width
-                    for (int y = yOutFrom; y < yOutTo; y++) {  //along height
-                        outIndices[4] = y;
-                        outIndices[5] = x;
-                        int baseOffsetOut = getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
+        for (int x = 0; x < outWidth; x++) {  //Along width
+            for (int y = 0; y < outHeight; y++) {  //along height
+                outIndices[4] = y;
+                outIndices[5] = x;
+                int baseOffsetOut = getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
 
-                        if(padding){
-                            int i = y * strideY - padHeight;    //index along height of first element of patch in original img
-                            int j = x * strideX - padWidth;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                if (padding) {
+                    int i = y * strideY - padHeight;    //index along height of first element of patch in original img
+                    int j = x * strideX - padWidth;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2 <= outStride3) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxX = baseOffsetOut + patchX * outStride3;
-                                    int inBufferIdxX = baseOffsetIn + patchX * inStride3;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            dOut[outBufferIdxX + patchY * outStride2] = 0f; //padding
-                                        else {
-                                            dOut[outBufferIdxX + patchY * outStride2] = dIn[inBufferIdxX + patchY * inStride2];
-                                        }
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxY = baseOffsetOut + patchY * outStride2;
-                                    int inBufferIdxY = baseOffsetIn + patchY * inStride2;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape[2] || j + patchX >= inShape[3])
-                                            dOut[outBufferIdxY + patchX * outStride3] = 0f; //padding
-                                        else {
-                                            dOut[outBufferIdxY + patchX * outStride3] = dIn[inBufferIdxY + patchX * inStride3];
-                                        }
-                                    }
+                    int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2 <= outStride3) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxX = baseOffsetOut + patchX * outStride3;
+                            int inBufferIdxX = baseOffsetIn + patchX * inStride3;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    dOut[outBufferIdxX + patchY * outStride2] = 0f; //padding
+                                else {
+                                    dOut[outBufferIdxX + patchY * outStride2] = dIn[inBufferIdxX + patchY * inStride2];
                                 }
                             }
-                        } else {
-                            //No padding
-                            int i = y * strideY;    //index along height of first element of patch in original img
-                            int j = x * strideX;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxY = baseOffsetOut + patchY * outStride2;
+                            int inBufferIdxY = baseOffsetIn + patchY * inStride2;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape[2] || j + patchX >= inShape[3])
+                                    dOut[outBufferIdxY + patchX * outStride3] = 0f; //padding
+                                else {
+                                    dOut[outBufferIdxY + patchX * outStride3] = dIn[inBufferIdxY + patchX * inStride3];
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //No padding
+                    int i = y * strideY;    //index along height of first element of patch in original img
+                    int j = x * strideX;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2 <= outStride3) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxX = baseOffsetOut + patchX * outStride3;
-                                    int inBufferIdxX = baseOffsetIn + patchX * inStride3;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        dOut[outBufferIdxX + patchY * outStride2] = dIn[inBufferIdxX + patchY * inStride2];
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxY = baseOffsetOut + patchY * outStride2;
-                                    int inBufferIdxY = baseOffsetIn + patchY * inStride2;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        dOut[outBufferIdxY + patchX*outStride3] = dIn[inBufferIdxY + patchX*inStride3];
-                                    }
-                                }
+                    int baseOffsetIn = getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2 <= outStride3) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxX = baseOffsetOut + patchX * outStride3;
+                            int inBufferIdxX = baseOffsetIn + patchX * inStride3;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                dOut[outBufferIdxX + patchY * outStride2] = dIn[inBufferIdxX + patchY * inStride2];
+                            }
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxY = baseOffsetOut + patchY * outStride2;
+                            int inBufferIdxY = baseOffsetIn + patchY * inStride2;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                dOut[outBufferIdxY + patchX * outStride3] = dIn[inBufferIdxY + patchX * inStride3];
                             }
                         }
                     }
@@ -446,7 +323,7 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         }
     }
 
-    private void doDirectFloat(){
+    private void doDirectFloat(int ex, int d) {
         DataBuffer dbIn = img.data();
         DataBuffer dbOut = out.data();
 
@@ -473,83 +350,79 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         ByteBuf nbbIn = dbIn.asNetty();
         ByteBuf nbbOut = dbOut.asNetty();
 
-        for (int ex = exampleFrom; ex < exampleTo; ex++) {
-            for (int d = depthFrom; d < depthTo; d++) {
-                inIndices[0] = ex;
-                inIndices[1] = d;
-                outIndices[0] = ex;
-                outIndices[1] = d;
+        inIndices[0] = ex;
+        inIndices[1] = d;
+        outIndices[0] = ex;
+        outIndices[1] = d;
 
-                for (int x = xOutFrom; x < xOutTo; x++) {  //Along width
-                    for (int y = yOutFrom; y < yOutTo; y++) {  //along height
-                        outIndices[4] = y;
-                        outIndices[5] = x;
-                        int baseOffsetOutBytes = 4*getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
+        for (int x = 0; x < outWidth; x++) {  //Along width
+            for (int y = 0; y < outHeight; y++) {  //along height
+                outIndices[4] = y;
+                outIndices[5] = x;
+                int baseOffsetOutBytes = 4 * getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
 
-                        if(padding){
-                            int i = y * strideY - padHeight;    //index along height of first element of patch in original img
-                            int j = x * strideX - padWidth;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                if (padding) {
+                    int i = y * strideY - padHeight;    //index along height of first element of patch in original img
+                    int j = x * strideX - padWidth;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetInBytes = 4*getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2_times4 <= outStride3_times4) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times4;
-                                    int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times4;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4, 0f); //padding
-                                        else {
-                                            nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4,
-                                                    nbbIn.getFloat(inBufferIdxXBytes + patchY * inStride2_times4));
-                                        }
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times4;
-                                    int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times4;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4, 0f); //padding
-                                        else {
-                                            nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4,
-                                                    nbbIn.getFloat(inBufferIdxYBytes + patchX * inStride3_times4));
-                                        }
-                                    }
+                    int baseOffsetInBytes = 4 * getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2_times4 <= outStride3_times4) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times4;
+                            int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times4;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4, 0f); //padding
+                                else {
+                                    nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4,
+                                            nbbIn.getFloat(inBufferIdxXBytes + patchY * inStride2_times4));
                                 }
                             }
-                        } else {
-                            //No padding
-                            int i = y * strideY;    //index along height of first element of patch in original img
-                            int j = x * strideX;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times4;
+                            int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times4;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4, 0f); //padding
+                                else {
+                                    nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4,
+                                            nbbIn.getFloat(inBufferIdxYBytes + patchX * inStride3_times4));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //No padding
+                    int i = y * strideY;    //index along height of first element of patch in original img
+                    int j = x * strideX;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetInBytes = 4*getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2_times4 <= outStride3_times4) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times4;
-                                    int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times4;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4,
-                                                nbbIn.getFloat(inBufferIdxXBytes + patchY * inStride2_times4));
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times4;
-                                    int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times4;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4,
-                                                nbbIn.getFloat(inBufferIdxYBytes + patchX * inStride3_times4));
-                                    }
-                                }
+                    int baseOffsetInBytes = 4 * getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2_times4 <= outStride3_times4) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times4;
+                            int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times4;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                nbbOut.setFloat(outBufferIdxXBytes + patchY * outStride2_times4,
+                                        nbbIn.getFloat(inBufferIdxXBytes + patchY * inStride2_times4));
+                            }
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times4;
+                            int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times4;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                nbbOut.setFloat(outBufferIdxYBytes + patchX * outStride3_times4,
+                                        nbbIn.getFloat(inBufferIdxYBytes + patchX * inStride3_times4));
                             }
                         }
                     }
@@ -558,7 +431,7 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         }
     }
 
-    private void doDirectDouble(){
+    private void doDirectDouble(int ex, int d) {
         DataBuffer dbIn = img.data();
         DataBuffer dbOut = out.data();
 
@@ -585,83 +458,79 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         ByteBuf nbbIn = dbIn.asNetty();
         ByteBuf nbbOut = dbOut.asNetty();
 
-        for (int ex = exampleFrom; ex < exampleTo; ex++) {
-            for (int d = depthFrom; d < depthTo; d++) {
-                inIndices[0] = ex;
-                inIndices[1] = d;
-                outIndices[0] = ex;
-                outIndices[1] = d;
+        inIndices[0] = ex;
+        inIndices[1] = d;
+        outIndices[0] = ex;
+        outIndices[1] = d;
 
-                for (int x = xOutFrom; x < xOutTo; x++) {  //Along width
-                    for (int y = yOutFrom; y < yOutTo; y++) {  //along height
-                        outIndices[4] = y;
-                        outIndices[5] = x;
-                        int baseOffsetOutBytes = 8*getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
+        for (int x = 0; x < outWidth; x++) {  //Along width
+            for (int y = 0; y < outHeight; y++) {  //along height
+                outIndices[4] = y;
+                outIndices[5] = x;
+                int baseOffsetOutBytes = 8 * getOffsetUnsafe6(outArrayOffset, outShape, outStride, outIndices);
 
-                        if(padding){
-                            int i = y * strideY - padHeight;    //index along height of first element of patch in original img
-                            int j = x * strideX - padWidth;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                if (padding) {
+                    int i = y * strideY - padHeight;    //index along height of first element of patch in original img
+                    int j = x * strideX - padWidth;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetInBytes = 8*getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2_times8 <= outStride3_times8) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times8;
-                                    int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times8;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
-                                            nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8, 0f); //padding
-                                        else {
-                                            nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8,
-                                                    nbbIn.getDouble(inBufferIdxXBytes + patchY * inStride2_times8));
-                                        }
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times8;
-                                    int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times8;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape[2] || j + patchX >= inShape[3])
-                                            nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8, 0f); //padding
-                                        else {
-                                            nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8,
-                                                    nbbIn.getDouble(inBufferIdxYBytes + patchX * inStride3_times8));
-                                        }
-                                    }
+                    int baseOffsetInBytes = 8 * getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2_times8 <= outStride3_times8) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times8;
+                            int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times8;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape2 || j + patchX >= inShape3)
+                                    nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8, 0f); //padding
+                                else {
+                                    nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8,
+                                            nbbIn.getDouble(inBufferIdxXBytes + patchY * inStride2_times8));
                                 }
                             }
-                        } else {
-                            //No padding
-                            int i = y * strideY;    //index along height of first element of patch in original img
-                            int j = x * strideX;     //index along width of first element in patch in original img
-                            inIndices[2] = i;   //along height
-                            inIndices[3] = j;   //along width
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times8;
+                            int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times8;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                if (i + patchY < 0 || j + patchX < 0 || i + patchY >= inShape[2] || j + patchX >= inShape[3])
+                                    nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8, 0f); //padding
+                                else {
+                                    nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8,
+                                            nbbIn.getDouble(inBufferIdxYBytes + patchX * inStride3_times8));
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    //No padding
+                    int i = y * strideY;    //index along height of first element of patch in original img
+                    int j = x * strideX;     //index along width of first element in patch in original img
+                    inIndices[2] = i;   //along height
+                    inIndices[3] = j;   //along width
 
-                            int baseOffsetInBytes = 8*getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
-                            if (outStride2_times8 <= outStride3_times8) {
-                                //Want dimension 2 (along height) in inner loop for cache reasons
-                                for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                    int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times8;
-                                    int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times8;
-                                    for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                        nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8,
-                                                nbbIn.getDouble(inBufferIdxXBytes + patchY * inStride2_times8));
-                                    }
-                                }
-                            } else {
-                                //Want dimension 3 in inner loop for cache reasons
-                                for (int patchY = 0; patchY < kernelHeight; patchY++) {
-                                    int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times8;
-                                    int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times8;
-                                    for (int patchX = 0; patchX < kernelWidth; patchX++) {
-                                        nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8,
-                                                nbbIn.getDouble(inBufferIdxYBytes + patchX * inStride3_times8));
-                                    }
-                                }
+                    int baseOffsetInBytes = 8 * getOffsetUnsafe4(inArrayOffset, inShape, inStride, inIndices);
+                    if (outStride2_times8 <= outStride3_times8) {
+                        //Want dimension 2 (along height) in inner loop for cache reasons
+                        for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                            int outBufferIdxXBytes = baseOffsetOutBytes + patchX * outStride3_times8;
+                            int inBufferIdxXBytes = baseOffsetInBytes + patchX * inStride3_times8;
+                            for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                                nbbOut.setDouble(outBufferIdxXBytes + patchY * outStride2_times8,
+                                        nbbIn.getDouble(inBufferIdxXBytes + patchY * inStride2_times8));
+                            }
+                        }
+                    } else {
+                        //Want dimension 3 in inner loop for cache reasons
+                        for (int patchY = 0; patchY < kernelHeight; patchY++) {
+                            int outBufferIdxYBytes = baseOffsetOutBytes + patchY * outStride2_times8;
+                            int inBufferIdxYBytes = baseOffsetInBytes + patchY * inStride2_times8;
+                            for (int patchX = 0; patchX < kernelWidth; patchX++) {
+                                nbbOut.setDouble(outBufferIdxYBytes + patchX * outStride3_times8,
+                                        nbbIn.getDouble(inBufferIdxYBytes + patchX * inStride3_times8));
                             }
                         }
                     }
@@ -670,29 +539,31 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
         }
     }
 
-    /** Calculate buffer offset (like Shape.getOffset) without checking on input for negative indices etc
-     *  normally negative indices are bad, OK here because of other checks on input indices
-     *  Uses unrolled loop specifically for length 4
+    /**
+     * Calculate buffer offset (like Shape.getOffset) without checking on input for negative indices etc
+     * normally negative indices are bad, OK here because of other checks on input indices
+     * Uses unrolled loop specifically for length 4
      */
     private static int getOffsetUnsafe4(int baseOffset, int[] shape, int[] stride, int[] indices) {
         int offset = baseOffset;
-        if(shape[0] != 1) offset += indices[0] * stride[0];
-        if(shape[1] != 1) offset += indices[1] * stride[1];
-        if(shape[2] != 1) offset += indices[2] * stride[2];
-        if(shape[3] != 1) offset += indices[3] * stride[3];
+        if (shape[0] != 1) offset += indices[0] * stride[0];
+        if (shape[1] != 1) offset += indices[1] * stride[1];
+        if (shape[2] != 1) offset += indices[2] * stride[2];
+        if (shape[3] != 1) offset += indices[3] * stride[3];
         return offset;
     }
 
-    /** A version of Shape.getOffset without checking on input for negative indices etc
+    /**
+     * A version of Shape.getOffset without checking on input for negative indices etc
      * normally negative indices are bad, OK here because of other checks on input indices
      * Uses unrolled loop specifically for length 6, where indices[2] and indices[3] are zero (always are here)
      */
     private static int getOffsetUnsafe6(int baseOffset, int[] shape, int[] stride, int[] indices) {
         int offset = baseOffset;
-        if(shape[0] != 1) offset += indices[0] * stride[0];
-        if(shape[1] != 1) offset += indices[1] * stride[1];
-        if(shape[4] != 1) offset += indices[4] * stride[4];
-        if(shape[5] != 1) offset += indices[5] * stride[5];
+        if (shape[0] != 1) offset += indices[0] * stride[0];
+        if (shape[1] != 1) offset += indices[1] * stride[1];
+        if (shape[4] != 1) offset += indices[4] * stride[4];
+        if (shape[5] != 1) offset += indices[5] * stride[5];
         return offset;
     }
 
@@ -704,22 +575,49 @@ public class CPUIm2ColTask extends RecursiveTask<INDArray> implements Task<INDAr
 
     @Override
     public void invokeAsync() {
-        future = TaskExecutorProvider.getTaskExecutor().executeAsync(this);
+        CPUTaskExecutor.getInstance().executeAsync(this);
     }
 
     @Override
     public INDArray blockUntilComplete() {
-        try{
-            future.get();
-        }catch(Exception e){
+        try {
+            return this.get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-        if(subTasks != null){
-            //Callable execution
-            for(CPUIm2ColTask task : subTasks){
-                task.blockUntilComplete();
-            }
+    }
+
+    @Override
+    public boolean cancel(boolean mayInterruptIfRunning) {
+        if(!isDone() && !cancelled){
+            splitCount.addAndGet(maxSplits);
+            while(latch.getCount() > 0) latch.countDown();
+            cancelled = true;
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public boolean isDone() {
+        return latch.getCount() <= 0;
+    }
+
+    @Override
+    public INDArray get() throws InterruptedException, ExecutionException {
+        latch.await();
         return out;
     }
+
+    @Override
+    public INDArray get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        latch.await(timeout, unit);
+        return out;
+    }
+
 }
