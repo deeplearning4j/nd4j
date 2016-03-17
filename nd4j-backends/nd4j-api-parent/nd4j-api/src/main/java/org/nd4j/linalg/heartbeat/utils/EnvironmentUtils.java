@@ -39,28 +39,6 @@ public class EnvironmentUtils {
         */
         long ret = 0;
 
-        try {
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-
-            for (NetworkInterface networkInterface: interfaces) {
-                try {
-                    byte[] arr = networkInterface.getHardwareAddress();
-                    long seed = 0;
-                    for (int i = 0; i < arr.length; i++) {
-                        seed += ((long) arr[i] & 0xffL) << (8 * i);
-                    }
-                    Random random = new Random(seed);
-
-                    return random.nextLong();
-                } catch (Exception e) {
-                    ; // do nothing, just skip to next interface
-                }
-            }
-
-        } catch (Exception e) {
-            ; // do nothing here
-        }
-
         return ret ;
     }
 }
