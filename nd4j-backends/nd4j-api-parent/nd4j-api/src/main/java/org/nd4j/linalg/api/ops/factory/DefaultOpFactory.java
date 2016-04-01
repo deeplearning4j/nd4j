@@ -341,19 +341,20 @@ public class DefaultOpFactory implements OpFactory {
     
     @Override
     public TransformOp createTransform(String name, INDArray x, Object[] extraArgs) {
-        if (extraArgs.length == 0)  {
+        if (extraArgs == null ){
             return createTransform(name, x);
         }
-        switch (name) {
-            //placeholder for adding relu param as user specified
-            case "relu":
-                return new RectifedLinear(x, 0);
-            case "leakyrelu":
-                return new LeakyReLU(x, (double)extraArgs[0]);
-            default:
-                throw new IllegalArgumentException("Illegal name " + name);
-        }
-
+        else {
+            switch (name) {
+                //placeholder for adding relu param as user specified
+                case "relu":
+                    return new RectifedLinear(x, 0);
+                case "leakyrelu":
+                    return new LeakyReLU(x, (double) extraArgs[0]);
+                default:
+                    throw new IllegalArgumentException("Illegal name " + name);
+            }
+       }
     }
 
 
