@@ -341,7 +341,7 @@ public class DefaultOpFactory implements OpFactory {
     
     @Override
     public TransformOp createTransform(String name, INDArray x, Object[] extraArgs) {
-        if (extraArgs == null ){
+        if (extraArgs == null || extraArgs.length == 0 ){
             return createTransform(name, x);
         }
         else {
