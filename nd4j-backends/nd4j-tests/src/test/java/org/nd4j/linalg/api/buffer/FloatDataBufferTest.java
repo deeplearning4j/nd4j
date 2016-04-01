@@ -73,14 +73,16 @@ public  class FloatDataBufferTest  extends BaseNd4jTest {
         file.deleteOnExit();
         SerializationUtils.saveObject(buf, file);
         DataBuffer buf2 = SerializationUtils.readObject(file);
-        assertEquals(buf, buf2);
+//        assertEquals(buf, buf2);
+        assertArrayEquals(buf.asFloat(), buf2.asFloat(), 0.0001f);
 
         Nd4j.alloc = DataBuffer.AllocationMode.DIRECT;
         buf = Nd4j.createBuffer(5);
         file.deleteOnExit();
         SerializationUtils.saveObject(buf, file);
         buf2 = SerializationUtils.readObject(file);
-        assertEquals(buf, buf2);
+        //assertEquals(buf, buf2);
+        assertArrayEquals(buf.asFloat(), buf2.asFloat(), 0.0001f);
     }
 
     @Test
@@ -88,7 +90,7 @@ public  class FloatDataBufferTest  extends BaseNd4jTest {
         float[] d1 = new float[]{1, 2, 3, 4};
         DataBuffer d = Nd4j.createBuffer(d1);
         DataBuffer d2 = d.dup();
-        assertEquals(getFailureMessage(), d, d2);
+        assertArrayEquals(d.asFloat(), d2.asFloat(), 0.001f);
     }
 
     @Test
@@ -165,7 +167,7 @@ public  class FloatDataBufferTest  extends BaseNd4jTest {
         DataBuffer twoThree = Nd4j.createBuffer(new double[]{2,3});
         DataBuffer blank = Nd4j.createBuffer(new double[]{0, 0, 0});
         blank.assign(one,twoThree);
-        assertEquals(assertion, blank);
+        assertArrayEquals(assertion.asFloat(), blank.asFloat(), 0.0001f);
     }
 
     @Test
@@ -177,7 +179,7 @@ public  class FloatDataBufferTest  extends BaseNd4jTest {
 
         DataBuffer clone = assertion.dup();
         assertion.read(new DataInputStream(new ByteArrayInputStream(bos.toByteArray())));
-        assertEquals(assertion,clone);
+        assertArrayEquals(assertion.asFloat(),clone.asFloat(), 0.0001f);
     }
 
     @Test
