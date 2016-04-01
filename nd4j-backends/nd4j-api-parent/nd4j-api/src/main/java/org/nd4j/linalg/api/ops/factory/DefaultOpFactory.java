@@ -341,67 +341,14 @@ public class DefaultOpFactory implements OpFactory {
     
     @Override
     public TransformOp createTransform(String name, INDArray x, Object[] extraArgs) {
+        if (extraArgs.length == 0)  {
+            return createTransform(name, x);
+        }
         switch (name) {
             case "relu":
-                return new RectifedLinear(x,0);
-            case "abs":
-                return new Abs(x);
-            case "acos":
-                return new ACos(x);
-            case "asin":
-                return new ASin(x);
-            case "atan":
-                return new ATan(x);
-            case "ceil":
-                return new Ceil(x);
-            case "cos":
-                return new Cos(x);
-            case "elu":
-                return new ELU(x);
-            case "exp":
-                return new Exp(x);
-            case "floor":
-                return new Floor(x);
-            case "hardtanh":
-                return new HardTanh(x);
-            case "identity":
-                return new Identity(x);
+                return new RectifedLinear(x, (double)extraArgs[0]);
             case "leakyrelu":
                 return new LeakyReLU(x, (double)extraArgs[0]);
-            case "log":
-                return new Log(x);
-            case "logsoftmax":
-                return new LogSoftMax(x);
-            case "maxout":
-                return new MaxOut(x);
-            case "negative":
-                return new Negative(x);
-            case "pow":
-                return new Pow(x, 2);
-            case "round":
-                return new Round(x);
-            case "sigmoid":
-                return new Sigmoid(x);
-            case "sign":
-                return new Sign(x);
-            case "sin":
-                return new Sin(x);
-            case "softsign":
-                return new SoftSign(x);
-            case "sqrt":
-                return new Sqrt(x);
-            case "stabilize":
-                return new Stabilize(x, 1);
-            case "tanh":
-                return new Tanh(x);
-            case "timesoneminus":
-                return new TimesOneMinus(x);
-            case "softmax":
-                return new SoftMax(x);
-            case "softplus":
-                return new SoftPlus(x);
-            case "step":
-                return new Step(x);
             default:
                 throw new IllegalArgumentException("Illegal name " + name);
         }
