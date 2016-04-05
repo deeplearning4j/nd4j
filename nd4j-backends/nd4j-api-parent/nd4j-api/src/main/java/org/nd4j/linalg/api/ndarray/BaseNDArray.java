@@ -1861,7 +1861,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if (ordering() == '\u0000')
             Shape.setOrder(shapeInfo(),Nd4j.order());
 
-        this.length = ArrayUtil.prod(shape);
+        this.length = ArrayUtil.prodLong(shape);
         rank = shape.length;
     }
 
@@ -3829,6 +3829,16 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if(length >= Integer.MAX_VALUE)
             throw new IllegalArgumentException("Length can not be >= Integer.MAX_VALUE");
         return (int)length;
+    }
+
+    /**
+     * Returns the total number of elements in the ndarray
+     *
+     * @return the number of elements in the ndarray
+     */
+    @Override
+    public long lengthLong() {
+        return length;
     }
 
     /**
