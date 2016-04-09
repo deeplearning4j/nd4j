@@ -108,6 +108,111 @@ public  class ConvolutionTestsC extends BaseNd4jTest {
 
 
     @Test
+    @Ignore
+    public void testCompareIm2Col() throws Exception {
+
+        int[] miniBatches = {1, 3, 5};
+        int[] depths = {1, 3, 5};
+        int[] inHeights = {5,21};
+        int[] inWidths = {5,21};
+        int[] strideH = {1,2};
+        int[] strideW = {1,2};
+        int[] sizeW = {1,2,3};
+        int[] sizeH = {1,2,3};
+        int[] padH = {0,1,2};
+        int[] padW = {0,1,2};
+
+
+
+        for (int m : miniBatches) {
+            for (int d : depths) {
+                for (int h : inHeights) {
+                    for (int w : inWidths) {
+                        for (int sh : strideH) {
+                            for (int sw : strideW) {
+                                for (int kh : sizeH) {
+                                    for (int kw : sizeW) {
+                                        for (int ph : padH) {
+                                            for (int pw : padW) {
+                                                if ((w - kw + 2 * pw) % sw != 0 || (h - kh + 2 * ph) % sh != 0)
+                                                    continue;   //(w-kp+2*pw)/sw + 1 is not an integer, i.e., number of outputs doesn't fit
+
+                                                INDArray in = Nd4j.rand(new int[]{m, d, h, w});
+                                                INDArray im2col = Convolution.im2col(in, kh, kw, sh, sw, ph, pw, false);    //Cheating, to get correct shape for input
+
+                                                INDArray imgOutOld = OldConvolution.col2im(im2col, sh, sw, ph, pw, h, w);
+                                                INDArray imgOutNew = Convolution.col2im(im2col, sh, sw, ph, pw, h, w);
+                                                assertEquals(imgOutOld, imgOutNew);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+    @Test
+    public void testCompareIm2ColImpl() {
+
+        int[] miniBatches = {1, 3, 5};
+        int[] depths = {1, 3, 5};
+        int[] inHeights = {5,21};
+        int[] inWidths = {5,21};
+        int[] strideH = {1,2};
+        int[] strideW = {1,2};
+        int[] sizeW = {1,2,3};
+        int[] sizeH = {1,2,3};
+        int[] padH = {0,1,2};
+        int[] padW = {0,1,2};
+        boolean[] coverall = {false,true};
+
+
+
+        for (int m : miniBatches) {
+            for (int d : depths) {
+                for (int h : inHeights) {
+                    for (int w : inWidths) {
+                        for (int sh : strideH) {
+                            for (int sw : strideW) {
+                                for (int kh : sizeH) {
+                                    for (int kw : sizeW) {
+                                        for (int ph : padH) {
+                                            for (int pw : padW) {
+                                                if ((w - kw + 2 * pw) % sw != 0 || (h - kh + 2 * ph) % sh != 0)
+                                                    continue;   //(w-kp+2*pw)/sw + 1 is not an integer,  i.e., number of outputs doesn't fit
+
+                                                for(boolean cAll : coverall) {
+
+                                                    INDArray in = Nd4j.rand(new int[]{m, d, h, w});
+
+
+                                                    INDArray outOrig = OldConvolution.im2col(in, kh, kw, sh, sw, ph, pw, -1, cAll); //Old implementation
+                                                    INDArray outNew = Convolution.im2col(in, kh, kw, sh, sw, ph, pw, cAll);         //Current implementation
+
+                                                    assertEquals(outOrig,outNew);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+
+    @Test
     public void testMoreIm2Col2() {
         int kh = 2;
         int kw = 2;
