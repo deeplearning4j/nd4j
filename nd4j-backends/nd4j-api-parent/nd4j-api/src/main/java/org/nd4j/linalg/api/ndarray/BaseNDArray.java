@@ -1103,7 +1103,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }else if(indexes.length == 4){
             return putScalar(indexes[0], indexes[1], indexes[2], indexes[3], value);
         }else {
-            long offset = Shape.getOffset(0, shape(), stride(), indexes);
+            long offset = Shape.getOffset(shapeInfo(), indexes);
             data.put(offset, value);
         }
         return this;
