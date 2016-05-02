@@ -873,7 +873,7 @@ public class NativeOps extends Pointer {
             long resultShapeInfo);
 
     /**
-     * 
+     *
      * @param dimension
      * @param data
      * @param inputShapeInfo
