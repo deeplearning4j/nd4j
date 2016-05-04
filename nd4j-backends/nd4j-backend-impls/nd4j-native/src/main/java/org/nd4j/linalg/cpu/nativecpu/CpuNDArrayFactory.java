@@ -576,6 +576,7 @@ public class CpuNDArrayFactory extends BaseNDArrayFactory {
         if(ret.data().dataType() == DataBuffer.Type.DOUBLE) {
             nativeOps.concatDouble(
                     dimension,
+                    toConcat.length,
                     dataPointers,
                     shapeInfoPointers,
                     ret.data().address(),
@@ -584,6 +585,7 @@ public class CpuNDArrayFactory extends BaseNDArrayFactory {
         else {
             nativeOps.concatFloat(
                     dimension,
+                    toConcat.length,
                     dataPointers,
                     shapeInfoPointers,
                     ret.data().address(),

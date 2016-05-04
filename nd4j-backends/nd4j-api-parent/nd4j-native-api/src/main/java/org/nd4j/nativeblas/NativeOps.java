@@ -867,6 +867,7 @@ public class NativeOps extends Pointer {
      */
     public native void concatDouble(
             int dimension,
+            int numArrays,
             long []data,
             long [] inputShapeInfo,
             long result,
@@ -882,6 +883,7 @@ public class NativeOps extends Pointer {
      */
     public native void concatFloat(
             int dimension,
+            int numArrays,
             long []data,
             long [] inputShapeInfo,
             long result,
