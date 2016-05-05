@@ -593,5 +593,6 @@ public class CpuNDArrayFactory extends BaseNDArrayFactory {
 
         }
         return ret;
+       // return super.concat(dimension,toConcat);
     }
 }
