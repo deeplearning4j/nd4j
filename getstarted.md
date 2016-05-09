@@ -87,6 +87,21 @@ ND4J's version is a variable here. It will refer to another line higher in the P
 
 *The dl4j version is also 0.4-rc3.8, and Canova is 0.0.0.13.*
 
+### Platform-specific binaries
+
+Version `0.4-rc3.9` or higher now includes all backends by default. However, if you are using a build tool such as SBT or Gradle, you will need to explicitly pull binaries for the platform you are using. *Especially* if you are building on one platform but deploying to another (OS X vs. Linux). Information on how to do this can be found on the [dependencies](../dependencies.html) page.
+
+For example, a `build.gradle` file will look like this:
+
+```
+dependencies {
+  compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT'
+  compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT:macosx-x86_64'
+}
+```
+
+### Staying Up-to-date
+
 The number of the version will vary as we progress with new releases. Make sure you check [the latest version available on Maven Central](https://search.maven.org/#search%7Cga%7C1%7Cnd4j). If you paste in the right dependency and nd4j version, Maven will automatically install the required libraries and you should be able to run ND4J. 
 
 The backend does not have to be x86; it can be switched to Jcublas for GPUs. That's explained on our [dependencies](../dependencies.html) page, alongside more advanced configuration changes. The same page also explains how to check on the [latest version](http://search.maven.org/#search%7Cga%7C1%7Cnd4j) of the libraries.
