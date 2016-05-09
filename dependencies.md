@@ -11,6 +11,8 @@ First, you will need to choose the right dependency for your chips:
 
 ## Platform Specific Binaries
 
+Valid for version `0.4-rc3.9` and higher.
+
 Certain build tools such as [Gradle](http://www.gradle.org) and [SBT](http://www.scala-sbt.org/) cannot resolve transitive dependencies for specific platforms. When using a build tool such as Gradle, you will need to either explicitly state the platform binary you need at runtime or create a command line parameter that will specify your required platform. Creating command line parameters will allow you to switch between multiple platforms, such as testing on OS X and submitting to an Apache Spark cluster using a Linux operating system.
 
 ### Explicitly Requiring Binaries (Gradle)
@@ -73,7 +75,7 @@ Maven can automatically install the required dependencies once we select one of 
 Go to your root directory -- e.g. nd4j or deeplearning4j -- and inspect the [pom.xml file](https://maven.apache.org/pom.html). You should see one backend defined in the `<dependencies> ... </dependencies>` section. You can switch among:
 
 ### x86
-Before version `4.0-RC3.9` you needed to specify the backend for your device.
+Before version `4.0-rc3.9` you needed to specify the backend for your device.
 
         <dependency>
             <groupId>org.nd4j</groupId>
