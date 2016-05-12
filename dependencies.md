@@ -19,18 +19,28 @@ Certain build tools such as [Gradle](http://www.gradle.org) and [SBT](http://www
 
 Add the following to your dependencies in `build.gradle`:
 
-```
+```groovy
 dependencies {
   compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT'
   compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT:macosx-x86_64'
 }
 ```
 
+### Explicitly Requiring Binaries (sbt)
+
+Add the following to your dependencies in `build.sbt`:
+
+```scala
+classpathTypes += "maven-plugin"
+
+libraryDependencies += "org.nd4j" % "nd4j-native" % "0.4-rc3.9-SNAPSHOT" classifier "" classifier "linux-x86_64"
+```
+
 ### Command Line Option (Gradle)
 
 Add the following to your `build.gradle`:
 
-```
+```groovy
 switch(libnd4jOS) {
   case 'windows':
     libnd4jOS = 'win-x86_64'
@@ -76,21 +86,21 @@ Go to your root directory -- e.g. nd4j or deeplearning4j -- and inspect the [pom
 
 ### x86
 Before version `4.0-rc3.9` you needed to specify the backend for your device.
-
+```xml
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-x86</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
-
+```
 After version `4.0-RC3.8` you can now pull include ND4J for all platforms.
-
+```xml
         <dependency>
             <groupId>org.nd4j</groupId>
             <artifactId>nd4j-native</artifactId>
             <version>${nd4j.version}</version>
         </dependency>
-
+```
 ### Jcublas (Cuda/GPUs)
 
 See our [GPU page](gpu_native_backends.html) for the versions you can choose.

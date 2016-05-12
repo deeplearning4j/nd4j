@@ -93,11 +93,19 @@ Version `0.4-rc3.9` or higher now includes all backends by default. However, if 
 
 For example, a `build.gradle` file will include an extra definition for the targeted platform:
 
-```
+```groovy
 dependencies {
   compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT'
   compile 'org.nd4j:nd4j-native:0.4-rc3.9-SNAPSHOT:macosx-x86_64'
 }
+```
+
+Similarly, for sbt, we can include something like the following:
+
+```scala
+classpathTypes += "maven-plugin"
+
+libraryDependencies += "org.nd4j" % "nd4j-native" % "0.4-rc3.9-SNAPSHOT" classifier "" classifier "linux-x86_64"
 ```
 
 ### Stay Up-to-date
