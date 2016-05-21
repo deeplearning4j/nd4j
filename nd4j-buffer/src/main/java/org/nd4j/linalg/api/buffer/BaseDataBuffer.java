@@ -200,6 +200,7 @@ public abstract class BaseDataBuffer implements DataBuffer {
     protected BaseDataBuffer(ByteBuf buf,int length) {
         if(length < 1)
             throw new IllegalArgumentException("Length must be >= 1");
+        pointer = new Pointer(buf.nioBuffer());
         allocationMode = AllocUtil.getAllocationModeFromContext();
         this.wrappedBuffer = buf.nioBuffer();
         this.length = length;
@@ -438,8 +439,10 @@ public abstract class BaseDataBuffer implements DataBuffer {
     public BaseDataBuffer(ByteBuffer buffer,int length) {
         if(length < 1)
             throw new IllegalArgumentException("Length must be >= 1");
-        this.pointer = new Pointer(buffer);
+        this.pointer = new Pointer(buffer.order(ByteOrder.nativeOrder()));
         this.length = length;
+        allocationMode = AllocUtil.getAllocationModeFromContext();
+
     }
 
     //sets the nio wrapped buffer (allows to be overridden for other use cases like cuda)
