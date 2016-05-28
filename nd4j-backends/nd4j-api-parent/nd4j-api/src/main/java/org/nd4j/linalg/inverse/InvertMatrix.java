@@ -23,8 +23,8 @@ public class InvertMatrix {
         int LWORK = arr.length() * arr.length();
         INDArray WORK = Nd4j.create(new double[LWORK]);
         INDArray inverse = inPlace ? arr : arr.dup();
-        Nd4j.getBlasWrapper().lapack().getrf(arr.size(1),arr.size(0),inverse, arr.size(0),IPIV,0);
-        Nd4j.getBlasWrapper().lapack().getri(arr.size(0),inverse,arr.size(0),IPIV,WORK,LWORK,0);
+     //   Nd4j.getBlasWrapper().lapack().getrf(arr.size(1),arr.size(0),inverse, arr.size(0),IPIV,0);
+     //   Nd4j.getBlasWrapper().lapack().getri(arr.size(0),inverse,arr.size(0),IPIV,WORK,LWORK,0);
         return inverse;
 
     }

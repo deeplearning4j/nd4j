@@ -96,6 +96,7 @@
                             <classOrPackageNames>
                                 <classOrPackageName>org.nd4j.nativeblas.Nd4jBlas</classOrPackageName>
                                 <classOrPackageName>org.nd4j.nativeblas.NativeOps</classOrPackageName>
+                                <classOrPackageName>org.nd4j.nativeblas.NAtiveLapack</classOrPackageName>
                             </classOrPackageNames>
                             <copyLibs>true</copyLibs>
 
