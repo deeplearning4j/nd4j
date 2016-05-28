@@ -88,9 +88,6 @@ public class ConcatTests extends BaseNd4jTest {
         assertEquals(zeroAssertion, concat);
     }
 
-
-
-
     @Test
     public void testConcatRowVectors() {
         INDArray rowVector = Nd4j.create(new double[]{1, 2, 3, 4, 5, 6}, new int[]{1, 6});

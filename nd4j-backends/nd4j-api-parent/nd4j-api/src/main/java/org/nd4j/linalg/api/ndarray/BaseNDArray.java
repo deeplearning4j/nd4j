@@ -225,6 +225,19 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         this(Nd4j.createBuffer(ArrayUtil.prodLong(shape)), shape, stride, offset, ordering);
     }
 
+    /**
+     * Construct an ndarray of the specified shape.
+     *
+     * @param shape    the shape of the ndarray
+     * @param stride   the stride of the ndarray
+     * @param offset   the desired offset
+     * @param ordering the ordering of the ndarray
+     * @param initialize Whether to initialize the INDArray. If true: initialize. If false: don't.
+     */
+    public BaseNDArray(int[] shape, int[] stride, int offset, char ordering, boolean initialize) {
+        this(Nd4j.createBuffer(ArrayUtil.prodLong(shape), initialize), shape, stride, offset, ordering);
+    }
+
 
     /**
      * Create the ndarray with
@@ -1120,21 +1133,24 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
     @Override
     public INDArray putScalar(int row, int col, double value){
-        long offset = Shape.getOffset(shapeInformation, row, col);
+        if(rank != 2) throw new IllegalStateException("Cannot use putScalar(int,int,double) on a rank " + rank + " INDArray");
+        long offset = Shape.getOffsetUnsafe(shapeInformation, row, col);
         data.put(offset, value);
         return this;
     }
 
     @Override
     public INDArray putScalar(int dim0, int dim1, int dim2, double value){
-        long offset = Shape.getOffset(shapeInformation, dim0, dim1, dim2);
+        if(rank != 3) throw new IllegalStateException("Cannot use putScalar(int,int,int,double) on a rank " + rank + " INDArray");
+        long offset = Shape.getOffsetUnsafe(shapeInformation, dim0, dim1, dim2);
         data.put(offset, value);
         return this;
     }
 
     @Override
     public INDArray putScalar(int dim0, int dim1, int dim2, int dim3, double value){
-        long offset = Shape.getOffset(shapeInformation, dim0, dim1, dim2, dim3);
+        if(rank != 4) throw new IllegalStateException("Cannot use putScalar(int,int,int,int,double) on a rank " + rank + " INDArray");
+        long offset = Shape.getOffsetUnsafe(shapeInformation, dim0, dim1, dim2, dim3);
         data.put(offset, value);
         return this;
     }

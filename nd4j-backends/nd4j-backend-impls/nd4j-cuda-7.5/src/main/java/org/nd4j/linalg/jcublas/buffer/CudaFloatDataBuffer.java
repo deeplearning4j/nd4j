@@ -44,6 +44,10 @@ public class CudaFloatDataBuffer extends BaseCudaDataBuffer {
         super(length, 4);
     }
 
+    public CudaFloatDataBuffer(long length, boolean initialize){
+        super(length, 4, initialize);
+    }
+
     public CudaFloatDataBuffer(long length, int elementSize) {
         super(length, elementSize);
     }
@@ -105,7 +109,7 @@ public class CudaFloatDataBuffer extends BaseCudaDataBuffer {
     }
 
     public CudaFloatDataBuffer(ByteBuffer buffer, long length) {
-        super(buffer, length);
+        super(buffer, (int) length);
     }
 
     public CudaFloatDataBuffer(ByteBuffer buffer, long length, int offset) {
