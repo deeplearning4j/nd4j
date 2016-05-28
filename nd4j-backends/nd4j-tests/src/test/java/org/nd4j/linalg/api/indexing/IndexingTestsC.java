@@ -25,7 +25,6 @@ public class IndexingTestsC extends BaseNd4jTest {
 
 
 
-
     @Test
     public void testOffsetsC() {
         INDArray arr = Nd4j.linspace(1,4,4).reshape(2,2);
