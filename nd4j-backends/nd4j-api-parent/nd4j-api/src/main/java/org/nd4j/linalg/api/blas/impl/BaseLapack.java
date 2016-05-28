@@ -5,7 +5,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Base lapack define float and oduble vversions.
+ * Base lapack define float and double versions.
  *
  * @author Adam Gibson
  */
