@@ -1707,7 +1707,9 @@ public class Nd4j {
         try {
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
             writeTxtString(write,bos,split,precision);
-        } catch (FileNotFoundException e) {
+            bos.flush();
+            bos.close();
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
