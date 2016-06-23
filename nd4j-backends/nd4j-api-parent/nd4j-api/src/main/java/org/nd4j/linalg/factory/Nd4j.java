@@ -1704,20 +1704,11 @@ public class Nd4j {
      * @return the read txt method
      */
     public static void writeTxt(INDArray write, String filePath, String split, int precision) {
-        //TO DO: Write to file one line at time
-        String lineOne = "{\n";
-        String lineTwo = "\"filefrom:\" \"dl4j\",\n";
-        String lineThree = "\"ordering:\" \"" + write.ordering() + "\",\n";
-        String lineFour = "\"shape\":\t" + java.util.Arrays.toString(write.shape()) + ",\n";
-        String lineFive = "\"data\":\n";
-        String fileData = new NDArrayStrings(" "+split+" ",precision).format(write);
-        String fileEnd = "\n}\n";
-
-        String fileBegin = lineOne + lineTwo + lineThree + lineFour + lineFive;
         try {
-            FileUtils.writeStringToFile(new File(filePath), fileBegin + fileData + fileEnd);
-        } catch (IOException e) {
-            throw new RuntimeException("Error writing output", e);
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
+            writeTxtString(write,bos,split,precision);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
