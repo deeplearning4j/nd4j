@@ -769,8 +769,19 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
     @Override
     public List<DataSet> asList() {
         List<DataSet> list = new ArrayList<>(numExamples());
-        for (int i = 0; i < numExamples(); i++) {
-            list.add(new DataSet(getFeatures().slice(i), getLabels().slice(i)));
+        // Preserving the dimension of the dataset - essentially a minibatch size of 1
+        int [] featureShape = getFeatures().shape();
+        featureShape[0] = 1
+        int [] labelShape = getLabels().shape();
+        labelShape[0] = 1;
+        for (int i = 1; i < numExamples(); i++) {
+            INDArray featuresHere = getFeatures().slice(i).reshape(featureShape);
+            INDArray labelsHere = getLabels().slice(i).reshape(labelShape);
+            INDArray featureMaskHere = featuresMask != null ? featuresMask.slice(i) : null;
+            featureMaskHere.reshape(featureShape);
+            INDArray labelMaskHere = labelsMask != null ? labelsMask.slice(i) : null;
+            labelMaskHere.repeat(labelShape);
+            list.add(new DataSet(featuresHere,labelsHere,featureMaskHere,labelMaskHere);
         }
         return list;
     }
