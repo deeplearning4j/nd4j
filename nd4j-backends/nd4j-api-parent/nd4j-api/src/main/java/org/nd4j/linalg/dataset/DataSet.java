@@ -95,6 +95,8 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
     public static DataSet empty() {
         return new DataSet(Nd4j.zeros(new int[]{1,1}), Nd4j.zeros(new int[]{1,1}));
     }
+
+
     /**
      * Merge the list of datasets in to one list.
      * All the rows are merged in to one dataset
@@ -113,10 +115,10 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
 
         INDArray[] featuresToMerge = new INDArray[data.size()];
         INDArray[] labelsToMerge = new INDArray[data.size()];
-        int count=0;
+        int count = 0;
         boolean hasFeaturesMaskArray = false;
         boolean hasLabelsMaskArray = false;
-        for(DataSet ds : data){
+        for(DataSet ds : data) {
             featuresToMerge[count] = ds.getFeatureMatrix();
             labelsToMerge[count++] = ds.getLabels();
             if(rankFeatures == 3 || rankLabels == 3) {
@@ -138,7 +140,7 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
             case 3:
                 //Time series data: may also have mask arrays...
                 INDArray[] featuresMasks = null;
-                if(hasFeaturesMaskArray){
+                if(hasFeaturesMaskArray) {
                     featuresMasks = new INDArray[featuresToMerge.length];
                     count = 0;
                     for(DataSet ds : data){
@@ -626,6 +628,11 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
             throw new IllegalArgumentException("invalid example number");
         if(i == 0 && numExamples() == 1)
             return this;
+        if(getFeatureMatrix().rank() == 4) {
+            //ensure rank is preserved
+            INDArray slice = getFeatureMatrix().slice(i);
+            return new DataSet(slice.reshape(ArrayUtil.combine(new int[]{1},slice.shape())),getLabels().slice(i));
+        }
         return new DataSet(getFeatures().slice(i), getLabels().slice(i));
     }
 
