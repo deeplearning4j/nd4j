@@ -4519,7 +4519,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         return (int)data().originalOffset();
     }
 
-    private void readObject(ObjectInputStream s) {
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
         try {
             s.defaultReadObject();
             read(s);
@@ -4537,6 +4537,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
     //Custom serialization for Java serialization
     protected void write(ObjectOutputStream out) throws IOException {
+		System.out.println("SUSAN_INFO: In write, PRINT CUSTOM SER/DE-SER");
         if(this.isView()){
             //As per Nd4j.write, duplicate before writing to the output stream
             //BaseDataBuffer.write(...) doesn't know about strides etc, so dup (or equiv. strategy) is necessary here
@@ -4552,7 +4553,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
 
     //Custom deserialization for Java serialization
-    protected void read(ObjectInputStream s) {
+    protected void read(ObjectInputStream s) throws IOException, ClassNotFoundException {
+		System.out.println("SUSAN_INFO: In read, PRINT CUSTOM SER/DE-SER");
         shapeInformation = Nd4j.createBuffer(new int[Shape.shapeInfoLength(rank)],0);
         shapeInformation.read(s);
         data = Nd4j.createBuffer(length,false);
