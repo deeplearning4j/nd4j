@@ -111,9 +111,8 @@ public class AllocationPoint {
     }
 
     public void setLastEvent(cudaEvent_t event) {
-        if (event != null) {
-            if (lastEvent != null)
-                nativeOps.destroyEvent(lastEvent);
+        if (event != null && lastEvent != null) {
+            nativeOps.destroyEvent(lastEvent);
         }
         lastEvent = event;
     }
