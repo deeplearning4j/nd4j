@@ -67,6 +67,7 @@ public class ClassPathResource extends AbstractFileResolvingResource {
         IOUtils.copy(is,bos);
         bos.flush();
         bos.close();
+        is.close();
         return tmpFile;
 
     }
