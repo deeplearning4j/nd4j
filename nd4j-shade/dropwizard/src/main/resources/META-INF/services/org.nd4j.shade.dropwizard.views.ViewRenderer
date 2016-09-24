@@ -1,0 +1,2 @@
+org.nd4j.shade.dropwizard.views.mustache.MustacheViewRenderer
+org.nd4j.shade.dropwizard.views.freemarker.FreemarkerViewRenderer

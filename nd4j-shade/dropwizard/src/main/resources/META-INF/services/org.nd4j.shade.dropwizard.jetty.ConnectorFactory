@@ -1,0 +1,2 @@
+org.nd4j.shade.dropwizard.jetty.HttpConnectorFactory
+org.nd4j.shade.dropwizard.jetty.HttpsConnectorFactory
