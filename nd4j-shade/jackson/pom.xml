@@ -29,6 +29,25 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <!-- Filter out the Java service provider info for the shaded dependencies.
+                            This is necessary as ServiceResourceTransformer is partly broken with shading: https://issues.apache.org/jira/browse/MSHADE-182
+                            Contents of the Java service loader files are renamed, but the filenames themselves are not.
+                            Consequently, the service loader mechanism cannot function correctly with the shaded jars
+                            This matters for Jackson dependencies (which use service loader functionality)
+                            This should be fixed as of Maven Shade Plugin v3.0, at which point this workaround can be removed
+                            Workaround here has 2 steps:
+                            1. Ensure the incorrect service files are not included
+                            2. Manually include correctly-named versions for the shaded dependencies, under the dir
+                            resources/META-INF/services/
+                            -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/services/com.fasterxml.jackson.*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>reference.conf</resource>
