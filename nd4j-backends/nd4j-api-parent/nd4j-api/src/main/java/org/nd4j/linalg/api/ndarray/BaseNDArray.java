@@ -4570,9 +4570,12 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public String toString() {
-        if(isCompressed() && !compressDebug)
+        if(!isCompressed())
             return new NDArrayStrings().format(this);
-        return "COMPRESSED ARRAY. SYSTEM PROPERTY compressdebug is true. This is to prevent auto decompression from being triggered.";
+        else if(isCompressed() && compressDebug)
+            return "COMPRESSED ARRAY. SYSTEM PROPERTY compressdebug is true. This is to prevent auto decompression from being triggered.";
+        return new NDArrayStrings().format(this);
+
     }
 
     /**
