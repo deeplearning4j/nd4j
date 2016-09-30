@@ -36,6 +36,8 @@ public class ParameterAveragingSubscriber {
     private boolean deleteDirectoryOnStart = true;
     @Parameter(names={"-m","--master"}, description = "Whether this subscriber is a master node or not.", arity = 1)
     private boolean master = false;
+    @Parameter(names={"-pm","--publishmaster"}, description = "Publish master url: host:port - this is for peer nodes needing to publish to another peer.", arity = 1)
+    private String publishMasterUrl;
     /**
      *
      * @param args
@@ -70,11 +72,14 @@ public class ParameterAveragingSubscriber {
                 .errorHandler(e -> log.error(e.toString(), e));
         NDArrayCallback callback;
         if(master) {
-            callback =  new ParameterAveragingListener(parameterLength);;
+            callback =  new ParameterAveragingListener(parameterLength);
         }
         else {
-            callback = new PublishingListener(String.format("aeron:udp?endpoint=%s:%d",host,port),streamId,ctx);
+            String[] publishMasterUrlArr = publishMasterUrl.split(":");
+            callback = new PublishingListener(String.format("aeron:udp?endpoint=%s:%s",publishMasterUrlArr[0],publishMasterUrlArr[1]),streamId,ctx);
         }
+
+        log.info("Starting subscriber on " +  host + ":" + port);
 
         //start a node
         AeronNDArraySubscriber.startSubscriber(
