@@ -53,6 +53,9 @@ public class ParameterAveragingSubscriber {
             throw e;
         }
 
+        if(publishMasterUrl == null && master)
+            throw new IllegalStateException("Please specify a master url or set master to true");
+
         final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
                 .threadingMode(ThreadingMode.DEDICATED)
                 .dirsDeleteOnStart(deleteDirectoryOnStart)
@@ -70,12 +73,16 @@ public class ParameterAveragingSubscriber {
                 .aeronDirectoryName(mediaDriverCtx.aeronDirectoryName())
                 .keepAliveInterval(1000)
                 .errorHandler(e -> log.error(e.toString(), e));
+
         NDArrayCallback callback;
         if(master) {
             callback =  new ParameterAveragingListener(parameterLength);
         }
         else {
             String[] publishMasterUrlArr = publishMasterUrl.split(":");
+            if(publishMasterUrlArr == null || publishMasterUrlArr.length != 2)
+                throw new IllegalStateException("Please specify publish master url as host:port");
+
             callback = new PublishingListener(String.format("aeron:udp?endpoint=%s:%s",publishMasterUrlArr[0],publishMasterUrlArr[1]),streamId,ctx);
         }
 

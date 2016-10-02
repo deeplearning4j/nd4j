@@ -29,8 +29,16 @@ import java.util.function.Consumer;
 /**
  * Utility functions for samples
  */
-public class AeronUtil
-{
+public class AeronUtil {
+    /**
+     * Aeron channel generation
+     * @param host the host
+     * @param port the port
+     * @return the aeron channel via udp
+     */
+    public static String aeronChannel(String host,int port) {
+        return String.format("aeron:udp?endpoint=%s:%d",host,port);
+    }
     /**
      * Return a reusable, parameterised event loop that calls a default idler when no messages are received
      *
@@ -63,15 +71,15 @@ public class AeronUtil
             final IdleStrategy idleStrategy)
     {
         return (subscription) -> {
-                    try {
-                        while (running.get()) {
-                            idleStrategy.idle(subscription.poll(fragmentHandler, limit));
-                        }
-                    }
-                    catch (final Exception ex) {
-                        LangUtil.rethrowUnchecked(ex);
-                    }
-                };
+            try {
+                while (running.get()) {
+                    idleStrategy.idle(subscription.poll(fragmentHandler, limit));
+                }
+            }
+            catch (final Exception ex) {
+                LangUtil.rethrowUnchecked(ex);
+            }
+        };
     }
 
     /**
