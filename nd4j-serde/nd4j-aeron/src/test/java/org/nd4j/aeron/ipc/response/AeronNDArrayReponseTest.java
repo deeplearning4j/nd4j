@@ -22,6 +22,7 @@ public class AeronNDArrayReponseTest {
     private MediaDriver mediaDriver;
     private static Logger log = LoggerFactory.getLogger(NdArrayIpcTest.class);
     private Aeron.Context ctx;
+    private Aeron.Context ctx2;
 
     @Before
     public void before() {
@@ -43,43 +44,62 @@ public class AeronNDArrayReponseTest {
         int streamId = 10;
         int responderStreamId = 11;
         String host = "127.0.0.1";
-        AeronNDArrayResponder.startSubscriber(
-                getContext(),
+       AeronNDArrayResponder responder = AeronNDArrayResponder.startSubscriber(
+                getContext2(),
                 host,
-                40123,
+                40124,
                 (NDArrayHolder) () -> Nd4j.scalar(1.0)
                 ,responderStreamId);
 
         AtomicInteger count = new AtomicInteger(0);
 
-        AeronNDArraySubscriber.startSubscriber(
+        AeronNDArraySubscriber subscriber = AeronNDArraySubscriber.startSubscriber(
                 getContext(),
                 host,
-                40124,
+                40123,
                 arr -> count.incrementAndGet()
                 ,streamId);
 
+        int expectedResponses = 10;
+        HostPortPublisher publisher = HostPortPublisher
+                .builder().ctx(getContext2())
+                .uriToSend(host + ":40123:" + streamId)
+                .channel(AeronUtil
+                        .aeronChannel(host,40124))
+                .streamId(responderStreamId).build();
 
         Thread.sleep(10000);
 
-        int expectedResponses = 10;
-        HostPortPublisher publisher = HostPortPublisher.builder()
-                .uriToSend(host + ":40124")
-                .channel(AeronUtil.aeronChannel(host,40123))
-                .streamId(streamId).build();
+
         for(int i = 0; i < expectedResponses; i++) {
             publisher.send();
         }
+
+
+        Thread.sleep(60000);
 
         publisher.close();
 
         assertEquals(expectedResponses,count.get());
 
+        System.out.println("After");
+    }
+
+
+    private Aeron.Context getContext2() {
+        if(ctx2 == null)
+            ctx2 = new Aeron.Context().publicationConnectionTimeout(-1)
+                    .availableImageHandler(AeronUtil::printAvailableImage)
+                    .unavailableImageHandler(AeronUtil::printUnavailableImage)
+                    .aeronDirectoryName(mediaDriver.aeronDirectoryName()).keepAliveInterval(1000)
+                    .errorHandler(e -> log.error(e.toString(), e));
+        return ctx2;
     }
 
     private Aeron.Context getContext() {
         if(ctx == null)
-            ctx = new Aeron.Context().publicationConnectionTimeout(-1).availableImageHandler(AeronUtil::printAvailableImage)
+            ctx = new Aeron.Context().publicationConnectionTimeout(-1)
+                    .availableImageHandler(AeronUtil::printAvailableImage)
                 .unavailableImageHandler(AeronUtil::printUnavailableImage)
                 .aeronDirectoryName(mediaDriver.aeronDirectoryName()).keepAliveInterval(1000)
                 .errorHandler(e -> log.error(e.toString(), e));

@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 
 /**
- * Sends a host port to the given
+ * Sends a host port
+ * to the given
  * aeron channel
  *
  * @author Adam Gibson
@@ -20,6 +21,7 @@ import java.io.Closeable;
 @AllArgsConstructor
 @Builder
 public class HostPortPublisher implements AutoCloseable {
+
     private String uriToSend;
     // A unique identifier for a stream within a channel. Stream ID 0 is reserved
     // for internal use and should not be used by applications.
@@ -40,6 +42,7 @@ public class HostPortPublisher implements AutoCloseable {
         log.debug("Channel publisher" + channel + " and stream " + streamId);
     }
 
+
     public void send() {
         if(!init)
             init();
@@ -49,8 +52,11 @@ public class HostPortPublisher implements AutoCloseable {
         // AutoCloseable, and will automatically clean up resources when this try block is finished.
         if(aeron == null)
             aeron = Aeron.connect(ctx);
-        if(publication == null)
+
+        if(publication == null) {
             publication = aeron.addPublication(channel, streamId);
+            log.debug("Publication created on channel " + channel);
+        }
 
 
         UnsafeBuffer buffer = new UnsafeBuffer(uriToSend.getBytes());
@@ -63,7 +69,7 @@ public class HostPortPublisher implements AutoCloseable {
                 log.debug("Offer failed due to back pressure");
 
             else if (result == Publication.NOT_CONNECTED)
-                log.debug(" Offer failed because publisher is not connected to subscriber");
+                log.debug("Offer failed because publisher is not connected to subscriber");
 
             else if (result == Publication.ADMIN_ACTION)
                 log.debug("Offer failed because of an administration action in the system");
@@ -72,12 +78,12 @@ public class HostPortPublisher implements AutoCloseable {
                 log.debug("Offer failed publication is closed");
 
             else
-                log.debug(" Offer failed due to unknown reason");
+                log.debug("Offer failed due to unknown reason");
 
         }
 
 
-        log.debug("Done sending.");
+        log.debug("Done sending uri " + uriToSend);
     }
 
     /**

@@ -2,6 +2,7 @@ package org.nd4j.aeron.ipc;
 
 import io.aeron.Aeron;
 import io.aeron.Publication;
+import io.aeron.exceptions.DriverTimeoutException;
 import lombok.Builder;
 import lombok.Data;
 
@@ -68,9 +69,15 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
         // AutoCloseable, and will automatically clean up resources when this try block is finished.
         if(aeron == null)
             aeron = Aeron.connect(ctx);
-        if(publication == null)
-            publication = aeron.addPublication(channel, streamId);
-
+        int connectionTries = 0;
+        while(publication == null && connectionTries < 3) {
+            try {
+                publication = aeron.addPublication(channel, streamId);
+            }catch (DriverTimeoutException e) {
+                log.warn("Failed to connect due to driver time out on channel " + channel + " and stream" + streamId);
+                connectionTries++;
+            }
+        }
 
 
         // Try to publish the buffer. 'offer' is a non-blocking call.

@@ -3,6 +3,7 @@ package org.nd4j.aeron.ipc.response;
 import io.aeron.Aeron;
 import io.aeron.Subscription;
 import lombok.Builder;
+import lombok.Data;
 import org.agrona.concurrent.SigInt;
 import org.nd4j.aeron.ipc.*;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Adam Gibson
  */
 @Builder
+@Data
 public class AeronNDArrayResponder {
     // The channel (an endpoint identifier) to receive messages from
     private String channel;
@@ -40,6 +42,7 @@ public class AeronNDArrayResponder {
     private final AtomicBoolean init = new AtomicBoolean(false);
     private static Logger log = LoggerFactory.getLogger(AeronNDArraySubscriber.class);
     private NDArrayHolder ndArrayHolder;
+    private Aeron aeron;
 
 
     private void init() {
@@ -84,6 +87,7 @@ public class AeronNDArrayResponder {
 
         try (final Aeron aeron = Aeron.connect(ctx);
              final Subscription subscription = aeron.addSubscription(channel, streamId)) {
+            this.aeron = aeron;
             log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
             AeronUtil.subscriberLoop(NDArrayResponseFragmentHandler.builder()
                     .aeron(aeron)

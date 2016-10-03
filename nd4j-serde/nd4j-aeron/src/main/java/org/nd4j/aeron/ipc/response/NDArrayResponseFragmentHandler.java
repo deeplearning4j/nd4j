@@ -7,15 +7,22 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import org.agrona.DirectBuffer;
 import org.nd4j.aeron.ipc.AeronNDArrayPublisher;
+import org.nd4j.aeron.ipc.AeronUtil;
 import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 /**
- * A subscriber that listens for host port pairs.
+ * A subscriber that listens for host
+ * port pairs in the form of host:port.
  * These are meant to be aeron channels.
  *
  * Given an @link{NDArrayHolder} it will send
  * the ndarray to the designated channel by the subscriber.
+ *
+ * @author Adam Gibson
  */
 @AllArgsConstructor
 @Builder
@@ -35,20 +42,42 @@ public class NDArrayResponseFragmentHandler implements FragmentHandler {
      */
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header) {
-        String hostPort = new String(buffer.byteArray());
-        String[] split = hostPort.split(":");
-        if(split == null || split.length != 2)
-            throw new IllegalStateException("Illegal string input " + hostPort);
-        int port = Integer.parseInt(split[1]);
-        String channel = String.format("aeron:udp?endpoint=%s:%d",split[0],port);
-        INDArray arrGet = holder.get();
-        try(AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder().streamId(streamId)
-                .ctx(context).channel(channel).aeron(aeron)
-                .build()) {
-            publisher.publish(arrGet);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(buffer != null && length > 0) {
+            ByteBuffer byteBuffer = buffer.byteBuffer().order(ByteOrder.nativeOrder());
+            byteBuffer.position(offset);
+            byte[] b = new byte[length];
+            byteBuffer.get(b);
+            String hostPort = new String(b);
+            System.out.println("Host port " + hostPort + " offset " + offset + " length " + length);
+            String[] split = hostPort.split(":");
+            if(split == null || split.length != 3) {
+                System.err.println("no host port stream found");
+                return;
+            }
+
+            int port = Integer.parseInt(split[1]);
+            int streamToPublish = Integer.parseInt(split[2]);
+            String channel = AeronUtil.aeronChannel(split[0],port);
+            INDArray arrGet = holder.get();
+            AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder()
+                    .streamId(streamToPublish)
+                    .ctx(context).channel(channel)
+                    .build();
+            try {
+                publisher.publish(arrGet);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                publisher.close();
+            } catch (Exception e) {
+
+            }
+
+
         }
+
 
     }
 }

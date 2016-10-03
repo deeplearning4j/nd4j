@@ -21,8 +21,6 @@ public class AeronNDArraySubscriber {
     private int streamId = -1;
     // A unique identifier for a stream within a channel. Stream ID 0 is reserved
     // for internal use and should not be used by applications.
-    private int responseStreamId = -1;
-
     // Maximum number of message fragments to receive during a single 'poll' operation
     private int fragmentLimitCount;
     // Create a context, needed for client connection to media driver
@@ -32,14 +30,13 @@ public class AeronNDArraySubscriber {
     private final AtomicBoolean init = new AtomicBoolean(false);
     private static Logger log = LoggerFactory.getLogger(AeronNDArraySubscriber.class);
     private NDArrayCallback ndArrayCallback;
-
+    private Aeron aeron;
 
     private void init() {
         ctx = ctx == null ? new Aeron.Context() : ctx;
         channel = channel == null ?  "aeron:udp?endpoint=localhost:40123" : channel;
         fragmentLimitCount = fragmentLimitCount == 0 ? 1000 : fragmentLimitCount;
         streamId = streamId == 0 ? 10 : streamId;
-        responseStreamId = responseStreamId == 0 ? -1 : responseStreamId;
         running = running == null ? new AtomicBoolean(true) : running;
         if(ndArrayCallback == null)
             throw new IllegalStateException("NDArray callback must be specified in the builder.");
@@ -76,6 +73,7 @@ public class AeronNDArraySubscriber {
 
         try (final Aeron aeron = Aeron.connect(ctx);
              final Subscription subscription = aeron.addSubscription(channel, streamId)) {
+            this.aeron = aeron;
             log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
             AeronUtil.subscriberLoop(
                     new NDArrayFragmentHandler(ndArrayCallback),
@@ -106,7 +104,8 @@ public class AeronNDArraySubscriber {
         final AtomicBoolean running = new AtomicBoolean(true);
 
 
-        AeronNDArraySubscriber subscriber = AeronNDArraySubscriber.builder()
+        AeronNDArraySubscriber subscriber = AeronNDArraySubscriber
+                .builder()
                 .streamId(streamId)
                 .ctx(context)
                 .channel(AeronUtil.aeronChannel(host,port))
