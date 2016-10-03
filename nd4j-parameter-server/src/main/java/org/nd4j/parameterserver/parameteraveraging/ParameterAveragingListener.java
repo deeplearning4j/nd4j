@@ -2,6 +2,7 @@ package org.nd4j.parameterserver.parameteraveraging;
 
 import lombok.Data;
 import org.nd4j.aeron.ipc.NDArrayCallback;
+import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -11,7 +12,7 @@ import org.nd4j.linalg.factory.Nd4j;
  * @author Adam Gibson
  */
 @Data
-public class ParameterAveragingListener implements NDArrayCallback {
+public class ParameterAveragingListener implements NDArrayCallback,NDArrayHolder {
     private INDArray arr;
     private double totalN;
     private boolean master;
@@ -40,4 +41,13 @@ public class ParameterAveragingListener implements NDArrayCallback {
         this.arr.divi(totalN);
     }
 
+    /**
+     * Retrieve an ndarray
+     *
+     * @return
+     */
+    @Override
+    public INDArray get() {
+        return arr;
+    }
 }

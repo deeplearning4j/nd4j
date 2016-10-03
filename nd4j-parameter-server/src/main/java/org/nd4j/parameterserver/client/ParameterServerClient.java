@@ -1,7 +1,14 @@
 package org.nd4j.parameterserver.client;
 
+import io.aeron.Aeron;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import org.nd4j.aeron.ipc.AeronNDArrayPublisher;
+import org.nd4j.aeron.ipc.AeronNDArraySubscriber;
+import org.nd4j.aeron.ipc.AeronUtil;
+import org.nd4j.aeron.ipc.NDArrayCallback;
+import org.nd4j.aeron.ipc.response.HostPortPublisher;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
@@ -12,18 +19,114 @@ import org.nd4j.linalg.api.ndarray.INDArray;
  */
 @Data
 @AllArgsConstructor
-public class ParameterServerClient {
-
+@Builder
+public class ParameterServerClient implements NDArrayCallback {
     private String ndarraySendUrl;
     private String ndarrayRetrieveUrl;
+    private Aeron.Context ctx;
+    private AeronNDArraySubscriber subscriber;
+    private String subscriberHost;
+    private int subscriberPort;
+    private int subscriberStream = 11;
+    private INDArray arr;
 
-
+    /**
+     * Push an ndarray to the specified
+     * ndarray send url in the form of:
+     * host;port:stream
+     * where stream is the stream for connecting
+     * to a listening aeron server
+     * @param arr the array to send
+     */
     public void pushNDArray(INDArray arr) {
+        String[] split = ndarraySendUrl.split(":");
+        int port = Integer.parseInt(split[1]);
+        int streamToPublish = Integer.parseInt(split[2]);
+        String channel = AeronUtil.aeronChannel(split[0],port);
+        AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder()
+                .streamId(streamToPublish)
+                .ctx(ctx).channel(channel)
+                .build();
+        try {
+            publisher.publish(arr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            publisher.close();
+        } catch (Exception e) {
+
+        }
 
     }
 
+
+    /**
+     *
+     * @return
+     */
     public INDArray getArray() {
-        return null;
+        //start a subscriber that can send us ndarrays
+        if(subscriber == null) {
+            subscriber = AeronNDArraySubscriber.startSubscriber(
+                    ctx,
+                    subscriberHost,
+                    subscriberPort,
+                    this,
+                    subscriberStream);
+        }
+
+        if(arr == null) {
+            //note here that this is the "master url"
+            String[] split = ndarrayRetrieveUrl.split(":");
+            //The response daemon is always the master daemon's port + 1
+            //A "master daemon" is one that holds both the
+            //parameter averaging daemon AND the response daemon for being able to send
+            //the "current state ndarray"
+            int port = Integer.parseInt(split[1]) + 1;
+            int streamToPublish = Integer.parseInt(split[2]);
+            //the channel here is the master node host with the port + 1
+            //pointing at the response node where we can request ndarrays to be sent to
+            //the listening daemon
+            String channel = AeronUtil.aeronChannel(split[0],port);
+            //publish the address of our subscriber
+            //note here that we send the ndarray send url, because the
+            //master also hosts
+            HostPortPublisher hostPortPublisher = HostPortPublisher
+                    .builder().channel(channel).ctx(ctx)
+                                              //note here that we send our subscriber's listening information
+                    .streamId(streamToPublish).uriToSend(subscriberHost + ":" + subscriberPort + ":" + subscriberStream)
+                    .build();
+            try {
+                hostPortPublisher.send();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            try {
+                hostPortPublisher.close();
+            } catch (Exception e) {
+
+            }
+        }
+        else {
+            INDArray currentArr = this.arr;
+            this.arr = null;
+            return currentArr;
+        }
+
+
+        return arr;
     }
 
+    /**
+     * Setup an ndarray
+     *
+     * @param arr
+     */
+    @Override
+    public void onNDArray(INDArray arr) {
+        this.arr = arr;
+    }
 }

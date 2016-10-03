@@ -10,6 +10,7 @@ import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.nd4j.aeron.ipc.AeronNDArraySubscriber;
 import org.nd4j.aeron.ipc.AeronUtil;
 import org.nd4j.aeron.ipc.NDArrayCallback;
+import org.nd4j.aeron.ipc.response.AeronNDArrayResponder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,8 @@ public class ParameterAveragingSubscriber {
     private int port = 40123;
     @Parameter(names={"-id","--streamId"}, description = "The stream id to listen on", arity = 1)
     private int streamId = 10;
+    @Parameter(names={"-mid","--master-streamId"}, description = "The master stream id", arity = 1)
+    private int publishMasterStreamId = 1;
     @Parameter(names={"-h","--host"}, description = "Host for the server to bind to", arity = 1)
     private String host = "localhost";
     @Parameter(names={"-l","--parameterLength"}, description = "Parameter length for parameter averaging", arity = 1)
@@ -37,7 +40,7 @@ public class ParameterAveragingSubscriber {
     @Parameter(names={"-m","--master"}, description = "Whether this subscriber is a master node or not.", arity = 1)
     private boolean master = false;
     @Parameter(names={"-pm","--publishmaster"}, description = "Publish master url: host:port - this is for peer nodes needing to publish to another peer.", arity = 1)
-    private String publishMasterUrl;
+    private String publishMasterUrl = "localhost:40123";
     /**
      *
      * @param args
@@ -53,7 +56,7 @@ public class ParameterAveragingSubscriber {
             throw e;
         }
 
-        if(publishMasterUrl == null && master)
+        if(publishMasterUrl == null && !master)
             throw new IllegalStateException("Please specify a master url or set master to true");
 
         final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
@@ -77,13 +80,25 @@ public class ParameterAveragingSubscriber {
         NDArrayCallback callback;
         if(master) {
             callback =  new ParameterAveragingListener(parameterLength);
+            //start an extra daemon for responding to get queries
+            ParameterAveragingListener cast = (ParameterAveragingListener) callback;
+            AeronNDArrayResponder.startSubscriber(
+                    ctx,
+                    host,port + 1,
+                    cast,
+                    publishMasterStreamId);
         }
         else {
             String[] publishMasterUrlArr = publishMasterUrl.split(":");
             if(publishMasterUrlArr == null || publishMasterUrlArr.length != 2)
                 throw new IllegalStateException("Please specify publish master url as host:port");
 
-            callback = new PublishingListener(String.format("aeron:udp?endpoint=%s:%s",publishMasterUrlArr[0],publishMasterUrlArr[1]),streamId,ctx);
+            callback = new PublishingListener(
+                    String.format("aeron:udp?endpoint=%s:%s",
+                            publishMasterUrlArr[0],
+                            publishMasterUrlArr[1]),
+                    streamId,
+                    ctx);
         }
 
         log.info("Starting subscriber on " +  host + ":" + port);

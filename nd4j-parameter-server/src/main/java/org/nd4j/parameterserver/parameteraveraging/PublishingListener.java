@@ -8,7 +8,8 @@ import org.nd4j.aeron.ipc.NDArrayCallback;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * Publishing listener for publishing to a master url.
+ * Publishing listener for
+ * publishing to a master url.
  *
  * @author Adam Gibson
  */
@@ -18,6 +19,7 @@ public class PublishingListener implements NDArrayCallback {
     private String masterUrl;
     private int streamId;
     private Aeron.Context aeronContext;
+
     /**
      * Setup an ndarray
      *
