@@ -47,7 +47,8 @@ public class ParameterAveragingSubscriber {
      */
     public void run(String[] args) {
         JCommander jcmdr = new JCommander(this);
-        try{
+
+        try {
             jcmdr.parse(args);
         } catch(ParameterException e) {
             //User provides invalid input -> print the usage info

@@ -74,10 +74,6 @@ public class NDArrayResponseFragmentHandler implements FragmentHandler {
             } catch (Exception e) {
 
             }
-
-
         }
-
-
     }
 }
