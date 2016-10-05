@@ -71,7 +71,7 @@ public class ParameterServerClient implements NDArrayCallback {
                 .build()) {
             publisher.publish(arr);
         } catch (Exception e) {
-           throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
 
     }
@@ -80,6 +80,7 @@ public class ParameterServerClient implements NDArrayCallback {
     public String connectionUrl() {
         return AeronConnectionInformation.of(subscriberHost,subscriberPort,subscriberStream).toString();
     }
+
 
 
     /**
@@ -136,14 +137,15 @@ public class ParameterServerClient implements NDArrayCallback {
 
             }
 
-            while(arr == null) {
+            while (arr == null) {
                 try {
-                    Thread.sleep(10000);
+                    Thread.sleep(1000);
                     log.info("No array...waiting...");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
             }
+
         }
         else {
             INDArray currentArr = this.arr;
@@ -161,7 +163,7 @@ public class ParameterServerClient implements NDArrayCallback {
      * @param arr
      */
     @Override
-    public void onNDArray(INDArray arr) {
+    public synchronized void onNDArray(INDArray arr) {
         this.arr = arr;
     }
 }

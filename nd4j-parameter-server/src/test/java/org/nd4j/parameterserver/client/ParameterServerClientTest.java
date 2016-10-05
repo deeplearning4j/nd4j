@@ -34,9 +34,9 @@ public class ParameterServerClientTest {
     private ParameterAveragingSubscriber masterNode,slaveNode;
     private int parameterLength = 1000;
     @Before
-    public void before() {
+    public void before() throws Exception {
         final MediaDriver.Context ctx = new MediaDriver.Context()
-                .threadingMode(ThreadingMode.SHARED)
+                .threadingMode(ThreadingMode.DEDICATED)
                 .dirsDeleteOnStart(true)
                 .termBufferSparseFile(false)
                 .conductorIdleStrategy(new BusySpinIdleStrategy())
@@ -75,6 +75,9 @@ public class ParameterServerClientTest {
         assertEquals("localhost",slaveNode.getHost());
         assertEquals(10,slaveNode.getStreamId());
 
+
+        while(!masterNode.subscriberLaunched() && !slaveNode.subscriberLaunched())
+            Thread.sleep(10000);
 
         log.info("Using media driver directory " + mediaDriver.aeronDirectoryName());
         log.info("Launched media driver");

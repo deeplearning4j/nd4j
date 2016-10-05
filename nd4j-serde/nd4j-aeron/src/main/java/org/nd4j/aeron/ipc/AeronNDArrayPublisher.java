@@ -67,8 +67,17 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
         // Create an Aeron instance with client-provided context configuration and connect to the
         // media driver, and create a Publication.  The Aeron and Publication classes implement
         // AutoCloseable, and will automatically clean up resources when this try block is finished.
-        if(aeron == null)
-            aeron = Aeron.connect(ctx);
+        boolean connected = false;
+        if(aeron == null) {
+            try {
+                while(!connected) {
+                    aeron = Aeron.connect(ctx);
+                    connected = true;
+                }
+            }catch (Exception e) {
+                log.warn("Reconnecting on publisher...failed to connect");
+            }
+        }
         int connectionTries = 0;
         while(publication == null && connectionTries < 3) {
             try {
@@ -160,9 +169,15 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
      */
     @Override
     public void close() throws Exception {
-        if(aeron != null)
-            aeron.close();
-        if(publication != null)
-            publication.close();
+        if(aeron != null) {
+            try {
+                aeron.close();
+            }catch (Exception e) {}
+        }
+        if(publication != null) {
+            try {
+                publication.close();
+            }catch(Exception e) {}
+        }
     }
 }

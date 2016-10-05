@@ -108,7 +108,7 @@ public class ParameterAveragingSubscriber {
             //start an extra daemon for responding to get queries
             ParameterAveragingListener cast = (ParameterAveragingListener) callback;
             responder = AeronNDArrayResponder.startSubscriber(
-                    ctx,
+                    getContext(),
                     host,port + 1,
                     cast,
                     streamId + 1);
@@ -124,7 +124,7 @@ public class ParameterAveragingSubscriber {
                             publishMasterUrlArr[0],
                             publishMasterUrlArr[1]),
                     Integer.parseInt(publishMasterUrlArr[2]),
-                    ctx);
+                    getContext());
         }
 
         log.info("Starting subscriber on " +  host + ":" + port + " and stream " + streamId);
@@ -132,7 +132,7 @@ public class ParameterAveragingSubscriber {
 
         //start a node
         subscriber = AeronNDArraySubscriber.startSubscriber(
-                ctx,
+                getContext(),
                 host,port,
                 callback,
                 streamId,running);
@@ -146,6 +146,17 @@ public class ParameterAveragingSubscriber {
             }
         }
 
+    }
+
+    //get a context
+    public Aeron.Context getContext() {
+        Aeron.Context ctx = new Aeron.Context().publicationConnectionTimeout(-1)
+                .availableImageHandler(AeronUtil::printAvailableImage)
+                .unavailableImageHandler(AeronUtil::printUnavailableImage)
+                .aeronDirectoryName(mediaDriver.aeronDirectoryName())
+                .keepAliveInterval(10000)
+                .errorHandler(e -> log.error(e.toString(), e));
+        return ctx;
     }
 
     /**
