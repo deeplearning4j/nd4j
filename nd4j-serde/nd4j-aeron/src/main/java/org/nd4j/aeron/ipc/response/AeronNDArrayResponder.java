@@ -43,6 +43,7 @@ public class AeronNDArrayResponder {
     private static Logger log = LoggerFactory.getLogger(AeronNDArraySubscriber.class);
     private NDArrayHolder ndArrayHolder;
     private Aeron aeron;
+    private AtomicBoolean launched;
 
 
     private void init() {
@@ -55,6 +56,7 @@ public class AeronNDArrayResponder {
         if(ndArrayHolder == null)
             throw new IllegalStateException("NDArray callback must be specified in the builder.");
         init.set(true);
+        launched = new AtomicBoolean(false);
         log.info("Channel subscriber " + channel + " and stream id " + streamId);
     }
 
@@ -84,17 +86,27 @@ public class AeronNDArrayResponder {
         //Note here that we are either creating 1 or 2 subscriptions.
         //The first one is a  normal 1 subscription listener.
         //The second one is when we want to send responses
+        boolean started = false;
+        while(!started) {
+            try {
+                try (final Aeron aeron = Aeron.connect(ctx);
+                     final Subscription subscription = aeron.addSubscription(channel, streamId)) {
+                    this.aeron = aeron;
+                    log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
+                    AeronUtil.subscriberLoop(NDArrayResponseFragmentHandler.builder()
+                            .aeron(aeron)
+                            .context(ctx).streamId(responseStreamId)
+                            .holder(ndArrayHolder)
+                            .build(), fragmentLimitCount, running
+                            ,launched)
+                            .accept(subscription);
+                    started = true;
+                }
 
-        try (final Aeron aeron = Aeron.connect(ctx);
-             final Subscription subscription = aeron.addSubscription(channel, streamId)) {
-            this.aeron = aeron;
-            log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
-            AeronUtil.subscriberLoop(NDArrayResponseFragmentHandler.builder()
-                    .aeron(aeron)
-                    .context(ctx).streamId(responseStreamId)
-                    .holder(ndArrayHolder)
-                    .build(),fragmentLimitCount,running)
-                    .accept(subscription);
+
+            } catch (Exception e) {
+                log.warn("Failed to connect..trying again");
+            }
         }
 
     }

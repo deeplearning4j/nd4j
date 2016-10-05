@@ -48,9 +48,9 @@ public class AeronUtil {
      * @return loop function
      */
     public static Consumer<Subscription> subscriberLoop(
-            final FragmentHandler fragmentHandler, final int limit, final AtomicBoolean running) {
+            final FragmentHandler fragmentHandler, final int limit, final AtomicBoolean running,final AtomicBoolean launched) {
         final IdleStrategy idleStrategy = new BusySpinIdleStrategy();
-        return subscriberLoop(fragmentHandler, limit, running, idleStrategy);
+        return subscriberLoop(fragmentHandler, limit, running, idleStrategy,launched);
     }
 
     /**
@@ -68,12 +68,13 @@ public class AeronUtil {
             final FragmentHandler fragmentHandler,
             final int limit,
             final AtomicBoolean running,
-            final IdleStrategy idleStrategy)
+            final IdleStrategy idleStrategy,final AtomicBoolean launched)
     {
         return (subscription) -> {
             try {
                 while (running.get()) {
                     idleStrategy.idle(subscription.poll(fragmentHandler, limit));
+                    launched.set(true);
                 }
             }
             catch (final Exception ex) {

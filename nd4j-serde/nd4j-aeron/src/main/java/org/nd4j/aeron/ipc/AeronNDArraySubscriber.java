@@ -10,7 +10,12 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
-
+/**
+ *
+ * Subscriber for ndarray
+ *
+ * @author Adam Gibson
+ */
 @Data
 @Builder
 public class AeronNDArraySubscriber {
@@ -31,6 +36,10 @@ public class AeronNDArraySubscriber {
     private static Logger log = LoggerFactory.getLogger(AeronNDArraySubscriber.class);
     private NDArrayCallback ndArrayCallback;
     private Aeron aeron;
+    private AtomicBoolean launched = new AtomicBoolean(false);
+
+
+
 
     private void init() {
         ctx = ctx == null ? new Aeron.Context() : ctx;
@@ -42,8 +51,15 @@ public class AeronNDArraySubscriber {
             throw new IllegalStateException("NDArray callback must be specified in the builder.");
         init.set(true);
         log.info("Channel subscriber " + channel + " and stream id " + streamId);
+        launched = new AtomicBoolean(false);
     }
 
+
+    public synchronized  boolean launched() {
+        if(launched == null)
+            launched = new AtomicBoolean(false);
+        return launched.get();
+    }
 
     /**
      * Launch a background thread
@@ -71,16 +87,24 @@ public class AeronNDArraySubscriber {
         //The first one is a  normal 1 subscription listener.
         //The second one is when we want to send responses
 
-        try (final Aeron aeron = Aeron.connect(ctx);
-             final Subscription subscription = aeron.addSubscription(channel, streamId)) {
-            this.aeron = aeron;
-            log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
-            AeronUtil.subscriberLoop(
-                    new NDArrayFragmentHandler(ndArrayCallback),
-                    fragmentLimitCount,
-                    running)
-                    .accept(subscription);
+        boolean started = false;
+        while(!started) {
+            try {
+                try (final Aeron aeron = Aeron.connect(ctx);
+                     final Subscription subscription = aeron.addSubscription(channel, streamId)) {
+                    this.aeron = aeron;
+                    log.info("Beginning subscribe on channel " + channel + " and stream " + streamId);
+                    AeronUtil.subscriberLoop(
+                            new NDArrayFragmentHandler(ndArrayCallback),
+                            fragmentLimitCount,
+                            running,launched)
+                            .accept(subscription);
+                    started = true;
 
+                }
+            }catch(Exception e) {
+                log.warn("Unable to connect...trying again on channel " + channel);
+            }
         }
 
     }
@@ -111,9 +135,8 @@ public class AeronNDArraySubscriber {
                                                          String host,
                                                          int port,
                                                          NDArrayCallback callback,
-                                                         int streamId) {
-        final AtomicBoolean running = new AtomicBoolean(true);
-
+                                                         int streamId,
+                                                         AtomicBoolean running) {
 
         AeronNDArraySubscriber subscriber = AeronNDArraySubscriber
                 .builder()
@@ -134,6 +157,7 @@ public class AeronNDArraySubscriber {
         });
 
         t.start();
+
 
         return subscriber;
     }

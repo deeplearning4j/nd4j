@@ -7,6 +7,10 @@ import lombok.Data;
 import org.nd4j.aeron.ipc.*;
 import org.nd4j.aeron.ipc.response.HostPortPublisher;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Parameter server client for
@@ -33,7 +37,8 @@ public class ParameterServerClient implements NDArrayCallback {
     private int subscriberStream = 11;
     //the "current" ndarray
     private INDArray arr;
-
+    private AtomicBoolean running;
+    private static Logger log = LoggerFactory.getLogger(ParameterServerClient.class);
     /**
      * Push an ndarray to the specified
      * ndarray send url in the form of:
@@ -43,26 +48,37 @@ public class ParameterServerClient implements NDArrayCallback {
      * @param arr the array to send
      */
     public void pushNDArray(INDArray arr) {
+        //start a subscriber that can send us ndarrays
+        if(subscriber == null) {
+            running = new AtomicBoolean(true);
+            subscriber = AeronNDArraySubscriber.startSubscriber(
+                    ctx,
+                    subscriberHost,
+                    subscriberPort,
+                    this,
+                    subscriberStream,running);
+            log.debug("Started parameter server client on " + subscriber.connectionUrl());
+        }
+
         String[] split = ndarraySendUrl.split(":");
         int port = Integer.parseInt(split[1]);
         int streamToPublish = Integer.parseInt(split[2]);
         String channel = AeronUtil.aeronChannel(split[0],port);
-        AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder()
+        log.debug("Parameter server client publishing to " + ndarraySendUrl);
+        try(AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder()
                 .streamId(streamToPublish)
                 .ctx(ctx).channel(channel)
-                .build();
-        try {
+                .build()) {
             publisher.publish(arr);
         } catch (Exception e) {
-            e.printStackTrace();
+           throw new RuntimeException(e);
         }
 
-        try {
-            publisher.close();
-        } catch (Exception e) {
+    }
 
-        }
 
+    public String connectionUrl() {
+        return AeronConnectionInformation.of(subscriberHost,subscriberPort,subscriberStream).toString();
     }
 
 
@@ -73,15 +89,18 @@ public class ParameterServerClient implements NDArrayCallback {
     public INDArray getArray() {
         //start a subscriber that can send us ndarrays
         if(subscriber == null) {
+            running = new AtomicBoolean(true);
             subscriber = AeronNDArraySubscriber.startSubscriber(
                     ctx,
                     subscriberHost,
                     subscriberPort,
                     this,
-                    subscriberStream);
+                    subscriberStream,running);
+            log.debug("Started parameter server client on " + subscriber.connectionUrl());
         }
 
         if(arr == null) {
+            log.debug("Parameter server client retrieving url from " + ndarrayRetrieveUrl);
             //note here that this is the "master url"
             String[] split = ndarrayRetrieveUrl.split(":");
             //The response daemon is always the master daemon's port + 1
@@ -109,6 +128,8 @@ public class ParameterServerClient implements NDArrayCallback {
                 e.printStackTrace();
             }
 
+            log.debug("Sent subscriber information " + AeronConnectionInformation.of(subscriberHost,subscriberPort,subscriberStream).toString());
+
             try {
                 hostPortPublisher.close();
             } catch (Exception e) {
@@ -118,6 +139,7 @@ public class ParameterServerClient implements NDArrayCallback {
             while(arr == null) {
                 try {
                     Thread.sleep(10000);
+                    log.info("No array...waiting...");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }

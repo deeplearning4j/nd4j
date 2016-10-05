@@ -11,6 +11,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
@@ -52,13 +53,13 @@ public class AeronNDArrayResponseTest {
                 ,responderStreamId);
 
         AtomicInteger count = new AtomicInteger(0);
-
+        AtomicBoolean running = new AtomicBoolean(true);
         AeronNDArraySubscriber subscriber = AeronNDArraySubscriber.startSubscriber(
                 getContext(),
                 host,
                 40123,
                 arr -> count.incrementAndGet()
-                ,streamId);
+                ,streamId,running);
 
         int expectedResponses = 10;
         HostPortPublisher publisher = HostPortPublisher

@@ -39,7 +39,7 @@ public class HostPortPublisher implements AutoCloseable {
         streamId = streamId == 0 ? 10 : streamId;
         ctx = ctx == null ? ctx = new Aeron.Context() : ctx;
         init = true;
-        log.debug("Channel publisher" + channel + " and stream " + streamId);
+        log.info("Channel publisher" + channel + " and stream " + streamId);
     }
 
 
@@ -53,9 +53,14 @@ public class HostPortPublisher implements AutoCloseable {
         if(aeron == null)
             aeron = Aeron.connect(ctx);
 
-        if(publication == null) {
-            publication = aeron.addPublication(channel, streamId);
-            log.debug("Publication created on channel " + channel);
+        while(publication == null) {
+            try {
+                publication = aeron.addPublication(channel, streamId);
+                log.info("Publication created on channel " + channel);
+            }
+            catch (Exception e) {
+                log.warn("Trying to connect again on channel " + channel);
+            }
         }
 
 
@@ -63,27 +68,34 @@ public class HostPortPublisher implements AutoCloseable {
         // Try to publish the buffer. 'offer' is a non-blocking call.
         // If it returns less than 0, the message was not sent, and the offer should be retried.
         long result;
-        log.debug("Begin publish " + channel + " and stream " + streamId);
+        log.info("Begin publish " + channel + " and stream " + streamId);
+        int timesFailed = 0;
         while ((result = publication.offer(buffer, 0, buffer.capacity())) < 0L) {
-            if (result == Publication.BACK_PRESSURED)
-                log.debug("Offer failed due to back pressure");
+            if (result == Publication.BACK_PRESSURED && timesFailed % 1000 == 0)
+                log.info("Offer failed due to back pressure " + channel + " and stream " + streamId);
 
-            else if (result == Publication.NOT_CONNECTED)
-                log.debug("Offer failed because publisher is not connected to subscriber");
+            else if (result == Publication.NOT_CONNECTED && timesFailed % 1000 == 0)
+                log.info("Offer failed because publisher is not connected to subscriber " + channel + " and stream " + streamId);
 
-            else if (result == Publication.ADMIN_ACTION)
-                log.debug("Offer failed because of an administration action in the system");
+            else if (result == Publication.ADMIN_ACTION && timesFailed % 1000 == 0)
+                log.info("Offer failed because of an administration action in the system " + channel + " and stream " + streamId);
 
-            else if (result == Publication.CLOSED)
-                log.debug("Offer failed publication is closed");
+            else if (result == Publication.CLOSED && timesFailed % 1000 == 0)
+                log.info("Offer failed publication is closed " + channel + " and stream " + streamId);
 
-            else
-                log.debug("Offer failed due to unknown reason");
+            else if(timesFailed % 1000 == 0)
+                log.info("Offer failed due to unknown reason on channel " + channel + " and stream " + streamId);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            timesFailed++;
 
         }
 
 
-        log.debug("Done sending uri " + uriToSend);
+        log.info("Done sending uri " + uriToSend);
     }
 
     /**

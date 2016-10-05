@@ -84,8 +84,7 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
         // If it returns less than 0, the message was not sent, and the offer should be retried.
         long result;
         log.debug("Begin publish " + channel + " and stream " + streamId);
-        while ((result = publication.offer(buffer, 0, buffer.capacity())) < 0L)
-        {
+        while ((result = publication.offer(buffer, 0, buffer.capacity())) < 0L) {
             if (result == Publication.BACK_PRESSURED)
             {
                 log.debug(" Offer failed due to back pressure");

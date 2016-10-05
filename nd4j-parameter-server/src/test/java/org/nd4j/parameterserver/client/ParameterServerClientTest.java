@@ -12,12 +12,16 @@ import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.aeron.ipc.response.AeronNDArrayResponder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.parameterserver.parameteraveraging.ParameterAveragingListener;
+import org.nd4j.parameterserver.parameteraveraging.ParameterAveragingSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by agibsonccc on 10/3/16.
@@ -27,60 +31,83 @@ public class ParameterServerClientTest {
     private static Logger log = LoggerFactory.getLogger(ParameterServerClientTest.class);
     private Aeron.Context ctx;
     private Aeron.Context ctx2;
-
+    private ParameterAveragingSubscriber masterNode,slaveNode;
+    private int parameterLength = 1000;
     @Before
     public void before() {
         final MediaDriver.Context ctx = new MediaDriver.Context()
-                .threadingMode(ThreadingMode.DEDICATED)
+                .threadingMode(ThreadingMode.SHARED)
                 .dirsDeleteOnStart(true)
                 .termBufferSparseFile(false)
                 .conductorIdleStrategy(new BusySpinIdleStrategy())
                 .receiverIdleStrategy(new BusySpinIdleStrategy())
                 .senderIdleStrategy(new BusySpinIdleStrategy());
+
         mediaDriver = MediaDriver.launchEmbedded(ctx);
-        System.out.println("Using media driver directory " + mediaDriver.aeronDirectoryName());
-        System.out.println("Launched media driver");
+        masterNode = new ParameterAveragingSubscriber(mediaDriver);
+        masterNode.run(new String[] {
+                "-m","true",
+                "-l",String.valueOf(parameterLength),
+                "-p","40123",
+                "-h","localhost",
+                "-id","11"
+        });
+
+        assertTrue(masterNode.isMaster());
+        assertEquals(1000,masterNode.getParameterLength());
+        assertEquals(40123,masterNode.getPort());
+        assertEquals("localhost",masterNode.getHost());
+        assertEquals(11,masterNode.getStreamId());
+        assertEquals(12,masterNode.getResponder().getStreamId());
+
+        slaveNode = new ParameterAveragingSubscriber(mediaDriver);
+        slaveNode.run(new String[] {
+                "-l",String.valueOf(parameterLength),
+                "-p","40126",
+                "-h","localhost",
+                "-id","10",
+                "-pm",masterNode.getSubscriber().connectionUrl()
+        });
+
+        assertFalse(slaveNode.isMaster());
+        assertEquals(1000,slaveNode.getParameterLength());
+        assertEquals(40126,slaveNode.getPort());
+        assertEquals("localhost",slaveNode.getHost());
+        assertEquals(10,slaveNode.getStreamId());
+
+
+        log.info("Using media driver directory " + mediaDriver.aeronDirectoryName());
+        log.info("Launched media driver");
     }
 
 
 
     @Test
     public void testServer() throws Exception {
-        int streamId = 10;
-        int responderStreamId = 11;
-        int responderPort = 40124;
-        int subscriberPort = 40123;
-        String host = "127.0.0.1";
-        AeronNDArrayResponder responder = AeronNDArrayResponder.startSubscriber(
-                getContext2(),
-                host,
-                responderPort,
-                (NDArrayHolder) () -> Nd4j.scalar(1.0)
-                ,responderStreamId);
-
-        AtomicInteger count = new AtomicInteger(0);
-
-        AeronNDArraySubscriber subscriber = AeronNDArraySubscriber.startSubscriber(
-                getContext(),
-                host,
-                subscriberPort,
-                arr -> count.incrementAndGet()
-                ,streamId);
-
-        Thread.sleep(10000);
-
         ParameterServerClient client = ParameterServerClient
-                 .builder()
-                 .ctx(getContext2())
-                 .ndarrayRetrieveUrl(responder.connectionUrl())
-                 .ndarraySendUrl(subscriber.connectionUrl())
-                 .subscriberHost("localhost")
-                 .subscriberPort(40125)
-                 .subscriberStream(11).build();
-
-        client.pushNDArray(Nd4j.scalar(1.0));
+                .builder()
+                .ctx(getContext())
+                .ndarrayRetrieveUrl(masterNode.getResponder().connectionUrl())
+                .ndarraySendUrl(slaveNode.getSubscriber().connectionUrl())
+                .subscriberHost("localhost")
+                .subscriberPort(40125)
+                .subscriberStream(12).build();
+        assertEquals("localhost:40125:12",client.connectionUrl());
+        //flow 1:
+        /**
+         * Client (40125:12): sends array to listener on slave(40126:10)
+         * which publishes to master (40123:11)
+         * which adds the array for parameter averaging.
+         * In this case totalN should be 1.
+         */
+        client.pushNDArray(Nd4j.ones(parameterLength));
+        log.info("Pushed ndarray");
+        Thread.sleep(10000);
+        ParameterAveragingListener listener = (ParameterAveragingListener) masterNode.getCallback();
+        assertEquals(1,listener.getTotalN().get());
+        assertEquals(Nd4j.ones(parameterLength),listener.getArr());
         INDArray arr = client.getArray();
-        assertEquals(Nd4j.scalar(1.0),arr);
+        assertEquals(Nd4j.ones(1000),arr);
     }
 
     private Aeron.Context getContext2() {

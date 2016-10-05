@@ -3,16 +3,22 @@ package org.nd4j.parameterserver.parameteraveraging;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.google.common.base.Preconditions;
 import io.aeron.Aeron;
 import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.agrona.concurrent.BusySpinIdleStrategy;
+import org.nd4j.aeron.ipc.AeronConnectionInformation;
 import org.nd4j.aeron.ipc.AeronNDArraySubscriber;
 import org.nd4j.aeron.ipc.AeronUtil;
 import org.nd4j.aeron.ipc.NDArrayCallback;
 import org.nd4j.aeron.ipc.response.AeronNDArrayResponder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Subscriber main class for
@@ -21,6 +27,8 @@ import org.slf4j.LoggerFactory;
  *
  * @author Adam Gibson
  */
+@NoArgsConstructor
+@Data
 public class ParameterAveragingSubscriber {
 
     private static Logger log = LoggerFactory.getLogger(ParameterAveragingSubscriber.class);
@@ -29,8 +37,6 @@ public class ParameterAveragingSubscriber {
     private int port = 40123;
     @Parameter(names={"-id","--streamId"}, description = "The stream id to listen on", arity = 1)
     private int streamId = 10;
-    @Parameter(names={"-mid","--master-streamId"}, description = "The master stream id", arity = 1)
-    private int publishMasterStreamId = 1;
     @Parameter(names={"-h","--host"}, description = "Host for the server to bind to", arity = 1)
     private String host = "localhost";
     @Parameter(names={"-l","--parameterLength"}, description = "Parameter length for parameter averaging", arity = 1)
@@ -41,6 +47,21 @@ public class ParameterAveragingSubscriber {
     private boolean master = false;
     @Parameter(names={"-pm","--publishmaster"}, description = "Publish master url: host:port - this is for peer nodes needing to publish to another peer.", arity = 1)
     private String publishMasterUrl = "localhost:40123";
+
+    private MediaDriver mediaDriver;
+    private AeronNDArrayResponder responder;
+    private AeronNDArraySubscriber subscriber;
+    private   NDArrayCallback callback;
+    /**
+     * Allow passing in a
+     * media driver that already exists
+     * @param mediaDriver
+     */
+    public ParameterAveragingSubscriber(MediaDriver mediaDriver) {
+        Preconditions.checkNotNull(mediaDriver);
+        this.mediaDriver = mediaDriver;
+    }
+
     /**
      *
      * @param args
@@ -60,56 +81,79 @@ public class ParameterAveragingSubscriber {
         if(publishMasterUrl == null && !master)
             throw new IllegalStateException("Please specify a master url or set master to true");
 
-        final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
-                .threadingMode(ThreadingMode.DEDICATED)
-                .dirsDeleteOnStart(deleteDirectoryOnStart)
-                .termBufferSparseFile(false)
-                .conductorIdleStrategy(new BusySpinIdleStrategy())
-                .receiverIdleStrategy(new BusySpinIdleStrategy())
-                .senderIdleStrategy(new BusySpinIdleStrategy());
+        //allows passing in a media driver for things like uni tests
+        if(mediaDriver == null) {
+            final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
+                    .threadingMode(ThreadingMode.DEDICATED)
+                    .dirsDeleteOnStart(deleteDirectoryOnStart)
+                    .termBufferSparseFile(false)
+                    .conductorIdleStrategy(new BusySpinIdleStrategy())
+                    .receiverIdleStrategy(new BusySpinIdleStrategy())
+                    .senderIdleStrategy(new BusySpinIdleStrategy());
 
-        MediaDriver mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
-        log.info("Using media driver directory " + mediaDriver.aeronDirectoryName());
+            mediaDriver = MediaDriver.launchEmbedded(mediaDriverCtx);
+            log.info("Using media driver directory " + mediaDriver.aeronDirectoryName());
+        }
 
         Aeron.Context ctx = new Aeron.Context().publicationConnectionTimeout(-1)
                 .availableImageHandler(AeronUtil::printAvailableImage)
                 .unavailableImageHandler(AeronUtil::printUnavailableImage)
-                .aeronDirectoryName(mediaDriverCtx.aeronDirectoryName())
+                .aeronDirectoryName(mediaDriver.aeronDirectoryName())
                 .keepAliveInterval(1000)
                 .errorHandler(e -> log.error(e.toString(), e));
 
-        NDArrayCallback callback;
+
         if(master) {
             callback =  new ParameterAveragingListener(parameterLength);
             //start an extra daemon for responding to get queries
             ParameterAveragingListener cast = (ParameterAveragingListener) callback;
-            AeronNDArrayResponder.startSubscriber(
+            responder = AeronNDArrayResponder.startSubscriber(
                     ctx,
                     host,port + 1,
                     cast,
-                    publishMasterStreamId);
+                    streamId + 1);
+            log.info("Started responder on master node " + responder.connectionUrl());
         }
         else {
             String[] publishMasterUrlArr = publishMasterUrl.split(":");
-            if(publishMasterUrlArr == null || publishMasterUrlArr.length != 2)
+            if(publishMasterUrlArr == null || publishMasterUrlArr.length < 2)
                 throw new IllegalStateException("Please specify publish master url as host:port");
 
             callback = new PublishingListener(
                     String.format("aeron:udp?endpoint=%s:%s",
                             publishMasterUrlArr[0],
                             publishMasterUrlArr[1]),
-                    streamId,
+                    Integer.parseInt(publishMasterUrlArr[2]),
                     ctx);
         }
 
-        log.info("Starting subscriber on " +  host + ":" + port);
+        log.info("Starting subscriber on " +  host + ":" + port + " and stream " + streamId);
+        AtomicBoolean running = new AtomicBoolean(true);
 
         //start a node
-        AeronNDArraySubscriber.startSubscriber(
+        subscriber = AeronNDArraySubscriber.startSubscriber(
                 ctx,
                 host,port,
                 callback,
-                streamId);
+                streamId,running);
+
+        while(!subscriber.launched()) {
+            try {
+                Thread.sleep(1000);
+                log.warn(String.format("Subscriber for channel %s not launched yet...waiting", AeronConnectionInformation.of(host,port,streamId).toString()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+    }
+
+    /**
+     * Returns true if the subscriber is launched
+     * @return
+     */
+    public boolean subscriberLaunched() {
+        return subscriber.launched();
     }
 
     public static void main(String[] args) {
