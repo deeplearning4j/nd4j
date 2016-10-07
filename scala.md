@@ -15,6 +15,12 @@ Before using ND4S, please make sure you have:
 
 Below is an example of how ND4S looks. Notice how similar the syntax is to Numpy. 
 
+Warning: collection like operations such as:
+        
+        Nd4j.ones(4).map(_+1)
+        
+are currently [broken](https://github.com/deeplearning4j/nd4s/issues/91). 
+
         object ScalaMain {
              def main (args: Array[String]) {
              
