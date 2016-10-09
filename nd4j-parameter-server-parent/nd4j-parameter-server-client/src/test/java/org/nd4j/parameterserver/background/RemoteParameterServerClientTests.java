@@ -73,10 +73,16 @@ public class RemoteParameterServerClientTests {
                 .ndarrayRetrieveUrl(BackgroundDaemonStarter.masterResponderUrl())
                 .ndarraySendUrl(BackgroundDaemonStarter.slaveConnectionUrl())
                 .subscriberHost("localhost")
+                .masterStatusHost("localhost")
+                .masterStatusPort(9999)
                 .subscriberPort(40125)
                 .subscriberStream(12).build();
 
         assertEquals("localhost:40125:12",client.connectionUrl());
+        while(!client.masterStarted())
+            Thread.sleep(1000);
+
+
         //flow 1:
         /**
          * Client (40125:12): sends array to listener on slave(40126:10)

@@ -1,5 +1,8 @@
 package org.nd4j.parameterserver.client;
 
+import com.mashape.unirest.http.JsonNode;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.aeron.Aeron;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +11,10 @@ import org.nd4j.aeron.ipc.*;
 import org.nd4j.aeron.ipc.response.HostPortPublisher;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.parameterserver.model.MasterStatus;
+import org.nd4j.parameterserver.model.ServerState;
+import org.nd4j.parameterserver.model.ServerTypeJson;
+import org.nd4j.shade.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,6 +56,29 @@ public class ParameterServerClient implements NDArrayCallback {
     private INDArray none = Nd4j.scalar(1.0);
     private AtomicBoolean running;
     private static Logger log = LoggerFactory.getLogger(ParameterServerClient.class);
+    private String masterStatusHost;
+    private int masterStatusPort;
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    /**
+     * Sends a post request to the
+     * status server to determine if the master node is started.
+     * @return
+     */
+    public boolean masterStarted() {
+        try {
+            String type = objectMapper.readValue(Unirest.get(String.format("http://%s:%d/type",masterStatusHost,masterStatusPort))
+                    .asJson().getBody().toString(), ServerTypeJson.class).getType();
+            if(!type.equals("master"))
+                throw new IllegalStateException("Wrong type " + type);
+            Unirest.get(String.format("http://%s:%d/started",masterStatusHost,masterStatusPort)).asJson().getBody();
+            return objectMapper.readValue(Unirest.get(String.format("http://%s:%d/started",masterStatusHost,masterStatusPort))
+                    .asJson().getBody().toString(),MasterStatus.class).started();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * Push an ndarray to the specified

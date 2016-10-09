@@ -23,7 +23,8 @@ public class BackgroundDaemonStarter {
 
 
     /**
-     *  Start a slave daemon with the specified master url with the form of:
+     *  Start a slave daemon with
+     *  the specified master url with the form of:
      *  hostname:port:streamId
      * @param parameterLength the length of the parameters to
      *                        be averaging
@@ -39,7 +40,8 @@ public class BackgroundDaemonStarter {
                 "-p","40126",
                 "-h","localhost",
                 "-id","10",
-                "-pm",masterUrl);
+                "-pm",masterUrl,
+                "-sp","9100");
     }
 
     /**
