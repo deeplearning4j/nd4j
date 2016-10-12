@@ -7,6 +7,7 @@ import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.nd4j.aeron.ipc.*;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
+import static org.nd4j.linalg.factory.Nd4j.scalar;
 
 /**
  * Created by agibsonccc on 10/3/16.
@@ -49,7 +51,29 @@ public class AeronNDArrayResponseTest {
                 getContext2(),
                 host,
                 40124,
-                (NDArrayHolder) () -> Nd4j.scalar(1.0)
+               new NDArrayHolder() {
+                   /**
+                    * The number of updates
+                    * that have been sent to this older.
+                    *
+                    * @return
+                    */
+                   @Override
+                   public int totalUpdates() {
+                       return 1;
+                   }
+
+                   /**
+                    * Retrieve an ndarray
+                    *
+                    * @return
+                    */
+                   @Override
+                   public INDArray get() {
+                       return Nd4j.scalar(1.0);
+                   }
+               }
+
                 ,responderStreamId);
 
         AtomicInteger count = new AtomicInteger(0);
