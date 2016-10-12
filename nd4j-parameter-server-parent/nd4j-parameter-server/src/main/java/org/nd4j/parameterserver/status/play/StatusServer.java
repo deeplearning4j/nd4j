@@ -40,30 +40,32 @@ public class StatusServer {
      * @return the started server
      */
     public static Server startServer(final ParameterAveragingSubscriber subscriber) {
-        Server server = Server.forRouter(new RoutingDsl()
-                //the type of server
-                .GET("/type").routeTo(o -> ok(toJson(
-                        ServerTypeJson.builder().type(subscriber.isMaster()
-                                ? ServerType.MASTER.name().toLowerCase()
-                                : ServerType.SLAVE.name().
-                                toLowerCase()).build())))
-                .GET("/started").routeTo(o -> subscriber.isMaster() ?
-                        ok(toJson(MasterStatus.builder()
-                                .master(subscriber.subscriberLaunched() ?
-                                        ServerState.STARTED.name().toLowerCase() :
-                                        ServerState.STOPPED.name().toLowerCase())
-                                .responder(subscriber.getResponder().getLaunched().get() ?
-                                        ServerState.STARTED.name().toLowerCase() :
-                                        ServerState.STOPPED.name().toLowerCase())
-                                .build()))
-                        :  ok(toJson(SlaveStatus.builder().slave(
-                        subscriber.subscriberLaunched() ?
-                                ServerState.STARTED.name().toLowerCase()
-                                : ServerState.STOPPED.name().toLowerCase()).build())))
-                .GET("/connectioninfo").routeTo(o -> subscriber.isMaster() ?
-                        ok(toJson(subscriber.masterConnectionInfo())) :
-                        ok(toJson(subscriber.slaveConnectionInfo())))
-                .build(), subscriber.getStatusServerPort());
+        RoutingDsl dsl = new RoutingDsl();
+        dsl.GET("/type").routeTo(() -> ok(toJson(
+                ServerTypeJson.builder().type(subscriber.isMaster()
+                        ? ServerType.MASTER.name().toLowerCase()
+                        : ServerType.SLAVE.name().
+                        toLowerCase()).build())));
+        dsl .GET("/started").routeTo(() -> subscriber.isMaster() ?
+                ok(toJson(MasterStatus.builder()
+                        .master(subscriber.subscriberLaunched() ?
+                                ServerState.STARTED.name().toLowerCase() :
+                                ServerState.STOPPED.name().toLowerCase())
+                        .responder(subscriber.getResponder().getLaunched().get() ?
+                                ServerState.STARTED.name().toLowerCase() :
+                                ServerState.STOPPED.name().toLowerCase())
+                        .responderN(subscriber.getResponder().getNdArrayHolder().totalUpdates())
+                        .build()))
+                :  ok(toJson(SlaveStatus.builder().slave(
+                subscriber.subscriberLaunched() ?
+                        ServerState.STARTED.name().toLowerCase()
+                        : ServerState.STOPPED.name().toLowerCase()).build())));
+        dsl.GET("/connectioninfo").routeTo(() -> subscriber.isMaster() ?
+                ok(toJson(subscriber.masterConnectionInfo())) :
+                ok(toJson(subscriber.slaveConnectionInfo())))
+                .build();
+
+        Server server = Server.forRouter(dsl.build(), subscriber.getStatusServerPort());
 
         return server;
 

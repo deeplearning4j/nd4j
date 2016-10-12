@@ -49,6 +49,17 @@ public class ParameterAveragingListener implements NDArrayCallback,NDArrayHolder
     }
 
     /**
+     * The number of updates
+     * that have been sent to this older.
+     *
+     * @return
+     */
+    @Override
+    public int totalUpdates() {
+        return totalN.get();
+    }
+
+    /**
      * Retrieve an ndarray
      *
      * @return

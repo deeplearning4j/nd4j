@@ -41,7 +41,7 @@ public class BackgroundDaemonStarter {
                 "-h","localhost",
                 "-id","10",
                 "-pm",masterUrl,
-                "-sp","9100");
+                "-sp","9500");
     }
 
     /**
@@ -94,7 +94,8 @@ public class BackgroundDaemonStarter {
                 "-l",String.valueOf(parameterLength),
                 "-p","40123",
                 "-h","localhost",
-                "-id","11");
+                "-id","11",
+                "-sp","9200");
     }
 
 
@@ -117,7 +118,7 @@ public class BackgroundDaemonStarter {
         if(args == null || args.length < 1) {
             try {
                 return  new ProcessExecutor().command(javaBin, "-cp", classpath, className)
-                          .readOutput(true).redirectOutput(System.out)
+                          .readOutput(true).redirectOutput(System.out).destroyOnExit()
                           .redirectError(System.err).execute().getExitValue();
             } catch (TimeoutException e) {
                 e.printStackTrace();
@@ -127,7 +128,7 @@ public class BackgroundDaemonStarter {
             List<String> args2 = new ArrayList<>(Arrays.asList(javaBin, "-cp", classpath,className,"-md",mediaDriverDirectory));
             args2.addAll(Arrays.asList(args));
             try {
-                return  new ProcessExecutor().command(args2)
+                  new ProcessExecutor().command(args2).destroyOnExit()
                         .readOutput(true).redirectOutput(System.out)
                         .redirectError(System.err).execute().getExitValue();
             } catch (TimeoutException e) {

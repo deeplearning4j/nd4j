@@ -56,6 +56,8 @@ public class ParameterAveragingSubscriber {
     private String mediaDriverDirectoryName;
     @Parameter(names={"-sp","--statusserverport"}, description = "The status server port, defaults to 9000.", arity = 1)
     private int statusServerPort = 9000;
+
+
     private Server server;
     private MediaDriver mediaDriver;
     private AeronNDArrayResponder responder;
@@ -121,7 +123,7 @@ public class ParameterAveragingSubscriber {
             //User provides invalid input -> print the usage info
             jcmdr.usage();
             try{ Thread.sleep(500); } catch(Exception e2){ }
-            throw e;
+            System.exit(1);
         }
 
         if(publishMasterUrl == null && !master)
@@ -187,6 +189,7 @@ public class ParameterAveragingSubscriber {
         }
 
         server = StatusServer.startServer(this);
+        log.info("Started status server  on " + statusServerPort);
 
     }
 

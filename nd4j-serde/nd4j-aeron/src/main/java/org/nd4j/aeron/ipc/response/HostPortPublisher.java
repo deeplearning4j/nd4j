@@ -4,6 +4,7 @@ import io.aeron.Aeron;
 import io.aeron.Publication;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import org.agrona.CloseHelper;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.nd4j.aeron.ipc.AeronNDArrayPublisher;
 import org.slf4j.Logger;
@@ -142,8 +143,8 @@ public class HostPortPublisher implements AutoCloseable {
     @Override
     public void close() throws Exception {
         if(aeron != null)
-            aeron.close();
+            CloseHelper.quietClose(aeron);
         if(publication != null)
-            publication.close();
+            CloseHelper.quietClose(publication);
     }
 }

@@ -1,7 +1,9 @@
 package org.nd4j.parameterserver.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.List;
  */
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SlaveConnectionInfo implements Serializable {
     private String connectionUrl;
     private String masterUrl;

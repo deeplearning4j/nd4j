@@ -60,12 +60,42 @@ public class ParameterServerClient implements NDArrayCallback {
     private int masterStatusPort;
     private ObjectMapper objectMapper = new ObjectMapper();
 
+
+    /**
+     * Tracks number of arrays send to responder.
+     * @return
+     */
+    public int arraysSentToResponder() {
+        if(objectMapper == null)
+            objectMapper = new ObjectMapper();
+
+        try {
+            String type = objectMapper.readValue(Unirest.get(String.format("http://%s:%d/type",masterStatusHost,masterStatusPort))
+                    .asJson().getBody().toString(), ServerTypeJson.class).getType();
+            if(!type.equals("master"))
+                throw new IllegalStateException("Wrong type " + type);
+            Unirest.get(String.format("http://%s:%d/started",masterStatusHost,masterStatusPort)).asJson().getBody();
+            return objectMapper.readValue(Unirest.get(String.format(
+                    "http://%s:%d/started"
+                    ,masterStatusHost,masterStatusPort))
+                    .asJson()
+                    .getBody()
+                    .toString(),MasterStatus.class).getResponderN();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     /**
      * Sends a post request to the
      * status server to determine if the master node is started.
      * @return
      */
     public boolean masterStarted() {
+        if(objectMapper == null)
+            objectMapper = new ObjectMapper();
+
         try {
             String type = objectMapper.readValue(Unirest.get(String.format("http://%s:%d/type",masterStatusHost,masterStatusPort))
                     .asJson().getBody().toString(), ServerTypeJson.class).getType();
@@ -187,6 +217,8 @@ public class ParameterServerClient implements NDArrayCallback {
             //wait for array to be available
             while (arr.get() == none) {
                 Thread.sleep(1000);
+                hostPortPublisher.send();
+                log.info("Waiting on array to be updated.");
             }
 
         }

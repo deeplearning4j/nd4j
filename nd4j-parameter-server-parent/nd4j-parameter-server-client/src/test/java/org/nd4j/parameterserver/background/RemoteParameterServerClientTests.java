@@ -13,6 +13,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.parameterserver.client.ParameterServerClient;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -23,6 +25,8 @@ public class RemoteParameterServerClientTests {
     private int parameterLength = 1000;
     private Aeron.Context ctx;
     private MediaDriver mediaDriver;
+    private AtomicInteger masterStatus = new AtomicInteger(0);
+    private AtomicInteger slaveStatus = new AtomicInteger(0);
 
     @Before
     public void before() throws Exception {
@@ -36,10 +40,11 @@ public class RemoteParameterServerClientTests {
 
         mediaDriver = MediaDriver.launchEmbedded(ctx);
 
-
         Thread t = new Thread(() -> {
             try {
-                BackgroundDaemonStarter.startMaster(parameterLength,mediaDriver.aeronDirectoryName());
+                masterStatus.set(BackgroundDaemonStarter.startMaster(
+                        parameterLength,
+                        mediaDriver.aeronDirectoryName()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -49,13 +54,17 @@ public class RemoteParameterServerClientTests {
         log.info("Started master");
         Thread t2 = new Thread(() -> {
             try {
-                BackgroundDaemonStarter.startSlave(parameterLength,mediaDriver.aeronDirectoryName());
+                slaveStatus.set(BackgroundDaemonStarter.startSlave(
+                        parameterLength,
+                        mediaDriver.aeronDirectoryName()));
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         t2.start();
         log.info("Started slave");
+        //wait on the http servers
+        Thread.sleep(30000);
 
     }
 
@@ -67,6 +76,9 @@ public class RemoteParameterServerClientTests {
 
     @Test
     public void remoteTests() throws Exception {
+        if(masterStatus.get() != 0 || slaveStatus.get() != 0)
+            throw new IllegalStateException("Master or slave failed to start. Exiting");
+
         ParameterServerClient client = ParameterServerClient
                 .builder()
                 .ctx(getContext())
@@ -74,14 +86,15 @@ public class RemoteParameterServerClientTests {
                 .ndarraySendUrl(BackgroundDaemonStarter.slaveConnectionUrl())
                 .subscriberHost("localhost")
                 .masterStatusHost("localhost")
-                .masterStatusPort(9999)
+                .masterStatusPort(9200)
                 .subscriberPort(40125)
                 .subscriberStream(12).build();
 
         assertEquals("localhost:40125:12",client.connectionUrl());
-        while(!client.masterStarted())
+        while(!client.masterStarted()) {
             Thread.sleep(1000);
-
+            log.info("Waiting on master starting.");
+        }
 
         //flow 1:
         /**
@@ -90,8 +103,13 @@ public class RemoteParameterServerClientTests {
          * which adds the array for parameter averaging.
          * In this case totalN should be 1.
          */
+        log.info("Pushing ndarray");
         client.pushNDArray(Nd4j.ones(parameterLength));
-        Thread.sleep(1000);
+        while(client.arraysSentToResponder() < 1) {
+            Thread.sleep(1000);
+            log.info("Waiting on ndarray responder to receive array");
+        }
+
         log.info("Pushed ndarray");
         INDArray arr = client.getArray();
         assertEquals(Nd4j.ones(1000),arr);
