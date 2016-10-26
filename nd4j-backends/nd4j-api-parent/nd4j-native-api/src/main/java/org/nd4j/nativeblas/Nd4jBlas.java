@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Original credit:
  * https://github.com/uncomplicate/neanderthal-atlas
  */
-@Platform(include = "NativeBlas.h", compiler = "cpp11", link = "nd4j", library = "jnind4j")
+@Platform(include = "NativeBlas.h", compiler = "cpp11", link = "nd4j", library = "nd4j")
 public class Nd4jBlas extends Pointer {
 
     public enum Vendor {

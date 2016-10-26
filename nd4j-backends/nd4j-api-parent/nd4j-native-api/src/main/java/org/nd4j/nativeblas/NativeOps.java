@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * op execution on cpu
  * @author Adam Gibson
  */
-@Platform(include = "NativeOps.h", compiler = "cpp11", link = "nd4j", library = "jnind4j")
+@Platform(include = "NativeOps.h", compiler = "cpp11", link = "nd4j", library = "nd4j")
 public class NativeOps extends Pointer {
     private static Logger log = LoggerFactory.getLogger(NativeOps.class);
     static {
