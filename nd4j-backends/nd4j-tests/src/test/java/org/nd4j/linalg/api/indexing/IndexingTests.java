@@ -34,7 +34,6 @@ public class IndexingTests extends BaseNd4jTest {
     @Test
     public void testVectorIndexing() {
         INDArray x = Nd4j.linspace(0,10,11);
-        System.out.println(x);
         int[] index = new int[]{5, 8, 9};
         INDArray columnsTest = x.getColumns(index);
         assertEquals(Nd4j.create(new double[]{5,8,9}),columnsTest);
@@ -43,6 +42,31 @@ public class IndexingTests extends BaseNd4jTest {
         assertEquals(Nd4j.create(new double[]{2,2,4}),columnsTest2);
 
     }
+
+    @Test
+    public void testGetRowsColumnsMatrix() {
+        INDArray arr = Nd4j.linspace(1,24,24).reshape(4,6);
+        INDArray firstAndSecondColumnsAssertion = Nd4j.create(new double[][] {
+                {1,5},
+                {2,6},
+                {3,7},
+                {4,8}
+        });
+
+        System.out.println(arr);
+        INDArray firstAndSecondColumns = arr.getColumns(0,1);
+        assertEquals(firstAndSecondColumnsAssertion,firstAndSecondColumns);
+
+        INDArray firstAndSecondRows = Nd4j.create(new double[][]{
+                {1.00, 5.00, 9.00, 13.00, 17.00, 21.00},
+                {1.00, 5.00, 9.00, 13.00, 17.00, 21.00},
+                {2.00, 6.00, 10.00, 14.00, 18.00, 22.00}
+        });
+
+        INDArray rows = arr.getRows(new int[]{0,0,1});
+        assertEquals(firstAndSecondRows,rows);
+    }
+
 
 
 
