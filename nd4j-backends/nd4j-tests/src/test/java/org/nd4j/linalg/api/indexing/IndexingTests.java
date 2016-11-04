@@ -31,6 +31,18 @@ public class IndexingTests extends BaseNd4jTest {
 
     }
 
+    @Test
+    public void testVectorIndexing() {
+        INDArray x = Nd4j.linspace(0,10,11);
+        System.out.println(x);
+        int[] index = new int[]{5, 8, 9};
+        INDArray columnsTest = x.getColumns(index);
+        assertEquals(Nd4j.create(new double[]{5,8,9}),columnsTest);
+        int[] index2 = new int[]{2, 2, 4}; //retrieve the same columns twice
+        INDArray columnsTest2 = x.getColumns(index2);
+        assertEquals(Nd4j.create(new double[]{2,2,4}),columnsTest2);
+
+    }
 
 
 

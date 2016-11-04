@@ -3837,7 +3837,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public INDArray getRows(int[] rindices) {
-        return get(new SpecifiedIndex(rindices));
+        return Nd4j.pullRows(this,1,rindices);
     }
 
     /**
@@ -3910,7 +3910,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public INDArray getColumns(int...cindices) {
-        return get(NDArrayIndex.all(),new SpecifiedIndex(cindices));
+        return Nd4j.pullRows(this,0,cindices);
     }
 
     protected INDArray create(int rows, int length) {
