@@ -11,7 +11,7 @@ import org.nd4j.shade.jackson.databind.ser.std.StdJdkSerializers;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Parameter averaging
+ * Parameter server
  * listener
  * @author Adam Gibson
  */
@@ -20,6 +20,15 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
     private INDArray arr;
     private AtomicInteger totalN = new AtomicInteger(0);
     private boolean master;
+    private int[] shape;
+
+    /**
+     * Shape of the ndarray
+     * @param shape the shape of the array
+     */
+    public ParameterServerListener(int[] shape) {
+        this.arr = Nd4j.create(shape);
+    }
 
     /**
      * Length of the listener
@@ -50,7 +59,10 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
      */
     @Override
     public synchronized void onNDArray(INDArray arr) {
-        this.arr.addi(arr.reshape(1,arr.length()));
+        if(shape == null)
+            this.arr.addi(arr.reshape(1,arr.length()));
+        else
+            this.arr.addi(arr);
         totalN.incrementAndGet();
     }
 
@@ -80,5 +92,20 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
     @Override
     public synchronized  INDArray get() {
         return arr;
+    }
+
+    /**
+     * Retrieve a partial view of the ndarray.
+     * This method uses tensor along dimension internally
+     * Note this will call dup()
+     *
+     * @param idx        the index of the tad to get
+     * @param dimensions the dimensions to use
+     * @return the tensor along dimension based on the index and dimensions
+     * from the master array.
+     */
+    @Override
+    public synchronized INDArray getTad(int idx, int... dimensions) {
+        return arr.tensorAlongDimension(idx,dimensions);
     }
 }

@@ -18,6 +18,12 @@ import java.io.IOException;
  */
 public class NDArrayFragmentHandler implements FragmentHandler {
     private NDArrayCallback ndArrayCallback;
+    private int[] dimensions;
+
+    public NDArrayFragmentHandler(NDArrayCallback ndArrayCallback,int[] dimensions) {
+        this.ndArrayCallback = ndArrayCallback;
+        this.dimensions = dimensions;
+    }
 
     public NDArrayFragmentHandler(NDArrayCallback ndArrayCallback) {
         this.ndArrayCallback = ndArrayCallback;
@@ -36,7 +42,13 @@ public class NDArrayFragmentHandler implements FragmentHandler {
         INDArray arr = AeronNDArraySerde.toArray(buffer,offset);
         if(arr.isCompressed())
             Nd4j.getCompressor().decompressi(arr);
-        ndArrayCallback.onNDArray(arr);
+        /**
+         * Hmmm...not sure how to pass the index here
+         */
+        if(dimensions != null)
+            ndArrayCallback.onNDArrayPartial(arr,0,dimensions);
+        else
+            ndArrayCallback.onNDArray(arr);
 
     }
 }

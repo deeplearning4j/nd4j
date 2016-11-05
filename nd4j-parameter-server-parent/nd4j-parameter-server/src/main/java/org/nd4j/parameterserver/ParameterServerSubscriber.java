@@ -3,7 +3,9 @@ package org.nd4j.parameterserver;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
+import com.beust.jcommander.Parameters;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Ints;
 import io.aeron.Aeron;
 import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
@@ -22,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import play.server.Server;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.LockSupport;
 
@@ -34,6 +37,7 @@ import java.util.concurrent.locks.LockSupport;
  */
 @NoArgsConstructor
 @Data
+@Parameters(separators = ",")
 public class ParameterServerSubscriber {
 
     private static Logger log = LoggerFactory.getLogger(ParameterServerSubscriber.class);
@@ -56,8 +60,10 @@ public class ParameterServerSubscriber {
     private String mediaDriverDirectoryName;
     @Parameter(names={"-sp","--statusserverport"}, description = "The status server port, defaults to 9000.", arity = 1)
     private int statusServerPort = 9000;
-    @Parameter(names={"-dimensions","--dimensionsforupdate"}, description = "The dimensions for update (for partial updates)", arity = 1)
-    private int[] dimensions;
+    @Parameter(names={"-dm","--dimensionsforupdate"}, description = "The dimensions for update (for partial updates)", arity = 1)
+    private List<Integer> dimensions;
+    @Parameter(names={"-s","--shape"}, description = "The dimensions for update (for partial updates)", arity = 1)
+    private List<Integer> shape;
 
     private Server server;
     private MediaDriver mediaDriver;
@@ -152,7 +158,12 @@ public class ParameterServerSubscriber {
 
 
         if(master) {
-            callback =  new ParameterServerListener(parameterLength);
+            //instantiate with shape instead of just length
+            if(dimensions != null) {
+                 callback = new ParameterServerListener(Ints.toArray(shape));
+            }
+            else
+                callback =  new ParameterServerListener(parameterLength);
             //start an extra daemon for responding to get queries
             ParameterServerListener cast = (ParameterServerListener) callback;
             responder = AeronNDArrayResponder.startSubscriber(
