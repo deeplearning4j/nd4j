@@ -1,4 +1,4 @@
-package org.nd4j.parameterserver.parameteraveraging;
+package org.nd4j.parameterserver;
 
 import lombok.Data;
 import org.nd4j.aeron.ipc.NDArrayCallback;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Adam Gibson
  */
 @Data
-public class ParameterAveragingListener implements NDArrayCallback,NDArrayHolder {
+public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
     private INDArray arr;
     private AtomicInteger totalN = new AtomicInteger(0);
     private boolean master;
@@ -25,10 +25,23 @@ public class ParameterAveragingListener implements NDArrayCallback,NDArrayHolder
      * Length of the listener
      * @param length the length of the array
      */
-    public ParameterAveragingListener(int length) {
+    public ParameterServerListener(int length) {
         this.arr = Nd4j.zeros(length);
     }
 
+
+    /**
+     * Used for partial updates using tensor along
+     * dimension
+     *
+     * @param arr        the array to count as an update
+     * @param idx        the index for the tensor along dimension
+     * @param dimensions the dimensions to act on for the tensor along dimension
+     */
+    @Override
+    public synchronized  void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
+        arr.tensorAlongDimension(idx,dimensions).addi(arr);
+    }
 
     /**
      * Setup an ndarray

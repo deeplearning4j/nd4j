@@ -1,4 +1,4 @@
-package org.nd4j.parameterserver.parameteraveraging;
+package org.nd4j.parameterserver;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
@@ -34,9 +34,9 @@ import java.util.concurrent.locks.LockSupport;
  */
 @NoArgsConstructor
 @Data
-public class ParameterAveragingSubscriber {
+public class ParameterServerSubscriber {
 
-    private static Logger log = LoggerFactory.getLogger(ParameterAveragingSubscriber.class);
+    private static Logger log = LoggerFactory.getLogger(ParameterServerSubscriber.class);
 
     @Parameter(names={"-p","--port"}, description = "The port to listen on for the daemon", arity = 1)
     private int port = 40123;
@@ -56,7 +56,8 @@ public class ParameterAveragingSubscriber {
     private String mediaDriverDirectoryName;
     @Parameter(names={"-sp","--statusserverport"}, description = "The status server port, defaults to 9000.", arity = 1)
     private int statusServerPort = 9000;
-
+    @Parameter(names={"-dimensions","--dimensionsforupdate"}, description = "The dimensions for update (for partial updates)", arity = 1)
+    private int[] dimensions;
 
     private Server server;
     private MediaDriver mediaDriver;
@@ -70,7 +71,7 @@ public class ParameterAveragingSubscriber {
      * media driver that already exists
      * @param mediaDriver
      */
-    public ParameterAveragingSubscriber(MediaDriver mediaDriver) {
+    public ParameterServerSubscriber(MediaDriver mediaDriver) {
         Preconditions.checkNotNull(mediaDriver);
         this.mediaDriver = mediaDriver;
     }
@@ -151,9 +152,9 @@ public class ParameterAveragingSubscriber {
 
 
         if(master) {
-            callback =  new ParameterAveragingListener(parameterLength);
+            callback =  new ParameterServerListener(parameterLength);
             //start an extra daemon for responding to get queries
-            ParameterAveragingListener cast = (ParameterAveragingListener) callback;
+            ParameterServerListener cast = (ParameterServerListener) callback;
             responder = AeronNDArrayResponder.startSubscriber(
                     getContext(),
                     host,port + 1,
@@ -214,6 +215,6 @@ public class ParameterAveragingSubscriber {
     }
 
     public static void main(String[] args) {
-        new ParameterAveragingSubscriber().run(args);
+        new ParameterServerSubscriber().run(args);
     }
 }

@@ -9,8 +9,8 @@ import org.junit.Test;
 import org.nd4j.aeron.ipc.AeronUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.parameterserver.parameteraveraging.ParameterAveragingListener;
-import org.nd4j.parameterserver.parameteraveraging.ParameterAveragingSubscriber;
+import org.nd4j.parameterserver.ParameterServerListener;
+import org.nd4j.parameterserver.ParameterServerSubscriber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +25,7 @@ public class ParameterServerClientTest {
     private MediaDriver mediaDriver;
     private static Logger log = LoggerFactory.getLogger(ParameterServerClientTest.class);
     private Aeron.Context ctx;
-    private ParameterAveragingSubscriber masterNode,slaveNode;
+    private ParameterServerSubscriber masterNode,slaveNode;
     private int parameterLength = 1000;
 
     @Before
@@ -39,7 +39,7 @@ public class ParameterServerClientTest {
                 .senderIdleStrategy(new BusySpinIdleStrategy());
 
         mediaDriver = MediaDriver.launchEmbedded(ctx);
-        masterNode = new ParameterAveragingSubscriber(mediaDriver);
+        masterNode = new ParameterServerSubscriber(mediaDriver);
         masterNode.run(new String[] {
                 "-m","true",
                 "-l",String.valueOf(parameterLength),
@@ -57,7 +57,7 @@ public class ParameterServerClientTest {
         assertEquals(11,masterNode.getStreamId());
         assertEquals(12,masterNode.getResponder().getStreamId());
 
-        slaveNode = new ParameterAveragingSubscriber(mediaDriver);
+        slaveNode = new ParameterServerSubscriber(mediaDriver);
         slaveNode.run(new String[] {
                 "-l",String.valueOf(parameterLength),
                 "-p","40126",
@@ -111,7 +111,7 @@ public class ParameterServerClientTest {
         client.pushNDArray(Nd4j.ones(parameterLength));
         log.info("Pushed ndarray");
         Thread.sleep(10000);
-        ParameterAveragingListener listener = (ParameterAveragingListener) masterNode.getCallback();
+        ParameterServerListener listener = (ParameterServerListener) masterNode.getCallback();
         assertEquals(1,listener.getTotalN().get());
         assertEquals(Nd4j.ones(parameterLength),listener.getArr());
         INDArray arr = client.getArray();

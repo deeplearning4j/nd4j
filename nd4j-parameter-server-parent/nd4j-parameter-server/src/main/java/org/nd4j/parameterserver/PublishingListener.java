@@ -1,4 +1,4 @@
-package org.nd4j.parameterserver.parameteraveraging;
+package org.nd4j.parameterserver;
 
 import io.aeron.Aeron;
 import lombok.AllArgsConstructor;
