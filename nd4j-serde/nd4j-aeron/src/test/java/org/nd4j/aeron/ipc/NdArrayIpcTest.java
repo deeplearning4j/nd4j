@@ -57,10 +57,17 @@ public class NdArrayIpcTest {
         AeronNDArraySubscriber subscriber = AeronNDArraySubscriber.builder().streamId(10)
                 .ctx(getContext()).channel("aeron:udp?endpoint=localhost:40123")
                 .running(running)
-                .ndArrayCallback(arr1 -> {
-                    System.out.println(arr1);
-                    running.set(false);
+                .ndArrayCallback(new NDArrayCallback() {
+                    @Override
+                    public void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
 
+                    }
+
+                    @Override
+                    public void onNDArray(INDArray arr) {
+                        System.out.println(arr);
+                        running.set(false);
+                    }
                 }).build();
 
 

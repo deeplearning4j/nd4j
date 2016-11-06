@@ -18,19 +18,15 @@ import java.io.IOException;
  */
 public class NDArrayFragmentHandler implements FragmentHandler {
     private NDArrayCallback ndArrayCallback;
-    private int[] dimensions;
 
-    public NDArrayFragmentHandler(NDArrayCallback ndArrayCallback,int[] dimensions) {
-        this.ndArrayCallback = ndArrayCallback;
-        this.dimensions = dimensions;
-    }
 
     public NDArrayFragmentHandler(NDArrayCallback ndArrayCallback) {
         this.ndArrayCallback = ndArrayCallback;
     }
 
     /**
-     * Callback for handling fragments of data being read from a log.
+     * Callback for handling
+     * fragments of data being read from a log.
      *
      * @param buffer containing the data.
      * @param offset at which the data begins.
@@ -39,13 +35,16 @@ public class NDArrayFragmentHandler implements FragmentHandler {
      */
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header) {
-        INDArray arr = AeronNDArraySerde.toArray(buffer,offset);
-        if(arr.isCompressed())
-            Nd4j.getCompressor().decompressi(arr);
+        NDArrayMessage message = NDArrayMessage.fromBuffer(buffer,offset);
+        INDArray arr = message.getArr();
+        //of note for ndarrays
+        int[] dimensions = message.getDimensions();
+        boolean whole = dimensions.length == 1 && dimensions[0] == -1;
+
         /**
          * Hmmm...not sure how to pass the index here
          */
-        if(dimensions != null)
+        if(!whole)
             ndArrayCallback.onNDArrayPartial(arr,0,dimensions);
         else
             ndArrayCallback.onNDArray(arr);

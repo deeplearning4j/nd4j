@@ -62,7 +62,7 @@ public class ParameterServerSubscriber {
     private int statusServerPort = 9000;
     @Parameter(names={"-dm","--dimensionsforupdate"}, description = "The dimensions for update (for partial updates)", arity = 1)
     private List<Integer> dimensions;
-    @Parameter(names={"-s","--shape"}, description = "The dimensions for update (for partial updates)", arity = 1)
+    @Parameter(names={"-s","--shape"}, description = "The shape of the ndarray", arity = 1)
     private List<Integer> shape;
 
     private Server server;
