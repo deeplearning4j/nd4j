@@ -240,7 +240,7 @@ public class ParameterServerClient implements NDArrayCallback {
     @Override
     public void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
         INDArray get = this.arr.get();
-        get.tensorAlongDimension(idx,dimensions).assign(arr);
+        get.tensorAlongDimension((int) idx,dimensions).assign(arr);
 
     }
 

@@ -47,19 +47,20 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
 
     /**
      * Publish an ndarray to an aeron channel
-     * @param arr
+     * @param message
      * @throws Exception
      */
-    public void publish(INDArray arr) throws Exception {
+    public void publish(NDArrayMessage message) throws Exception {
         // Allocate enough buffer size to hold maximum message length
         // The UnsafeBuffer class is part of the Agrona library and is used for efficient buffer management
         log.debug("Publishing to " + channel + " on stream Id " + streamId);
         //ensure default values are set
+        INDArray arr = message.getArr();
         while(!arr.isCompressed())
             Nd4j.getCompressor().compressi(arr,"GZIP");
 
 
-        DirectBuffer buffer = NDArrayMessage.toBuffer(NDArrayMessage.wholeArrayUpdate(arr));
+        DirectBuffer buffer = NDArrayMessage.toBuffer(message);
 
         if(!init)
             init();
@@ -124,6 +125,16 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
 
         log.debug("Done sending.");
 
+    }
+
+
+    /**
+     * Publish an ndarray to an aeron channel
+     * @param arr
+     * @throws Exception
+     */
+    public void publish(INDArray arr) throws Exception {
+        publish(NDArrayMessage.wholeArrayUpdate(arr));
     }
 
 
