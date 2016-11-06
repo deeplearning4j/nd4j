@@ -203,13 +203,14 @@ public class NDArrayMessage implements Serializable {
         Pair<INDArray,ByteBuffer> pair = AeronNDArraySerde.toArrayAndByteBuffer(buffer, offset);
         INDArray arr = pair.getKey();
         if(arr.isCompressed())
-            Nd4j.getCompressor().decompressi(arr);
+           arr = Nd4j.getCompressor().decompress(arr);
         //use the rest of the buffer, of note here the offset is already set, we should only need to use
         ByteBuffer rest = pair.getRight();
         long time = rest.getLong();
         long index = rest.getLong();
         //get the array next for dimensions
         int dimensionLength = rest.getInt();
+        System.out.println(dimensionLength);
         int[] dimensions = new int[dimensionLength];
         for(int i = 0; i < dimensionLength; i++)
             dimensions[i] = rest.getInt();

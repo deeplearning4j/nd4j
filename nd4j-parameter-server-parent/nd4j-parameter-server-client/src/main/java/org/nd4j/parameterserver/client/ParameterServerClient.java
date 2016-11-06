@@ -1,8 +1,6 @@
 package org.nd4j.parameterserver.client;
 
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import io.aeron.Aeron;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +10,6 @@ import org.nd4j.aeron.ipc.response.HostPortPublisher;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.parameterserver.model.MasterStatus;
-import org.nd4j.parameterserver.model.ServerState;
 import org.nd4j.parameterserver.model.ServerTypeJson;
 import org.nd4j.shade.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -236,13 +233,12 @@ public class ParameterServerClient implements NDArrayCallback {
     /**
      * Used for partial updates using tensor along
      * dimension
-     *
-     * @param arr        the array to count as an update
+     *  @param arr        the array to count as an update
      * @param idx        the index for the tensor along dimension
      * @param dimensions the dimensions to act on for the tensor along dimension
      */
     @Override
-    public void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
+    public void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
         INDArray get = this.arr.get();
         get.tensorAlongDimension(idx,dimensions).assign(arr);
 

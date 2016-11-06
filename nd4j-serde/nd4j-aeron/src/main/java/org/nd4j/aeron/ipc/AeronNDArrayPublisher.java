@@ -6,6 +6,7 @@ import io.aeron.exceptions.DriverTimeoutException;
 import lombok.Builder;
 import lombok.Data;
 
+import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
@@ -58,7 +59,7 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
             Nd4j.getCompressor().compressi(arr,"GZIP");
 
 
-        UnsafeBuffer buffer = AeronNDArraySerde.toBuffer(arr);
+        DirectBuffer buffer = NDArrayMessage.toBuffer(NDArrayMessage.wholeArrayUpdate(arr));
 
         if(!init)
             init();

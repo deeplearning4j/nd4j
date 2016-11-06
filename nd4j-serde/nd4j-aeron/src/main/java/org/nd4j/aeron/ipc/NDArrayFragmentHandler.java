@@ -41,11 +41,8 @@ public class NDArrayFragmentHandler implements FragmentHandler {
         int[] dimensions = message.getDimensions();
         boolean whole = dimensions.length == 1 && dimensions[0] == -1;
 
-        /**
-         * Hmmm...not sure how to pass the index here
-         */
         if(!whole)
-            ndArrayCallback.onNDArrayPartial(arr,0,dimensions);
+            ndArrayCallback.onNDArrayPartial(arr,message.getIndex(),dimensions);
         else
             ndArrayCallback.onNDArray(arr);
 

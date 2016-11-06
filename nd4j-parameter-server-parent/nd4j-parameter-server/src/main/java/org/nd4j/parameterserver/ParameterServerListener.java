@@ -5,8 +5,6 @@ import org.nd4j.aeron.ipc.NDArrayCallback;
 import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.shade.jackson.databind.deser.std.AtomicBooleanDeserializer;
-import org.nd4j.shade.jackson.databind.ser.std.StdJdkSerializers;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,13 +40,12 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
     /**
      * Used for partial updates using tensor along
      * dimension
-     *
-     * @param arr        the array to count as an update
+     *  @param arr        the array to count as an update
      * @param idx        the index for the tensor along dimension
      * @param dimensions the dimensions to act on for the tensor along dimension
      */
     @Override
-    public synchronized  void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
+    public synchronized  void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
         arr.tensorAlongDimension(idx,dimensions).addi(arr);
     }
 

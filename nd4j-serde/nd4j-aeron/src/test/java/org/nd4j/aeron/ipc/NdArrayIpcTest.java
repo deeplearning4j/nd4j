@@ -59,7 +59,7 @@ public class NdArrayIpcTest {
                 .running(running)
                 .ndArrayCallback(new NDArrayCallback() {
                     @Override
-                    public void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
+                    public void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
 
                     }
 
@@ -87,7 +87,6 @@ public class NdArrayIpcTest {
                 .build();
         for(int i = 0; i< 1000 && running.get(); i++)
             publisher.publish(arr);
-        Thread.sleep(1000);
         publisher.close();
         assertFalse(running.get());
 

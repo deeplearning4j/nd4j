@@ -99,7 +99,7 @@ public class AeronNDArrayResponseTest {
                 40123,
                 new NDArrayCallback() {
                     @Override
-                    public void onNDArrayPartial(INDArray arr, int idx, int... dimensions) {
+                    public void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
                         count.incrementAndGet();
                     }
 
