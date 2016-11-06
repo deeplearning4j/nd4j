@@ -3,12 +3,14 @@ package org.nd4j.aeron.ipc;
 import io.aeron.logbuffer.FragmentHandler;
 import io.aeron.logbuffer.Header;
 import org.agrona.DirectBuffer;
+import org.agrona.concurrent.UnsafeBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 /**
  * NDArray fragment handler
@@ -35,6 +37,7 @@ public class NDArrayFragmentHandler implements FragmentHandler {
      */
     @Override
     public void onFragment(DirectBuffer buffer, int offset, int length, Header header) {
+        buffer = new UnsafeBuffer(buffer,offset,length);
         NDArrayMessage message = NDArrayMessage.fromBuffer(buffer,offset);
         INDArray arr = message.getArr();
         //of note for ndarrays

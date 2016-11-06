@@ -167,8 +167,10 @@ public class NDArrayMessage implements Serializable {
             AeronNDArraySerde.doByteBufferPutUnCompressed(message.getArr(),byteBuffer,false);
         }
 
-        byteBuffer.putLong(message.getSent());
-        byteBuffer.putLong(message.getIndex());
+        long sent = message.getSent();
+        long index = message.getIndex();
+        byteBuffer.putLong(sent);
+        byteBuffer.putLong(index);
         byteBuffer.putInt(message.getDimensions().length);
         for(int i = 0; i < message.getDimensions().length; i++) {
             byteBuffer.putInt(message.getDimensions()[i]);
@@ -203,14 +205,15 @@ public class NDArrayMessage implements Serializable {
         Pair<INDArray,ByteBuffer> pair = AeronNDArraySerde.toArrayAndByteBuffer(buffer, offset);
         INDArray arr = pair.getKey();
         if(arr.isCompressed())
-           arr = Nd4j.getCompressor().decompress(arr);
+            arr = Nd4j.getCompressor().decompress(arr);
         //use the rest of the buffer, of note here the offset is already set, we should only need to use
         ByteBuffer rest = pair.getRight();
         long time = rest.getLong();
         long index = rest.getLong();
         //get the array next for dimensions
         int dimensionLength = rest.getInt();
-        System.out.println(dimensionLength);
+        if(dimensionLength <= 0)
+            throw new IllegalArgumentException("Invalid dimension length " + dimensionLength);
         int[] dimensions = new int[dimensionLength];
         for(int i = 0; i < dimensionLength; i++)
             dimensions[i] = rest.getInt();

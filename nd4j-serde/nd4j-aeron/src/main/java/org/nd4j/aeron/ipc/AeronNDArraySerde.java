@@ -160,6 +160,7 @@ public class AeronNDArraySerde {
      */
     public static Pair<INDArray,ByteBuffer> toArrayAndByteBuffer(DirectBuffer buffer, int offset) {
         ByteBuffer byteBuffer = buffer.byteBuffer().order(ByteOrder.nativeOrder());
+        //bump the byte buffer to the proper position
         byteBuffer.position(offset);
         int rank = byteBuffer.getInt();
         //get the shape buffer length to create the shape information buffer
@@ -172,9 +173,6 @@ public class AeronNDArraySerde {
         for(int i = 0; i < shapeBufferLength; i++) {
             shapeBuff.put(i,byteBuffer.getInt());
         }
-
-
-
 
         //after the rank,data type, shape buffer (of length shape buffer length) * sizeof(int)
         if(type != DataBuffer.Type.COMPRESSED) {
@@ -189,14 +187,15 @@ public class AeronNDArraySerde {
         }
         else {
             CompressionDescriptor compressionDescriptor = CompressionDescriptor.fromByteBuffer(byteBuffer);
-            ByteBuffer slice = byteBuffer.slice();
+            ByteBuffer slice =  byteBuffer.slice();
             //ensure that we only deal with the slice of the buffer that is actually the data
-            BytePointer byteBufferPointer = new BytePointer(slice);
+            BytePointer byteBufferPointer = new BytePointer(slice.duplicate());
             //create a compressed array based on the rest of the data left in the buffer
             CompressedDataBuffer compressedDataBuffer = new CompressedDataBuffer(byteBufferPointer,compressionDescriptor);
             INDArray arr = Nd4j.createArrayFromShapeBuffer(compressedDataBuffer,shapeBuff);
             //advance past the data
-            byteBuffer.position(byteBuffer.position() + (int) (compressionDescriptor.getCompressedLength() * compressionDescriptor.getNumberOfElements()));
+            int compressLength = (int) compressionDescriptor.getCompressedLength();
+            byteBuffer.position(byteBuffer.position() + compressLength);
             return Pair.of(arr,byteBuffer);
         }
 

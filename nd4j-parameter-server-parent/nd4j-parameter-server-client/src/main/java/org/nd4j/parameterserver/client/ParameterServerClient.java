@@ -108,15 +108,17 @@ public class ParameterServerClient implements NDArrayCallback {
         return false;
     }
 
+
+
     /**
-     * Push an ndarray to the specified
+     * Push an ndarray message to the specified
      * ndarray send url in the form of:
      * host;port:stream
      * where stream is the stream for connecting
      * to a listening aeron server
-     * @param arr the array to send
+     * @param message the array to send
      */
-    public void pushNDArray(INDArray arr) {
+    public void pushNDArrayMessage(NDArrayMessage message) {
         //start a subscriber that can send us ndarrays
         if(subscriber == null) {
             running = new AtomicBoolean(true);
@@ -138,11 +140,23 @@ public class ParameterServerClient implements NDArrayCallback {
                 .streamId(streamToPublish)
                 .ctx(ctx).channel(channel)
                 .build()) {
-            publisher.publish(arr);
+            publisher.publish(message);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+    }
+
+    /**
+     * Push an ndarray to the specified
+     * ndarray send url in the form of:
+     * host;port:stream
+     * where stream is the stream for connecting
+     * to a listening aeron server
+     * @param arr the array to send
+     */
+    public void pushNDArray(INDArray arr) {
+        pushNDArrayMessage(NDArrayMessage.wholeArrayUpdate(arr));
     }
 
 

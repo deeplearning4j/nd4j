@@ -15,7 +15,9 @@ import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.nd4j.aeron.ipc.AeronNDArraySubscriber;
 import org.nd4j.aeron.ipc.AeronUtil;
 import org.nd4j.aeron.ipc.NDArrayCallback;
+import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.aeron.ipc.response.AeronNDArrayResponder;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.parameterserver.model.MasterConnectionInfo;
 import org.nd4j.parameterserver.model.SlaveConnectionInfo;
 import org.nd4j.parameterserver.status.play.StatusServer;
@@ -60,8 +62,6 @@ public class ParameterServerSubscriber {
     private String mediaDriverDirectoryName;
     @Parameter(names={"-sp","--statusserverport"}, description = "The status server port, defaults to 9000.", arity = 1)
     private int statusServerPort = 9000;
-    @Parameter(names={"-dm","--dimensionsforupdate"}, description = "The dimensions for update (for partial updates)", arity = 1)
-    private List<Integer> dimensions;
     @Parameter(names={"-s","--shape"}, description = "The shape of the ndarray", arity = 1)
     private List<Integer> shape;
 
@@ -159,11 +159,7 @@ public class ParameterServerSubscriber {
 
         if(master) {
             //instantiate with shape instead of just length
-            if(dimensions != null) {
-                 callback = new ParameterServerListener(Ints.toArray(shape));
-            }
-            else
-                callback =  new ParameterServerListener(parameterLength);
+            callback =  new ParameterServerListener(Ints.toArray(shape));
             //start an extra daemon for responding to get queries
             ParameterServerListener cast = (ParameterServerListener) callback;
             responder = AeronNDArrayResponder.startSubscriber(
@@ -216,6 +212,12 @@ public class ParameterServerSubscriber {
                 .errorHandler(e -> log.error(e.toString(), e));
         return ctx;
     }
+
+    public INDArray getMasterArray() {
+        NDArrayHolder holder = (NDArrayHolder) callback;
+        return holder.get();
+    }
+
 
     /**
      * Returns true if the subscriber is launched

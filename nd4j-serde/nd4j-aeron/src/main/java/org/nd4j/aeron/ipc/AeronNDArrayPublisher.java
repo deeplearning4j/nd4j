@@ -56,8 +56,8 @@ public class AeronNDArrayPublisher implements  AutoCloseable {
         log.debug("Publishing to " + channel + " on stream Id " + streamId);
         //ensure default values are set
         INDArray arr = message.getArr();
-        while(!arr.isCompressed())
-            Nd4j.getCompressor().compressi(arr,"GZIP");
+        while(!message.getArr().isCompressed())
+            message.setArr(Nd4j.getCompressor().compress(arr,"GZIP"));
 
 
         DirectBuffer buffer = NDArrayMessage.toBuffer(message);

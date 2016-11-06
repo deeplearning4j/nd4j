@@ -28,14 +28,6 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
         this.arr = Nd4j.create(shape);
     }
 
-    /**
-     * Length of the listener
-     * @param length the length of the array
-     */
-    public ParameterServerListener(int length) {
-        this.arr = Nd4j.zeros(length);
-    }
-
 
     /**
      * Used for partial updates using tensor along
@@ -46,7 +38,9 @@ public class ParameterServerListener implements NDArrayCallback,NDArrayHolder {
      */
     @Override
     public synchronized  void onNDArrayPartial(INDArray arr, long idx, int... dimensions) {
-        arr.tensorAlongDimension(idx,dimensions).addi(arr);
+        INDArray arr2 = this.arr.tensorAlongDimension((int) idx,dimensions);
+        arr2.addi(arr);
+        totalN.incrementAndGet();
     }
 
     /**

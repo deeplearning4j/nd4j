@@ -7,6 +7,7 @@ import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.junit.Before;
 import org.junit.Test;
 import org.nd4j.aeron.ipc.AeronUtil;
+import org.nd4j.aeron.ipc.NDArrayMessage;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.parameterserver.ParameterServerListener;
@@ -46,8 +47,8 @@ public class ParameterServerClientPartialTest {
                 "-h","localhost",
                 "-id","11",
                 "-md", mediaDriver.aeronDirectoryName(),
-                "-sp", "10000"
-                ,"-dm","0"
+                "-sp", "10000",
+                "-s","2,2"
         });
 
         assertTrue(masterNode.isMaster());
@@ -56,7 +57,7 @@ public class ParameterServerClientPartialTest {
         assertEquals("localhost",masterNode.getHost());
         assertEquals(11,masterNode.getStreamId());
         assertEquals(12,masterNode.getResponder().getStreamId());
-        assertEquals(0,masterNode.getDimensions().get(0).intValue());
+        assertEquals(masterNode.getMasterArray(),Nd4j.create(new int[]{2,2}));
 
         slaveNode = new ParameterServerSubscriber(mediaDriver);
         slaveNode.run(new String[] {
@@ -66,7 +67,6 @@ public class ParameterServerClientPartialTest {
                 "-pm",masterNode.getSubscriber().connectionUrl(),
                 "-md", mediaDriver.aeronDirectoryName(),
                 "-sp", "11000"
-                ,"-dm","0"
         });
 
         assertFalse(slaveNode.isMaster());
@@ -74,7 +74,6 @@ public class ParameterServerClientPartialTest {
         assertEquals(40126,slaveNode.getPort());
         assertEquals("localhost",slaveNode.getHost());
         assertEquals(10,slaveNode.getStreamId());
-        assertEquals(0,slaveNode.getDimensions().get(0).intValue());
 
         int tries = 10;
         while(!masterNode.subscriberLaunched() && !slaveNode.subscriberLaunched() && tries < 10) {
@@ -110,14 +109,16 @@ public class ParameterServerClientPartialTest {
          * which adds the array for parameter averaging.
          * In this case totalN should be 1.
          */
-        client.pushNDArray(Nd4j.ones(2));
+        client.pushNDArrayMessage(NDArrayMessage.of(Nd4j.ones(2),new int[]{0},0));
         log.info("Pushed ndarray");
         Thread.sleep(10000);
         ParameterServerListener listener = (ParameterServerListener) masterNode.getCallback();
         assertEquals(1,listener.getTotalN().get());
-        assertEquals(Nd4j.ones(2),listener.getArr());
+        INDArray assertion = Nd4j.create(new int[]{2,2});
+        assertion.getColumn(0).addi(1.0);
+        assertEquals(assertion,listener.getArr());
         INDArray arr = client.getArray();
-        assertEquals(Nd4j.ones(1000),arr);
+        assertEquals(assertion,arr);
     }
 
 
