@@ -2,7 +2,7 @@
     <parent>
         <artifactId>nd4j-backends</artifactId>
         <groupId>org.nd4j</groupId>
-        <version>0.6.1-SNAPSHOT</version>
+        <version>0.6.1-pi</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -216,7 +216,20 @@
             <javacpp.platform.compiler>toolchains/x86-4.9/prebuilt/${os.name}-${os.arch}/bin/i686-linux-android-g++</javacpp.platform.compiler>
           </properties>
         </profile>
-
+		<profile>
+          <id>linux-arm-default</id>
+          <activation>
+            <property>
+              <name>javacpp.platform</name>
+              <value>linux-arm</value>
+            </property>
+          </activation>
+          <properties>
+            <javacpp.platform>linux-arm</javacpp.platform>
+			<javacpp.platform.root>/home/almanac/raspberrypi/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf</javacpp.platform.root>   
+			<javacpp.platform.compiler>bin/arm-linux-gnueabihf-g++</javacpp.platform.compiler>
+          </properties>
+        </profile>
     </profiles>
 
 </project>
