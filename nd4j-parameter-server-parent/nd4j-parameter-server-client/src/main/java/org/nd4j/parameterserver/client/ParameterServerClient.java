@@ -5,6 +5,7 @@ import io.aeron.Aeron;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.nd4j.aeron.ipc.*;
 import org.nd4j.aeron.ipc.response.HostPortPublisher;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -35,12 +36,12 @@ import java.util.concurrent.atomic.AtomicReference;
 @Data
 @AllArgsConstructor
 @Builder
+@Slf4j
 public class ParameterServerClient implements NDArrayCallback {
     //the url to send ndarrays to
     private String ndarraySendUrl;
     //the url to retrieve ndarrays from
     private String ndarrayRetrieveUrl;
-    private Aeron.Context ctx;
     private AeronNDArraySubscriber subscriber;
     //host to listen on for the subscriber
     private String subscriberHost;
@@ -52,11 +53,11 @@ public class ParameterServerClient implements NDArrayCallback {
     private AtomicReference<INDArray> arr;
     private INDArray none = Nd4j.scalar(1.0);
     private AtomicBoolean running;
-    private static Logger log = LoggerFactory.getLogger(ParameterServerClient.class);
     private String masterStatusHost;
     private int masterStatusPort;
     private ObjectMapper objectMapper = new ObjectMapper();
-
+    private Aeron aeron;
+    private boolean compressArray = true;
 
     /**
      * Tracks number of
@@ -123,7 +124,7 @@ public class ParameterServerClient implements NDArrayCallback {
         if(subscriber == null) {
             running = new AtomicBoolean(true);
             subscriber = AeronNDArraySubscriber.startSubscriber(
-                    ctx,
+                    aeron,
                     subscriberHost,
                     subscriberPort,
                     this,
@@ -137,8 +138,8 @@ public class ParameterServerClient implements NDArrayCallback {
         String channel = AeronUtil.aeronChannel(split[0],port);
         log.debug("Parameter server client publishing to " + ndarraySendUrl);
         try(AeronNDArrayPublisher publisher = AeronNDArrayPublisher.builder()
-                .streamId(streamToPublish)
-                .ctx(ctx).channel(channel)
+                .streamId(streamToPublish).compress(isCompressArray())
+                .aeron(aeron).channel(channel)
                 .build()) {
             publisher.publish(message);
         } catch (Exception e) {
@@ -161,7 +162,7 @@ public class ParameterServerClient implements NDArrayCallback {
 
 
     /**
-     * Get the connection url for the subscrber
+     * Get the connection url for the subscriber
      * in the format:
      * host:port:stream
      * @return the connection url for the subscriber
@@ -188,7 +189,7 @@ public class ParameterServerClient implements NDArrayCallback {
         if(subscriber == null) {
             running = new AtomicBoolean(true);
             subscriber = AeronNDArraySubscriber.startSubscriber(
-                    ctx,
+                    aeron,
                     subscriberHost,
                     subscriberPort,
                     this,
@@ -216,7 +217,7 @@ public class ParameterServerClient implements NDArrayCallback {
         //note here that we send the ndarray send url, because the
         //master also hosts
         try (HostPortPublisher hostPortPublisher = HostPortPublisher
-                .builder().channel(channel).ctx(ctx)
+                .builder().channel(channel).aeron(aeron)
                 //note here that we send our subscriber's listening information
                 .streamId(streamToPublish)
                 .uriToSend(AeronConnectionInformation.of(subscriberHost, subscriberPort, subscriberStream).toString())
@@ -265,6 +266,7 @@ public class ParameterServerClient implements NDArrayCallback {
      */
     @Override
     public  void onNDArray(INDArray arr) {
+        log.info("Received array");
         this.arr.set(arr);
     }
 }

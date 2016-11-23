@@ -1,55 +1,37 @@
-/*
- *
- *  * Copyright 2015 Skymind,Inc.
- *  *
- *  *    Licensed under the Apache License, Version 2.0 (the "License");
- *  *    you may not use this file except in compliance with the License.
- *  *    You may obtain a copy of the License at
- *  *
- *  *        http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  *    Unless required by applicable law or agreed to in writing, software
- *  *    distributed under the License is distributed on an "AS IS" BASIS,
- *  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  *    See the License for the specific language governing permissions and
- *  *    limitations under the License.
- *
- *
- */
-
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.linalg.api.complex.IComplexNumber;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
-import org.nd4j.linalg.api.ops.Op;
+        import org.nd4j.linalg.api.complex.IComplexNumber;
+        import org.nd4j.linalg.api.ndarray.INDArray;
+        import org.nd4j.linalg.api.ops.BaseTransformOp;
+        import org.nd4j.linalg.api.ops.Op;
 
 /**
- * Inverted DropOut implementation as Op
+ * DropOut implementation as Op
  *
+ * PLEASE NOTE: This is legacy DropOut implementation, please consider using op with the same name from randomOps
  * @author raver119@gmail.com
  */
-public class DropOut extends BaseTransformOp {
+public class LegacyDropOut extends BaseTransformOp {
 
     private double p;
 
-    public DropOut() {
+    public LegacyDropOut() {
 
     }
 
-    public DropOut(INDArray x, double p) {
+    public LegacyDropOut(INDArray x, double p) {
         super(x);
         this.p = p;
         init(x, null, x, x.length());
     }
 
-    public DropOut(INDArray x, INDArray z, double p) {
+    public LegacyDropOut(INDArray x, INDArray z, double p) {
         super(x,z);
         this.p = p;
         init(x, null, z, x.length());
     }
 
-    public DropOut(INDArray x, INDArray z, double p, long n) {
+    public LegacyDropOut(INDArray x, INDArray z, double p, long n) {
         super(x,z,n);
         this.p = p;
         init(x, null, z, n);
@@ -62,7 +44,7 @@ public class DropOut extends BaseTransformOp {
 
     @Override
     public String name() {
-        return "dropout";
+        return "legacy_dropout";
     }
 
     @Override
@@ -111,9 +93,9 @@ public class DropOut extends BaseTransformOp {
         INDArray xAlongDimension = x.vectorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new DropOut(xAlongDimension, z.vectorAlongDimension(index, dimension), p,  xAlongDimension.length());
+            return new LegacyDropOut(xAlongDimension, z.vectorAlongDimension(index, dimension), p,  xAlongDimension.length());
         else
-            return new DropOut(xAlongDimension, z.vectorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOut(xAlongDimension, z.vectorAlongDimension(index, dimension), p, xAlongDimension.length());
     }
 
     @Override
@@ -121,9 +103,9 @@ public class DropOut extends BaseTransformOp {
         INDArray xAlongDimension = x.tensorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new DropOut(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOut(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
         else
-            return new DropOut(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOut(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
 
     }
 

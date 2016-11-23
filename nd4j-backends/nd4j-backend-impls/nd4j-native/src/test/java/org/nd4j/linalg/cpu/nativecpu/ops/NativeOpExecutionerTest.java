@@ -9,6 +9,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.ScalarOp;
 import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.distances.CosineSimilarity;
+import org.nd4j.linalg.api.ops.impl.accum.distances.EuclideanDistance;
 import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.broadcast.BroadcastSubOp;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
@@ -21,6 +22,8 @@ import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.INDArrayIndex;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -430,5 +433,171 @@ public class NativeOpExecutionerTest {
 
         System.out.println("Out data:   " + Arrays.toString(out.data().asFloat()));
         System.out.println("Input data: " + Arrays.toString(in.data().asDouble()));
+    }
+
+    @Test
+    public void testMmulC1() throws Exception {
+        INDArray A = Nd4j.linspace(0, 11, 12).reshape('c', 4, 3);
+        INDArray B = Nd4j.linspace(0, 11, 12).reshape('c', 3, 4);
+
+        System.out.println("A: \n" + A);
+
+        INDArray C = A.mmul(B);
+
+        INDArray expC = Nd4j.create(new double[]{20.0, 23.0, 26.0, 29.0, 56.0, 68.0, 80.0, 92.0, 92.0, 113.0, 134.0, 155.0, 128.0, 158.0, 188.0, 218.0}).reshape(4, 4);
+
+        assertEquals(expC, C);
+    }
+
+    @Test
+    public void testMmulF1() throws Exception {
+        INDArray A = Nd4j.linspace(0, 11, 12).reshape('f', 4, 3);
+        INDArray B = Nd4j.linspace(0, 11, 12).reshape('f', 3, 4);
+
+        System.out.println("A: \n" + A);
+
+        INDArray C = A.mmul(B);
+
+        System.out.println("C: \n" + Arrays.toString(C.data().asFloat()));
+
+        INDArray expF = Nd4j.create(new double[]{20.0, 23.0, 26.0, 29.0, 56.0, 68.0, 80.0, 92.0, 92.0, 113.0, 134.0, 155.0, 128.0, 158.0, 188.0, 218.0}).reshape('f', 4, 4);
+
+        assertEquals(expF, C);
+    }
+
+    @Test
+    public void testDebugEdgeCase(){
+        INDArray l1 = Nd4j.create(new double[]{-0.2585039112684677,-0.005179485353710878,0.4348343401770497,0.020356532375728764,-0.1970793298488186});
+        INDArray l2 = Nd4j.create(3,l1.size(1));
+
+        INDArray p1 = Nd4j.create(new double[]{1.3979850406519119,0.6169451410155852,1.128993957530918,0.21000426084450596,0.3171215178932696});
+        INDArray p2 = Nd4j.create(3, p1.size(1));
+
+        for( int i=0; i<3; i++ ){
+            l2.putRow(i, l1);
+            p2.putRow(i, p1);
+        }
+
+        INDArray s1 = scoreArray(l1, p1);
+        INDArray s2 = scoreArray(l2, p2);
+
+        //Outputs here should be identical:
+        System.out.println(Arrays.toString(s1.data().asDouble()));
+        System.out.println(Arrays.toString(s2.getRow(0).dup().data().asDouble()));
+    }
+
+    public static INDArray scoreArray(INDArray labels, INDArray preOutput) {
+        INDArray yhatmag = preOutput.norm2(1);
+
+        INDArray scoreArr = preOutput.mul(labels);
+        scoreArr.diviColumnVector(yhatmag);
+
+        return scoreArr;
+    }
+
+    @Test
+    public void testDebugEdgeCase2(){
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        INDArray l1 = Nd4j.create(new double[]{-0.2585039112684677,-0.005179485353710878,0.4348343401770497,0.020356532375728764,-0.1970793298488186});
+        INDArray l2 = Nd4j.create(2,l1.size(1));
+
+        INDArray p1 = Nd4j.create(new double[]{1.3979850406519119,0.6169451410155852,1.128993957530918,0.21000426084450596,0.3171215178932696});
+        INDArray p2 = Nd4j.create(2, p1.size(1));
+
+        for( int i=0; i<2; i++ ){
+            l2.putRow(i, l1);
+            p2.putRow(i, p1);
+        }
+
+        INDArray norm2_1 = l1.norm2(1);
+        INDArray temp1 = p1.mul(l1);
+        INDArray out1 = temp1.diviColumnVector(norm2_1);
+
+        INDArray norm2_2 = l2.norm2(1);
+        INDArray temp2 = p2.mul(l2);
+        INDArray out2 = temp2.diviColumnVector(norm2_2);
+
+        System.out.println("norm2_1: " + Arrays.toString(norm2_1.data().asDouble()));
+        System.out.println("norm2_2: " + Arrays.toString(norm2_2.data().asDouble()));
+
+        System.out.println("temp1: " + Arrays.toString(temp1.data().asDouble()));
+        System.out.println("temp2: " + Arrays.toString(temp2.data().asDouble()));
+
+        //Outputs here should be identical:
+        System.out.println(Arrays.toString(out1.data().asDouble()));
+        System.out.println(Arrays.toString(out2.getRow(0).dup().data().asDouble()));
+    }
+
+    @Test
+    public void testMul_Scalar1() throws Exception {
+        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        INDArray x = Nd4j.create(new double[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+        INDArray y = Nd4j.create(10).assign(0.000003);
+
+        x.muli(y);
+        x.divi(0.0000022);
+
+        System.out.println("Data: " + Arrays.toString(x.data().asDouble()));
+    }
+
+    @Test
+    public void testEuclideanManhattanDistanceAlongDimension_Rank4(){
+
+        Nd4j.getRandom().setSeed(12345);
+        INDArray firstOneExample = Nd4j.rand('c', new int[]{1,2,2,2});
+        INDArray secondOneExample = Nd4j.rand('c', new int[]{1,2,2,2});
+
+        double[] d1 = firstOneExample.data().asDouble();
+        double[] d2 = secondOneExample.data().asDouble();
+        double sumSquaredDiff = 0.0;
+        double expManhattanDistance = 0.0;
+        for( int i=0; i<d1.length; i++ ){
+            double diff = d1[i] - d2[i];
+            sumSquaredDiff += diff * diff;
+            expManhattanDistance += Math.abs(diff);
+        }
+        double expected = Math.sqrt(sumSquaredDiff);
+        System.out.println("Expected, Euclidean: " + expected);
+        System.out.println("Expected, Manhattan: " + expManhattanDistance);
+
+        int mb = 2;
+        INDArray firstOrig = Nd4j.create(mb, 2, 2, 2);
+        INDArray secondOrig = Nd4j.create(mb, 2, 2, 2);
+        for( int i=0; i<mb; i++ ){
+            firstOrig.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.all()}, firstOneExample);
+            secondOrig.put(new INDArrayIndex[]{NDArrayIndex.point(i), NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.all()}, secondOneExample);
+        }
+
+        for(char order : new char[]{'c','f'}) {
+            INDArray first = firstOrig.dup(order);
+            INDArray second = secondOrig.dup(order);
+
+            assertEquals(firstOrig, first);
+            assertEquals(secondOrig, second);
+
+
+            INDArray out = Nd4j.getExecutioner().exec(new EuclideanDistance(first, second), 1, 2, 3);
+            INDArray outManhattan = Nd4j.getExecutioner().exec(new ManhattanDistance(first, second), 1, 2, 3);
+
+            System.out.println("\n\nOrder: " + order);
+            System.out.println("Euclidean:");
+            System.out.println(Arrays.toString(out.getRow(0).dup().data().asDouble()));
+            System.out.println(Arrays.toString(out.getRow(1).dup().data().asDouble()));
+
+            assertEquals(out.getRow(0), out.getRow(1));
+
+            System.out.println("Manhattan:");
+            System.out.println(Arrays.toString(outManhattan.getRow(0).dup().data().asDouble()));
+            System.out.println(Arrays.toString(outManhattan.getRow(1).dup().data().asDouble()));
+
+            assertEquals(expected, out.getRow(0).getDouble(0), 1e-5);
+            assertEquals(expManhattanDistance, outManhattan.getRow(0).getDouble(0), 1e-5);
+        }
+    }
+
+    @Test
+    public void testWrongDimensions() {
+        INDArray arr = Nd4j.create(10,10,10);
+        arr.mean(0,2,3);
     }
 }

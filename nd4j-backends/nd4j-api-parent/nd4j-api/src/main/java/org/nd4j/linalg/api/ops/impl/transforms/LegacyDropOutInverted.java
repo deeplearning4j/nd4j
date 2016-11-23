@@ -1,58 +1,40 @@
-/*
- *
- *  * Copyright 2015 Skymind,Inc.
- *  *
- *  *    Licensed under the Apache License, Version 2.0 (the "License");
- *  *    you may not use this file except in compliance with the License.
- *  *    You may obtain a copy of the License at
- *  *
- *  *        http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  *    Unless required by applicable law or agreed to in writing, software
- *  *    distributed under the License is distributed on an "AS IS" BASIS,
- *  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  *    See the License for the specific language governing permissions and
- *  *    limitations under the License.
- *
- *
- */
-
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.apache.commons.math3.util.FastMath;
-import org.nd4j.linalg.api.complex.IComplexNumber;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
-import org.nd4j.linalg.api.ops.Op;
-import org.nd4j.linalg.api.ops.TransformOp;
-import org.nd4j.linalg.factory.Nd4j;
+        import org.apache.commons.math3.util.FastMath;
+        import org.nd4j.linalg.api.complex.IComplexNumber;
+        import org.nd4j.linalg.api.ndarray.INDArray;
+        import org.nd4j.linalg.api.ops.BaseTransformOp;
+        import org.nd4j.linalg.api.ops.Op;
+        import org.nd4j.linalg.api.ops.TransformOp;
+        import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * Inverted DropOut implementation as Op
  *
+ * PLEASE NOTE: This is legacy DropOutInverted implementation, please consider using op with the same name from randomOps
  * @author raver119@gmail.com
  */
-public class DropOutInverted extends BaseTransformOp {
+public class LegacyDropOutInverted extends BaseTransformOp {
 
     private double p;
 
-    public DropOutInverted() {
+    public LegacyDropOutInverted() {
 
     }
 
-    public DropOutInverted(INDArray x, double p) {
+    public LegacyDropOutInverted(INDArray x, double p) {
         super(x);
         this.p = p;
         init(x, null, x, x.length());
     }
 
-    public DropOutInverted(INDArray x, INDArray z, double p) {
+    public LegacyDropOutInverted(INDArray x, INDArray z, double p) {
         super(x,z);
         this.p = p;
         init(x, null, z, x.length());
     }
 
-    public DropOutInverted(INDArray x, INDArray z, double p, long n) {
+    public LegacyDropOutInverted(INDArray x, INDArray z, double p, long n) {
         super(x,z,n);
         this.p = p;
         init(x, null, z, n);
@@ -65,7 +47,7 @@ public class DropOutInverted extends BaseTransformOp {
 
     @Override
     public String name() {
-        return "dropout_inverted";
+        return "legacy_dropout_inverted";
     }
 
     @Override
@@ -114,9 +96,9 @@ public class DropOutInverted extends BaseTransformOp {
         INDArray xAlongDimension = x.vectorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new DropOutInverted(xAlongDimension, z.vectorAlongDimension(index, dimension), p,  xAlongDimension.length());
+            return new LegacyDropOutInverted(xAlongDimension, z.vectorAlongDimension(index, dimension), p,  xAlongDimension.length());
         else
-            return new DropOutInverted(xAlongDimension, z.vectorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOutInverted(xAlongDimension, z.vectorAlongDimension(index, dimension), p, xAlongDimension.length());
     }
 
     @Override
@@ -124,9 +106,9 @@ public class DropOutInverted extends BaseTransformOp {
         INDArray xAlongDimension = x.tensorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new DropOutInverted(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOutInverted(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
         else
-            return new DropOutInverted(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
+            return new LegacyDropOutInverted(xAlongDimension, z.tensorAlongDimension(index, dimension), p, xAlongDimension.length());
 
     }
 

@@ -12,9 +12,12 @@ import org.nd4j.linalg.api.ops.aggregates.Aggregate;
 import org.nd4j.linalg.api.ops.aggregates.Batch;
 import org.nd4j.linalg.api.ops.executioner.DefaultOpExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
+import org.nd4j.linalg.api.rng.*;
+import org.nd4j.linalg.api.rng.Random;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.cache.ConstantHandler;
 import org.nd4j.linalg.cpu.nativecpu.CpuTADManager;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.nativeblas.NativeOps;
@@ -190,6 +193,10 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     public INDArray exec(Accumulation op, int... dimension) {
 
         Arrays.sort(dimension);
+
+        for (int i = 0; i < dimension.length; i++)
+            if (dimension[i] >= op.x().rank() && dimension[i] != Integer.MAX_VALUE)
+                throw new ND4JIllegalStateException("Op target dimension " + Arrays.toString(dimension) + " contains element that higher then rank of op.X: ["+ op.x().rank()+"]");
 
         for(int i = 0; i < dimension.length; i++) {
             if(dimension[i] < 0)
@@ -635,6 +642,10 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     public INDArray exec(BroadcastOp op,int...dimension) {
         Arrays.sort(dimension);
 
+        for (int i = 0; i < dimension.length; i++)
+            if (dimension[i] >= op.x().rank() && dimension[i] != Integer.MAX_VALUE)
+                throw new ND4JIllegalStateException("Op target dimension " + Arrays.toString(dimension) + " contains element that higher then rank of op.X: ["+ op.x().rank()+"]");
+
         Pair<DataBuffer, DataBuffer> tadBuffers = tadManager.getTADOnlyShapeInfo(op.x(), dimension);
 
         Pointer hostTadShapeInfo = tadBuffers.getFirst().addressPointer();
@@ -1004,5 +1015,95 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         properties.put("blas.vendor", NativeOpsHolder.getInstance().getDeviceNativeBlas().getBlasVendor().toString());
 
         return properties;
+    }
+
+    /**
+     * This method executes specified RandomOp using default RNG available via Nd4j.getRandom()
+     *
+     * @param op
+     */
+    @Override
+    public INDArray exec(RandomOp op) {
+        return exec(op, Nd4j.getRandom());
+    }
+
+    /**
+     * This method executes specific RandomOp against specified RNG
+     *
+     * @param op
+     * @param rng
+     */
+    @Override
+    public INDArray exec(RandomOp op, Random rng) {
+        if (rng.getStateBuffer() == null)
+            throw new IllegalStateException("You should use one of NativeRandom classes for NativeOperations execution");
+
+
+        if (op.x() != null && op.y() != null && op.z() != null) {
+            // triple arg call
+            if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
+                loop.execRandomFloat(null, op.opNum(),
+                        rng.getStatePointer(), // rng state ptr
+                        (FloatPointer) op.x().data().addressPointer(),
+                        (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
+                        (FloatPointer) op.y().data().addressPointer(),
+                        (IntPointer) op.y().shapeInfoDataBuffer().addressPointer(),
+                        (FloatPointer) op.z().data().addressPointer(),
+                        (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                        (FloatPointer) op.extraArgsDataBuff().addressPointer()
+                );
+            } else if (Nd4j.dataType() == DataBuffer.Type.DOUBLE) {
+                loop.execRandomDouble(null, op.opNum(),
+                        rng.getStatePointer(), // rng state ptr
+                        (DoublePointer) op.x().data().addressPointer(),
+                        (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.y().data().addressPointer(),
+                        (IntPointer) op.y().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.z().data().addressPointer(),
+                        (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.extraArgsDataBuff().addressPointer()
+                );
+            }
+        } else if (op.x() != null && op.z() != null) {
+            //double arg call
+            if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
+                loop.execRandomFloat(null, op.opNum(),
+                    rng.getStatePointer(), // rng state ptr
+                    (FloatPointer) op.x().data().addressPointer(),
+                    (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
+                    (FloatPointer) op.z().data().addressPointer(),
+                    (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                    (FloatPointer) op.extraArgsDataBuff().addressPointer());
+            } else if (Nd4j.dataType() == DataBuffer.Type.DOUBLE) {
+                loop.execRandomDouble(null, op.opNum(),
+                        rng.getStatePointer(), // rng state ptr
+                        (DoublePointer) op.x().data().addressPointer(),
+                        (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.z().data().addressPointer(),
+                        (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.extraArgsDataBuff().addressPointer());
+            }
+
+        } else {
+            // single arg call
+
+            if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
+                loop.execRandomFloat(null, op.opNum(),
+                        rng.getStatePointer(), // rng state ptr
+                        (FloatPointer) op.z().data().addressPointer(),
+                        (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                        (FloatPointer) op.extraArgsDataBuff().addressPointer()
+                        );
+            } else if (Nd4j.dataType() == DataBuffer.Type.DOUBLE) {
+                loop.execRandomDouble(null, op.opNum(),
+                        rng.getStatePointer(), // rng state ptr
+                        (DoublePointer) op.z().data().addressPointer(),
+                        (IntPointer) op.z().shapeInfoDataBuffer().addressPointer(),
+                        (DoublePointer) op.extraArgsDataBuff().addressPointer()
+                );
+            }
+        }
+
+        return op.z();
     }
 }

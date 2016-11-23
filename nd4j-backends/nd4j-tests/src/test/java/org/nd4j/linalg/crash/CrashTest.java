@@ -7,6 +7,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.blas.BlasBufferUtil;
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
@@ -107,7 +109,7 @@ public class CrashTest extends BaseNd4jTest {
         INDArray x = Nd4j.create(new int[] {96, 1024, 64}, 'f');
         INDArray y = Nd4j.create(new int[] {96, 64, 1024}, 'f');
 
-        for(int i = 0; i < ITERATIONS; i++) {
+        for(int i = 0; i < 1; i++) {
             int slice = 0; //RandomUtils.nextInt(0, x.shape()[0]);
             op(x.slice(slice), y.slice(slice), i);
         }

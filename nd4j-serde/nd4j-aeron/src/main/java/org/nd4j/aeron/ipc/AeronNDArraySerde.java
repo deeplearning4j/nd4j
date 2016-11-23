@@ -4,6 +4,7 @@ import org.agrona.DirectBuffer;
 import org.agrona.concurrent.UnsafeBuffer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bytedeco.javacpp.BytePointer;
+import org.bytedeco.javacpp.Pointer;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.shape.Shape;
@@ -154,15 +155,21 @@ public class AeronNDArraySerde {
 
     /**
      * Create an ndarray
-     * from the unsafe buffer
+     * from the unsafe buffer.
+     * Note that if you are interacting with a buffer that specifies
+     * an {@link org.nd4j.aeron.ipc.NDArrayMessage.MessageType}
+     * then you must pass in an offset + 4.
+     * Adding 4 to the offset will cause the inter
      * @param buffer the buffer to create the array from
      * @return the ndarray derived from this buffer
      */
     public static Pair<INDArray,ByteBuffer> toArrayAndByteBuffer(DirectBuffer buffer, int offset) {
-        ByteBuffer byteBuffer = buffer.byteBuffer().order(ByteOrder.nativeOrder());
+        ByteBuffer byteBuffer = buffer.byteBuffer() == null ? ByteBuffer.allocateDirect(buffer.byteArray().length).put(buffer.byteArray()).order(ByteOrder.nativeOrder()) : buffer.byteBuffer().order(ByteOrder.nativeOrder());
         //bump the byte buffer to the proper position
         byteBuffer.position(offset);
         int rank = byteBuffer.getInt();
+        if(rank < 0)
+            throw new IllegalStateException("Found negative integer. Corrupt serialization?");
         //get the shape buffer length to create the shape information buffer
         int shapeBufferLength = Shape.shapeInfoLength(rank);
         //create the ndarray shape information
@@ -180,19 +187,22 @@ public class AeronNDArraySerde {
             //wrap the data buffer for the last bit
             DataBuffer buff = Nd4j.createBuffer(slice,type,Shape.length(shapeBuff));
             //advance past the data
-            byteBuffer.position(byteBuffer.position() + (buff.getElementSize() * (int) buff.length()));
+            int position = byteBuffer.position() + (buff.getElementSize() * (int) buff.length());
+            byteBuffer.position(position);
             //create the final array
-            INDArray arr = Nd4j.createArrayFromShapeBuffer(buff,shapeBuff);
+            //TODO: see how to avoid dup here
+            INDArray arr = Nd4j.createArrayFromShapeBuffer(buff.dup(),shapeBuff.dup());
             return Pair.of(arr,byteBuffer);
         }
         else {
             CompressionDescriptor compressionDescriptor = CompressionDescriptor.fromByteBuffer(byteBuffer);
             ByteBuffer slice =  byteBuffer.slice();
             //ensure that we only deal with the slice of the buffer that is actually the data
-            BytePointer byteBufferPointer = new BytePointer(slice.duplicate());
+            BytePointer byteBufferPointer = new BytePointer(slice);
             //create a compressed array based on the rest of the data left in the buffer
             CompressedDataBuffer compressedDataBuffer = new CompressedDataBuffer(byteBufferPointer,compressionDescriptor);
-            INDArray arr = Nd4j.createArrayFromShapeBuffer(compressedDataBuffer,shapeBuff);
+            //TODO: see how to avoid dup()
+            INDArray arr = Nd4j.createArrayFromShapeBuffer(compressedDataBuffer.dup(),shapeBuff.dup());
             //advance past the data
             int compressLength = (int) compressionDescriptor.getCompressedLength();
             byteBuffer.position(byteBuffer.position() + compressLength);

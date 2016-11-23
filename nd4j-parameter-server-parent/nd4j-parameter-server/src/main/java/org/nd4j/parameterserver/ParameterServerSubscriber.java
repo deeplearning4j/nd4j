@@ -11,6 +11,7 @@ import io.aeron.driver.MediaDriver;
 import io.aeron.driver.ThreadingMode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.agrona.CloseHelper;
 import org.agrona.concurrent.BusySpinIdleStrategy;
 import org.nd4j.aeron.ipc.AeronNDArraySubscriber;
 import org.nd4j.aeron.ipc.AeronUtil;
@@ -18,6 +19,7 @@ import org.nd4j.aeron.ipc.NDArrayCallback;
 import org.nd4j.aeron.ipc.NDArrayHolder;
 import org.nd4j.aeron.ipc.response.AeronNDArrayResponder;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.parameterserver.model.MasterConnectionInfo;
 import org.nd4j.parameterserver.model.SlaveConnectionInfo;
 import org.nd4j.parameterserver.status.play.StatusServer;
@@ -70,7 +72,7 @@ public class ParameterServerSubscriber {
     private AeronNDArrayResponder responder;
     private AeronNDArraySubscriber subscriber;
     private   NDArrayCallback callback;
-
+    private Aeron aeron;
 
     /**
      * Allow passing in a
@@ -140,10 +142,21 @@ public class ParameterServerSubscriber {
         //also ensure we don't use a media driver when a directory is specified
         //for a remote one
         if(mediaDriver == null && mediaDriverDirectoryName == null) {
+            //length of array * sizeof(float)
+            int ipcLength = ArrayUtil.prod(Ints.toArray(shape)) * 4;
+            //must be a power of 2
+            ipcLength *= 2;
+            //padding for NDArrayMessage
+            ipcLength += 64;
+            //Length in bytes for the SO_RCVBUF, 0 means use OS default. This needs to be larger than Receiver Window.
+            System.setProperty("aeron.socket.so_rcvbuf",String.valueOf(ipcLength));
             final MediaDriver.Context mediaDriverCtx = new MediaDriver.Context()
                     .threadingMode(ThreadingMode.DEDICATED)
                     .dirsDeleteOnStart(deleteDirectoryOnStart)
                     .termBufferSparseFile(false)
+                    .ipcTermBufferLength(ipcLength)
+                    .publicationTermBufferLength(ipcLength)
+                    .maxTermBufferLength(ipcLength)
                     .conductorIdleStrategy(new BusySpinIdleStrategy())
                     .receiverIdleStrategy(new BusySpinIdleStrategy())
                     .senderIdleStrategy(new BusySpinIdleStrategy());
@@ -154,6 +167,8 @@ public class ParameterServerSubscriber {
             log.info("Using media driver directory " + mediaDriver.aeronDirectoryName());
         }
 
+        if(aeron == null)
+            this.aeron = Aeron.connect(getContext());
 
 
 
@@ -163,7 +178,7 @@ public class ParameterServerSubscriber {
             //start an extra daemon for responding to get queries
             ParameterServerListener cast = (ParameterServerListener) callback;
             responder = AeronNDArrayResponder.startSubscriber(
-                    getContext(),
+                    aeron,
                     host,port + 1,
                     cast,
                     streamId + 1);
@@ -187,7 +202,7 @@ public class ParameterServerSubscriber {
 
         //start a node
         subscriber = AeronNDArraySubscriber.startSubscriber(
-                getContext(),
+                aeron,
                 host,port,
                 callback,
                 streamId,running);
@@ -196,9 +211,21 @@ public class ParameterServerSubscriber {
             LockSupport.parkNanos(100000);
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if(subscriber != null)
+                CloseHelper.quietClose(subscriber);
+            if(responder != null)
+                CloseHelper.quietClose(responder);
+            if(aeron != null)
+                CloseHelper.quietClose(aeron);
+            if(server != null)
+                server.stop();
+        }));
+
         //set the server for the status of the master and slave nodes
         server = StatusServer.startServer(this);
         log.info("Started status server  on " + statusServerPort);
+
 
     }
 
