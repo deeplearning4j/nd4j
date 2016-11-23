@@ -16,23 +16,8 @@ Please follow following instructions to build nd4j on raspberry PI:
 				
 				d. $mvn clean  install -Djavacpp.platform=linux-armhf  -DskipTests  -Dmaven.javadoc.skip=true  -pl '!:nd4j-cuda-8.0,!:nd4j-cuda-8.0-platform,!:nd4j-tests'
 
-		6. [In build machine ] Copy following jars from the build machine :
-			$mkdir myjarFolder &&  \
-			$cp nd4j-backends/nd4j-backend-impls/nd4j-native/target/nd4j-native-<version>.jar\
-			$nd4j-backends/nd4j-backend-impls/nd4j-native/target/nd4j-native-<version>-linux-armhf.jar \
-			$nd4j-backends/nd4j-backend-impls/nd4j-native-platform/target/nd4j-native-platform-<version>.jar\
-			$nd4j-backends/nd4j-api-parent/nd4j-api/target/nd4j-api-<version>.jar\
-			$nd4j-backends/nd4j-api-parent/nd4j-native-api/target/nd4j-native-api-<version>.jar \
-			$myjarFolder/
-		7. [In build machine ]install these jars in maven using :
-			mvn install:install-file -Dfile=<path to myjarFolder>\nd4j-native-<version>.jar -DgroupId=org.nd4j -DartifactId=nd4j-native -Dversion=<version> -Dpackaging=jar -DgeneratePom=true
-			mvn install:install-file -Dfile=<path to myjarFolder>\nd4j-native-<version>-linux-armhf.jar -DgroupId=org.nd4j -DartifactId=nd4j-native -Dversion=<version> -Dpackaging=jar -DgeneratePom=true -Dclassifier=linux-arm
-			mvn install:install-file -Dfile=<path to myjarFolder>\nd4j-api-<version>.jar -DgroupId=org.nd4j -DartifactId=nd4j-api -Dversion=<version> -Dpackaging=jar -DgeneratePom=true
-			mvn install:install-file -Dfile=<path to myjarFolder>\nd4j-native-platform-<version>.jar -DgroupId=org.nd4j -DartifactId=nd4j-native-platform -Dversion=<version> -Dpackaging=jar -DgeneratePom=true
-			mvn install:install-file -Dfile=<path to myjarFolder>\nd4j-native-api-<version>.jar -DgroupId=org.nd4j -DartifactId=nd4j-native-api -Dversion=<version> -Dpackaging=jar -DgeneratePom=true
-			
-		8. [In build machine ] build the source of dependant appllication with above (step 7) dependencies.
-		9. [In raspbian ]copy the generated jar of dependant application to raspberry
-		10. [In raspbian ]download the libraries inside the folders of build machine nd4j-backends/nd4j-backend-impls/nd4j-native/target/classes/org/nd4j/nativeblas/linux-armhf/  to a permanent folder containing libs (if possible to a system folder)
-		11.[In raspbian ] export the variable LD_LIBRARY_PATH to the path set in step 10: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<the path to libraryy>
-		12. [In raspbian ]java -jar myjar.jar
+		7. [In build machine ] build the source of dependant appllication with above (step 7) dependencies.
+		8. [In raspbian ]copy the generated jar of dependant application to raspberry
+		9. [In raspbian ]download the libraries inside the folders of build machine nd4j-backends/nd4j-backend-impls/nd4j-native/target/classes/org/nd4j/nativeblas/linux-armhf/  to a permanent folder containing libs (if possible to a system folder)
+		10.[In raspbian ] export the variable LD_LIBRARY_PATH to the path set in step 10: export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<the path to libraryy>
+		11. [In raspbian ]java -jar myjar.jar
