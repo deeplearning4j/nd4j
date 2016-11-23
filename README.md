@@ -12,13 +12,13 @@ rather than as a research tool, which means routines are designed to run fast wi
 
 
 
-This repo is forked for raspberry pi support. Here is the method to follow :
-	1. {In build machine machine}compile libnd4j
+This repo is forked for raspberry pi support. Here is the method to follow : 
+
+		1. {In build machine machine}compile libnd4j
 				git clone https://github.com/dschowta/libnd4j.git
 			- For cross compilation use this link:http://stackoverflow.com/questions/19162072/installing-raspberry-pi-cross-compiler
 			- Use the 4.9 version of gcc (raspberrypi/tools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++)
 		3.{In build machine}  build using "./buildnativeoperations.sh -o rp2"
-	
 		4. {In build machine} Install maven 3.3.9 (3.0.X does not work)
 		5. {In build machine} followed instructions mentioned in https://deeplearning4j.org/buildinglocally :
 				export LIBND4J_HOME=<pathTond4JNI>
