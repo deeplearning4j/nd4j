@@ -136,7 +136,7 @@
                 <os.arch>x86_64</os.arch>
             </properties>
         </profile>
-      <profile>
+        <profile>
             <id>arm</id>
             <activation>
                 <os><arch>arm</arch></os>
