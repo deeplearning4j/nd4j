@@ -217,7 +217,7 @@
             <javacpp.platform.compiler>toolchains/x86-4.9/prebuilt/${os.name}-${os.arch}/bin/i686-linux-android-g++</javacpp.platform.compiler>
           </properties>
         </profile>
-		<profile>
+        <profile>
           <id>linux-armhf-default</id>
           <activation>
             <property>
