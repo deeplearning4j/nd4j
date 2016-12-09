@@ -3065,6 +3065,20 @@ public class Nd4j {
         return INSTANCE.create(data, ordering);
     }
 
+    /** Create from 3D array. Fast & handy for Recurrent NN. */
+    public static INDArray create(float[][][] tensor) {
+        float[] flat = ArrayUtil.flatten(tensor);
+        int[] shape = new int[] {tensor.length, tensor[0].length, tensor[0][0].length};
+        return Nd4j.create(flat, shape, 'c');
+    }
+
+    /** Create from 3D array. Fast & handy for Recurrent NN. */
+    public static INDArray create(double[][][] tensor) {
+        double[] flat = ArrayUtil.flatten(tensor);
+        int[] shape = new int[] {tensor.length, tensor[0].length, tensor[0][0].length};
+        return Nd4j.create(flat, shape, 'c');
+    }
+
 
     /**
      * Create an ndarray based on the given data layout
