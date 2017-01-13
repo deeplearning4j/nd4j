@@ -62,7 +62,6 @@ public class LossFunctionJson extends BaseNd4jTest {
         for(ILossFunction lf : lossFns){
             String asJson = mapper.writeValueAsString(lf);
 //            System.out.println(asJson);
-
             ILossFunction fromJson = mapper.readValue(asJson, ILossFunction.class);
             assertEquals(lf, fromJson);
         }
