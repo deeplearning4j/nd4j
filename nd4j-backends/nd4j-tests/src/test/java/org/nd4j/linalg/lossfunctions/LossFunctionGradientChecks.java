@@ -5,8 +5,8 @@ import org.junit.Before;
 import org.junit.After;
 import org.junit.Test;
 import org.nd4j.linalg.BaseNd4jTest;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.activations.IActivation;
-import org.nd4j.linalg.activations.impl.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.iter.NdIndexIterator;
@@ -14,8 +14,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
 import org.nd4j.linalg.lossfunctions.impl.*;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +25,6 @@ import java.util.Random;
 @Slf4j
 public class LossFunctionGradientChecks extends BaseNd4jTest {
 
-    public static final double epsilon = 1e-6;
     private static final double maxRelError = 5.0; //5% relative error
     DataBuffer.Type initialType;
 
@@ -49,200 +46,196 @@ public class LossFunctionGradientChecks extends BaseNd4jTest {
     @Test
     public void testLossFunctionGradients(){
 
-        INDArray[] labels = new INDArray[]{
-                Nd4j.create(new double[]{0,1,0}),
-                Nd4j.create(new double[]{0,1,1}),
-                /*Nd4j.create(new double[][]{{1,0,0},{0,1,0},{0,0,1}}),
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{1,2,1},{0.1,1,0.5},{20,3,1}}),
-                Nd4j.create(new double[]{1,0,0}),
-                Nd4j.create(new double[][]{{1,0,0,0},{0,1,0,0},{0,0,1,0},{0,0,0,1}}),
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{101,21,110},{10.1,1,0.5},{200,30,0.001}}),
-                */
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{101,21,110},{10.1,1,0.5},{200,30,0.001}}),
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{101,21,110},{10.1,1,0.5},{200,30,0.001}}),
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{101,21,110},{10.1,1,0.5},{200,30,0.001}}),
-                Nd4j.create(new double[]{1,2,1}),
-                Nd4j.create(new double[][]{{101,21,110},{10.1,1,0.5},{200,30,0.001}}),
-                //Nd4j.create(new double[][] {{-1,-1,1},{-1,1,1},{-1,1,1}}),
-                Nd4j.create(new double[][] {{-1,1,-1},{1,1,-1},{-1,1,1}}),
-                Nd4j.create(new double[][] {{-1,1,-1},{1,1,-1},{-1,1,1}}),
-                //Nd4j.create(new double[][] {{10,1,3},{1,10,1},{1,2,5}}),
-                //Nd4j.create(new double[][] {{10,-1,3},{1,10,1},{1,2,-5}}),
+        //Case Default: loss functions with labels taking real values
+        ILossFunction[] lossFns = {new LossMSE(),
+        new LossL1(),
+        new LossMAE(),
+        new LossL2(),
+        new LossMAPE(),
+        new LossMSLE(),
+        new LossCosineProximity(),
+        new LossPoisson()
         };
 
-        INDArray[] preOut = new INDArray[]{
-                Nd4j.rand(1,3),
-                Nd4j.rand(1,3),
-                /*
-                Nd4j.rand(3,3),
-                Nd4j.rand(1,3).add(5),
-                Nd4j.rand(3,3),
-                Nd4j.rand(1,3).add(5),
-                Nd4j.rand(4,4),*/
-                Nd4j.randn(1,3),
-                Nd4j.randn(3,3).add(10),
-                Nd4j.rand(1,3),
-                Nd4j.randn(3,3).add(10),
-                Nd4j.randn(1,3),
-                Nd4j.randn(3,3).add(10),
-                Nd4j.rand(1,3),
-                Nd4j.randn(3,3).add(10),
-                /*
-                Nd4j.rand(1,3),
-                Nd4j.randn(3,3).add(10),
-                */
-                Nd4j.rand(3,3).addi(-0.5), //adding a neg num makes some +ve/ some -ve
-                Nd4j.rand(3,3).addi(-0.5), //adding a neg num makes some +ve/ some -ve
-               // Nd4j.rand(3,3),
-                //Nd4j.randn(3,3)
-        };
-
-        ILossFunction[] lossFn = new ILossFunction[]{
-                new LossBinaryXENT(), new LossBinaryXENT(),
-                /*new LossMCXENT(), new LossMCXENT(),
-                new LossMCXENT(),new LossMSE(), new LossMSE(), new LossKLD(), new LossKLD(), new LossMAE(), new LossMAE(),*/
-                new LossMAE(), new LossMAE(), new LossMSE(), new LossMSE(),
-                new LossL1(), new LossL1(), new LossL2(), new LossL2(),
-                new LossSquaredHinge(),
-                new LossHinge(),
-                //new LossPoisson(),
-                //new LossCosineProximity()
-        };
-
-        String [] activationFns = new String []{
-                "identity", "tanh",
-                /*"softmax","tanh","identity","tanh",
-                "tanh","identity","identity","identity","identity",*/
-                 "identity", "identity", "identity", "identity",
-                "sigmoid", "relu", "sigmoid", "relu",
+        String[] activationFns = new String[]{"cube",
+                "leakyrelu",
                 "identity",
-                "identity",
-                //"relu",
-                //"identity"
-        };
+                "tanh",
+                "hardtanh",
+                "softsign",
+                "hardsigmoid",
+                "sigmoid",
+                "elu",
+                "softplus",
+                "relu"};
 
-
-        for(int i=0; i<labels.length; i++ ){
-            //if (i != labels.length-2)  continue;
-            int totalNFailures = 0;
-
-            ILossFunction lf = lossFn[i];
-            INDArray l = labels[i];
-            INDArray p = preOut[i];
-            String afn = activationFns[i];
-
-            System.out.printf("Starting test: %s, %s, input shape = %s\n", lf, afn, Arrays.toString(p.shape()));
-
-            INDArray grad = lf.computeGradient(l,p,activationInstance(afn),null);
-
-            NdIndexIterator iter = new NdIndexIterator(l.shape());
-            while(iter.hasNext()){
-                int[] next = iter.next();
-
-                double before = p.getDouble(next);
-                p.putScalar(next, before+epsilon);
-                double scorePlus = lf.computeScore(l,p,activationInstance(afn),null,true);
-                p.putScalar(next, before-epsilon);
-                double scoreMinus = lf.computeScore(l,p,activationInstance(afn),null,true);
-                p.putScalar(next, before);
-
-                double scoreDelta = scorePlus - scoreMinus;
-
-                double numericalGradient = scoreDelta / (2 * epsilon);
-                double analyticGradient = grad.getDouble(next) / l.size(0);     //Analytic gradient method is before dividing by minibatch
-
-                double relError = Math.abs(analyticGradient - numericalGradient)*100 / (Math.abs(numericalGradient));
-                if( analyticGradient == 0.0 && numericalGradient == 0.0 ) relError = 0.0;	//Edge case: i.e., RNNs with time series length of 1.0
-
-
-                if(relError > maxRelError || Double.isNaN(relError)) {
-                    System.out.println("Param " + i + " FAILED: grad= " + analyticGradient + ", numericalGrad= "+numericalGradient
-                                + ", relErrorPerc= " + relError + ", scorePlus="+scorePlus+", scoreMinus= " + scoreMinus);
-                    totalNFailures++;
-                } else {
-                    System.out.println("Param " + i + " passed: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
-                            + ", relError= " + relError + ", scorePlus="+scorePlus+", scoreMinus= " + scoreMinus );
-                }
-
-                //System.out.println("Param " + i + " passed: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
-                //        + ", relError= " + relError + ", scorePlus="+scorePlus+", scoreMinus= " + scoreMinus );
-            }
-
-            if(totalNFailures > 0) System.out.println("Gradient check failed for loss function " + lf + "; total num failures = " + totalNFailures);
-            System.out.println("DONE");
+        System.out.println ("================ Running loss functions, regression =======================");
+        for (int i=0; i< lossFns.length; i++) {
+            System.out.print("===");
+            System.out.println(lossFns[i].toString());
+            doGradientCheck(lossFns[i], activationFns, "default");
         }
+
+        //Case B: loss functions with labels taking binary values (one hot or not)
+        //Binary cross entropy - labels are one hot, used only with activation softmax
+        //MCXENT, NLL should work without this assumption
+
+        activationFns = new String [] {
+                "softmax", //only run with one hot
+                "hardsigmoid",
+                "sigmoid"};
+
+        lossFns = new ILossFunction[]{
+                new LossBinaryXENT(), //only run with one hot
+                new LossMCXENT(),
+                new LossNegativeLogLikelihood()
+        };
+
+        System.out.println ("================ Running loss functions, classification =======================");
+        for (int i=0; i< lossFns.length; i++) {
+            System.out.println(lossFns[i].toString());
+            System.out.println ("===One hot");
+            doGradientCheck(lossFns[i],activationFns,"onehot");
+            System.out.println ("===Not one hot");
+            doGradientCheck(lossFns[i],activationFns,"prob");
+        }
+
+        //Case C: loss functions with labels taking -1 or 1, same as above shifted range
+        //Hinge loss and squared hinge loss, written for label values -1 or 1
+        lossFns = new ILossFunction[]{
+                new LossHinge(),
+                new LossSquaredHinge()
+        };
+        activationFns = new String [] {
+                "softsign",
+                "hardtanh",
+                "tanh"};
+
+        System.out.println ("================ Running loss functions, classification with hinge loss =======================");
+        for (int i=0; i< lossFns.length; i++) {
+            System.out.println(lossFns[i].toString());
+            System.out.println ("===One hot");
+            doGradientCheck(lossFns[i],activationFns,"onehot");
+            System.out.println ("===Not one hot");
+            doGradientCheck(lossFns[i],activationFns,"prob");
+        }
+
     }
 
+
+    public static void doGradientCheck(ILossFunction lossfn, String [] activationFns, String labelType) {
+        double epsilon = 1e-6;
+        int totalNFailures = 0;
+        double maxRelError = 5.0; // in %
+
+        int[] labelSizes = new int[]{1, 2, 10};
+
+        if (labelType.equals("prob") && lossfn instanceof LossBinaryXENT) return;
+        if (labelType.equals("onehot") && lossfn instanceof LossBinaryXENT) labelSizes = new int[] {2};
+
+        for (int i = 0; i < activationFns.length; i++) {
+
+            System.out.println("Running checks for "+activationFns[i]);
+
+            String activationS = activationFns[i];
+            IActivation activation = Activation.fromString(activationS).getActivationFunction();
+
+            List<INDArray> labelList = makeLabels(labelType,labelSizes);
+            List<INDArray> preOutputList = makeLabels("default",labelSizes);
+
+
+            for (int j=0; j<labelSizes.length; j++) {
+
+                if(labelType.equals("prob") && activationS.equals("softmax")) continue;
+                if(labelSizes[j]==1 && activationS.equals("softmax")) continue;
+                if(labelSizes[j]==1 && lossfn instanceof LossCosineProximity) continue;
+
+                System.out.println("\tRunning check for length " + labelSizes[j]);
+
+                INDArray label = labelList.get(j);
+                if (lossfn instanceof LossHinge || lossfn instanceof LossSquaredHinge) {label.muli(2).subi(1);}
+
+                INDArray preOut = preOutputList.get(j);
+                INDArray grad = lossfn.computeGradient(label.dup(),preOut.dup(),activation,null);
+
+                NdIndexIterator iterPreOut = new NdIndexIterator(preOut.shape());
+
+                while (iterPreOut.hasNext()) {
+                    int[] next = iterPreOut.next();
+                    //checking gradient with total score wrt to each output feature in label
+                    double before = preOut.getDouble(next);
+                    preOut.putScalar(next, before + epsilon);
+                    double scorePlus = lossfn.computeScore(label.dup(), preOut.dup(), activation, null, true);
+                    preOut.putScalar(next, before - epsilon);
+                    double scoreMinus = lossfn.computeScore(label.dup(), preOut.dup(), activation, null, true);
+                    preOut.putScalar(next, before);
+
+                    double scoreDelta = scorePlus - scoreMinus;
+                    double numericalGradient = scoreDelta / (2 * epsilon);
+                    double analyticGradient = grad.getDouble(next);
+                    double relError = Math.abs(analyticGradient - numericalGradient) * 100 / (Math.abs(numericalGradient));
+                    if( analyticGradient == 0.0 && numericalGradient == 0.0 ) relError = 0.0;
+                    if (relError > maxRelError || Double.isNaN(relError)) {
+                        System.out.println("\t\tParam " + Arrays.toString(next) + " FAILED: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
+                               + ", relErrorPerc= " + relError + ", scorePlus=" + scorePlus + ", scoreMinus= " + scoreMinus);
+                        totalNFailures++;
+                    } else {
+                        //System.out.println("\t\tParam " + Arrays.toString(next) + " passed: grad= " + analyticGradient + ", numericalGrad= " + numericalGradient
+                        //        + ", relError= " + relError + ", scorePlus=" + scorePlus + ", scoreMinus= " + scoreMinus);
+                    }
+                }
+                System.out.println("\t\tlabels:"+label.toString());
+                System.out.println("\t\tpreout:"+preOut.toString());
+            }
+        }
+
+        if(totalNFailures > 0) System.out.println("DONE:\n\tGradient check failed for loss function:"+lossfn.toString()+"; total num failures = " + totalNFailures);
+        assert(totalNFailures == 0);
+    }
+
+
     /*
-    public static List<INDArray> makeLabels(String activation,int[]labelSize) {
-        //edge cases are label size of one for everything except softmax which is two
-        //+ve and -ve values, zero and non zero values, less than zero/greater than zero
+        Return valid labels for different activation functions with given labelSize
+     */
+    public static List<INDArray> makeLabels(String labelType,int[]labelSize) {
         List<INDArray> returnVals = new ArrayList<>(labelSize.length);
         for (int i=0; i< labelSize.length; i++) {
             int aLabelSize = labelSize[i];
             Random r = new Random();
             double[] someVals = new double[aLabelSize];
-            double someValsSum = 0;
+            boolean oneHotSet = false;
+            double transformVal;
             for (int j=0; j<aLabelSize; j++) {
-                double someVal = r.nextGaussian();
-                double transformVal = 0;
-                switch (activation) {
-                    case "identity":
-                        transformVal = someVal;
-                    case "softmax":
-                        transformVal = someVal;
+                switch (labelType) {
+                    case "prob":
+                        transformVal = r.nextBoolean()? 1 : 0;
+                        if (aLabelSize == 1) transformVal = 0;
                         break;
-                    case "sigmoid":
-                        transformVal = Math.sin(someVal);
+                    case "onehot":
+                        //one hot value
+                        if (!oneHotSet) {
+                            oneHotSet = r.nextBoolean();
+                            transformVal = oneHotSet ? 1 : 0;
+                        }
+                        else {
+                            transformVal = 0;
+                        }
                         break;
-                    case "tanh":
-                        transformVal = Math.tan(someVal);
-                        break;
-                    case "reul":
-                        transformVal = someVal * someVal + 4;
+                    default:
+                        transformVal = 0.5*r.nextDouble()+0.4;
                         break;
                 }
                 someVals[j] = transformVal;
-                someValsSum += someVals[j];
             }
-            if (activation == "sigmoid") {
-                for (int j=0; j<aLabelSize; j++) {
-                    someVals[j] /= someValsSum;
-                }
+            if (!oneHotSet && (labelType.equals("onehot")|| labelType.equals("onehotS"))) {
+                //pick an index to make 1
+                transformVal = r.nextDouble();
+                transformVal *= aLabelSize;
+                someVals[(int)Math.floor(transformVal)] = 1;
             }
             returnVals.add(Nd4j.create(someVals));
         }
         return returnVals;
-    }
-    */
-
-    public static IActivation activationInstance (String activation) {
-
-        IActivation activationFn = new ActivationSigmoid();
-        switch (activation) {
-            case "identity":
-                activationFn = new ActivationIdentity();
-            case "softmax":
-                activationFn = new ActivationSoftmax();
-                break;
-            case "sigmoid":
-                activationFn = new ActivationSigmoid();
-                break;
-            case "tanh":
-                activationFn = new ActivationTanH();
-                break;
-            case "reul":
-                activationFn = new ActivationReLU();
-                break;
-        }
-
-        return activationFn;
-
     }
 
     @After

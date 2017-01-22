@@ -20,7 +20,8 @@ import org.nd4j.shade.jackson.databind.annotation.JsonSerialize;
  * Binary cross entropy loss function
  * <a href="https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression">
  * https://en.wikipedia.org/wiki/Cross_entropy#Cross-entropy_error_function_and_logistic_regression</a>
- * Labels are assumed to take values 0 or 1
+ * Labels are assumed to take one hot values of size two [0,1] or [1,0]
+ * For other cases use Negative Log Likelihood or Multi class cross entropy
  *
  * @author Susan Eraly
  */
@@ -108,6 +109,8 @@ public class LossBinaryXENT implements ILossFunction {
         INDArray numerator = output.sub(labels);
         INDArray denominator = output.mul(output.rsub(1)); // output * (1-output)
         INDArray dLda = numerator.divi(denominator);
+        //p, 1-p dependency also in softmax
+        if (activationFn instanceof ActivationSoftmax) dLda.divi(2);
 
         INDArray grad = activationFn.backprop(preOutput, dLda).getFirst();  //TODO activation functions with weights
 

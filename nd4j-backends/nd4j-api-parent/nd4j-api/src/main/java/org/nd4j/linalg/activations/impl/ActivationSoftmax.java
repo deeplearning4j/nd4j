@@ -12,6 +12,7 @@ import org.nd4j.shade.jackson.annotation.JsonInclude;
 /**
  * f_i(x) = exp(x_i - shift) / sum_j exp(x_j - shift)
  * where shift = max_i(x_i)
+ * Use with labels that are one hot encoded as in the case with mutually exclusive classes
  */
 @EqualsAndHashCode
 @Getter

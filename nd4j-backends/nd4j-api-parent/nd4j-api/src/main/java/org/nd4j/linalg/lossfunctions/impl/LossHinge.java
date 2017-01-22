@@ -9,7 +9,11 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 
 /**
- * Created by susaneraly on 8/15/16.
+ * Hinge Loss
+ * Labels are assumed to take values -1 or 1
+ * <a href="https://en.wikipedia.org/wiki/Hinge_loss">
+ * https://en.wikipedia.org/wiki/Hinge_loss</a>
+ * @author susaneraly
  */
 @EqualsAndHashCode
 public class LossHinge implements ILossFunction {
