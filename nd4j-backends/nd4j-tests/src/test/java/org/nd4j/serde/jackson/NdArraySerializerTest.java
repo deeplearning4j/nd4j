@@ -30,7 +30,7 @@ public class NdArraySerializerTest {
         String json = objectMapper.writeValueAsString(Nd4j.create(2,2));
         INDArray assertion = Nd4j.create(2,2);
         INDArray test = objectMapper.readValue(json,INDArray.class);
-        assertEquals(assertion,test);
+       assertEquals(assertion,test);
     }
 
     private static ObjectMapper objectMapper() {
