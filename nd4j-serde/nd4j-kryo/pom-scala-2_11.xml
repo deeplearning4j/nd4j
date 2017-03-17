@@ -2,7 +2,7 @@
     <parent>
         <artifactId>nd4j-serde</artifactId>
         <groupId>org.nd4j</groupId>
-        <version>0.8.1-SNAPSHOT</version>
+        <version>0.7.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
 
     <properties>
         <kryo.version>2.21</kryo.version>
-         <buildDirectory>${project.basedir}/target</buildDirectory>
+        <buildDirectory>${project.basedir}/target</buildDirectory>
     </properties>
 
     <build>

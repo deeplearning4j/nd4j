@@ -36,15 +36,10 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>local-nexus</id>
+            <name>Sonatype Nexus Pro Local snapshot repository</name>
+            <url>${NEXUS_URL_SNAPSHOT}</url>
         </snapshotRepository>
-        <repository>
-            <id>nexus-releases</id>
-            <name>Nexus Release Repository</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
     </distributionManagement>
 
     <profiles>
@@ -259,6 +254,17 @@
         <module>nd4j-context</module>
         <module>nd4j-backends</module>
         <module>nd4j-parameter-server-parent</module>
+
+
+        <module>nd4j-serde/nd4j-kryo/pom-scala-2_11.xml</module>
+        <module>nd4j-serde/nd4j-camel-routes/nd4j-kafka/pom-scala-2_11.xml</module>
+
+        <module>nd4j-backends/nd4j-backend-impls/nd4j-cuda/pom-cuda75.xml</module>
+        <module>nd4j-backends/nd4j-backend-impls/nd4j-cuda-platform/pom-cuda75.xml</module>
+
+        <module>nd4j-parameter-server-parent/nd4j-parameter-server-status/pom-scala-2_11.xml</module>
+        <module>nd4j-parameter-server-parent/nd4j-parameter-server-node/pom-scala-2_11.xml</module>
+
     </modules>
 
     <properties>
@@ -373,9 +379,10 @@
                 </executions>
                 <extensions>true</extensions>
                 <configuration>
-                    <serverId>nexus-releases</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <skipStagingRepositoryClose>true</skipStagingRepositoryClose>
+                    <serverId>local-nexus</serverId>
+                    <nexusUrl>${NEXUS_URL}/</nexusUrl>
+                    <!--<skipStagingRepositoryClose>true</skipStagingRepositoryClose>-->
+                    <stagingProfileId>11537a3f5fa97</stagingProfileId>
                 </configuration>
             </plugin>
             <plugin>

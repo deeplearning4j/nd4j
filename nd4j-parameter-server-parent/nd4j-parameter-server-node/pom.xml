@@ -10,7 +10,15 @@
     <artifactId>nd4j-parameter-server-node_2.11</artifactId>
     <packaging>jar</packaging>
 
-    <name>nd4j-parameter-server-node</name>
+    <name>${project.artifactId}</name>
+
+    <properties>
+        <buildDirectory>${project.basedir}/target</buildDirectory>
+    </properties>
+
+    <build>
+        <directory>${buildDirectory}</directory>
+    </build>
 
 
     <dependencies>
