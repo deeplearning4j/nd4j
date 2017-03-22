@@ -5,12 +5,16 @@ import lombok.Getter;
 import org.apache.commons.math3.util.Pair;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.nd4j.linalg.lossfunctions.LossUtil;
 import org.nd4j.linalg.lossfunctions.serde.RowVectorDeserializer;
 import org.nd4j.linalg.lossfunctions.serde.RowVectorSerializer;
 import org.nd4j.shade.jackson.annotation.JsonInclude;
 import org.nd4j.shade.jackson.databind.annotation.JsonDeserialize;
 import org.nd4j.shade.jackson.databind.annotation.JsonSerialize;
+
+import java.util.Arrays;
 
 /**
  * L2 loss function: i.e., sum of squared errors, L = sum_i (actual_i - predicted)^2
@@ -48,32 +52,35 @@ public class LossL2 implements ILossFunction {
     }
 
     protected INDArray scoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
-        INDArray output = activationFn.getActivation(preOutput.dup(),true);
+        INDArray output = activationFn.getActivation(preOutput.dup(), true);
         INDArray scoreArr = output.rsubi(labels);
         scoreArr = scoreArr.muli(scoreArr);
 
         //Weighted loss function
         if (weights != null) {
             if (weights.length() != output.size(1)) {
-                throw new IllegalStateException("Weights vector (length " + weights.length() + ") does not match output.size(1)=" + output.size(1));
+                throw new IllegalStateException("Weights vector (length " + weights.length()
+                                + ") does not match output.size(1)=" + output.size(1));
             }
             scoreArr.muliRowVector(weights);
         }
 
         //Loss function with masking
         if (mask != null) {
-            scoreArr.muliColumnVector(mask);
+            LossUtil.applyMask(scoreArr, mask);
         }
         return scoreArr;
     }
 
     @Override
-    public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
+    public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask,
+                    boolean average) {
         INDArray scoreArr = scoreArray(labels, preOutput, activationFn, mask);
 
         double score = scoreArr.sumNumber().doubleValue();
 
-        if (average) score /= scoreArr.size(0);
+        if (average)
+            score /= scoreArr.size(0);
 
         return score;
     }
@@ -87,7 +94,7 @@ public class LossL2 implements ILossFunction {
     @Override
     public INDArray computeGradient(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         //INDArray output = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()));
-        INDArray output = activationFn.getActivation(preOutput.dup(),true);
+        INDArray output = activationFn.getActivation(preOutput.dup(), true);
 
         INDArray dLda = output.subi(labels).muli(2);
 
@@ -95,27 +102,37 @@ public class LossL2 implements ILossFunction {
             dLda.muliRowVector(weights);
         }
 
+        if(mask != null && LossUtil.isPerOutputMasking(dLda, mask)){
+            //For *most* activation functions: we don't actually need to mask dL/da in addition to masking dL/dz later
+            //but: some, like softmax, require both (due to dL/dz_i being a function of dL/da_j, for i != j)
+            //We could add a special case for softmax (activationFn instanceof ActivationSoftmax) but that would be
+            // error prone - but buy us a tiny bit of performance
+            LossUtil.applyMask(dLda, mask);
+        }
+
         INDArray gradients = activationFn.backprop(preOutput, dLda).getFirst(); //TODO handle activation function parameter gradients
 
         //Loss function with masking
         if (mask != null) {
-            gradients.muliColumnVector(mask);
+            LossUtil.applyMask(gradients, mask);
         }
+
         return gradients;
     }
 
     @Override
-    public org.apache.commons.math3.util.Pair<Double, INDArray> computeGradientAndScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
+    public org.apache.commons.math3.util.Pair<Double, INDArray> computeGradientAndScore(INDArray labels,
+                    INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
         //TODO: probably a more efficient way to do this...
 
-        return new Pair<>(
-                computeScore(labels, preOutput, activationFn, mask, average),
-                computeGradient(labels, preOutput, activationFn, mask));
+        return new Pair<>(computeScore(labels, preOutput, activationFn, mask, average),
+                        computeGradient(labels, preOutput, activationFn, mask));
     }
 
     @Override
     public String toString() {
-        if (weights == null) return "LossL2()";
+        if (weights == null)
+            return "LossL2()";
         return "LossL2(weights=" + weights + ")";
     }
 }

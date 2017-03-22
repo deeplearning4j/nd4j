@@ -7,7 +7,6 @@ import org.nd4j.linalg.activations.BaseActivationFunction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftPlus;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.shade.jackson.annotation.JsonInclude;
 
 /**
  * f(x) = log(1+e^x)
@@ -23,7 +22,7 @@ public class ActivationSoftPlus extends BaseActivationFunction {
     }
 
     @Override
-    public Pair<INDArray,INDArray> backprop(INDArray in, INDArray epsilon) {
+    public Pair<INDArray, INDArray> backprop(INDArray in, INDArray epsilon) {
         INDArray dLdz = Nd4j.getExecutioner().execAndReturn(new SoftPlus(in).derivative());
         dLdz.muli(epsilon);
         return new Pair<>(dLdz, null);

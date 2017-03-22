@@ -12,14 +12,7 @@ import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
  *
  * @author Ede Meijer
  */
-public interface MultiDataNormalization extends MultiDataSetPreProcessor {
-    /**
-     * Fit a multi dataset (only compute based on the statistics from this dataset)
-     *
-     * @param dataSet the dataset to compute on
-     */
-    void fit(MultiDataSet dataSet);
-
+public interface MultiDataNormalization extends Normalizer<MultiDataSet>, MultiDataSetPreProcessor {
     /**
      * Iterates over a dataset
      * accumulating statistics for normalization
@@ -31,20 +24,6 @@ public interface MultiDataNormalization extends MultiDataSetPreProcessor {
 
     @Override
     void preProcess(MultiDataSet multiDataSet);
-
-    /**
-     * Transform the dataset
-     *
-     * @param toPreProcess the dataset to re process
-     */
-    void transform(MultiDataSet toPreProcess);
-
-    /**
-     * Undo (revert) the normalization applied by this DataNormalization instance (arrays are modified in-place)
-     *
-     * @param toRevert DataSet to revert the normalization on
-     */
-    void revert(MultiDataSet toRevert);
 
     /**
      * Undo (revert) the normalization applied by this DataNormalization instance to the specified features array
@@ -79,16 +58,4 @@ public interface MultiDataNormalization extends MultiDataSetPreProcessor {
      * @param labels Labels array to revert the normalization on
      */
     void revertLabels(INDArray[] labels);
-
-    /**
-     * Flag to specify if the labels/outputs in the dataset should be also normalized. Default value is usually false.
-     */
-    void fitLabel(boolean fitLabels);
-
-    /**
-     * Whether normalization for the labels is also enabled. Most commonly used for regression, not classification.
-     *
-     * @return True if labels will be
-     */
-    boolean isFitLabel();
 }

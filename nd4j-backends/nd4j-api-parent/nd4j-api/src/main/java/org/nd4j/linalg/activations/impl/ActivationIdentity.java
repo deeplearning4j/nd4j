@@ -5,7 +5,6 @@ import lombok.Getter;
 import org.apache.commons.math3.util.Pair;
 import org.nd4j.linalg.activations.BaseActivationFunction;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.shade.jackson.annotation.JsonInclude;
 
 /**
  * f(x) = x
@@ -21,7 +20,7 @@ public class ActivationIdentity extends BaseActivationFunction {
     }
 
     @Override
-    public Pair<INDArray,INDArray> backprop(INDArray in, INDArray epsilon) {
+    public Pair<INDArray, INDArray> backprop(INDArray in, INDArray epsilon) {
         return new Pair<>(epsilon, null);
     }
 

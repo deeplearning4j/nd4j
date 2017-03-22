@@ -8,7 +8,6 @@ import org.nd4j.linalg.dataset.api.MultiDataSet;
 import org.nd4j.linalg.dataset.api.iterator.MultiDataSetIterator;
 import org.nd4j.linalg.dataset.api.preprocessor.stats.NormalizerStats;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +17,13 @@ import java.util.List;
  * @author Ede Meijer
  */
 @EqualsAndHashCode(callSuper = false)
-abstract class AbstractMultiDataSetNormalizer<S extends NormalizerStats> extends AbstractNormalizer<S> implements MultiDataNormalization, Serializable {
-    @Setter private List<S> featureStats;
-    @Setter private List<S> labelStats;
+public abstract class AbstractMultiDataSetNormalizer<S extends NormalizerStats> extends AbstractNormalizer
+                implements MultiDataNormalization {
+    protected NormalizerStrategy<S> strategy;
+    @Setter
+    private List<S> featureStats;
+    @Setter
+    private List<S> labelStats;
     private boolean fitLabels = false;
 
     protected AbstractMultiDataSetNormalizer() {
@@ -28,7 +31,7 @@ abstract class AbstractMultiDataSetNormalizer<S extends NormalizerStats> extends
     }
 
     protected AbstractMultiDataSetNormalizer(NormalizerStrategy<S> strategy) {
-        super(strategy);
+        this.strategy = strategy;
     }
 
     /**
@@ -74,7 +77,7 @@ abstract class AbstractMultiDataSetNormalizer<S extends NormalizerStats> extends
     }
 
     /**
-     * Fit a MultiDataSet (only compute based on the statistics from this dataset)
+     * Fit a MultiDataSet (only compute based on the statistics from this {@link MultiDataSet})
      *
      * @param dataSet the dataset to compute on
      */
@@ -120,7 +123,7 @@ abstract class AbstractMultiDataSetNormalizer<S extends NormalizerStats> extends
     }
 
     private void fitPartial(MultiDataSet dataSet, List<S.Builder> featureStatsBuilders,
-                            List<S.Builder> labelStatsBuilders) {
+                    List<S.Builder> labelStatsBuilders) {
         int numInputs = dataSet.numFeatureArrays();
         int numOutputs = dataSet.numLabelsArrays();
 

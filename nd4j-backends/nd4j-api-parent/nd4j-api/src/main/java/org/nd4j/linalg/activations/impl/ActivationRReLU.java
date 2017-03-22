@@ -1,6 +1,5 @@
 package org.nd4j.linalg.activations.impl;
 
-import org.nd4j.shade.jackson.annotation.JsonIgnoreProperties;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.math3.util.Pair;
@@ -10,11 +9,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.RectifedLinear;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
-import org.nd4j.linalg.lossfunctions.serde.RowVectorDeserializer;
-import org.nd4j.linalg.lossfunctions.serde.RowVectorSerializer;
-import org.nd4j.shade.jackson.annotation.JsonInclude;
-import org.nd4j.shade.jackson.databind.annotation.JsonDeserialize;
-import org.nd4j.shade.jackson.databind.annotation.JsonSerialize;
+import org.nd4j.shade.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * f(x) = max(0,x) + alpha * min(0, x)
@@ -32,7 +27,7 @@ public class ActivationRReLU extends BaseActivationFunction {
     public static final double DEFAULT_L = 1.0 / 8;
     public static final double DEFAULT_U = 1.0 / 3;
 
-    private double l,u;
+    private double l, u;
     private transient INDArray alpha; //don't need to write to json, when streaming
 
     public ActivationRReLU() {
@@ -40,7 +35,7 @@ public class ActivationRReLU extends BaseActivationFunction {
     }
 
     public ActivationRReLU(double l, double u) {
-        if(l > u){
+        if (l > u) {
             throw new IllegalArgumentException("Cannot have lower value (" + l + ") greater than upper (" + u + ")");
         }
         this.l = l;
@@ -55,7 +50,7 @@ public class ActivationRReLU extends BaseActivationFunction {
             BooleanIndexing.replaceWhere(in, inTimesAlpha, Conditions.lessThan(0));
         } else {
             this.alpha = null;
-            double a = 0.5*(l+u);
+            double a = 0.5 * (l + u);
             return Nd4j.getExecutioner().execAndReturn(new RectifedLinear(in, a));
         }
 
@@ -63,7 +58,7 @@ public class ActivationRReLU extends BaseActivationFunction {
     }
 
     @Override
-    public Pair<INDArray,INDArray> backprop(INDArray in, INDArray epsilon) {
+    public Pair<INDArray, INDArray> backprop(INDArray in, INDArray epsilon) {
 
         INDArray dLdz = Nd4j.ones(in.shape());
         BooleanIndexing.replaceWhere(dLdz, alpha, Conditions.lessThanOrEqual(0.0));

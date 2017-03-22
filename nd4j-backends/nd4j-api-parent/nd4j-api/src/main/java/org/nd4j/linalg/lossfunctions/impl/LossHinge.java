@@ -7,6 +7,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
+import org.nd4j.linalg.lossfunctions.LossUtil;
 
 /**
  * Created by susaneraly on 8/15/16.
@@ -19,22 +20,24 @@ public class LossHinge implements ILossFunction {
         hinge loss is max(0,1-y_hat*y)
          */
         //INDArray output = Nd4j.getExecutioner().execAndReturn(Nd4j.getOpFactory().createTransform(activationFn, preOutput.dup()));
-        INDArray output = activationFn.getActivation(preOutput.dup(),true);
+        INDArray output = activationFn.getActivation(preOutput.dup(), true);
 
         INDArray scoreArr = output.muli(labels); //y*yhat
         scoreArr.rsubi(1.0); //1 - y*yhat
 
         if (mask != null) {
-            scoreArr.muliColumnVector(mask);
+            LossUtil.applyMask(scoreArr, mask);
         }
         return scoreArr; // 1 - y*yhat
     }
 
     @Override
-    public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
+    public double computeScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask,
+                    boolean average) {
         INDArray scoreArr = computeScoreArray(labels, preOutput, activationFn, mask);
         double score = scoreArr.sumNumber().doubleValue();
-        if (average) score /= scoreArr.size(0);
+        if (average)
+            score /= scoreArr.size(0);
         return score;
     }
 
@@ -60,22 +63,31 @@ public class LossHinge implements ILossFunction {
         BooleanIndexing.replaceWhere(bitMaskRowCol, 0.0, Conditions.lessThan(0.0));
         BooleanIndexing.replaceWhere(bitMaskRowCol, 1.0, Conditions.greaterThan(0.0));
 
-        INDArray dLda = labels.neg().muli(bitMaskRowCol);//.muli(sigmaPrimeZ);
-        INDArray gradients = activationFn.backprop(preOutput, dLda).getFirst();     //TODO activation functions with parameters
+        INDArray dLda = labels.neg().muli(bitMaskRowCol);
+
+        if(mask != null && LossUtil.isPerOutputMasking(dLda, mask)){
+            //For *most* activation functions: we don't actually need to mask dL/da in addition to masking dL/dz later
+            //but: some, like softmax, require both (due to dL/dz_i being a function of dL/da_j, for i != j)
+            //We could add a special case for softmax (activationFn instanceof ActivationSoftmax) but that would be
+            // error prone - though buy us a tiny bit of performance
+            LossUtil.applyMask(dLda, mask);
+        }
+
+        INDArray gradients = activationFn.backprop(preOutput, dLda).getFirst(); //TODO activation functions with parameters
 
         if (mask != null) {
-            gradients.muliColumnVector(mask);
+            LossUtil.applyMask(gradients, mask);
         }
 
         return gradients;
     }
 
     @Override
-    public org.apache.commons.math3.util.Pair<Double, INDArray> computeGradientAndScore(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
+    public org.apache.commons.math3.util.Pair<Double, INDArray> computeGradientAndScore(INDArray labels,
+                    INDArray preOutput, IActivation activationFn, INDArray mask, boolean average) {
         //TODO: probably a more efficient way to do this...
-        return new Pair<>(
-                computeScore(labels, preOutput, activationFn, mask, average),
-                computeGradient(labels, preOutput, activationFn, mask));
+        return new Pair<>(computeScore(labels, preOutput, activationFn, mask, average),
+                        computeGradient(labels, preOutput, activationFn, mask));
     }
 
     @Override
