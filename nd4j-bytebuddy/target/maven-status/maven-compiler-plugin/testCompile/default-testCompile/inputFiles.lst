@@ -1,0 +1,8 @@
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/arithmetic/ByteBuddyArithmeticTest.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/createint/CreateIntTests.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/arrays/assign/AssignImplementationTest.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/arrays/IntArrayCreationTest.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/shape/ShapeMapperTest.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/arrays/retrieve/relative/RelativeRetrieveTest.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/aggregate/TestAggregateByteCodeAppender.java
+/Users/justin/Projects/nd4j/nd4j-bytebuddy/src/test/java/org/nd4j/bytebuddy/method/LoadIntParamTest.java

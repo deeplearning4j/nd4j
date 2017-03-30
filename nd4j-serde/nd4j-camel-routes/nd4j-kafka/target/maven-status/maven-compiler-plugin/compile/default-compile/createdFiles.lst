@@ -1,0 +1,10 @@
+org/nd4j/camel/kafka/Nd4jKafkaRoute$2.class
+org/nd4j/camel/kafka/Nd4jKafkaRoute$Nd4jKafkaRouteBuilder.class
+org/nd4j/camel/kafka/KafkaConnectionInformation$KafkaConnectionInformationBuilder.class
+org/nd4j/camel/kafka/Nd4jKafkaConsumer.class
+org/nd4j/camel/kafka/KafkaConnectionInformation.class
+org/nd4j/camel/kafka/Nd4jKafkaRoute$1.class
+org/nd4j/camel/kafka/Nd4jKafkaConsumer$Nd4jKafkaConsumerBuilder.class
+org/nd4j/camel/kafka/Nd4jKafkaProducer$Nd4jKafkaProducerBuilder.class
+org/nd4j/camel/kafka/Nd4jKafkaRoute.class
+org/nd4j/camel/kafka/Nd4jKafkaProducer.class

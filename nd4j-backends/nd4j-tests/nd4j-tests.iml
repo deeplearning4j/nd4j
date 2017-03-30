@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_7" inherit-compiler-output="false">
+    <output url="file://$MODULE_DIR$/target/classes" />
+    <output-test url="file://$MODULE_DIR$/target/test-classes" />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.12" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.hamcrest:hamcrest-core:1.3" level="project" />
+    <orderEntry type="module" module-name="nd4j-api" />
+    <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.10" level="project" />
+    <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.16.10" level="project" />
+    <orderEntry type="module" module-name="nd4j-buffer" />
+    <orderEntry type="module" module-name="nd4j-common" />
+    <orderEntry type="library" name="Maven: org.reflections:reflections:0.9.10" level="project" />
+    <orderEntry type="library" name="Maven: org.javassist:javassist:3.19.0-GA" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.findbugs:annotations:2.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.google.guava:guava:18.0" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-math3:3.4.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.3.1" level="project" />
+    <orderEntry type="module" module-name="nd4j-context" />
+    <orderEntry type="library" name="Maven: net.ericaro:neoitertools:1.0.0" level="project" />
+    <orderEntry type="module" module-name="nd4j-native-api" />
+    <orderEntry type="library" name="Maven: org.bytedeco:javacpp:1.3.2" level="project" />
+    <orderEntry type="module" module-name="nd4j-jackson" />
+    <orderEntry type="module" module-name="nd4j-base64" />
+    <orderEntry type="library" name="Maven: commons-net:commons-net:3.1" level="project" />
+    <orderEntry type="module" module-name="jackson" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.5.0" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.yaml:snakeyaml:1.12" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: org.codehaus.woodstox:stax2-api:3.1.4" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.datatype:jackson-datatype-joda:2.5.1" level="project" />
+    <orderEntry type="library" name="Maven: joda-time:joda-time:2.2" level="project" />
+    <orderEntry type="module" module-name="nd4j-native" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas-platform:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:android-arm:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:android-x86:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:linux-x86:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:linux-x86_64:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:linux-armhf:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:linux-ppc64le:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:macosx-x86_64:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:windows-x86:0.2.19-1.3" level="project" />
+    <orderEntry type="library" name="Maven: org.bytedeco.javacpp-presets:openblas:windows-x86_64:0.2.19-1.3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.101tec:zkclient:0.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: log4j:log4j:1.2.14" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apache.zookeeper:zookeeper:3.4.6" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.slf4j:slf4j-log4j12:1.7.10" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: jline:jline:0.9.94" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: io.netty:netty:3.7.0.Final" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apache.kafka:kafka_2.11:0.8.2.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scala-lang.modules:scala-xml_2.11:1.0.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.yammer.metrics:metrics-core:2.2.0" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: net.sf.jopt-simple:jopt-simple:3.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.scala-lang.modules:scala-parser-combinators_2.11:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.11.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.apache.kafka:kafka-clients:0.8.2.2" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.xerial.snappy:snappy-java:1.1.1.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: net.jpountz.lz4:lz4:1.2.0" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.1.2" level="project" />
+    <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.1.2" level="project" />
+    <orderEntry type="module" module-name="nd4j-kafka_2.11" />
+    <orderEntry type="library" name="Maven: org.apache.camel:camel-kafka:2.16.3" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-core:2.2.11" level="project" />
+    <orderEntry type="library" name="Maven: com.sun.xml.bind:jaxb-impl:2.2.11" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.camel:camel-core:2.16.3" level="project" />
+  </component>
+</module>

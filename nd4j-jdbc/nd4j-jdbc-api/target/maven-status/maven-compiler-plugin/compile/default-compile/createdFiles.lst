@@ -1,0 +1,3 @@
+org/nd4j/jdbc/driverfinder/DriverFinder.class
+org/nd4j/jdbc/loader/api/JDBCNDArrayIO.class
+org/nd4j/jdbc/loader/impl/BaseLoader.class

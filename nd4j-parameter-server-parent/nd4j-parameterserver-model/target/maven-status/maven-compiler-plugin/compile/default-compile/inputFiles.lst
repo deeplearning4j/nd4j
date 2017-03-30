@@ -1,0 +1,8 @@
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/SlaveStatus.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/MasterConnectionInfo.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/ServerState.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/MasterStatus.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/ServerType.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/ServerTypeJson.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/SubscriberState.java
+/Users/justin/Projects/nd4j/nd4j-parameter-server-parent/nd4j-parameterserver-model/src/main/java/org/nd4j/parameterserver/model/SlaveConnectionInfo.java
