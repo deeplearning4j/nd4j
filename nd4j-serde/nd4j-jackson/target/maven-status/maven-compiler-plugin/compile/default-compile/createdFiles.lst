@@ -1,0 +1,6 @@
+org/nd4j/shade/serde/jackson/VectorDeSerializer.class
+org/nd4j/shade/serde/jackson/VectorSerializer.class
+org/nd4j/shade/serde/jackson/ndarray/NDArraySerializer.class
+org/nd4j/shade/serde/jackson/shaded/NDArraySerializer.class
+org/nd4j/shade/serde/jackson/ndarray/NDArrayDeSerializer.class
+org/nd4j/shade/serde/jackson/shaded/NDArrayDeSerializer.class

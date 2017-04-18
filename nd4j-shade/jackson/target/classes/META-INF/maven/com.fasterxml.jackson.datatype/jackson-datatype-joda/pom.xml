@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion> 
+  <parent>
+    <groupId>com.fasterxml.jackson</groupId>
+    <artifactId>jackson-parent</artifactId>
+    <version>2.5</version>
+  </parent>
+  <groupId>com.fasterxml.jackson.datatype</groupId>
+  <artifactId>jackson-datatype-joda</artifactId>
+  <name>Jackson-datatype-Joda</name>
+  <version>2.5.1</version>
+  <packaging>bundle</packaging>
+  <description>Add-on module for Jackson (http://jackson.codehaus.org) to support
+Joda (http://joda-time.sourceforge.net/) data types.
+  </description>
+  <url>http://wiki.fasterxml.com/JacksonModuleJoda</url>
+  <scm>
+    <connection>scm:git:git@github.com:FasterXML/jackson-datatype-joda.git</connection>
+    <developerConnection>scm:git:git@github.com:FasterXML/jackson-datatype-joda.git</developerConnection>
+    <url>http://github.com/FasterXML/jackson-datatype-joda</url>    
+    <tag>jackson-datatype-joda-2.5.1</tag>
+  </scm>
+  <properties>
+    <version.jackson.annotations>2.5.0</version.jackson.annotations>
+    <version.jackson.core>2.5.1</version.jackson.core>
+    <!-- Generate PackageVersion.java into this directory. -->
+    <packageVersion.dir>com/fasterxml/jackson/datatype/joda</packageVersion.dir>
+    <packageVersion.package>${project.groupId}.joda</packageVersion.package>
+
+    <!-- Configuration properties for the OSGi maven-bundle-plugin -->
+    <osgi.export>${project.groupId}.joda.*</osgi.export>
+    <osgi.versionpolicy>${range;[===,+);${@}}</osgi.versionpolicy>
+  </properties>
+
+  <dependencies>
+    <!-- Extends Jackson mapper; but also needs annotations slightly,
+         to support JsonFormat
+      -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${version.jackson.annotations}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${version.jackson.core}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${version.jackson.core}</version>
+    </dependency>
+
+    <!-- And obviously also depends on Joda lib -->
+    <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <!-- Upgraded to 2.2 for Jackson 2.4: but let's try not to call any 2.2 methods
+          -->
+        <version>2.2</version>
+    </dependency>
+<!-- 26-Jun-2012, tatu: Not sure if this should be included; it appears to be
+   a transitive dependency. Leaving out for now.
+    <dependency>
+        <groupId>org.joda</groupId>
+        <artifactId>joda-convert</artifactId>
+        <version>1.2</version>
+    </dependency>
+-->
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- Inherited from oss-base. Generate PackageVersion.java.-->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <executions>
+          <execution>
+            <id>process-packageVersion</id>
+            <phase>generate-sources</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

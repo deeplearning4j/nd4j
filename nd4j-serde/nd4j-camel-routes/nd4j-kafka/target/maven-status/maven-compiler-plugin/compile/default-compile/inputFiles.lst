@@ -1,0 +1,4 @@
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-camel-routes/nd4j-kafka/src/main/java/org/nd4j/camel/kafka/Nd4jKafkaRoute.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-camel-routes/nd4j-kafka/src/main/java/org/nd4j/camel/kafka/KafkaConnectionInformation.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-camel-routes/nd4j-kafka/src/main/java/org/nd4j/camel/kafka/Nd4jKafkaProducer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-camel-routes/nd4j-kafka/src/main/java/org/nd4j/camel/kafka/Nd4jKafkaConsumer.java

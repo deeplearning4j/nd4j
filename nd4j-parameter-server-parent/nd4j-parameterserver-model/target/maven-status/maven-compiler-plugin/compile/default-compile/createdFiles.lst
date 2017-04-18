@@ -1,0 +1,14 @@
+org/nd4j/parameterserver/model/SlaveConnectionInfo$SlaveConnectionInfoBuilder.class
+org/nd4j/parameterserver/model/MasterStatus$MasterStatusBuilder.class
+org/nd4j/parameterserver/model/ServerState.class
+org/nd4j/parameterserver/model/SlaveStatus.class
+org/nd4j/parameterserver/model/SubscriberState$SubscriberStateBuilder.class
+org/nd4j/parameterserver/model/MasterStatus.class
+org/nd4j/parameterserver/model/ServerTypeJson$ServerTypeJsonBuilder.class
+org/nd4j/parameterserver/model/MasterConnectionInfo.class
+org/nd4j/parameterserver/model/SlaveStatus$SlaveStatusBuilder.class
+org/nd4j/parameterserver/model/ServerTypeJson.class
+org/nd4j/parameterserver/model/SlaveConnectionInfo.class
+org/nd4j/parameterserver/model/SubscriberState.class
+org/nd4j/parameterserver/model/MasterConnectionInfo$MasterConnectionInfoBuilder.class
+org/nd4j/parameterserver/model/ServerType.class

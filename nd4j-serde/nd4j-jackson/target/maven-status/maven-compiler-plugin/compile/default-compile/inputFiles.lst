@@ -1,0 +1,6 @@
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/VectorDeSerializer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/ndarray/NDArrayDeSerializer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/ndarray/NDArraySerializer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/shaded/NDArrayDeSerializer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/VectorSerializer.java
+/Users/justin/Projects/nd4j/nd4j-serde/nd4j-jackson/src/main/java/org/nd4j/shade/serde/jackson/shaded/NDArraySerializer.java

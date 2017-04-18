@@ -1,0 +1,15 @@
+org/nd4j/bytebuddy/arrays/assign/AssignImplementationTest$SetValueInPlace.class
+org/nd4j/bytebuddy/arithmetic/ByteBuddyArithmeticTest$Arithmetic.class
+org/nd4j/bytebuddy/arrays/assign/AssignImplementationTest.class
+org/nd4j/bytebuddy/createint/CreateIntTests.class
+org/nd4j/bytebuddy/aggregate/TestAggregateByteCodeAppender.class
+org/nd4j/bytebuddy/arrays/IntArrayCreationTest$CreateArray.class
+org/nd4j/bytebuddy/arrays/retrieve/relative/RelativeRetrieveTest$RetrieveFromArray.class
+org/nd4j/bytebuddy/aggregate/TestAggregateByteCodeAppender$CreateAndAssignArray.class
+org/nd4j/bytebuddy/arrays/IntArrayCreationTest.class
+org/nd4j/bytebuddy/createint/CreateIntTests$CreateAndAssignIntArray.class
+org/nd4j/bytebuddy/method/LoadIntParamTest$GrabArgOne.class
+org/nd4j/bytebuddy/arrays/retrieve/relative/RelativeRetrieveTest.class
+org/nd4j/bytebuddy/arithmetic/ByteBuddyArithmeticTest.class
+org/nd4j/bytebuddy/method/LoadIntParamTest.class
+org/nd4j/bytebuddy/shape/ShapeMapperTest.class

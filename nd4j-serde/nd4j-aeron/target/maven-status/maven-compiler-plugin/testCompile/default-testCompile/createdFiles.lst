@@ -1,0 +1,12 @@
+org/nd4j/aeron/ipc/LargeNdArrayIpcTest$1.class
+org/nd4j/aeron/ipc/response/AeronNDArrayResponseTest$1.class
+org/nd4j/aeron/ipc/NdArrayIpcTest$1.class
+org/nd4j/aeron/ipc/AeronNDArraySerdeTest.class
+org/nd4j/aeron/ipc/response/AeronNDArrayResponseTest.class
+org/nd4j/aeron/ipc/response/AeronNDArrayResponseTest$2.class
+org/nd4j/aeron/ipc/chunk/ChunkAccumulatorTests.class
+org/nd4j/aeron/ipc/NdArrayIpcTest.class
+org/nd4j/aeron/ipc/chunk/NDArrayMessageChunkTests.class
+org/nd4j/aeron/ipc/NDArrayMessageTest.class
+org/nd4j/aeron/ipc/LargeNdArrayIpcTest.class
+org/nd4j/aeron/ipc/NdArrayIpcTest$2.class
