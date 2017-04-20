@@ -324,4 +324,9 @@ public interface DataSet extends Iterable<org.nd4j.linalg.dataset.DataSet>, Seri
      * @return
      */
     long getMemoryFootprint();
+
+    /**
+     * Thia method checks, if dataset is compressed, and applies decompression to it
+     */
+    void decompress();
 }

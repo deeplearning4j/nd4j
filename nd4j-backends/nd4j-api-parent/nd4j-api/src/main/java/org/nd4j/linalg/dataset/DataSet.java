@@ -70,6 +70,7 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
 
     private List<Serializable> exampleMetaData;
 
+    private String defaultCompression = "FLOAT16";
     private transient boolean preProcessed = false;
 
     public DataSet() {
@@ -268,10 +269,74 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
         }
     }
 
+    public void save(OutputStream to, String compressionAlgorithm) {
+        byte included = 0;
+        if (features != null)
+            included |= BITMASK_FEATURES_PRESENT;
+        if (labels != null) {
+            if (labels == features) {
+                //Same object. Don't serialize the same data twice!
+                included |= BITMASK_LABELS_SAME_AS_FEATURES;
+            } else {
+                included |= BITMASK_LABELS_PRESENT;
+            }
+        }
+        if (featuresMask != null)
+            included |= BITMASK_FEATURE_MASK_PRESENT;
+        if (labelsMask != null)
+            included |= BITMASK_LABELS_MASK_PRESENT;
+
+
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(to);
+            DataOutputStream dos = new DataOutputStream(bos);
+            dos.writeByte(included);
+
+            INDArray compressed;
+            if (features != null) {
+                compressed = Nd4j.getCompressor().compress(features, compressionAlgorithm);
+                Nd4j.write(compressed, dos);
+            }
+            if (labels != null && labels != features) {
+                compressed = Nd4j.getCompressor().compress(labels, compressionAlgorithm);
+                Nd4j.write(compressed, dos);
+            }
+            if (featuresMask != null) {
+                compressed = Nd4j.getCompressor().compress(featuresMask, compressionAlgorithm);
+                Nd4j.write(compressed, dos);
+            }
+            if (labelsMask != null) {
+                compressed = Nd4j.getCompressor().compress(labelsMask, compressionAlgorithm);
+                Nd4j.write(compressed, dos);
+            }
+
+            dos.flush();
+            dos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void save(OutputStream to) {
+        saveUncompressed(to);
+    }
 
+    public void save(File to, String compressionAlgorithm) {
+        try (FileOutputStream fos = new FileOutputStream(to, false);
+                        BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+            save(bos, compressionAlgorithm);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void save(File to) {
+        saveUncompressed(to);
+    }
+
+    public void saveUncompressed(OutputStream to) {
         byte included = 0;
         if (features != null)
             included |= BITMASK_FEATURES_PRESENT;
@@ -310,10 +375,9 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
         }
     }
 
-    @Override
-    public void save(File to) {
+    public void saveUncompressed(File to) {
         try (FileOutputStream fos = new FileOutputStream(to, false);
-                        BufferedOutputStream bos = new BufferedOutputStream(fos)) {
+             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
             save(bos);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -1309,11 +1373,32 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
      */
     @Override
     public long getMemoryFootprint() {
+        // we need to decompress array before checking its size
+        decompress();
+
         long reqMem = features.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += labels == null ? 0 : labels.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += featuresMask == null ? 0 : featuresMask.lengthLong() * Nd4j.sizeOfDataType();
         reqMem += labelsMask == null ? 0 : labelsMask.lengthLong() * Nd4j.sizeOfDataType();
 
         return reqMem;
+    }
+
+    /**
+     * Thia method checks, if dataset is compressed, and applies decompression to it
+     */
+    @Override
+    public void decompress() {
+        if (features != null && features.isCompressed())
+            Nd4j.getCompressor().decompressi(features);
+
+        if (labels != null && labels.isCompressed())
+            Nd4j.getCompressor().decompressi(labels);
+
+        if (featuresMask != null && featuresMask.isCompressed())
+            Nd4j.getCompressor().decompressi(featuresMask);
+
+        if (labelsMask != null && labelsMask.isCompressed())
+            Nd4j.getCompressor().decompressi(labelsMask);
     }
 }

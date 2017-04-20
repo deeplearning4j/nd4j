@@ -530,6 +530,9 @@ public class MultiDataSet implements org.nd4j.linalg.dataset.api.MultiDataSet {
     public long getMemoryFootprint() {
         long reqMem = 0;
 
+        // we need to decompress all arrays before checking its size
+        decompress();
+
         for (INDArray f: features)
             reqMem += f == null ? 0 : f.lengthLong() * Nd4j.sizeOfDataType();
 
@@ -546,5 +549,31 @@ public class MultiDataSet implements org.nd4j.linalg.dataset.api.MultiDataSet {
                 reqMem += f == null ? 0 : f.lengthLong() * Nd4j.sizeOfDataType();
 
         return reqMem;
+    }
+
+    /**
+     * Thia method checks, if dataset is compressed, and applies decompression to it
+     */
+    @Override
+    public void decompress() {
+        if (features != null)
+            for (int i = 0; i < features.length; i++)
+                if (features[i] != null && features[i].isCompressed())
+                    Nd4j.getCompressor().decompressi(features[i]);
+
+        if (featuresMaskArrays != null)
+            for (int i = 0; i < featuresMaskArrays.length; i++)
+                if (featuresMaskArrays[i] != null && featuresMaskArrays[i].isCompressed())
+                    Nd4j.getCompressor().decompressi(featuresMaskArrays[i]);
+
+        if (labels != null)
+            for (int i = 0; i < labels.length; i++)
+                if (labels[i] != null && labels[i].isCompressed())
+                    Nd4j.getCompressor().decompressi(labels[i]);
+
+        if (labelsMaskArrays != null)
+            for (int i = 0; i < labelsMaskArrays.length; i++)
+                if (labelsMaskArrays[i] != null && labelsMaskArrays[i].isCompressed())
+                    Nd4j.getCompressor().decompressi(labelsMaskArrays[i]);
     }
 }

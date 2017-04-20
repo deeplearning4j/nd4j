@@ -172,4 +172,9 @@ public interface MultiDataSet extends Serializable {
 
     long getMemoryFootprint();
 
+    /**
+     * Thia method checks, if dataset is compressed, and applies decompression to it
+     */
+    void decompress();
+
 }
