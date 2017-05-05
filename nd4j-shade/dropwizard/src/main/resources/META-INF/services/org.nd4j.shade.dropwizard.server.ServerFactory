@@ -1,0 +1,2 @@
+org.nd4j.shade.dropwizard.server.DefaultServerFactory
+org.nd4j.shade.dropwizard.server.SimpleServerFactory

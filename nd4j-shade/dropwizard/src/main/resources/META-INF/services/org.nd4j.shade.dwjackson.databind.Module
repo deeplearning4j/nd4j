@@ -1,0 +1,5 @@
+org.nd4j.shade.dwjackson.module.jaxb.JaxbAnnotationModule
+org.nd4j.shade.dwjackson.datatype.joda.JodaModule
+org.nd4j.shade.dwjackson.datatype.guava.GuavaModule
+org.nd4j.shade.dwjackson.module.afterburner.AfterburnerModule
+

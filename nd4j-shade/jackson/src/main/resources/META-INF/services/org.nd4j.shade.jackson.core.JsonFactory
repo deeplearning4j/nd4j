@@ -1,0 +1,3 @@
+org.nd4j.shade.jackson.core.JsonFactory
+org.nd4j.shade.jackson.dataformat.yaml.YAMLFactory
+org.nd4j.shade.jackson.dataformat.xml.XmlFactory

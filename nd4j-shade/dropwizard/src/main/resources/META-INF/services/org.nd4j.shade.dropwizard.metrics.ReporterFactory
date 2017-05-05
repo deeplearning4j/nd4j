@@ -1,0 +1,3 @@
+org.nd4j.shade.dropwizard.metrics.ConsoleReporterFactory
+org.nd4j.shade.dropwizard.metrics.CsvReporterFactory
+org.nd4j.shade.dropwizard.metrics.Slf4jReporterFactory

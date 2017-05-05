@@ -1,0 +1,3 @@
+org.nd4j.shade.dropwizard.logging.ConsoleAppenderFactory
+org.nd4j.shade.dropwizard.logging.FileAppenderFactory
+org.nd4j.shade.dropwizard.logging.SyslogAppenderFactory

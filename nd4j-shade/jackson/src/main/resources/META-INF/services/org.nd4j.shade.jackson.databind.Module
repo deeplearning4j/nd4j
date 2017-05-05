@@ -1,0 +1,2 @@
+org.nd4j.shade.jackson.module.jaxb.JaxbAnnotationModule
+org.nd4j.shade.jackson.datatype.joda.JodaModule

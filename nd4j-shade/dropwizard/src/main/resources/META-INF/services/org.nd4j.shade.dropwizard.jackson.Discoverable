@@ -1,0 +1,4 @@
+org.nd4j.shade.dropwizard.server.ServerFactory
+org.nd4j.shade.dropwizard.logging.AppenderFactory
+org.nd4j.shade.dropwizard.metrics.ReporterFactory
+org.nd4j.shade.dropwizard.jetty.ConnectorFactory
