@@ -45,24 +45,6 @@ public abstract class BaseLapack implements Lapack {
     }
 
 
-
-
-    /**
-    * Float/Double versions of LU decomp.
-    * This is the official LAPACK interface (in case you want to call this directly)
-    * See getrf for full details on LU Decomp
-    *
-    * @param M  the number of rows in the matrix A
-    * @param N  the number of cols in the matrix A
-    * @param A  the matrix to factorize - data must be in column order ( create with 'f' ordering )
-    * @param IPIV an output array for the permutations ( must be int based storage )
-    * @param INFO error details 1 int array, a positive number (i) implies row i cannot be factored, a negative value implies paramtere i is invalid
-    */
-    public abstract void sgetrf(int M, int N, INDArray A, INDArray IPIV, INDArray INFO);
-    public abstract void dgetrf(int M, int N, INDArray A, INDArray IPIV, INDArray INFO);
-
-
-
     @Override
     public void potrf(INDArray A, boolean lower ) {
 
@@ -87,23 +69,6 @@ public abstract class BaseLapack implements Lapack {
 
         return ;
     }
-
-
-
-    /**
-    * Float/Double versions of cholesky decomp for positive definite matrices    
-    * 
-    *   A = LL*
-    *
-    * @param uplo which factor to return L or U 
-    * @param M  the number of rows & cols in the matrix A
-    * @param A  the matrix to factorize - data must be in column order ( create with 'f' ordering )
-    * @param INFO error details 1 int array, a positive number (i) implies row i cannot be factored, a negative value implies paramtere i is invalid
-    */
-    public abstract void spotrf( byte uplo, int N, INDArray A, INDArray INFO)  ;
-    public abstract void dpotrf( byte uplo, int N, INDArray A, INDArray INFO ) ;
-
-
 
 
     @Override
@@ -171,12 +136,6 @@ public abstract class BaseLapack implements Lapack {
             log.warn("The matrix contains singular elements. Check S matrix at row " + INFO.getInt(0));
         }
     }
-
-    public abstract void sgesvd(byte jobu, byte jobvt, int M, int N, INDArray A, INDArray S, INDArray U, INDArray VT,
-                    INDArray INFO);
-
-    public abstract void dgesvd(byte jobu, byte jobvt, int M, int N, INDArray A, INDArray S, INDArray U, INDArray VT,
-                    INDArray INFO);
 
     @Override
     public INDArray getPFactor(int M, INDArray ipiv) {

@@ -25,9 +25,22 @@ public interface Lapack {
      * @returns Permutation array
      * @throws Error - with a message to indicate failure (usu. bad params)
      */
-    public INDArray getrf(INDArray A);
+    INDArray getrf(INDArray A);
 
 
+    /**
+    * Float/Double versions of cholesky decomp for positive definite matrices
+    *
+    *   A = LL*
+    *
+    * @param uplo which factor to return L or U
+    * @param M  the number of rows & cols in the matrix A
+    * @param A  the matrix to factorize - data must be in column order ( create with 'f' ordering )
+    * @param INFO error details 1 int array, a positive number (i) implies row i cannot be factored, a negative value implies paramtere i is invalid
+    */
+    void spotrf(byte uplo, int N, INDArray A, INDArray INFO)  ;
+
+    void dpotrf(byte uplo, int N, INDArray A, INDArray INFO) ;
 
     /**
      * QR decomposiiton of a matrix
@@ -45,6 +58,20 @@ public interface Lapack {
     public void geqrf(INDArray A, INDArray R );
 
 
+    /**
+    * Float/Double versions of LU decomp.
+    * This is the official LAPACK interface (in case you want to call this directly)
+    * See getrf for full details on LU Decomp
+    *
+    * @param M  the number of rows in the matrix A
+    * @param N  the number of cols in the matrix A
+    * @param A  the matrix to factorize - data must be in column order ( create with 'f' ordering )
+    * @param IPIV an output array for the permutations ( must be int based storage )
+    * @param INFO error details 1 int array, a positive number (i) implies row i cannot be factored, a negative value implies paramtere i is invalid
+    */
+    void sgetrf(int M, int N, INDArray A, INDArray IPIV, INDArray INFO);
+
+    void dgetrf(int M, int N, INDArray A, INDArray IPIV, INDArray INFO);
 
     /**
      * Triangular decomposiiton of a positive definite matrix ( cholesky )
@@ -61,7 +88,7 @@ public interface Lapack {
      * @returns Permutation array
      * @throws Error - with a message to indicate failure (usu. bad params)
      */
-    public void potrf(INDArray A, boolean lower ) ;
+    void potrf(INDArray A, boolean lower) ;
 
 
 
@@ -80,10 +107,16 @@ public interface Lapack {
      * @param VT the right singular vectors as a (transposed) matrix. Maybe null if no V required
      * @throws Error - with a message to indicate failure (usu. bad params)
      */
-    public void gesvd(INDArray A, INDArray S, INDArray U, INDArray VT);
+    void gesvd(INDArray A, INDArray S, INDArray U, INDArray VT);
 
 
-    /** 
+    void sgesvd(byte jobu, byte jobvt, int M, int N, INDArray A, INDArray S, INDArray U, INDArray VT,
+                INDArray INFO);
+
+    void dgesvd(byte jobu, byte jobvt, int M, int N, INDArray A, INDArray S, INDArray U, INDArray VT,
+                INDArray INFO);
+
+    /**
     * This method takes one of the ipiv returns from LAPACK and creates
     * the permutation matrix. When factorizing, it is useful to avoid underflows
     * and overflows by reordering rows/and or columns of the input matrix (mostly
@@ -105,7 +138,7 @@ public interface Lapack {
     * @param A - the combined L & U matrices returned from factorization
     * @returned the lower triangular with unit diagonal
     */
-    public INDArray getLFactor(INDArray A);
+    INDArray getLFactor(INDArray A);
 
 
     /**
@@ -115,7 +148,7 @@ public interface Lapack {
     * @param A - the combined L & U matrices returned from factorization
     * @returned the upper triangular matrix
     */
-    public INDArray getUFactor(INDArray A);
+    INDArray getUFactor(INDArray A);
 
 
     // generate inverse of a matrix given its LU decomposition
@@ -132,4 +165,25 @@ public interface Lapack {
      */
     void getri(int N, INDArray A, int lda, int[] IPIV, INDArray WORK, int lwork, int INFO);
 
+    /**
+     *
+     * @param _jobz
+     * @param _uplo
+     * @param N
+     * @param A
+     * @param R
+     * @return
+     */
+    int dsyev(char _jobz, char _uplo, int N, INDArray A, INDArray R);
+
+    /**
+     *
+     * @param _jobz
+     * @param _uplo
+     * @param N
+     * @param A
+     * @param R
+     * @return
+     */
+    int ssyev(char _jobz, char _uplo, int N, INDArray A, INDArray R);
 }

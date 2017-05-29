@@ -216,4 +216,30 @@ public class CpuLapack extends BaseLapack {
     public void getri(int N, INDArray A, int lda, int[] IPIV, INDArray WORK, int lwork, int INFO) {
 
     }
+
+    /**
+     * @param _jobz
+     * @param _uplo
+     * @param N
+     * @param A
+     * @param R
+     * @return
+     */
+    @Override
+    public int dsyev(char _jobz, char _uplo, int N, INDArray A, INDArray R) {
+        return 0;
+    }
+
+    /**
+     * @param _jobz
+     * @param _uplo
+     * @param N
+     * @param A
+     * @param R
+     * @return
+     */
+    @Override
+    public int ssyev(char _jobz, char _uplo, int N, INDArray A, INDArray R) {
+        return 0;
+    }
 }
