@@ -1227,6 +1227,39 @@ public class ArrayUtil {
 
     }
 
+    /** @return 3D tensor flattened in row-major order (C not F) */ 
+    public static float[] flatten(float[][][] tensor) {
+        int d0 = tensor.length;
+        int d1 = tensor[0].length;
+        int d2 = tensor[0][0].length;
+        float[] flat = new float[d0*d1*d2];
+        int i = 0;
+        for (float[][] matrix: tensor) {
+            for (float[] row: matrix) {
+                System.arraycopy(row, 0, flat, i, d2);
+                i += d2;
+            }
+        }
+           return flat;
+    }
+    /** @return 3D tensor flattened to row-major order (C not F) */ 
+    public static double[] flatten(double[][][] tensor) {
+        int d0 = tensor.length;
+        int d1 = tensor[0].length;
+        int d2 = tensor[0][0].length;
+        double[] flat = new double[d0*d1*d2];
+        int i = 0;
+        for (double[][] matrix: tensor) {
+            for (double[] vector: matrix) {
+                System.arraycopy(vector,0, flat,i, d2);
+                i += d2;
+            }
+        }
+        return flat;
+    }
+
+
+
     public static float[] flatten(float[][] arr) {
         float[] ret = new float[arr.length * arr[0].length];
         int count = 0;
