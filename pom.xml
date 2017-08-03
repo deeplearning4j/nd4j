@@ -486,7 +486,7 @@
                   <skip>true</skip>
                 </gitDescribe>
               </configuration>
-</plugin>
+            </plugin>
             <plugin>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.0.2</version>
@@ -502,8 +502,13 @@
                         <include>**/*.dll</include>
                         <include>**/*.dylib</include>
                         <include>lib/*</include>
-
                     </includes>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
             <plugin>
