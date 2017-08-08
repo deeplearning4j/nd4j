@@ -28,8 +28,8 @@ if [[ -z $(git tag -l "libnd4j-$RELEASE_VERSION") ]]; then
         bash buildnativeoperations.sh -c cuda -v 7.5
         bash buildnativeoperations.sh -c cuda -v 8.0
     fi
-    git tag -a -m "libnd4j-$RELEASE_VERSION" "libnd4j-$RELEASE_VERSION"
-    git tag -a -f -m "libnd4j-$RELEASE_VERSION" "latest_release"
+    git tag -s -a -m "libnd4j-$RELEASE_VERSION" "libnd4j-$RELEASE_VERSION"
+    git tag -s -a -f -m "libnd4j-$RELEASE_VERSION" "latest_release"
 fi
 cd ../nd4j
 
@@ -79,11 +79,11 @@ if [[ "${SKIP_BUILD}" == "0" ]]; then
     source change-cuda-versions.sh 8.0
 fi
 
-git commit -a -m "Update to version $RELEASE_VERSION"
-git tag -a -m "nd4j-$RELEASE_VERSION" "nd4j-$RELEASE_VERSION"
-git tag -a -f -m "nd4j-$RELEASE_VERSION" "latest_release"
+git commit -s -a -m "Update to version $RELEASE_VERSION"
+git tag -s -a -m "nd4j-$RELEASE_VERSION" "nd4j-$RELEASE_VERSION"
+git tag -s -a -f -m "nd4j-$RELEASE_VERSION" "latest_release"
 
 mvn versions:set -DallowSnapshots=true -DgenerateBackupPoms=false -DnewVersion=$SNAPSHOT_VERSION
-git commit -a -m "Update to version $SNAPSHOT_VERSION"
+git commit -s -a -m "Update to version $SNAPSHOT_VERSION"
 
 echo "Successfully performed release of version $RELEASE_VERSION ($SNAPSHOT_VERSION) to repository $STAGING_REPOSITORY"
