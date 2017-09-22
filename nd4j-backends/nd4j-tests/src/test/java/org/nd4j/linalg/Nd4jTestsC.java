@@ -5385,6 +5385,53 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertEquals(exp, array);
     }
 
+    @Test
+    public void test4DSumView() throws Exception {
+        INDArray labels = Nd4j.linspace(1, 160, 160).reshape(new int[]{2, 5, 4, 4});
+        //INDArray labels = Nd4j.linspace(1, 192, 192).reshape(new int[]{2, 6, 4, 4});
+        INDArray labels2 = Nd4j.create(2, 2, 4, 4);
+
+        int size1 = labels.size(1);
+        INDArray classLabels = labels.get(NDArrayIndex.all(), NDArrayIndex.interval(0,1), NDArrayIndex.all(), NDArrayIndex.all());
+        INDArray classLabels2 = labels.get(NDArrayIndex.all(), NDArrayIndex.interval(3,size1), NDArrayIndex.all(), NDArrayIndex.all());
+        INDArray classLabels3 = labels.get(NDArrayIndex.all(), NDArrayIndex.interval(2,size1), NDArrayIndex.all(), NDArrayIndex.all());
+
+        /*
+        Should be 0s and 1s only in the "classLabels" subset - specifically a 1-hot vector, or all 0s
+        double minNumber = classLabels.minNumber().doubleValue();
+        double maxNumber = classLabels.maxNumber().doubleValue();
+        System.out.println("Min/max: " + minNumber + "\t" + maxNumber);
+        System.out.println(sum1);
+        */
+
+        log.info("classLabels: {}",classLabels);
+
+        assertEquals(classLabels, classLabels.dup());
+
+
+        log.info("ClaAA shape: {}", Arrays.toString(labels.shapeInfoDataBuffer().asInt()));
+        log.info("----------------------------------------------------------------------------");
+        log.info("Class shape: {}", Arrays.toString(classLabels.shapeInfoDataBuffer().asInt()));
+        log.info("Clazz shape: {}", Arrays.toString(classLabels2.shapeInfoDataBuffer().asInt()));
+        log.info("Clayy shape: {}", Arrays.toString(classLabels3.shapeInfoDataBuffer().asInt()));
+        log.info("----------------------------------------------------------------------------");
+        log.info("Compr shape: {}", Arrays.toString(Nd4j.create(2, 1, 4, 4).shapeInfoDataBuffer().asInt()));
+        log.info("Compr shape: {}", Arrays.toString(Nd4j.create(2, 2, 4, 4).shapeInfoDataBuffer().asInt()));
+        log.info("Compr shape: {}", Arrays.toString(Nd4j.create(2, 3, 4, 4).shapeInfoDataBuffer().asInt()));
+
+        log.info("Labels ptr: {}", labels.data().addressPointer().address());
+        log.info("Data   ptr: {}", classLabels.data().addressPointer().address());
+
+        //Expect 0 or 1 for each entry (sum of all 0s, or 1-hot vector = 0 or 1)
+        INDArray sum1 = classLabels.max(2);
+        INDArray sum1_dup = classLabels.dup().max(2);
+
+        log.info("Length: {}", sum1_dup.lengthLong());
+        log.info("s1 data: {}", Arrays.toString(sum1.data().asInt()));
+        log.info("sD data: {}", Arrays.toString(sum1_dup.data().asInt()));
+        assertEquals(sum1_dup, sum1 );
+    }
+
     @Override
     public char ordering() {
         return 'c';
