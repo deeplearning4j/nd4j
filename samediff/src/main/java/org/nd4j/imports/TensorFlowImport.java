@@ -227,7 +227,6 @@ public class TensorFlowImport {
     /**
      * This method returns intermediate representation from TF GraphDef instance
      *
-     * @param graphDef
      * @return
      */
     public static TGraph importIntermediate(GraphDef tfGraph) {
@@ -626,7 +625,7 @@ public class TensorFlowImport {
 
             log.info("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
 
-             opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 1, 1});
+             opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, paddingMode.equalsIgnoreCase("SAME") ? 1 : 0});
          } else if (lc.equalsIgnoreCase("avgpool") || lc.equalsIgnoreCase("maxpool")) {
              val aStrides = tfNode.getAttrOrThrow("strides");
              val tfStrides = aStrides.getList().getIList();
