@@ -32,7 +32,7 @@ import org.nd4j.linalg.api.ops.Op;
  */
 public class Not extends BaseTransformOp {
 
-    protected double comparable;
+    protected double comparable = 0.0;
 
     public Not() {}
 

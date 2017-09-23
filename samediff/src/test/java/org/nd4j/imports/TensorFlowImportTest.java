@@ -148,6 +148,16 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../libnd4j/tests/resources/inception.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
+    }
 
+    @Test
+    public void testDefaultArgs() {
+        val op = Nd4j.getOpFactory().getOpByName("relu");
+
+        val extras = op.extraArgs();
+        assertTrue(extras.length == 1);
+        val value = (Double) extras[0];
+
+        assertEquals(0.0f, value.floatValue(), 1e-5f);
     }
 }

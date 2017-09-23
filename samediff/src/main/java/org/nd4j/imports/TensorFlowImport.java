@@ -587,8 +587,10 @@ public class TensorFlowImport {
                 val type = OpState.opTypeFromOp(Nd4j.getOpFactory().getOpByName(lc));
 
                 if (type != OpState.OpType.SHAPE) {
+                    val op = Nd4j.getOpFactory().getOpByName(lc);
                     OpState opState = OpState.builder()
-                            .opType(OpState.opTypeFromOp(Nd4j.getOpFactory().getOpByName(lc)))
+                            .opType(OpState.opTypeFromOp(op))
+                            .extraArgs(op.extraArgs())
                             .opNum(opNum)
                             .opName(lc)
                             .build();

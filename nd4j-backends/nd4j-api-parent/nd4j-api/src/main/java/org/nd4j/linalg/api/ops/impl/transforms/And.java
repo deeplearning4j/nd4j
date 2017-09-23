@@ -33,7 +33,7 @@ import org.nd4j.linalg.api.ops.TransformOp;
  */
 public class And extends BaseTransformOp {
 
-    protected double comparable;
+    protected double comparable = 0.0;
 
     public And() {}
 
