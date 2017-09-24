@@ -625,6 +625,8 @@ public class TensorFlowImport {
              val kY = variable.getArray().size(0);
              val kX = variable.getArray().size(1);
 
+             variable.setArray(variable.getArray().permute(3, 2, 0, 1).dup('c'));
+
             log.info("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
 
              opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, paddingMode.equalsIgnoreCase("SAME") ? 1 : 0});
@@ -640,13 +642,13 @@ public class TensorFlowImport {
              val kY = tfKernels.get(1);
              val kX = tfKernels.get(2);
 
-             val aPadding = tfNode.getAttrOrDefault("padding", null);
+             val aPadding = tfNode.getAttrOrThrow("padding");
 
-             val paddingMode = aPadding.getS().toStringUtf8();
+             val paddingMode = aPadding.getS().toStringUtf8().replaceAll("\"","");
 
              log.info("Pooling: k: [{},{}]; s: [{}, {}], padding: {}", kY, kX, sY, sX, aPadding);
 
-             opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 1, 1});
+             opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, paddingMode.equalsIgnoreCase("SAME") ? 1 : 0 });
 
          } else if (lc.equalsIgnoreCase("lrn")) {
              val aAlpha = tfNode.getAttrOrThrow("alpha");
