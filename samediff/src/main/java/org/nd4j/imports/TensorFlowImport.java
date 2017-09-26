@@ -4,6 +4,7 @@ import com.google.common.primitives.Ints;
 import com.google.protobuf.TextFormat;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.graph.api.Vertex;
 import org.nd4j.autodiff.opstate.NDArrayInformation;
@@ -22,6 +23,7 @@ import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.*;
 
 import java.io.*;
+import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
 
@@ -411,13 +413,13 @@ public class TensorFlowImport {
         } else {
             // FIXME: INT bytebuffers should be converted to floating point
             if (tfTensor.getDtype() == DataType.DT_INT32) {
-                val buffer = tfTensor.getTensorContent().asReadOnlyByteBuffer().asIntBuffer();
+                val buffer = tfTensor.getTensorContent().asReadOnlyByteBuffer().order(ByteOrder.nativeOrder()).asIntBuffer();
 
                 arrayShape = new int[buffer.capacity()];
                 for (int e = 0; e < buffer.capacity(); e++)
                     arrayShape[e] = (int) buffer.get(e);
             } else if (tfTensor.getDtype() ==DataType.DT_INT64) {
-                val buffer = tfTensor.getTensorContent().asReadOnlyByteBuffer().asLongBuffer();
+                val buffer = tfTensor.getTensorContent().asReadOnlyByteBuffer().order(ByteOrder.nativeOrder()).asLongBuffer();
 
                 arrayShape = new int[buffer.capacity()];
                 for (int e = 0; e < buffer.capacity(); e++)
@@ -497,7 +499,7 @@ public class TensorFlowImport {
                 long length = ArrayUtil.prodLong(arrayShape);
                 // binary representation
                 val bb = tfTensor.getTensorContent().asReadOnlyByteBuffer();
-                val fb = bb.asFloatBuffer();
+                val fb = bb.order(ByteOrder.nativeOrder()).asFloatBuffer();
                 val fa = new float[fb.capacity()];
                 for (int e = 0; e < fb.capacity(); e++)
                     fa[e] = fb.get(e);
@@ -533,7 +535,7 @@ public class TensorFlowImport {
 
                 // binary representation
                 val bb = tfTensor.getTensorContent().asReadOnlyByteBuffer();
-                val fb = bb.asFloatBuffer();
+                val fb = bb.order(ByteOrder.nativeOrder()).asFloatBuffer();
                 val da = new double[fb.capacity()];
                 for (int e = 0; e < fb.capacity(); e++)
                     da[e] = fb.get(e);
@@ -606,6 +608,9 @@ public class TensorFlowImport {
                 .opName(tfNode.getOp())
                 .build();
 
+        if (tNode.getId() == 37)
+            log.info("37");
+
          if (lc.equalsIgnoreCase("conv2d")) {
 
 
@@ -627,9 +632,14 @@ public class TensorFlowImport {
 
              variable.setArray(variable.getArray().permute(3, 2, 0, 1).dup('c'));
 
+             boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
+
+             if (!isSameMode)
+                 log.info("Mode: {}", paddingMode);
+
             log.info("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
 
-             opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, paddingMode.equalsIgnoreCase("SAME") ? 1 : 0});
+             opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0});
          } else if (lc.equalsIgnoreCase("avgpool") || lc.equalsIgnoreCase("maxpool")) {
              val aStrides = tfNode.getAttrOrThrow("strides");
              val tfStrides = aStrides.getList().getIList();
@@ -646,9 +656,14 @@ public class TensorFlowImport {
 
              val paddingMode = aPadding.getS().toStringUtf8().replaceAll("\"","");
 
+             boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
+
+             if (!isSameMode)
+                 log.info("Mode: {}", paddingMode);
+
              log.info("Pooling: k: [{},{}]; s: [{}, {}], padding: {}", kY, kX, sY, sX, aPadding);
 
-             opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, paddingMode.equalsIgnoreCase("SAME") ? 1 : 0 });
+             opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0 });
 
          } else if (lc.equalsIgnoreCase("lrn")) {
              val aAlpha = tfNode.getAttrOrThrow("alpha");
@@ -673,8 +688,13 @@ public class TensorFlowImport {
              assert variable != null;
              assert variable.getShape() != null;
 
+             // we know that TF is always C order
+             int[] args = ArrayUtils.add(variable.getShape(),  0, (int)'c');
+
+             log.info("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
+
              // new shape goes here
-             opState.setExtraBits(variable.getShape());
+             opState.setExtraBits(args);
          } else if (lc.equalsIgnoreCase("concat")) {
              log.info("TNode inputs: {}", tNode.getInputs());
              TIndex dimIndex;
@@ -698,6 +718,10 @@ public class TensorFlowImport {
 
              // deleting index of concat dimension
              tNode.getInputs().remove(idx);
+
+             // if that's convolution graph, we should swap dimensions
+             if (concatDimension == 3)
+                 concatDimension = 1;
 
              opState.setExtraBits(new int[]{concatDimension});
              log.info("Concat dimension: {}", concatDimension);
