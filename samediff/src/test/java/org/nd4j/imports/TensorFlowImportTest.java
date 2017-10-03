@@ -19,7 +19,9 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -137,7 +139,9 @@ public class TensorFlowImportTest {
         assertTrue(tg.getVariableSpace().hasVariable("input"));
         assertTrue(tg.getVariableSpace().getVariable("input").isPlaceholder());
 
-        tg.provideArrayForVariable("input", Nd4j.create(1, 3, 224, 224).assign(1.0));
+        val ipod = Nd4j.read(new DataInputStream(new FileInputStream(new ClassPathResource("tf_graphs/ipod.nd4").getFile())));
+
+        tg.provideArrayForVariable("input", ipod);
 
         val buffer = tg.asFlatBuffers();
         assertNotNull(buffer);
