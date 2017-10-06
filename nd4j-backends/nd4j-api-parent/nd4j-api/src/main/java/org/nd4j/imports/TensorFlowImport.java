@@ -394,7 +394,7 @@ public class TensorFlowImport {
                 intermediateGraph.addNode(tNode);
             }
 
-            System.out.println();
+           // System.out.println();
         }
 
         return intermediateGraph;
@@ -597,7 +597,7 @@ public class TensorFlowImport {
                         */
                 val type = BaseOp.getOpType(Nd4j.getOpFactory().getOpByName(lc));
 
-                if (type != Op.Type.SHAPE) {
+                if (type != Op.Type.SHAPE && type != Op.Type.CUSTOM) {
                     val op = Nd4j.getOpFactory().getOpByName(lc);
                     OpState opState = OpState.builder()
                             .opType(type)

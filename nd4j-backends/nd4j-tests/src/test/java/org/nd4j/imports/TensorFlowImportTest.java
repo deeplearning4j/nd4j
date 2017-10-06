@@ -142,7 +142,7 @@ public class TensorFlowImportTest {
 
         val buffer = tg.asFlatBuffers();
         assertNotNull(buffer);
-
+/*
         val offset = buffer.position();
 
         log.info("Length: {}; Offset: {};", buffer.capacity(), offset);
@@ -151,6 +151,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../libnd4j/tests/resources/inception.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
+        */
     }
 
     @Test

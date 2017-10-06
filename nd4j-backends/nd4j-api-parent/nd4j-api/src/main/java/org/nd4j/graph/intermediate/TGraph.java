@@ -132,6 +132,9 @@ public class TGraph {
             int dimensions = FlatNode.createDimensionsVector(bufferBuilder, node.getOpState().getAxes() != null ? node.getOpState().getAxes() : new int[]{});
             int fname = bufferBuilder.createString(node.getName());
 
+            if (node.getOpState().getOpType() == null)
+                log.warn("Null-op node: {}", node);
+
             int flatNode = FlatNode.createFlatNode(bufferBuilder,
                     node.getId(),
                     fname,
@@ -182,6 +185,7 @@ public class TGraph {
             case BROADCAST:
                 return OpType.BROADCAST;
             case TRANSFORM:
+            case SPECIAL:
                 return OpType.TRANSFORM;
             case REDUCE:
                 return OpType.ACCUMULATION;
