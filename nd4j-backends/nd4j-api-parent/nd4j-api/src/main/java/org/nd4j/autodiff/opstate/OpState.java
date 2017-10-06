@@ -25,7 +25,7 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class OpState implements Serializable {
     private long n;
-    private OpType opType;
+    private Op.Type opType;
     private String opName;
     private int opNum;
     private Number scalarValue;
@@ -33,7 +33,7 @@ public class OpState implements Serializable {
     private String id;
     private int[] axes;
     private Object[] extraArgs;
-    private Integer[] extraBits;
+    private int[] extraBits;
     private Object[] extraArgsWithoutInPlace;
     private NDArrayInformation result;
     //function handle mainly used for autodiff invocation
@@ -41,7 +41,7 @@ public class OpState implements Serializable {
     private ArrayField arrayField;
     private boolean inPlace;
 
-     OpState(long n, Op.Type opType, String opName, int opNum, Number scalarValue, String[] vertexIds, String id, int[] axes, Object[] extraArgs, Integer[] extraBits, Object[] extraArgsWithoutInPlace, NDArrayInformation result, DifferentialFunction differentialFunction, ArrayField arrayField, boolean inPlace) {
+     OpState(long n, Op.Type opType, String opName, int opNum, Number scalarValue, String[] vertexIds, String id, int[] axes, Object[] extraArgs, int[] extraBits, Object[] extraArgsWithoutInPlace, NDArrayInformation result, DifferentialFunction differentialFunction, ArrayField arrayField, boolean inPlace) {
         this.n = n;
         this.opType = opType;
         this.opName = opName;

@@ -14,9 +14,11 @@ import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SDGraph;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
-import org.nd4j.imports.intermediate.*;
+import org.nd4j.graph.intermediate.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.BaseOp;
+import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -90,7 +92,7 @@ public class TensorFlowImport {
 
         int nodesCnt = 0;
         for (NodeDef tfNode :tfGraph.getNodeList()) {
-            log.info("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
+            log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
 
 
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
@@ -154,7 +156,7 @@ public class TensorFlowImport {
                     //DataType opType = value.
 
                     TensorProto tensor = value.getTensor();
-                    log.info("Dtype: {}", tensor.getDtype());
+                    log.debug("Dtype: {}", tensor.getDtype());
 
                     INDArray array = getNDArrayFromTensor(tensor);
                     variable.setShape(array.shape());
@@ -241,7 +243,7 @@ public class TensorFlowImport {
         int nodesCnt = 0;
         for (NodeDef tfNode :tfGraph.getNodeList()) {
 
-            log.info("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
+            log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
 
 
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
@@ -266,7 +268,7 @@ public class TensorFlowImport {
                 int[] arrayShape = null;
 
                 if (tfNode.getName().equalsIgnoreCase("mixed4b/concat_dim")) {
-                    log.info("concat found!");
+                    log.debug("concat found!");
                 }
 
                 if (attributes.containsKey("dtype")) {
@@ -302,7 +304,7 @@ public class TensorFlowImport {
                     //DataType type = value.
 
                     TensorProto tensor = value.getTensor();
-                    log.info("Dtype: {}", tensor.getDtype());
+                    log.debug("Dtype: {}", tensor.getDtype());
                     if (tensor.getDtype() == DataType.DT_FLOAT || tensor.getDtype() == DataType.DT_DOUBLE) {
 
                         INDArray array = getNDArrayFromTensor(tensor);
@@ -322,14 +324,14 @@ public class TensorFlowImport {
                 //graph.addVertex(vertex);
 
                 if (!variable.isPlaceholder())
-                    log.info("Variable: id: {}; name: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
+                    log.debug("Variable: id: {}; name: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
                 else
-                    log.info("Placeholder shape: {}", Arrays.toString(variable.getShape()));
+                    log.debug("Placeholder shape: {}", Arrays.toString(variable.getShape()));
 
                 intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
             } else {
                 nodesCnt++;
-                log.info("Adding op [{}]", tfNode.getOp());
+                log.debug("Adding op [{}]", tfNode.getOp());
                 // operation node
 
                 //NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt, 0,varInformation);
@@ -352,7 +354,7 @@ public class TensorFlowImport {
 
                     // input taken from mult
                     if (input.startsWith("^")) {
-                        log.info("Wow");
+                        log.debug("Wow");
                     } else if (input.contains(":")) {
                         val split = input.split(":");
 
@@ -388,7 +390,7 @@ public class TensorFlowImport {
                     node.getOutputs().add(tNode.getId());
                 }
 
-                log.info("Node: {}", tNode);
+                log.debug("Node: {}", tNode);
                 intermediateGraph.addNode(tNode);
             }
 
@@ -427,7 +429,7 @@ public class TensorFlowImport {
                     arrayShape[e] = (int) buffer.get(e);
             }
 
-            log.info("Array shape: {}", Arrays.toString(arrayShape));
+            log.debug("Array shape: {}", Arrays.toString(arrayShape));
         }
 
         return arrayShape;
@@ -505,8 +507,8 @@ public class TensorFlowImport {
                     fa[e] = fb.get(e);
 
                 val array = Nd4j.create(fa, arrayShape, 'c', 0);
-                //log.info("SUM1: {}", array.sumNumber());
-                //log.info("Data: {}", Arrays.toString(array.data().asFloat()));
+                //log.debug("SUM1: {}", array.sumNumber());
+                //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
                 return array;
             }
         } else if (tfTensor.getDtype() == DataType.DT_DOUBLE) {
@@ -541,8 +543,8 @@ public class TensorFlowImport {
                     da[e] = fb.get(e);
 
                 val array = Nd4j.create(da, arrayShape, 0, 'c');
-                //log.info("SUM1: {}", array.sumNumber());
-                //log.info("Data: {}", Arrays.toString(array.data().asFloat()));
+                //log.debug("SUM1: {}", array.sumNumber());
+                //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
 
                 return array;
             }
@@ -581,22 +583,24 @@ public class TensorFlowImport {
 
     protected static OpState getOpStateFromNodeDef(NodeDef tfNode, int numInputs, TNode tNode, TVariableSpace variableSpace) {
         String lc = tfNode.getOp().toLowerCase();
-        log.info("Looking for [{}] op...", lc);
+        log.debug("Looking for [{}] op...", lc);
         if (numInputs > 0 && numInputs <= 2) {
             int opNum = Nd4j.getOpFactory().getOpNumIfExists(lc);
 
             if (opNum >= 0) {
+                /*
                 OpState opState = OpState.builder()
                         .opType(BaseOp.getOpType(Nd4j.getOpFactory().getOpByName(lc)))
                         .opNum(opNum)
                         .opName(lc)
                         .build();
-                val type = OpState.opTypeFromOp(Nd4j.getOpFactory().getOpByName(lc));
+                        */
+                val type = BaseOp.getOpType(Nd4j.getOpFactory().getOpByName(lc));
 
-                if (type != OpState.OpType.SHAPE) {
+                if (type != Op.Type.SHAPE) {
                     val op = Nd4j.getOpFactory().getOpByName(lc);
                     OpState opState = OpState.builder()
-                            .opType(OpState.opTypeFromOp(op))
+                            .opType(type)
                             .extraArgs(op.extraArgs())
                             .opNum(opNum)
                             .opName(lc)
@@ -612,9 +616,6 @@ public class TensorFlowImport {
                 .opNum(-1)
                 .opName(tfNode.getOp())
                 .build();
-
-        if (tNode.getId() == 37)
-            log.info("37");
 
          if (lc.equalsIgnoreCase("conv2d")) {
 
@@ -640,9 +641,9 @@ public class TensorFlowImport {
              boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
 
              if (!isSameMode)
-                 log.info("Mode: {}", paddingMode);
+                 log.debug("Mode: {}", paddingMode);
 
-            log.info("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
+            log.debug("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
 
              opState.setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0});
          } else if (lc.equalsIgnoreCase("avgpool") || lc.equalsIgnoreCase("maxpool")) {
@@ -664,9 +665,9 @@ public class TensorFlowImport {
              boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
 
              if (!isSameMode)
-                 log.info("Mode: {}", paddingMode);
+                 log.debug("Mode: {}", paddingMode);
 
-             log.info("Pooling: k: [{},{}]; s: [{}, {}], padding: {}", kY, kX, sY, sX, aPadding);
+             log.debug("Pooling: k: [{},{}]; s: [{}, {}], padding: {}", kY, kX, sY, sX, aPadding);
 
              opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0 });
 
@@ -683,10 +684,10 @@ public class TensorFlowImport {
 
 
              opState.setExtraArgs(new Object[]{alpha, beta, bias, depth});
-             log.info("LRN: alpha: {}; beta: {}; bias: {}; depth: {};", alpha, beta, bias, depth);
+             log.debug("LRN: alpha: {}; beta: {}; bias: {}; depth: {};", alpha, beta, bias, depth);
          } else if (lc.equalsIgnoreCase("reshape")) {
              // in reshape operation we replace second input, and replace it with extra args
-             log.info("TNode inputs: {}", tNode.getInputs());
+             log.debug("TNode inputs: {}", tNode.getInputs());
              val shapeIndex = tNode.getInputs().remove(1);
              val variable = variableSpace.getVariable(shapeIndex);
 
@@ -696,18 +697,18 @@ public class TensorFlowImport {
              // we know that TF is always C order
              int[] args = ArrayUtils.add(variable.getShape(),  0, (int)'c');
 
-             log.info("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
+             log.debug("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
 
              // new shape goes here
              opState.setExtraBits(args);
          } else if (lc.equalsIgnoreCase("concat")) {
-             log.info("TNode inputs: {}", tNode.getInputs());
+             log.debug("TNode inputs: {}", tNode.getInputs());
              TIndex dimIndex;
              int idx = -1;
              int cnt = 0;
              int concatDimension = 0;
              for (val index:tNode.getInputs()) {
-                 log.info("Trying to find node: [{}]", index);
+                 log.debug("Trying to find node: [{}]", index);
                  val variable = variableSpace.getVariable(index);
 
                  // concat dimension is only possible
@@ -729,7 +730,7 @@ public class TensorFlowImport {
                  concatDimension = 1;
 
              opState.setExtraBits(new int[]{concatDimension});
-             log.info("Concat dimension: {}", concatDimension);
+             log.debug("Concat dimension: {}", concatDimension);
          }
 
          if (!Nd4j.getExecutioner().getCustomOperations().containsKey(lc))

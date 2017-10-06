@@ -19,6 +19,7 @@ import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.memory.pointers.PagedPointer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -165,7 +166,7 @@ public class NativeGraphExecutioner implements GraphExecutioner {
             int nodesInP = FlatNode.createInputPairedVector(bufferBuilder, new int[]{});
             int nodesOut = FlatNode.createOutputVector(bufferBuilder, Ints.toArray(node.getOutput()));
             int extraz = FlatNode.createExtraParamsVector(bufferBuilder, extras);
-            int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, node.getOpExecAction().getOpState().getOpType() == OpState.OpType.CUSTOM ? node.getOpExecAction().getOpState().getExtraBits() : new int[]{});
+            int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, node.getOpExecAction().getOpState().getOpType() == Op.Type.CUSTOM ? node.getOpExecAction().getOpState().getExtraBits() : new int[]{});
             int dimensions = FlatNode.createDimensionsVector(bufferBuilder, node.getOpExecAction().getOpState().getAxes() != null ? node.getOpExecAction().getOpState().getAxes() : new int[]{});
             int fname = bufferBuilder.createString(node.getName());
 
@@ -182,7 +183,7 @@ public class NativeGraphExecutioner implements GraphExecutioner {
                     integerArgs,
                     dimensions,
                     -1,
-                    node.getOpExecAction().getOpState().getOpType() == OpState.OpType.SCALAR_TRANSFORM ? node.getOpExecAction().getOpState().getScalarValue().floatValue() : 0.0f);
+                    node.getOpExecAction().getOpState().getOpType() == Op.Type.SCALAR ? node.getOpExecAction().getOpState().getScalarValue().floatValue() : 0.0f);
 
             nodes.add(flatNode);
         }
@@ -204,7 +205,7 @@ public class NativeGraphExecutioner implements GraphExecutioner {
 
     @Override
     public ByteBuffer convertToFlatBuffers(SameDiff sd, ExecutorConfiguration configuration) {
-        return convertToFlatBuffers(sd, configuration, new HashMap<>());
+        return convertToFlatBuffers(sd, configuration, new HashMap<Integer, Node>());
     }
 
     /**
@@ -478,24 +479,24 @@ public class NativeGraphExecutioner implements GraphExecutioner {
     }
     */
 
-    public static long getOpNum(String name, OpState.OpType type) {
-        if (type == OpState.OpType.CUSTOM)
+    public static long getOpNum(String name, Op.Type type) {
+        if (type == Op.Type.CUSTOM)
             return Nd4j.getExecutioner().getCustomOperations().get(name.toLowerCase()).getHash();
         else
             return (long) Nd4j.getOpFactory().getOpNumByName(name);
     }
 
-    public static byte getFlatOpType(OpState.OpType type) {
+    public static byte getFlatOpType(Op.Type type) {
         switch (type) {
-            case SCALAR_TRANSFORM:
+            case SCALAR:
                 return OpType.SCALAR;
             case BROADCAST:
                 return OpType.BROADCAST;
             case TRANSFORM:
                 return OpType.TRANSFORM;
-            case ACCUMULATION:
+            case REDUCE:
                 return OpType.ACCUMULATION;
-            case INDEX_ACCUMULATION:
+            case INDEXREDUCE:
                 return OpType.INDEX_ACCUMULATION;
             case CUSTOM:
                 return OpType.CUSTOM;
