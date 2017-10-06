@@ -20,6 +20,9 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Data;
+import org.nd4j.autodiff.functions.Differential;
+import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -34,7 +37,7 @@ import java.nio.Buffer;
  * @author Adam Gibson
  */
 @Data
-public abstract class BaseOp implements Op {
+public abstract class BaseOp extends DifferentialFunction implements Op {
 
     protected INDArray x, y, z;
     protected long n;
@@ -46,6 +49,15 @@ public abstract class BaseOp implements Op {
     protected DataBuffer extraArgz;
 
     public BaseOp() {}
+
+
+    public BaseOp(SameDiff sameDiff, boolean inPlace, Object[] extraArgs) {
+        super(sameDiff, inPlace, extraArgs);
+    }
+
+    public BaseOp(SameDiff sameDiff, Object[] extraArgs) {
+        super(sameDiff, extraArgs);
+    }
 
     @Override
     public boolean isExecSpecial() {
@@ -104,6 +116,8 @@ public abstract class BaseOp implements Op {
             } else if (dtype == DataBuffer.Type.DOUBLE) {
                 double extraz[] = new double[extraArgs.length];
                 for (int i = 0; i < extraArgs.length; i++) {
+                    if(!(extraArgs[i] instanceof Number))
+                        continue;
                     Number arg = (Number) extraArgs[i];
                     if(arg == null)
                         arg = 0.0;

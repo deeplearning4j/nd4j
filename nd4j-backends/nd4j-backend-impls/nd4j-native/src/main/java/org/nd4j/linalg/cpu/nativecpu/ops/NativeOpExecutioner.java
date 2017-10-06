@@ -600,7 +600,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 if (op.x().elementWiseStride() >= 1 && !op.isExecSpecial() && op.z().elementWiseStride() >= 1
                         && !op.isExecSpecial()) {
                     loop.execScalarDouble(null, op.opNum(), (DoublePointer) op.x().data().addressPointer(),
-                            op.x().elementWiseStride(), (DoublePointer) op.z().data().addressPointer(),
+                            op.x().elementWiseStride(),
+                            (DoublePointer) op.z().data().addressPointer(),
                             op.z().elementWiseStride(), op.scalar().doubleValue(),
                             (DoublePointer) getPointerForExtraArgs(op), op.n());
                 } else
@@ -1130,7 +1131,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
         for (int x = 0; x < numShapes; x++) {
             if (op.getShapes().get(x).dataType() != DataBuffer.Type.INT)
-                throw new RuntimeException("ShapeBuffers should have INT data type");
+                throw new RuntimeException("ShapeBuffers should have INT data opType");
 
             shapes.put(x, op.getShapes().get(x) == null ? null : op.getShapes().get(x).addressPointer());
         }

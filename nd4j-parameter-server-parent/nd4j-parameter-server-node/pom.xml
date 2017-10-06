@@ -12,7 +12,6 @@
 
     <name>nd4j-parameter-server-node</name>
 
-
     <dependencies>
         <dependency>
             <groupId>org.nd4j</groupId>

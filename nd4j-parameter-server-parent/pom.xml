@@ -15,13 +15,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <!-- Build helper plugin: used to add the multiple independent source directories (Java, Scala, HTML templates) -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -93,9 +86,21 @@
     </modules>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
+    <profiles>
+        <profile>
+            <id>jdk9</id>
+            <activation>
+                <jdk>1.9</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>8</maven.compiler.release>
+            </properties>
+        </profile>
+    </profiles>
     <dependencies>
 
     </dependencies>
