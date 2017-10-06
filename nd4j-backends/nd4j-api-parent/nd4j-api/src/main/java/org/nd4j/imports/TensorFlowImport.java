@@ -60,12 +60,12 @@ public class TensorFlowImport {
                 TextFormat.getParser().merge(str.toString(), builder);
                 def = builder.build();
             } catch (Exception e2) {
-                //
+                e2.printStackTrace();
             }
         }
 
         if (def == null)
-            throw new ND4JIllegalStateException("Unknown format");
+            throw new ND4JIllegalStateException("Unknown format: " + graphFile.getAbsolutePath());
 
 
         return importGraph(def);
