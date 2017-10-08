@@ -10,8 +10,6 @@ import org.nd4j.linalg.api.ops.executioner.OpStatus;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.Arrays;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -34,8 +32,8 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(4.0);
 
         CustomOp op = DynamicCustomOp.builder("add")
-                .setInputs(arrayX, arrayY)
-                .setOutputs(arrayZ)
+                .addInputs(arrayX, arrayY)
+                .addOutputs(arrayZ)
                 .build();
 
         Nd4j.getExecutioner().exec(op);
@@ -57,8 +55,8 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(4.0);
 
         CustomOp op = DynamicCustomOp.builder("add")
-                .setInputs(arrayX, arrayY)
-                .setOutputs(arrayX)
+                .addInputs(arrayX, arrayY)
+                .addOutputs(arrayX)
                 .build();
 
         Nd4j.getExecutioner().exec(op);
@@ -77,8 +75,8 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(4.0);
 
         CustomOp op = DynamicCustomOp.builder("noop")
-                .setInputs(arrayX, arrayY)
-                .setOutputs(arrayX)
+                .addInputs(arrayX, arrayY)
+                .addOutputs(arrayX)
                 .build();
 
         Nd4j.getExecutioner().exec(op);
@@ -93,8 +91,8 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(3.0);
 
         CustomOp op = DynamicCustomOp.builder("floor")
-                .setInputs(arrayX)
-                .setOutputs(arrayX)
+                .addInputs(arrayX)
+                .addOutputs(arrayX)
                 .build();
 
         Nd4j.getExecutioner().exec(op);
@@ -113,7 +111,7 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(6.0);
 
         CustomOp op = DynamicCustomOp.builder("add")
-                .setInputs(arrayX, arrayY)
+                .addInputs(arrayX, arrayY)
                 .callInplace(true)
                 .build();
 
@@ -133,7 +131,7 @@ public class CustomOpsTests {
         val exp = Nd4j.create(10,10).assign(6.0);
 
         CustomOp op = DynamicCustomOp.builder("add")
-                .setInputs(arrayX, arrayY)
+                .addInputs(arrayX, arrayY)
                 .callInplace(false)
                 .build();
 
@@ -156,8 +154,8 @@ public class CustomOpsTests {
         val expZ = Nd4j.create(10,10);
 
         CustomOp op = DynamicCustomOp.builder("add")
-                .setInputs(arrayX, arrayY)
-                .setOutputs(arrayZ)
+                .addInputs(arrayX, arrayY)
+                .addOutputs(arrayZ)
                 .callInplace(true)
                 .build();
 
@@ -180,8 +178,8 @@ public class CustomOpsTests {
         val exp = Nd4j.create(new double[]{1, 2, 3, 4, 5});
 
         CustomOp op = DynamicCustomOp.builder("mergemax")
-                .setInputs(array0, array1, array2, array3, array4)
-                .setOutputs(z)
+                .addInputs(array0, array1, array2, array3, array4)
+                .addOutputs(z)
                 .callInplace(false)
                 .build();
 
@@ -203,8 +201,8 @@ public class CustomOpsTests {
 
         val zF = Nd4j.zeros(array0.shape(), 'f');
         CustomOp op = DynamicCustomOp.builder("mergemax")
-                .setInputs(array0, array1)
-                .setOutputs(zF)
+                .addInputs(array0, array1)
+                .addOutputs(zF)
                 .build();
         Nd4j.getExecutioner().exec(op);
 
@@ -223,8 +221,8 @@ public class CustomOpsTests {
 
         val zF = Nd4j.zeros(array0.shape() ,'f');
         CustomOp op = DynamicCustomOp.builder("mergemax")
-                .setInputs(array0, array1)
-                .setOutputs(zF)
+                .addInputs(array0, array1)
+                .addOutputs(zF)
                 .build();
         Nd4j.getExecutioner().exec(op);
 

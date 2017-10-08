@@ -1,16 +1,11 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
-import lombok.Getter;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
-import org.nd4j.linalg.api.ops.Op;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.List;
 
@@ -19,10 +14,19 @@ import java.util.List;
  * Pooling2DDerivative operation
  */
 @Slf4j
-public class LocalResponseNormalizationDerivative extends LocalResponseNormalization {
+public class UpsamplingDerivative extends Upsampling {
 
+    public UpsamplingDerivative() {}
 
-    public LocalResponseNormalizationDerivative() {}
+    @Builder(builderMethodName = "sameDiffBuilder")
+    public UpsamplingDerivative(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int scaleFactor) {
+        super(sameDiff, i_v, inPlace, scaleFactor);
+    }
+
+    @Builder(builderMethodName = "execBuilder")
+    public UpsamplingDerivative(INDArray x, INDArray z, int scaleFactor) {
+        super(x, z, scaleFactor);
+    }
 
     @Override
     public int opNum() {
@@ -31,8 +35,9 @@ public class LocalResponseNormalizationDerivative extends LocalResponseNormaliza
 
     @Override
     public String name() {
-        return "lrn_bp";
+        return "upsampling_bp";
     }
+
 
 
     @Override

@@ -683,7 +683,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         } else
             st = profilingHookIn(op);
 
-        // Pooling2D requires additional pointer
+        // Pooling2DDerivative requires additional pointer
         if (op.opNum() == 71) {
             dummy.put(0, ((Pooling2D) op).getIm2colShape().addressPointer());
         }

@@ -95,14 +95,16 @@ public class DynamicCustomOp implements CustomOp {
         }
 
         /**
-         * This methos takes arbitrary number of input INDArrays in, as Op input
-         *
+         * This method
+         * takes arbitrary number of input INDArrays in, as Op input
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate lengths/shapes.
          *
          * @param inputs
          * @return
          */
-        public Builder setInputs(INDArray... inputs) {
+        public Builder addInputs(INDArray... inputs) {
             // if we have positive value as numInputs - we should ensure equal amount of arguments
             if (numInputs >= 0) {
                 if (inputs == null)
@@ -119,14 +121,16 @@ public class DynamicCustomOp implements CustomOp {
         }
 
         /**
-         * This methos takes arbitrary number of output INDArrays in, to store operation result
-         *
+         * This method takes arbitrary number of 
+         * output INDArrays in, to store operation result
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate lengths/shapes.
          *
          * @param outputs
          * @return
          */
-        public Builder setOutputs(INDArray... outputs) {
+        public Builder addOutputs(INDArray... outputs) {
             if (numOutputs >= 0) {
                 if (outputs == null)
                     throw new ND4JIllegalStateException("CustomOp [" + opName + "] expects " + numOutputs + " arguments. Null was passed instead.");
@@ -141,23 +145,29 @@ public class DynamicCustomOp implements CustomOp {
             return this;
         }
 
+        /**
+         * Whether an op call is in place or not.
+         * @param reallyCall
+         * @return
+         */
         public Builder callInplace(boolean reallyCall) {
             if (reallyCall && !inplaceAllowed)
-                throw new ND4JIllegalStateException("Resuested op can't be called inplace");
+                throw new ND4JIllegalStateException("Requested op can't be called inplace");
 
             this.inplaceCall = reallyCall;
             return this;
         }
 
         /**
-         * This methos takes arbitrary number of Integer arguments for op,
-         *
+         * This method takes arbitrary number of Integer arguments for op,
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate values.
          *
          * @param iargs
          * @return
          */
-        public Builder setIntegerArguments(Integer... iargs) {
+        public Builder addIntegerArguments(Integer... iargs) {
             if (numIArguments >= 0) {
                 if (iargs == null)
                     throw new ND4JIllegalStateException("CustomOp [" + opName + "] expects " + numIArguments + " integer arguments. Null was passed instead.");
@@ -173,14 +183,15 @@ public class DynamicCustomOp implements CustomOp {
         }
 
         /**
-         * This methos takes arbitrary number of Integer arguments for op,
-         *
+         * This method takes arbitrary number of Integer arguments for op,
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate values.
          *
          * @param arg
          * @return
          */
-        public Builder setIntegerArguments(int arg) {
+        public Builder addIntegerArguments(int arg) {
             if (numIArguments != 1 && numIArguments > 0)
                 throw new ND4JIllegalStateException("CustomOp [" + opName + "] expects " + numIArguments + " integer arguments. One arg was passed instead.");
 
@@ -190,14 +201,15 @@ public class DynamicCustomOp implements CustomOp {
         }
 
         /**
-         * This methos takes arbitrary number of Integer arguments for op,
-         *
+         * This method takes arbitrary number of Integer arguments for op,
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate values.
          *
          * @param iargs
          * @return
          */
-        public Builder setIntegerArguments(int... iargs) {
+        public Builder addIntegerArguments(int... iargs) {
             if (numIArguments >= 0) {
                 if (iargs == null)
                     throw new ND4JIllegalStateException("CustomOp [" + opName + "] expects " + numIArguments + " integer arguments. Null was passed instead.");
@@ -213,13 +225,14 @@ public class DynamicCustomOp implements CustomOp {
         }
 
         /**
-         * This methos takes arbitrary number of Double arguments for op,
-         *
+         * This method takes arbitrary number of Double arguments for op,
+         * Note that this ACCUMULATES arguments. You are able to call this method
+         * multiple times and it will add arguments to a list.
          * PLEASE NOTE: this method does NOT validate values.
          *
          * @return
          */
-        public Builder setFloatingPointArguments(Double... targs) {
+        public Builder addFloatingPointArguments(Double... targs) {
             if (numTArguments >= 0) {
                 if (targs == null)
                     throw new ND4JIllegalStateException("CustomOp [" + opName + "] expects " + numTArguments + " integer arguments. Null was passed instead.");

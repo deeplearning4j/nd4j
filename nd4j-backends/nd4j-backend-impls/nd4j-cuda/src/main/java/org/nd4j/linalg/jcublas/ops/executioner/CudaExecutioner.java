@@ -1547,7 +1547,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                         new CudaPointer(dimension == null ? 0 : dimension.length));
 
 
-        // Pooling2D requires additional pointer
+        // Pooling2DDerivative requires additional pointer
         if (op.opNum() == 71) {
             extraz.get().put(10, ((Pooling2D) op).getIm2colShape().addressPointer());
         }

@@ -11,22 +11,28 @@ import java.util.List;
 
 
 /**
- * Pooling2DDerivative operation
+ * BatchNormDerivative operation
  */
 @Slf4j
-public class SConv2D extends Conv2D {
+public class BatchNormDerivative extends BatchNorm {
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public SConv2D(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
-        super(sameDiff, i_v, inPlace, kh, kw, sy, sx, ph, pw, dh, dw, isSameMode);
+    public BatchNormDerivative(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
+        super(sameDiff, i_v, inPlace, training, isLockGammaBeta, isMiniBatch);
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public SConv2D(INDArray x, INDArray z, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
-        super(x, z, kh, kw, sy, sx, ph, pw, dh, dw, isSameMode);
+    public BatchNormDerivative(INDArray x, INDArray z, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
+        super(x, z, training, isLockGammaBeta, isMiniBatch);
     }
 
-    public SConv2D() {}
+    public BatchNormDerivative() {}
+
+
+    @Override
+    public boolean isExecSpecial() {
+        return true;
+    }
 
     @Override
     public int opNum() {
@@ -35,9 +41,8 @@ public class SConv2D extends Conv2D {
 
     @Override
     public String name() {
-        return "sconv2d";
+        return "batchnorm_bp";
     }
-
 
 
     @Override

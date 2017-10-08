@@ -45,11 +45,11 @@ public class Linspace extends BaseRandomOp {
 
     @Override
     public ArrayField doGetValue() {
-        return null;
+        throw new UnsupportedOperationException("Please use sameDiff.var(varName,Nd4j.linspace(..)) instead. Array creation routines are not operations executed in a graph.");
     }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+       throw new UnsupportedOperationException("Unable to differentiate array creation routine");
     }
 }

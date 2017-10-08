@@ -1,5 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
@@ -16,163 +17,44 @@ import java.util.List;
 
 
 /**
- * Pooling2D operation
+ * Pooling2DDerivative operation
  */
 @Slf4j
-public class Conv2D extends BaseTransformOp {
+public class DeConv2D extends BaseTransformOp {
 
-    public enum Pooling2DType {
-        MAX, AVG, PNORM,
-    }
 
-    private int kh, kw, sy, sx, ph, pw, dh, dw;
-    private Pooling2DType type;
-    boolean isSameMode;
-    double extra;
-    @Getter protected DataBuffer im2colShape;
+    private int kY,kX,sY,sX,pY,pX,dY,dX;
+    private boolean isSameMode;
 
-    public Conv2D() {}
+    public DeConv2D() {}
 
-    /*
-    public Pooling2D(INDArray x, int kh, int kw, int sy, int sx, int ph, int pw, boolean isSameMode, Pooling2DType opType) {
-        this(x, kh, kw, sy, sx, ph, pw, isSameMode, opType, getNewOutputArray(x, kh, kw, sy, sx, ph, pw, false));
-    }
-*/
 
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff, i_v1, i_v2);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
-        this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff, i_v1, i_v2, inPlace);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
-        this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(SameDiff sameDiff, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
-        this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, Object[] extraArgs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff, i_v1, i_v2, extraArgs);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
-        this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
+    @Builder(builderMethodName = "sameDiffBuilder")
+    public DeConv2D(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
         super(sameDiff, i_v, inPlace);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
+        this.kY = kY;
+        this.kX = kX;
+        this.sY = sY;
+        this.sX = sX;
+        this.pY = pY;
+        this.pX = pX;
+        this.dY = dY;
+        this.dX = dX;
         this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
     }
 
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff, i_v, shape, inPlace, extraArgs);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
+    @Builder(builderMethodName = "execBuilder")
+    public DeConv2D(INDArray x, INDArray z, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
+        super(x, z);
+        this.kY = kY;
+        this.kX = kX;
+        this.sY = sY;
+        this.sX = sX;
+        this.pY = pY;
+        this.pX = pX;
+        this.dY = dY;
+        this.dX = dX;
         this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode, double extra, DataBuffer im2colShape) {
-        super(sameDiff, i_v, extraArgs);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.type = type;
-        this.isSameMode = isSameMode;
-        this.extra = extra;
-        this.im2colShape = im2colShape;
-    }
-
-    public Conv2D(INDArray x, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode,
-                  Pooling2DType type, double extra, int virtualHeight, int virtualWidth, INDArray z) {
-        super(x);
-        this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.isSameMode = isSameMode;
-        this.type = type;
-        this.z = z;
-        this.extra = extra;
-        this.im2colShape = getNewOutputShape(x, kh, kw, sy, sx, ph, pw, virtualHeight, virtualWidth, false);
-        extraArgs = this.extraArgs();
-    }
-
-    @Override
-    public boolean isExecSpecial() {
-        return true;
     }
 
     @Override
@@ -182,77 +64,17 @@ public class Conv2D extends BaseTransformOp {
 
     @Override
     public String name() {
-        return "pooling2d";
+        return "deconv2d";
     }
 
     @Override
     public Object[] extraArgs() {
-        return new Object[] {kh, kw, sy, sx, ph, pw, dh, dw, isSameMode ? 1.0 : 0.0, type.ordinal(), extra};
+        return new Object[] { kY,kX,sY,sX,pY,pX,dY,dX,fromBoolean(isSameMode)};
     }
 
-    private static DataBuffer getNewOutputShape(INDArray img, int kernelHeight, int kernelWidth, int strideY, int strideX,
-                                                int padHeight, int padWidth, int outHeight, int outWidth,  boolean coverAll) {
-        //number of images
-        int n = img.size(0);
-        //number of channels (depth)
-        int c = img.size(1);
-        //image height
-        int h = img.size(2);
-        //image width
-        int w = img.size(3);
 
-        return Nd4j.getShapeInfoProvider().createShapeInformation(new int[] {n, c,  kernelHeight, kernelWidth, outHeight, outWidth}, 'c').getFirst();
-    }
 
-    @Override
-    public IComplexNumber op(IComplexNumber origin, double other) {
-        return null;
-    }
 
-    @Override
-    public IComplexNumber op(IComplexNumber origin, float other) {
-        return null;
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin, IComplexNumber other) {
-        return null;
-    }
-
-    @Override
-    public float op(float origin, float other) {
-        return 0;
-    }
-
-    @Override
-    public double op(double origin, double other) {
-        return 0;
-    }
-
-    @Override
-    public double op(double origin) {
-        return 0;
-    }
-
-    @Override
-    public float op(float origin) {
-        return 0;
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin) {
-        return null;
-    }
-
-    @Override
-    public Op opForDimension(int index, int dimension) {
-        return null;
-    }
-
-    @Override
-    public Op opForDimension(int index, int... dimension) {
-        return null;
-    }
     @Override
     public ArrayField doGetValue() {
         return null;
