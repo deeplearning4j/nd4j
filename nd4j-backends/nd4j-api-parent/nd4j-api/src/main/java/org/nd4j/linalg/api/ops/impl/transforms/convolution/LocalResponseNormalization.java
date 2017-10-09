@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -20,52 +21,46 @@ import java.util.List;
  * Pooling2DDerivative operation
  */
 @Slf4j
-public class LocalResponseNormalization extends BaseTransformOp {
+@Getter
+public class LocalResponseNormalization extends DynamicCustomOp {
 
-    /**
-     *    T alpha = block.getTArguments()->at(0);
-     T beta = block.getTArguments()->at(1);
-     T bias = block.getTArguments()->at(2);
-     T depth = block.getTArguments()->at(3);
 
-     */
 
     private double alpha,beta,bias,depth;
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public LocalResponseNormalization(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, double alpha, double beta, double bias, double depth) {
-        super(sameDiff, i_v, inPlace);
+    public LocalResponseNormalization(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, double alpha, double beta, double bias, double depth) {
+        super(null,sameDiff, inputs, inPlace);
         this.alpha = alpha;
         this.beta = beta;
         this.bias = bias;
         this.depth = depth;
+        addArgs();
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public LocalResponseNormalization(INDArray x, INDArray z,double alpha, double beta, double bias, double depth) {
-        super(x, z);
+    public LocalResponseNormalization(INDArray[] inputs, INDArray[] outputs,double alpha, double beta, double bias, double depth) {
+        super(null,inputs,outputs);
         this.alpha = alpha;
         this.beta = beta;
         this.bias = bias;
         this.depth = depth;
+        addArgs();
     }
 
     public LocalResponseNormalization() {}
 
-    @Override
-    public int opNum() {
-        return 71;
+
+    private void addArgs() {
+        getTArguments().add(alpha);
+        getTArguments().add(beta);
+        getTArguments().add(bias);
+        getTArguments().add(depth);
     }
 
-
     @Override
-    public String name() {
+    public String opName() {
         return "lrn";
-    }
-
-    @Override
-    public Object[] extraArgs() {
-        return new Object[] {alpha,beta,bias,depth};
     }
 
     @Override

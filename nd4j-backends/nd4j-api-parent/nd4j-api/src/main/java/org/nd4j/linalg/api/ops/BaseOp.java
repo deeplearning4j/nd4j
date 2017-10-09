@@ -284,13 +284,10 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
 
-    protected int fromBoolean(boolean bool) {
-        return bool ? 1 : 0;
-    }
 
     @Override
     public CustomOp toCustomOp() {
-        DynamicCustomOp.Builder customOpBuilder = DynamicCustomOp.builder(name());
+        DynamicCustomOp.DynamicCustomOpsBuilder customOpBuilder = DynamicCustomOp.builder(name());
         customOpBuilder.callInplace(x() == z());
 
         if(y() != null)

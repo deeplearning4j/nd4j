@@ -7,6 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * Pooling3D operation
  */
 @Slf4j
-public class Pooling3D extends BaseTransformOp {
+public class Pooling3D extends DynamicCustomOp {
 
     public enum Pooling2DType {
         MAX, AVG, PNORM,
@@ -29,8 +30,8 @@ public class Pooling3D extends BaseTransformOp {
     public Pooling3D() {}
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Pooling3D(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int kT, int kW, int kH, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, Pooling2DType type, boolean ceilingMode) {
-        super(sameDiff, i_v, inPlace);
+    public Pooling3D(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kT, int kW, int kH, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, Pooling2DType type, boolean ceilingMode) {
+        super(null,sameDiff, inputs, inPlace);
         this.kT = kT;
         this.kW = kW;
         this.kH = kH;
@@ -45,11 +46,12 @@ public class Pooling3D extends BaseTransformOp {
         this.dilationH = dilationH;
         this.type = type;
         this.ceilingMode = ceilingMode;
+        addArgs();
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public Pooling3D(INDArray x, INDArray z, int kT, int kW, int kH, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, Pooling2DType type, boolean ceilingMode) {
-        super(x, z);
+    public Pooling3D(INDArray[] inputs, INDArray[] outputs, int kT, int kW, int kH, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, Pooling2DType type, boolean ceilingMode) {
+        super(null,inputs,outputs);
         this.kT = kT;
         this.kW = kW;
         this.kH = kH;
@@ -64,22 +66,31 @@ public class Pooling3D extends BaseTransformOp {
         this.dilationH = dilationH;
         this.type = type;
         this.ceilingMode = ceilingMode;
+        addArgs();
+    }
+
+
+    private void addArgs() {
+        getIArguments().add(kT);
+        getIArguments().add(kW);
+        getIArguments().add(kH);
+        getIArguments().add(dT);
+        getIArguments().add(dW);
+        getIArguments().add(dH);
+        getIArguments().add(pT);
+        getIArguments().add(pW);
+        getIArguments().add(pH);
+        getIArguments().add(dilationT);
+        getIArguments().add(dilationW);
+        getIArguments().add(dilationH);
+
     }
 
     @Override
-    public int opNum() {
-        return 71;
-    }
-
-    @Override
-    public String name() {
+    public String opName() {
         return getPoolingPrefix() + "pool3d";
     }
 
-    @Override
-    public Object[] extraArgs() {
-        return new Object[] {kT,kW,kH,dT,dW,dH,pT,pW,pH,dilationT,dilationW,dilationH,fromBoolean(ceilingMode)};
-    }
 
     @Override
     public ArrayField doGetValue() {

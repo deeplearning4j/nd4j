@@ -17,7 +17,7 @@ import java.util.List;
 
 
 /**
- * Pooling2DDerivative operation
+ * DeConv2DDerivative operation
  */
 @Slf4j
 public class DeConv2DDerivative extends DeConv2D {
@@ -25,22 +25,18 @@ public class DeConv2DDerivative extends DeConv2D {
     public DeConv2DDerivative() {}
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public DeConv2DDerivative(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
-        super(sameDiff, i_v, inPlace, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
+    public DeConv2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
+        super(sameDiff, inputs, inPlace, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public DeConv2DDerivative(INDArray x, INDArray z, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
-        super(x, z, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
+    public DeConv2DDerivative(INDArray[] inputs, INDArray[] outputs, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
+        super(inputs,outputs, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
     }
 
-    @Override
-    public int opNum() {
-        return 71;
-    }
 
     @Override
-    public String name() {
+    public String opName() {
         return "deconv2d_bp";
     }
 

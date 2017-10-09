@@ -98,6 +98,15 @@ public abstract class DifferentialFunction implements Differential {
         this.extraArgs = extraArgs;
     }
 
+    public DifferentialFunction(SameDiff sameDiff, DifferentialFunction[] args) {
+       this(sameDiff,false,args);
+    }
+
+    public DifferentialFunction(SameDiff sameDiff, boolean inPlace, DifferentialFunction[] args) {
+        this.sameDiff = sameDiff;
+        this.inPlace = inPlace;
+        this.args = args;
+    }
 
     /**
      * Get the result shape for this function
@@ -694,6 +703,11 @@ public abstract class DifferentialFunction implements Differential {
                 "match this function " + this);
 
     }
+
+    protected int fromBoolean(boolean bool) {
+        return bool ? 1 : 0;
+    }
+
 
 
 }

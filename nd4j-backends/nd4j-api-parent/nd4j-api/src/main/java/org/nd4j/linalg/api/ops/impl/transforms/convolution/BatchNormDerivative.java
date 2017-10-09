@@ -17,30 +17,21 @@ import java.util.List;
 public class BatchNormDerivative extends BatchNorm {
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public BatchNormDerivative(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
-        super(sameDiff, i_v, inPlace, training, isLockGammaBeta, isMiniBatch);
+    public BatchNormDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
+        super(sameDiff, inputs, inPlace,training,isMiniBatch,isMiniBatch);
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public BatchNormDerivative(INDArray x, INDArray z, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
-        super(x, z, training, isLockGammaBeta, isMiniBatch);
+    public BatchNormDerivative(INDArray[] inputs, INDArray[] outputs, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
+        super(inputs,outputs,training,isLockGammaBeta,isMiniBatch);
+
     }
 
     public BatchNormDerivative() {}
 
 
     @Override
-    public boolean isExecSpecial() {
-        return true;
-    }
-
-    @Override
-    public int opNum() {
-        return 71;
-    }
-
-    @Override
-    public String name() {
+    public String opName() {
         return "batchnorm_bp";
     }
 

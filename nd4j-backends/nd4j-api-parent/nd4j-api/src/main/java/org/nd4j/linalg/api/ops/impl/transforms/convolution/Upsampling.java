@@ -7,6 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
 import java.util.List;
 
@@ -15,39 +16,31 @@ import java.util.List;
  * Pooling2DDerivative operation
  */
 @Slf4j
-public class Upsampling extends BaseTransformOp {
+public class Upsampling extends DynamicCustomOp {
 
 
     private int scaleFactor;
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Upsampling(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int scaleFactor) {
-        super(sameDiff, i_v, inPlace);
+    public Upsampling(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int scaleFactor) {
+        super(null,sameDiff, inputs, inPlace);
         this.scaleFactor = scaleFactor;
+        getIArguments().add(scaleFactor);
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public Upsampling(INDArray x, INDArray z, int scaleFactor) {
-        super(x, z);
+    public Upsampling(INDArray[] inputs, INDArray[] outputs, int scaleFactor) {
+        super(null,inputs,outputs);
         this.scaleFactor = scaleFactor;
+        getIArguments().add(scaleFactor);
     }
 
     public Upsampling() {}
 
 
     @Override
-    public int opNum() {
-        return 71;
-    }
-
-    @Override
-    public String name() {
+    public String opName() {
         return "upsampling";
-    }
-
-    @Override
-    public Object[] extraArgs() {
-        return new Object[] {scaleFactor};
     }
 
 

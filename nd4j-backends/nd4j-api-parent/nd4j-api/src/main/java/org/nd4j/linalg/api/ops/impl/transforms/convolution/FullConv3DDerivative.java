@@ -19,23 +19,18 @@ public class FullConv3DDerivative extends FullConv3D {
     public FullConv3DDerivative() {}
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public FullConv3DDerivative(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
-        super(sameDiff, i_v, inPlace, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
+    public FullConv3DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
+        super(sameDiff, inputs, inPlace, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public FullConv3DDerivative(INDArray x, INDArray z, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
-        super(x, z, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
+    public FullConv3DDerivative(INDArray[] inputs, INDArray[] outputs, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
+        super(inputs,outputs, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
     }
 
 
     @Override
-    public int opNum() {
-        return 71;
-    }
-
-    @Override
-    public String name() {
+    public String opName() {
         return "fullconv3d_bp";
     }
 

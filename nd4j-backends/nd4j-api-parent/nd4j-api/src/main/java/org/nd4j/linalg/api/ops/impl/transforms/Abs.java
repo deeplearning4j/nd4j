@@ -145,7 +145,7 @@ public class Abs extends BaseTransformOp {
 
     @Override
     public ArrayField doGetValue() {
-        return sameDiff.getArrayFactory().abs(arg().getValue(true));
+        return a().abs(arg().getValue(true));
     }
 
 

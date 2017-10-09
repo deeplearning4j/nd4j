@@ -1,16 +1,10 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
-import org.nd4j.linalg.api.ops.Op;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.List;
 
@@ -20,17 +14,18 @@ import java.util.List;
  */
 @Slf4j
 public class LocalResponseNormalizationDerivative extends LocalResponseNormalization {
+    public LocalResponseNormalizationDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, double alpha, double beta, double bias, double depth) {
+        super(sameDiff, inputs, inPlace, alpha, beta, bias, depth);
+    }
 
+    public LocalResponseNormalizationDerivative(INDArray[] inputs, INDArray[] outputs, double alpha, double beta, double bias, double depth) {
+        super(inputs, outputs, alpha, beta, bias, depth);
+    }
 
     public LocalResponseNormalizationDerivative() {}
 
     @Override
-    public int opNum() {
-        return 71;
-    }
-
-    @Override
-    public String name() {
+    public String opName() {
         return "lrn_bp";
     }
 
