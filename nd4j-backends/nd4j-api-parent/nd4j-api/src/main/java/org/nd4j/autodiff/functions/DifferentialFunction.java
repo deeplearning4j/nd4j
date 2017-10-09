@@ -254,7 +254,7 @@ public abstract class DifferentialFunction implements Differential {
         return vals;
     }
 
-    private void validateDifferentialFunctionGraph(DifferentialFunction function) {
+    protected void validateDifferentialFunctionGraph(DifferentialFunction function) {
         Preconditions.checkState(function.getSameDiff() == this.getSameDiff(),"Function applications must be contained in same graph. The left " + function +" must match this function " + this);
 
     }

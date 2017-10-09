@@ -5,10 +5,14 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.NDArrayInformation;
+import org.nd4j.autodiff.opstate.NDArrayVertex;
+import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.*;
 
@@ -137,6 +141,127 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public String toString() {
         return opName();
+    }
+
+    protected void addEdges(SameDiff sameDiff,
+                            DifferentialFunction[] inputs,
+                            String opName,
+                            Op.Type opType,
+                            int[] shape, Object[] extraArgs) {
+       for(DifferentialFunction input : inputs) {
+           validateFunctionReference(input);
+           validateDifferentialFunctionGraph(input);
+           validateDifferentialFunctionsameDiff(input.getValue(true));
+       }
+
+
+
+        /**
+         * getValue() generates invalid vertex ids
+         * need to look at a way of getting the proper vertex
+         * metadata
+         *
+         * Should be looking at a way to derive the vertex id
+         * for each of these equations.
+         *
+         *
+         *
+         */
+        ArrayField v1 = i_v1.getValue(true);
+        int v1VertexId = i_v1.resultVertexId();
+        ArrayField v2 = i_v2.getValue(true);
+        int v2VertexId = i_v2.resultVertexId();
+        validateDifferentialFunctionsameDiff(v1);
+        validateDifferentialFunctionsameDiff(v2);
+
+        NDArrayInformation arrInfo = inPlace ?  i_v1.getResult() : NDArrayInformation.builder()
+                .arrId(UUID.randomUUID().toString())
+                .id(opName +"(" + v1.getInput().getId() + "," + v2.getInput().getId() + ")")
+                .shape(shape).build();
+        //result
+        if(vertex == null) {
+            vertex = (NDArrayVertex) sameDiff.graph().getVertex(vertexId);
+        }
+
+        NDArrayVertex newVertex = new NDArrayVertex(
+                sameDiff,
+                sameDiff.getGraph().nextVertexId(),
+                Math.max(i_v1   .getVertex().depth(),i_v2.getVertex().getDepth()) + 1,
+                arrInfo);
+        if(newVertex.vertexID() == v2VertexId || newVertex.vertexID() == v1VertexId)
+            throw new ND4JIllegalStateException("Illegal vertex id specified in new vertex." +
+                    " Perhaps a mismatched graph call? Another likely cause is applyGraph");
+        this.vertexId = newVertex.vertexID();
+        //add the result vertex
+        sameDiff.getGraph().addVertex(newVertex);
+        OpState opState,opState2;
+
+
+        //ensure there's 2 vertices for when the 2 inputs are the same
+        if(i_v1.equals(i_v2)) {
+            NDArrayVertex dupVertex = new NDArrayVertex(sameDiff,sameDiff.getGraph().nextVertexId(),
+                    Math.max(i_v1.getVertex().depth(),i_v2.getVertex().getDepth()) + 1,
+                    arrInfo);
+            //update vertex id
+            v2VertexId = dupVertex.vertexID();
+            sameDiff.getGraph().addVertex(dupVertex);
+            opState = OpState.builder()
+                    .opType(opType).inPlace(inPlace)
+                    .differentialFunction(this)
+                    .opName(opName)
+                    .id(opName + "(" + dupVertex.getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,newVertex.vertexID()))
+                    .n(ArrayUtil.prod(shape))
+                    .extraArgs(extraArgs)
+                    .result(arrInfo)
+                    .build();
+
+
+        }
+        else {
+            opState =  OpState.builder()
+                    .opType(opType)
+                    .opName(opName).inPlace(inPlace)
+                    .differentialFunction(this)
+                    .id(opName + "(" + v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,newVertex.vertexID()))
+                    .n(ArrayUtil.prod(shape))
+                    .extraArgs(extraArgs)
+                    .result(arrInfo)
+                    .build();
+        }
+
+        opState2 = OpState.builder()
+                .opType(opType).inPlace(inPlace)
+                .opName(opName).result(arrInfo)
+                .id(opName + "(" + v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                .vertexIds(sameDiff.generateVertexIds(v1VertexId,newVertex.vertexID()))
+                .n(ArrayUtil.prod(shape))
+                .extraArgs(extraArgs)
+                .differentialFunction(this)
+                .result(arrInfo)
+                .build();
+
+
+        //add the first vertex no matter what as normal
+        sameDiff.graph().addEdge(
+                new int[]{v1VertexId},
+                new int[]{newVertex.vertexID()},
+                opState2,true);
+
+        sameDiff.graph().addEdge(
+                new int[]{v2VertexId},
+                new int[]{newVertex.vertexID()},
+                opState
+                ,true);
+        newVertex.setOpState(opState2);
+        arrInfo.setOwner(opState2);
+
+        this.opState = opState;
+
+
+
+
     }
 
 

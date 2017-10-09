@@ -1,6 +1,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
 import lombok.Builder;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -13,9 +14,10 @@ import java.util.List;
 
 
 /**
- * Pooling2DDerivative operation
+ * Upsampling operation
  */
 @Slf4j
+@Getter
 public class Upsampling extends DynamicCustomOp {
 
 
