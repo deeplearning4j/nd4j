@@ -15,11 +15,17 @@
  */
 package org.nd4j.nativeblas;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
 import org.bytedeco.javacpp.annotation.Platform;
 import org.bytedeco.javacpp.annotation.Properties;
+import org.bytedeco.javacpp.tools.BuildEnabled;
 import org.bytedeco.javacpp.tools.Info;
 import org.bytedeco.javacpp.tools.InfoMap;
 import org.bytedeco.javacpp.tools.InfoMapper;
+import org.bytedeco.javacpp.tools.Logger;
 
 /**
  *
@@ -52,7 +58,19 @@ import org.bytedeco.javacpp.tools.InfoMapper;
                                                 preloadpath = {"/lib64/", "/lib/", "/usr/lib64/", "/usr/lib/",
                                                                 "/usr/lib/powerpc64-linux-gnu/",
                                                                 "/usr/lib/powerpc64le-linux-gnu/"})})
-public class Nd4jCpuPresets implements InfoMapper {
+public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
+
+    private Logger logger;
+    private java.util.Properties properties;
+    private String encoding;
+
+    @Override
+    public void init(Logger logger, java.util.Properties properties, String encoding) {
+        this.logger = logger;
+        this.properties = properties;
+        this.encoding = encoding;
+    }
+
     @Override
     public void map(InfoMap infoMap) {
         infoMap.put(new Info("thread_local", "ND4J_EXPORT", "INLINEDEF").cppTypes().annotations())
@@ -86,89 +104,52 @@ public class Nd4jCpuPresets implements InfoMapper {
                 "nd4j::graph::Block",
                 "nd4j::ops::DeclarableOp",
                 "nd4j::ops::DeclarableReductionOp",
-                "nd4j::ops::DeclarableCustomOp",
-
-                // DECLARE_REDUCTION_OP
-                "nd4j::ops::testreduction",
-
-                // DECLARE_OP
-                "nd4j::ops::noop",
-                "nd4j::ops::testop2i2o",
-                "nd4j::ops::softmax",
-                "nd4j::ops::softmax_bp",
-                "nd4j::ops::biasadd",
-                "nd4j::ops::floor",
-                "nd4j::ops::realdiv",
-                "nd4j::ops::merge",
-                "nd4j::ops::broadcastgradientargs",
-                "nd4j::ops::assign",
-                "nd4j::ops::mergemax",
-                "nd4j::ops::mergemaxindex",
-                "nd4j::ops::mergeadd",
-                "nd4j::ops::mergeavg",
-                "nd4j::ops::identity",
-                "nd4j::ops::add",
-                "nd4j::ops::subtract",
-                "nd4j::ops::reversesubtract",
-                "nd4j::ops::multiply",
-                "nd4j::ops::divide",
-                "nd4j::ops::reversedivide",
-                "nd4j::ops::reshapeas",
-                "nd4j::ops::transpose",
-
-                // DECLARE_DIVERGENT_OP
-                "nd4j::ops::Switch",
-
-                // DECLARE_CUSTOM_OP
-                "nd4j::ops::testcustom",
-                "nd4j::ops::concat",
-                "nd4j::ops::matmul",
-                "nd4j::ops::conv2d",
-                "nd4j::ops::lrn",
-                "nd4j::ops::reshape",
-                "nd4j::ops::sconv2d",
-                "nd4j::ops::sconv2d_bp",
-                "nd4j::ops::deconv2d",
-                "nd4j::ops::deconv2d_bp",
-                "nd4j::ops::maxpool2d",
-                "nd4j::ops::avgpool2d",
-                "nd4j::ops::pnormpool2d",
-                "nd4j::ops::maxpool3d_bp",
-                "nd4j::ops::avgpool3d",
-                "nd4j::ops::avgpool3d_bp",
-                "nd4j::ops::fullconv3d",
-                "nd4j::ops::fullconv3d_bp",
-                "nd4j::ops::fullconv3d_grad",
-                "nd4j::ops::maxpool2d_bp",
-                "nd4j::ops::pooling2d",
-                "nd4j::ops::avgpool2d_bp",
-                "nd4j::ops::pnormpool2d_bp",
-
-                // DECLARE_CONFIGURABLE_OP
-                "nd4j::ops::tensormmul",
-                "nd4j::ops::clipbyvalue",
-                "nd4j::ops::scatter_update",
-                "nd4j::ops::relu",
-                "nd4j::ops::repeat",
-                "nd4j::ops::randomuniform",
-                "nd4j::ops::permute",
-                "nd4j::ops::sum",
-                "nd4j::ops::batchnorm",
-                "nd4j::ops::batchnorm_bp",
-                "nd4j::ops::conv3d",
-                "nd4j::ops::conv3d_bp",
-                "nd4j::ops::upsampling2d",
-                "nd4j::ops::upsampling2d_bp",
-                "nd4j::ops::maxpool3d",
-                "nd4j::ops::ismax",
-
-                "nd4j::ops::firas_sparse"};
+                "nd4j::ops::DeclarableCustomOp"};
         for (String t : classTemplates) {
             String s = t.substring(t.lastIndexOf(':') + 1);
             infoMap.put(new Info(t + "<float>").pointerTypes("Float" + s))
                    .put(new Info(t + "<float16>").pointerTypes("Half" + s))
                    .put(new Info(t + "<double>").pointerTypes("Double" + s));
         }
+
+        // pick up custom operations automatically from CustomOperations.h in libnd4j
+        String separator = properties.getProperty("platform.path.separator");
+        String[] includePaths = properties.getProperty("platform.includepath").split(separator);
+        File file = null;
+        for (String path : includePaths) {
+            file = new File(path, "ops/declarable/CustomOperations.h");
+            if (file.exists()) {
+                break;
+            }
+        }
+        ArrayList<String> opTemplates = new ArrayList<String>();
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine().trim();
+                if (line.startsWith("DECLARE_")) {
+                    String name = line.substring(line.indexOf('(') + 1, line.indexOf(',')).trim();
+                    opTemplates.add(name);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not parse CustomOperations.h", e);
+        }
+        logger.info("Ops found in CustomOperations.h: " + opTemplates);
+        String floatOps = "", halfOps = "", doubleOps = "";
+        for (String t : opTemplates) {
+            String s = "nd4j::ops::" + t;
+            infoMap.put(new Info(s + "<float>").pointerTypes("float_" + t))
+                   .put(new Info(s + "<float16>").pointerTypes("half_" + t))
+                   .put(new Info(s + "<double>").pointerTypes("double_" + t));
+            floatOps  += "\n        float_" + t + ".class,";
+            halfOps   += "\n        half_" + t + ".class,";
+            doubleOps += "\n        double_" + t + ".class,";
+        }
+        infoMap.put(new Info().javaText("\n"
+                                      + "    Class[] floatOps = {" + floatOps + "};" + "\n"
+                                      + "    Class[] halfOps = {" + halfOps + "};" + "\n"
+                                      + "    Class[] doubleOps = {" + doubleOps + "};"));
+
         infoMap.put(new Info("nd4j::ops::OpRegistrator::updateMSVC").skip());
     }
 }
