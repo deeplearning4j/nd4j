@@ -1,5 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
@@ -22,7 +23,7 @@ public class Conv2D extends DynamicCustomOp {
     private int kh, kw, sy, sx, ph, pw, dh, dw;
     private boolean isSameMode;
 
-    @lombok.Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffBuilder")
     public Conv2D(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
         super(null,sameDiff, inputs, inPlace);
              this.kh = kh;
@@ -38,7 +39,7 @@ public class Conv2D extends DynamicCustomOp {
 
     }
 
-    @lombok.Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execBuilder")
     public Conv2D(INDArray[] inputs, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
         super(null,inputs,outputs);
         this.kh = kh;

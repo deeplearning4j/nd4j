@@ -42,8 +42,8 @@ public class Im2col extends DynamicCustomOp {
 
 
     @Builder(builderMethodName = "execBuilder")
-    public Im2col(INDArray[] inputs,INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
-        super(null,inputs,outputs );
+    public Im2col(INDArray[] arrayInputs,INDArray[] arrayOutputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
+        super(null,arrayInputs,arrayOutputs );
         this.kh = kh;
         this.kw = kw;
         this.sy = sy;
@@ -76,21 +76,6 @@ public class Im2col extends DynamicCustomOp {
     }
 
 
-    private static INDArray getNewOutputArray(INDArray img, int kernelHeight, int kernelWidth, int strideY, int strideX,
-                                              int padHeight, int padWidth, int dilationH, int dilationW, boolean coverAll) {
-        //number of images
-        int n = img.size(0);
-        //number of channels (depth)
-        int c = img.size(1);
-        //image height
-        int h = img.size(2);
-        //image width
-        int w = img.size(3);
-        int outHeight = Convolution.outSize(h, kernelHeight, strideY, padHeight, dilationH, coverAll);
-        int outWidth = Convolution.outSize(w, kernelWidth, strideX, padWidth, dilationW, coverAll);
-
-        return Nd4j.createUninitialized(new int[] {n, c, kernelHeight, kernelWidth, outHeight, outWidth}, 'c');
-    }
 
 
     @Override

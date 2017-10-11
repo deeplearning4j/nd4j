@@ -16,12 +16,12 @@ import java.util.List;
 @Slf4j
 public class BatchNormDerivative extends BatchNorm {
 
-    @Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
     public BatchNormDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
         super(sameDiff, inputs, inPlace,training,isMiniBatch,isMiniBatch);
     }
 
-    @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execDerivativeBuilder")
     public BatchNormDerivative(INDArray[] inputs, INDArray[] outputs, boolean training, boolean isLockGammaBeta, boolean isMiniBatch) {
         super(inputs,outputs,training,isLockGammaBeta,isMiniBatch);
 

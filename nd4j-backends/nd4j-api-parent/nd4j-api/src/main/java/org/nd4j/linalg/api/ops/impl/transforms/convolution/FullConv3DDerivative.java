@@ -18,12 +18,12 @@ public class FullConv3DDerivative extends FullConv3D {
 
     public FullConv3DDerivative() {}
 
-    @Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
     public FullConv3DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
         super(sameDiff, inputs, inPlace, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
     }
 
-    @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execDerivativeBuilder")
     public FullConv3DDerivative(INDArray[] inputs, INDArray[] outputs, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
         super(inputs,outputs, dT, dW, dH, pT, pW, pH, dilationT, dilationW, dilationH, aT, aW, aH, biasUsed);
     }

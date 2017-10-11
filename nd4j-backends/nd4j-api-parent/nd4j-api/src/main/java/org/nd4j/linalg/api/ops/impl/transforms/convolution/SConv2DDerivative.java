@@ -16,12 +16,12 @@ import java.util.List;
 @Slf4j
 public class SConv2DDerivative extends SConv2D {
 
-    @Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
     public SConv2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
         super(sameDiff, inputs, inPlace, kh, kw, sy, sx, ph, pw, dh, dw, isSameMode);
     }
 
-    @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execDerivativeBuilder")
     public SConv2DDerivative(INDArray[] inputs, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
         super(inputs,outputs, kh, kw, sy, sx, ph, pw, dh, dw, isSameMode);
     }

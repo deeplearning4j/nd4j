@@ -61,8 +61,8 @@ public class Pooling2D extends DynamicCustomOp {
 
     @Builder(builderMethodName = "execBuilder")
     @SuppressWarnings("Used in lombok")
-    public Pooling2D(INDArray[] inputs, INDArray[] outputs,int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw,  int virtualHeight,int virtualWidth, double extra,Pooling2DType type, boolean isSameMode) {
-        super(null,inputs,outputs);
+    public Pooling2D(INDArray[] arrayInputs, INDArray[] arrayOutputs,int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw,  int virtualHeight,int virtualWidth, double extra,Pooling2DType type, boolean isSameMode) {
+        super(null,arrayInputs,arrayOutputs);
         this.kh = kh;
         this.kw = kw;
         this.sy = sy;

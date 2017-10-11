@@ -1,5 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -16,12 +17,14 @@ import java.util.List;
 public class Pooling2DDerivative extends Pooling2D {
 
 
-    public Pooling2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode) {
-        super(sameDiff, inputs, inPlace, kh, kw, sy, sx, ph, pw, dh, dw, type, isSameMode);
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
+    public Pooling2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, int virtualHeight, int virtualWidth, double extra, Pooling2DType type, boolean isSameMode) {
+        super(sameDiff, inputs, inPlace, kh, kw, sy, sx, ph, pw, dh, dw, virtualHeight, virtualWidth, extra, type, isSameMode);
     }
 
-    public Pooling2DDerivative(INDArray[] inputs, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode) {
-        super(inputs, outputs, kh, kw, sy, sx, ph, pw, dh, dw, type, isSameMode);
+    @Builder(builderMethodName = "execDerivativeBuilder")
+    public Pooling2DDerivative(INDArray[] inputs, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, int virtualHeight, int virtualWidth, double extra, Pooling2DType type, boolean isSameMode) {
+        super(inputs, outputs, kh, kw, sy, sx, ph, pw, dh, dw, virtualHeight, virtualWidth, extra, type, isSameMode);
     }
 
     public Pooling2DDerivative() {}

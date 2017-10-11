@@ -24,12 +24,12 @@ public class DeConv2DDerivative extends DeConv2D {
 
     public DeConv2DDerivative() {}
 
-    @Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
     public DeConv2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
         super(sameDiff, inputs, inPlace, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
     }
 
-    @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execDerivativeBuilder")
     public DeConv2DDerivative(INDArray[] inputs, INDArray[] outputs, int kY, int kX, int sY, int sX, int pY, int pX, int dY, int dX, boolean isSameMode) {
         super(inputs,outputs, kY, kX, sY, sX, pY, pX, dY, dX, isSameMode);
     }

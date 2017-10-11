@@ -154,7 +154,7 @@ public class Convolution {
                 .kh(kh)
                 .kw(kw)
                 .isSameMode(isSameMode)
-                .inputs(new INDArray[]{img})
+                .arrayInputs(new INDArray[]{img})
                 .sx(sx)
                 .sy(sy)
                 .ph(ph)
@@ -167,8 +167,8 @@ public class Convolution {
     public static INDArray im2col(INDArray img, int kh, int kw, int sy, int sx, int ph, int pw, boolean isSameMode,
                     INDArray out) {
         Im2col im2col =  Im2col.execBuilder()
-                .outputs(new INDArray[]{out})
-                .inputs(new INDArray[]{img})
+                .arrayOutputs(new INDArray[]{out})
+                .arrayInputs(new INDArray[]{img})
                 .kh(kh)
                 .pw(pw)
                 .ph(ph)
@@ -187,8 +187,8 @@ public class Convolution {
     public static INDArray im2col(INDArray img, int kh, int kw, int sy, int sx, int ph, int pw, int dH, int dW, boolean isSameMode,
                                   INDArray out) {
         Im2col im2col =  Im2col.execBuilder()
-                .outputs(new INDArray[]{out})
-                .inputs(new INDArray[]{img})
+                .arrayOutputs(new INDArray[]{out})
+                .arrayInputs(new INDArray[]{img})
                 .kh(kh)
                 .pw(pw)
                 .ph(ph)
@@ -208,8 +208,8 @@ public class Convolution {
                                      int dh, int dw, boolean isSameMode, Pooling2D.Pooling2DType type, double extra, int virtualHeight, int virtualWidth,
                                   INDArray out) {
         Pooling2D pooling = Pooling2D.execBuilder()
-                .inputs(new INDArray[]{img})
-                .outputs(new INDArray[] {out})
+                .arrayInputs(new INDArray[]{img})
+                .arrayOutputs(new INDArray[] {out})
                 .dh(dh)
                 .dw(dw)
                 .kh(kh)
@@ -245,7 +245,7 @@ public class Convolution {
     public static INDArray im2col(INDArray img, int kh, int kw, int sy, int sx, int ph, int pw, int pval,
                     boolean isSameMode) {
         Im2col im2col =  Im2col.execBuilder()
-                .inputs(new INDArray[]{img})
+                .arrayInputs(new INDArray[]{img})
                 .kh(kh)
                 .pw(pw)
                 .ph(ph)

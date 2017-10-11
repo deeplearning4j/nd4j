@@ -18,12 +18,12 @@ public class UpsamplingDerivative extends Upsampling {
 
     public UpsamplingDerivative() {}
 
-    @Builder(builderMethodName = "sameDiffBuilder")
+    @Builder(builderMethodName = "sameDiffDerivativeBuilder")
     public UpsamplingDerivative(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int scaleFactor) {
         super(sameDiff, inputs, inPlace, scaleFactor);
     }
 
-    @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execDerivativeBuilder")
     public UpsamplingDerivative(INDArray[] inputs, INDArray[] outputs, int scaleFactor) {
         super(inputs,outputs, scaleFactor);
     }
