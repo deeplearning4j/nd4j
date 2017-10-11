@@ -435,7 +435,7 @@ public class SameDiffTests {
         ints.addEdge(new Edge<>(new int[]{2},new int[]{3},0,true));
         ints.addEdge(new Edge<>(new int[]{3},new int[]{2},0,true));
 
-        assertEquals(2,ints.getEdgesOut(1).size());
+        assertEquals(2,ints.getEdgesOut(new int[]{1}).size());
         assertEquals(2,ints.getIncomingEdges().get(3).size());
     }
 
