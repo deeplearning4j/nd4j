@@ -896,7 +896,8 @@ public class ArrayField implements Field {
                 .scalarValue(ArrayUtil.prod(getInput().getShape()) == 1 ? getInput().scalar() : null)
                 .arrayField(this)
                 .id(vertex.getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
-                .opType(Op.Type.SCALAR).result(newVertex.getValue())
+                .opType(Op.Type.SCALAR)
+                .results(new NDArrayInformation[]{newVertex.getValue()})
                 .vertexIds(ops.generateVertexIds(vertex.vertexID(),newVertex.vertexID()))
                 .build();
 
@@ -945,7 +946,7 @@ public class ArrayField implements Field {
                 .id(vertex.getValue().getId() + "-> " +
                         name + " " + newVertex.getValue().getId())
                 .opType(Op.Type.SCALAR)
-                .result(newVertex.getValue())
+                .results(new NDArrayInformation[]{newVertex.getValue()})
                 .vertexIds(ops.generateVertexIds(vertex.vertexID(),newVertex.vertexID()))
                 .build();
         //map x -> z
@@ -1002,7 +1003,7 @@ public class ArrayField implements Field {
                 .id(vertex.getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
                 .vertexIds(ops.generateVertexIds(vertex.vertexID(),newVertex.vertexID()))
                 .opType(Op.Type.REDUCE).build();
-        xToz.setResult(information);
+        xToz.setResults(new NDArrayInformation[] {information} );
         this.ops.getGraph().addEdge(
                 new int[] {vertex.vertexID()},
                 new int[]{newVertex.vertexID()},xToz,true);
@@ -1013,7 +1014,7 @@ public class ArrayField implements Field {
                 .id(i_v.getVertex().getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
                 .vertexIds(ops.generateVertexIds(i_v.getVertex().vertexID(),newVertex.vertexID()))
                 .opType(Op.Type.REDUCE).build();
-        yToZ.setResult(information);
+        yToZ.setResults(new NDArrayInformation[]{information});
 
         if(xToz.isInPlace()) {
             information.setArrId(input.getArrId());
@@ -1062,7 +1063,7 @@ public class ArrayField implements Field {
                 .id(vertex.getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
                 .vertexIds(ops.generateVertexIds(vertex.vertexID(),newVertex.vertexID()))
                 .opType(opType).build();
-        xToZ.setResult(resultInfo);
+        xToZ.setResults(new NDArrayInformation[]{resultInfo});
         if(!ops.graph().isFrozen() && vertex.vertexID() == newVertex.vertexID())
             throw new IllegalStateException("Attempted to add edge with vertex id of " + newVertex.vertexID() +
                     " when next vertex id was " + this.ops.getGraph().getNextVertexId() + " . This usually means that the vertex id generation was behind the nodes being added.");
@@ -1077,7 +1078,7 @@ public class ArrayField implements Field {
                 .id(i_v.getVertex().getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
                 .vertexIds(ops.generateVertexIds(i_v.getVertex().vertexID(),newVertex.vertexID()))
                 .opType(opType).build();
-        yToZ.setResult(resultInfo);
+        yToZ.setResults(new NDArrayInformation[]{resultInfo});
         if(!ops.graph().isFrozen() && i_v.getVertex().vertexID() == newVertex.vertexID())
             throw new IllegalStateException("Attempted to add edge with vertex id of " + newVertex.vertexID() +
                     " when next vertex id was " + this.ops.getGraph().getNextVertexId() + " . This usually means that the vertex id generation was behind the nodes being added.");
@@ -1171,7 +1172,7 @@ public class ArrayField implements Field {
         OpState opState = OpState.builder()
                 .n(ArrayUtil.prod(input.getShape()))
                 .opName(name).extraArgs(extraArgs).axes(axes)
-                .result(newVertex.getValue())
+                .results(new NDArrayInformation[]{newVertex.getValue()})
                 .id(vertex.getValue().getId() + "-> " + name + " " + newVertex.getValue().getId())
                 .vertexIds(ops.generateVertexIds(vertex.vertexID(),newVertex.vertexID()))
                 .opType(opType).build();

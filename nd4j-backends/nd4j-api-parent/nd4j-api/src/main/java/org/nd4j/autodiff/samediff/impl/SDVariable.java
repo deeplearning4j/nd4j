@@ -238,7 +238,7 @@ public class SDVariable  implements Serializable {
             return differentialFunction.getValue(true).getInput().getShape();
         }
 
-        return opState.getResult().getShape();
+        return opState.getResults()[0].getShape();
 
     }
 

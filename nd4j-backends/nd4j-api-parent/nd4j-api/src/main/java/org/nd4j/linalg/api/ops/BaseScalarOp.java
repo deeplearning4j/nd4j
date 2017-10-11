@@ -158,7 +158,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
                 .id(opName + "(" + v1.getInput().getId() + " -> " + newVertex.getValue().getId() + ")")
                 .vertexIds(sameDiff.generateVertexIds(v1.getVertex().vertexID(),newVertex.vertexID()))
                 .n(ArrayUtil.prod(shape))
-                .result(information)
+                .results(new NDArrayInformation[]{information})
                 .build();
 
 
@@ -171,7 +171,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
 
         newVertex.setOpState(owner);
         information.setOwner(owner);
-        owner.setResult(information);
+        owner.setResults(new NDArrayInformation[]{information});
 
         if(owner.isInPlace()) {
             information.setArrId(v1.getInput().getArrId());

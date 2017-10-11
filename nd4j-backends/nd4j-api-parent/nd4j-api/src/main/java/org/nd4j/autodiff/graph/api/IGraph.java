@@ -51,7 +51,7 @@ public interface IGraph<V, E> {
      * @param vertex index of the vertex to
      * @return list of edges for this vertex
      */
-    List<Edge<E>> getEdgesOut(int vertex);
+    List<Edge<E>> getEdgesOut(int[] vertex);
 
     /** Returns the degree of the vertex.<br>
      * For undirected graphs, this is just the degree.<br>
@@ -71,7 +71,7 @@ public interface IGraph<V, E> {
      * @throws NoEdgesException thrown if the specified vertex has no edges, or no outgoing edges (in the case
      * of a directed graph).
      */
-    Vertex<V> getRandomConnectedVertex(int vertex, Random rng) throws NoEdgesException;
+    Vertex<V> getRandomConnectedVertex(int[] vertex, Random rng) throws NoEdgesException;
 
     /**Get a list of all of the vertices that the specified vertex is connected to<br>
      * Specifically, for undirected graphs return list of all X such that (vertex -- X) exists<br>
@@ -88,5 +88,5 @@ public interface IGraph<V, E> {
      * @return list of vertices that the specified vertex is connected to
      * @see #getConnectedVertices(int)
      */
-    int[] getConnectedVertexIndices(int vertex);
+    int[] getConnectedVertexIndices(int[] vertex);
 }

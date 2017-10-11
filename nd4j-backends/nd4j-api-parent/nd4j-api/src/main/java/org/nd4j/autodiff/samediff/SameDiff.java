@@ -166,7 +166,7 @@ public class SameDiff {
             int newVertexMap = thisVertexIdToNew.get(i + 1);
             if(edgesForVertex != null) {
                 List<Edge<OpState>> edgesForNewVertex = new ArrayList<>();
-                sameDiff.graph().getEdges().put(newVertexMap, edgesForNewVertex);
+                sameDiff.graph().getEdges().put(new int[]{newVertexMap}, edgesForNewVertex);
                 for (Edge<OpState> edge : edgesForVertex) {
                     Preconditions.checkState(thisVertexIdToNew.containsKey(edge.getFrom()[0]),"Edge missing from vertex id for copy " + edge.getFrom()[0]);
                     Preconditions.checkState(thisVertexIdToNew.containsKey(edge.getTo()[0]),"Edge missing to vertex id for copy " + edge.getTo()[0]);
@@ -183,7 +183,7 @@ public class SameDiff {
 
             if(incomingEdgesForVertex != null) {
                 List<Edge<OpState>> newIncomingEdges = new ArrayList<>();
-                sameDiff.graph().getIncomingEdges().put(newVertexMap,newIncomingEdges);
+                sameDiff.graph().getIncomingEdges().put(new int[]{newVertexMap},newIncomingEdges);
                 for(Edge<OpState> edge : incomingEdgesForVertex) {
                     OpStateEdge newEdge = new OpStateEdge(
                             new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},

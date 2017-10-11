@@ -1,9 +1,11 @@
 package org.nd4j.linalg.api.ops;
 
+import com.google.common.primitives.Ints;
 import lombok.Getter;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.ArrayField;
+import org.nd4j.autodiff.functions.Differential;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
@@ -31,6 +33,9 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Getter private List<Integer> iArguments = new ArrayList<>();
     @Getter private boolean inplaceCall;
     @Getter private long hash;
+    @Getter
+    private NDArrayVertex[] outputs;
+    private int[][] outputShapes;
 
     public DynamicCustomOp() {
     }
@@ -102,6 +107,24 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return opName;
     }
 
+    @Override
+    public int getVertexId() {
+        return getVertex().vertexID();
+    }
+
+    @Override
+    public NDArrayVertex[] getVertices() {
+        return this.outputs;
+    }
+
+    @Override
+    public NDArrayVertex getVertex() {
+        if(this.outputs.length == 1)
+            return this.outputs[0];
+        else
+            throw new UnsupportedOperationException("This op has more than one output.");
+    }
+
     /**
      * This method returns LongHash of the opName()
      *
@@ -129,6 +152,11 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     }
 
     @Override
+    public List<int[]> calculateOutputShape() {
+        return Nd4j.getExecutioner().calculateOutputShape(this);
+    }
+
+    @Override
     public ArrayField doGetValue() {
         throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
     }
@@ -143,57 +171,107 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return opName();
     }
 
+    @Override
+    public int depth() {
+        int maxDepth = 0;
+        for(DifferentialFunction func : args()) {
+            maxDepth = Math.max(maxDepth,func.depth());
+        }
+
+        return maxDepth;
+    }
+
+    @Override
+    public List<DifferentialFunction> outputs() {
+        return super.outputs();
+    }
+
     protected void addEdges(SameDiff sameDiff,
-                            DifferentialFunction[] inputs,
                             String opName,
                             Op.Type opType,
-                            int[] shape, Object[] extraArgs) {
-       for(DifferentialFunction input : inputs) {
-           validateFunctionReference(input);
-           validateDifferentialFunctionGraph(input);
-           validateDifferentialFunctionsameDiff(input.getValue(true));
-       }
+                            Object[] extraArgs) {
+        for(DifferentialFunction input : args()) {
+            validateFunctionReference(input);
+            validateDifferentialFunctionGraph(input);
+            validateDifferentialFunctionsameDiff(input.getValue(true));
+        }
 
 
+        List<int[]> outputShapes = this.calculateOutputShape();
+        int[] outputVertexIds = new int[outputShapes.size()];
+        List<Integer> inputs = new ArrayList<>();
+        for(int i = 0; i < args().length; i++) {
+            DifferentialFunction differentialFunction = args()[i];
+            List<DifferentialFunction> outputs = differentialFunction.outputs();
+            for(DifferentialFunction output : outputs) {
+                for(int vertexId : output.getOutputVertexIds()) {
+                    if(!inputs.contains(vertexId))
+                        inputs.add(vertexId);
+                }
+            }
+
+        }
+
+
+        NDArrayInformation[] resultInfo = new NDArrayInformation[outputShapes.size()];
+        for(int i = 0; i < outputShapes.size(); i++) {
+            NDArrayInformation arrInfo =  NDArrayInformation.builder()
+                    .arrId(UUID.randomUUID().toString())
+                    .id(opName)
+                    .shape(outputShapes.get(i)).build();
+
+            NDArrayVertex newVertex = new NDArrayVertex(
+                    sameDiff,
+                    sameDiff.getGraph().nextVertexId(),
+                    depth() + 1,
+                    arrInfo);
+            outputVertexIds[i] = newVertex.vertexID();
+            //add the result vertex
+            sameDiff.getGraph().addVertex(newVertex);
+            resultInfo[i] = arrInfo;
+        }
+
+        int[] inputIds = Ints.toArray(inputs);
+
+
+        String[] vertexIds = sameDiff.generateVertexIds(Ints.concat(inputIds,outputVertexIds));
+        OpState  opState = OpState.builder()
+                .opType(opType).inPlace(inPlace)
+                .differentialFunction(this)
+                .opName(opName)
+                .id(opName + "(" + vertexIds +  ")")
+                .vertexIds(sameDiff.generateVertexIds(Ints.concat(inputIds,outputVertexIds)))
+                .n(ArrayUtil.prod(shape))
+                .extraArgs(extraArgs)
+                .results(resultInfo)
+                .build();
 
         /**
-         * getValue() generates invalid vertex ids
-         * need to look at a way of getting the proper vertex
-         * metadata
-         *
-         * Should be looking at a way to derive the vertex id
-         * for each of these equations.
-         *
-         *
-         *
+         * Create 1 opstate with all of the vertex ids
+         * with all inputs and outputs representing the edge.
          */
-        ArrayField v1 = i_v1.getValue(true);
+        sameDiff.graph().addEdge(
+                inputIds,
+                outputVertexIds,
+                opState,true);
+
+
+
+/*
+
+
+
+
         int v1VertexId = i_v1.resultVertexId();
         ArrayField v2 = i_v2.getValue(true);
         int v2VertexId = i_v2.resultVertexId();
         validateDifferentialFunctionsameDiff(v1);
         validateDifferentialFunctionsameDiff(v2);
-
-        NDArrayInformation arrInfo = inPlace ?  i_v1.getResult() : NDArrayInformation.builder()
-                .arrId(UUID.randomUUID().toString())
-                .id(opName +"(" + v1.getInput().getId() + "," + v2.getInput().getId() + ")")
-                .shape(shape).build();
-        //result
-        if(vertex == null) {
-            vertex = (NDArrayVertex) sameDiff.graph().getVertex(vertexId);
-        }
-
-        NDArrayVertex newVertex = new NDArrayVertex(
-                sameDiff,
-                sameDiff.getGraph().nextVertexId(),
-                Math.max(i_v1   .getVertex().depth(),i_v2.getVertex().getDepth()) + 1,
-                arrInfo);
-        if(newVertex.vertexID() == v2VertexId || newVertex.vertexID() == v1VertexId)
+             if(newVertex.vertexID() == v2VertexId || newVertex.vertexID() == v1VertexId)
             throw new ND4JIllegalStateException("Illegal vertex id specified in new vertex." +
                     " Perhaps a mismatched graph call? Another likely cause is applyGraph");
         this.vertexId = newVertex.vertexID();
-        //add the result vertex
-        sameDiff.getGraph().addVertex(newVertex);
+
         OpState opState,opState2;
 
 
@@ -256,6 +334,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 ,true);
         newVertex.setOpState(opState2);
         arrInfo.setOwner(opState2);
+*/
 
         this.opState = opState;
 
@@ -335,7 +414,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         }
 
         /**
-         * This method takes arbitrary number of 
+         * This method takes arbitrary number of
          * output INDArrays in, to store operation result
          * Note that this ACCUMULATES arguments. You are able to call this method
          * multiple times and it will add arguments to a list.
@@ -467,8 +546,8 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
         public DynamicCustomOp build() {
             // Eventually we probably will lift this restriction
-            if (!inplaceCall && outputArguments.size() == 0)
-                throw new ND4JIllegalStateException("If operation is not-inplace, it must have outputs defined");
+            //if (!inplaceCall && outputArguments.size() == 0)
+            //    throw new ND4JIllegalStateException("If operation is not-inplace, it must have outputs defined");
 
             val result = new DynamicCustomOp(opName);
             result.inputArguments = inputArguments;

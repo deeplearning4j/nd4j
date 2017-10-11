@@ -32,14 +32,16 @@ public class Pooling2D extends DynamicCustomOp {
 
 
 
-    private int kh, kw, sy, sx, ph, pw, dh, dw;
+    private int kh, kw, sy, sx, ph, pw, dh, dw,virtualHeight,virtualWidth;
+    private double extra;
     private Pooling2DType type;
     private boolean isSameMode;
 
     public Pooling2D() {}
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Pooling2D(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode) {
+    @SuppressWarnings("Used in lombok")
+    public Pooling2D(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, int virtualHeight,int virtualWidth,double extra,Pooling2DType type, boolean isSameMode) {
         super(null,sameDiff, inputs, inPlace);
         this.kh = kh;
         this.kw = kw;
@@ -49,13 +51,17 @@ public class Pooling2D extends DynamicCustomOp {
         this.pw = pw;
         this.dh = dh;
         this.dw = dw;
+        this.virtualHeight = virtualHeight;
+        this.virtualWidth = virtualWidth;
         this.type = type;
+        this.extra = extra;
         this.isSameMode = isSameMode;
         addArgs();
     }
 
     @Builder(builderMethodName = "execBuilder")
-    public Pooling2D(INDArray[] inputs, INDArray[] outputs,int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, Pooling2DType type, boolean isSameMode) {
+    @SuppressWarnings("Used in lombok")
+    public Pooling2D(INDArray[] inputs, INDArray[] outputs,int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw,  int virtualHeight,int virtualWidth, double extra,Pooling2DType type, boolean isSameMode) {
         super(null,inputs,outputs);
         this.kh = kh;
         this.kw = kw;
@@ -65,6 +71,9 @@ public class Pooling2D extends DynamicCustomOp {
         this.pw = pw;
         this.dh = dh;
         this.dw = dw;
+        this.virtualWidth = virtualWidth;
+        this.virtualHeight = virtualHeight;
+        this.extra = extra;
         this.type = type;
         this.isSameMode = isSameMode;
         addArgs();
@@ -79,8 +88,11 @@ public class Pooling2D extends DynamicCustomOp {
         getIArguments().add(ph);
         getIArguments().add(pw);
         getIArguments().add(dh);
+        getIArguments().add(virtualHeight);
+        getIArguments().add(virtualWidth);
         getIArguments().add(fromBoolean(isSameMode));
 
+        getTArguments().add(extra);
 
     }
 
