@@ -160,8 +160,9 @@ public class SameDiff {
              * same diff variables
              * with setupFunction,
              */
-            List<Edge<OpState>> edgesForVertex = graph.getEdges().get(i + 1);
-            List<Edge<OpState>> incomingEdgesForVertex = graph.getIncomingEdges().get(i + 1);
+            List<Edge<OpState>> edgesForVertex = graph.getEdges().get(new int[]{i + 1});
+            List<Edge<OpState>> incomingEdgesForVertex = graph.getIncomingEdges()
+                    .get(new int[]{i + 1});
             //map to new vertex
             int newVertexMap = thisVertexIdToNew.get(i + 1);
             if(edgesForVertex != null) {

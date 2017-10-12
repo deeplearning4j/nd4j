@@ -63,8 +63,8 @@ public class Graph<V, E> extends BaseGraph<V, E> {
     public Graph(boolean allowMultipleEdges) {
         this.allowMultipleEdges = allowMultipleEdges;
         vertices = new TreeMap<>();
-        edges = new TreeMap<>();
-        this.incomingEdges = new TreeMap<>();
+        edges = new TreeMap<>(Ints.lexicographicalComparator());
+        this.incomingEdges = new TreeMap<>(Ints.lexicographicalComparator());
         nextVertexId = 0;
     }
 
@@ -126,7 +126,7 @@ public class Graph<V, E> extends BaseGraph<V, E> {
             this.vertices.put(v.getIdx(),v);
         this.allowMultipleEdges = allowMultipleEdges;
         edges = new HashMap<>();
-        this.incomingEdges = new TreeMap<>();
+        this.incomingEdges = new TreeMap<>(Ints.lexicographicalComparator());
         nextVertexId = this.vertices.size();
     }
 
@@ -178,6 +178,11 @@ public class Graph<V, E> extends BaseGraph<V, E> {
         for (int i = from; i <= to; i++)
             out.add(getVertex(i));
         return out;
+    }
+
+    @Override
+    public boolean isFrozen() {
+        return frozen;
     }
 
     @Override
@@ -257,14 +262,13 @@ public class Graph<V, E> extends BaseGraph<V, E> {
     }
 
     @Override
-    public int getVertexInDegree(int vertex) {
+    public int getVertexInDegree(int[] vertex) {
         int ret = 0;
         if(!incomingEdges.containsKey(vertex))
             return 0;
         for(Edge<E> edge : incomingEdges.get(vertex)) {
-            for(int vertexTo : edge.getTo())
-                if(vertexTo == vertex)
-                    ret++;
+            if(Arrays.equals(edge.getTo(),vertex))
+                ret++;
         }
 
         return ret;
@@ -281,15 +285,15 @@ public class Graph<V, E> extends BaseGraph<V, E> {
                     + " has no outgoing/undirected edges");
         int connectedVertexNum = rng.nextInt(edges.get(vertex).size());
         Edge<E> edge = edges.get(vertex).get(connectedVertexNum);
-        if (edge.getFrom() == vertex)
+        if (Arrays.equals(edge.getFrom(),vertex))
             return vertices.get(edge.getTo()); //directed or undirected, vertex -> x
         else
             return vertices.get(edge.getFrom()); //Undirected edge, x -> vertex
     }
 
     @Override
-    public List<Vertex<V>> getConnectedVertices(int vertex) {
-        if (vertex < 0 || vertex >= vertices.size())
+    public List<Vertex<V>> getConnectedVertices(int[] vertex) {
+        if (ArrayUtil.anyLessThan(vertex, 0) || ArrayUtil.anyLargerThan(vertex,vertices.size()))
             throw new IllegalArgumentException("Invalid vertex index: " + vertex);
 
         if (edges.get(vertex) == null)

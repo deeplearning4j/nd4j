@@ -103,8 +103,10 @@ public class SDGraph extends Graph<NDArrayInformation,OpState> {
     public List<NDArrayInformation> getInputs() {
         List<NDArrayInformation> ret = new ArrayList<>();
         for (int i : getVertices().keySet()) {
-            if (getVertexInDegree(i) < 1)
+            int[] key = {i};
+            if (getVertexInDegree(key) < 1) {
                 ret.add(getVertex(i).getValue());
+            }
         }
 
         return ret;
@@ -178,14 +180,14 @@ public class SDGraph extends Graph<NDArrayInformation,OpState> {
             //the goal is to get all of the needed op executions
             for (int i = 0; i < order.length; i++) {
                 //skip vertices that are only inputs
-                if (getVertexInDegree(order[i]) < 1) {
+                if (getVertexInDegree(new int[]{order[i]}) < 1) {
                     continue;
                 }
 
-                int numInputs = Math.max(1, getVertexInDegree(order[i]));
+                int numInputs = Math.max(1, getVertexInDegree(new int[]{order[i]}));
                 int inputsCount = 0;
                 List<Integer> inputIdsList = new ArrayList<>();
-                List<Edge<OpState>> inputOpStates = getIncomingEdges().get(order[i]);
+                List<Edge<OpState>> inputOpStates = getIncomingEdges().get(new int[]{order[i]});
                 List<NDArrayInformation> inputInfo = new ArrayList<>();
                 //get the inputs for this this output array
                 for (Edge<OpState> edge : inputOpStates) {
@@ -300,23 +302,24 @@ public class SDGraph extends Graph<NDArrayInformation,OpState> {
         }
         else {
             LinkedList<int[]> noIncoming = new LinkedList<>();
-            Map<int[], Set<int[]>> inputEdges = new TreeMap<>(); //key: vertex. Values: vertices that the key vertex receives input from
-            Map<int[], Set<int[]>> outputEdges = new TreeMap<>(); //key: vertex. Values: vertices that the key vertex outputs to
+            Map<int[], Set<int[]>> inputEdges = new TreeMap<>(Ints.lexicographicalComparator()); //key: vertex. Values: vertices that the key vertex receives input from
+            Map<int[], Set<int[]>> outputEdges = new TreeMap<>(Ints.lexicographicalComparator()); //key: vertex. Values: vertices that the key vertex outputs to
 
 
             for (int i : vertices) {
-                if (getVertexInDegree(i) < 1) {
-                    noIncoming.add(new int[]{i});
+                int[] key = {i};
+                if (getVertexInDegree(key) < 1) {
+                    noIncoming.add(key);
                 }
 
                 List<Edge<OpState>> edges = getEdgesOut(new int[]{i});
-                Set<int[]> outVertices = new TreeSet<>();
-                Set<int[]> currInputs = new TreeSet<>();
+                Set<int[]> outVertices = new TreeSet<>(Ints.lexicographicalComparator());
+                Set<int[]> currInputs = new TreeSet<>(Ints.lexicographicalComparator());
                 for (Edge<OpState> edge : edges) {
                     outVertices.add(edge.getTo());
                     Set<int[]> outputSetForInputIdx = outputEdges.get(new int[]{i});
                     if (outputSetForInputIdx == null) {
-                        outputSetForInputIdx = new TreeSet<>();
+                        outputSetForInputIdx = new TreeSet<>(Ints.lexicographicalComparator());
                         outputEdges.put(new int[]{i}, outputSetForInputIdx);
                     }
 
@@ -337,15 +340,14 @@ public class SDGraph extends Graph<NDArrayInformation,OpState> {
             }
 
 
-            int outCounter = 0;
-            while (!noIncoming.isEmpty() && outCounter < retList.size()) {
+            while (!noIncoming.isEmpty()) {
                 int[] next = noIncoming.removeFirst();
                 retList.addAll(Ints.asList(next));
                 List<int[]> vertexOutputsTo = outputEdges.containsKey(next) ? new ArrayList<>(outputEdges.get(next)) : null;
 
                 //Remove edges next -> vertexOuputsTo[...] from graph;
                 if (vertexOutputsTo != null) {
-                    //Collections.sort(vertexOutputsTo);
+                    //fCollections.sort(vertexOutputsTo);
                     for (int[] v : vertexOutputsTo) {
                         Set<int[]> set = inputEdges.get(v);
                         if (set != null)

@@ -1549,7 +1549,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                         new CudaPointer(dimension == null ? 0 : dimension.length));
 
 
-   
+
 
         if (op.y() != null) {
             Pointer y = allocator.getPointer(op.y(), context);

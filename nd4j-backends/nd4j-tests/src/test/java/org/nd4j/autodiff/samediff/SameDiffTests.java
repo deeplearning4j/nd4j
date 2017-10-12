@@ -75,7 +75,7 @@ public class SameDiffTests {
         assertEquals(2, sameDiff.graph().numVertices());
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(arr.shape(), sigmoid.getShape());
-        assertEquals(1, sameDiff.graph().getVertexInDegree(sigmoid.getDifferentialFunction().getVertexId()));
+        assertEquals(1, sameDiff.graph().getVertexInDegree(new int[]{sigmoid.getDifferentialFunction().getVertexId()}));
         int[] sorted = new int[]{x.getArrayField().getVertexId(), sigmoid.getDifferentialFunction().getVertexId()};
         assertArrayEquals(sorted, sameDiff.graph().topologicalSort());
         assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
@@ -436,7 +436,7 @@ public class SameDiffTests {
         ints.addEdge(new Edge<>(new int[]{3},new int[]{2},0,true));
 
         assertEquals(2,ints.getEdgesOut(new int[]{1}).size());
-        assertEquals(2,ints.getIncomingEdges().get(3).size());
+        assertEquals(2,ints.getIncomingEdges().get(new int[]{3}).size());
     }
 
 

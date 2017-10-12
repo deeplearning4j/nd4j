@@ -79,14 +79,17 @@ public interface IGraph<V, E> {
      * @param vertex Index of the vertex
      * @return list of vertices that the specified vertex is connected to
      */
-    List<Vertex<V>> getConnectedVertices(int vertex);
+    List<Vertex<V>> getConnectedVertices(int[] vertex);
 
     /**Return an array of indexes of vertices that the specified vertex is connected to.<br>
      * Specifically, for undirected graphs return int[] of all X.vertexID() such that (vertex -- X) exists<br>
      * For directed graphs, return int[] of all X.vertexID() such that (vertex -> X) exists
      * @param vertex index of the vertex
      * @return list of vertices that the specified vertex is connected to
-     * @see #getConnectedVertices(int)
+     * @see #getConnectedVertices(int[])
      */
     int[] getConnectedVertexIndices(int[] vertex);
+
+
+    boolean isFrozen();
 }
