@@ -154,6 +154,12 @@ public class TensorFlowImportTest {
     }
 
     @Test
+    public void testIntermediate2() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/max_lstm.pb").getFile());
+    }
+
+    @Test
     public void testDefaultArgs() {
         val op = Nd4j.getOpFactory().getOpByName("relu");
 
