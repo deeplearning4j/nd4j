@@ -54,7 +54,7 @@ public class Conv3D extends DynamicCustomOp {
 
     }
 
-  /*  @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execBuilder")
     public Conv3D(INDArray[] inputs, INDArray[] outputs, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
         super(null,inputs,outputs);
         this.dT = dT;
@@ -71,7 +71,7 @@ public class Conv3D extends DynamicCustomOp {
         this.aH = aH;
         this.biasUsed = biasUsed;
         addArgs();
-    }*/
+    }
 
     private void addArgs() {
         getIArguments().add(dT);

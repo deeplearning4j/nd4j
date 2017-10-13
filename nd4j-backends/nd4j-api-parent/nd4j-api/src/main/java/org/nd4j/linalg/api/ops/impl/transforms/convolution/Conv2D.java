@@ -38,7 +38,7 @@ public class Conv2D extends DynamicCustomOp {
 
     }
 
-   /* @Builder(builderMethodName = "execBuilder")
+    @Builder(builderMethodName = "execBuilder")
     public Conv2D(INDArray[] inputArrays, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
         super(null,inputArrays,outputs);
         this.kh = kh;
@@ -51,7 +51,7 @@ public class Conv2D extends DynamicCustomOp {
         this.dw = dw;
         this.isSameMode = isSameMode;
         addArgs();
-    }*/
+    }
 
     public Conv2D() {}
 
