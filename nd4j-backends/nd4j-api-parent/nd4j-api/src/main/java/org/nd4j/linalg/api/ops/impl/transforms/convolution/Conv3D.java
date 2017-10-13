@@ -35,8 +35,8 @@ public class Conv3D extends DynamicCustomOp {
     public Conv3D() {}
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Conv3D(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
-        super(null,sameDiff, inputs, inPlace);
+    public Conv3D(SameDiff sameDiff, DifferentialFunction[] inputFunctions,boolean inPlace, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
+        super(null,sameDiff, inputFunctions, inPlace);
         this.dT = dT;
         this.dW = dW;
         this.dH = dH;
@@ -54,7 +54,7 @@ public class Conv3D extends DynamicCustomOp {
 
     }
 
-    @Builder(builderMethodName = "execBuilder")
+  /*  @Builder(builderMethodName = "execBuilder")
     public Conv3D(INDArray[] inputs, INDArray[] outputs, int dT, int dW, int dH, int pT, int pW, int pH, int dilationT, int dilationW, int dilationH, int aT, int aW, int aH, boolean biasUsed) {
         super(null,inputs,outputs);
         this.dT = dT;
@@ -71,7 +71,7 @@ public class Conv3D extends DynamicCustomOp {
         this.aH = aH;
         this.biasUsed = biasUsed;
         addArgs();
-    }
+    }*/
 
     private void addArgs() {
         getIArguments().add(dT);

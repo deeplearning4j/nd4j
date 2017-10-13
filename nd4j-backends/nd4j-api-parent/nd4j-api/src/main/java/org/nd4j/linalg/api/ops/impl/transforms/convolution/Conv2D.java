@@ -23,24 +23,8 @@ public class Conv2D extends DynamicCustomOp {
     private boolean isSameMode;
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Conv2D(SameDiff sameDiff, DifferentialFunction[] inputs, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
-        super(null,sameDiff, inputs, inPlace);
-             this.kh = kh;
-        this.kw = kw;
-        this.sy = sy;
-        this.sx = sx;
-        this.ph = ph;
-        this.pw = pw;
-        this.dh = dh;
-        this.dw = dw;
-        this.isSameMode = isSameMode;
-        addArgs();
-
-    }
-
-    @Builder(builderMethodName = "execBuilder")
-    public Conv2D(INDArray[] inputs, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
-        super(null,inputs,outputs);
+    public Conv2D(SameDiff sameDiff, DifferentialFunction[] inputFunctions, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
+        super(null,sameDiff, inputFunctions, inPlace);
         this.kh = kh;
         this.kw = kw;
         this.sy = sy;
@@ -51,7 +35,23 @@ public class Conv2D extends DynamicCustomOp {
         this.dw = dw;
         this.isSameMode = isSameMode;
         addArgs();
+
     }
+
+   /* @Builder(builderMethodName = "execBuilder")
+    public Conv2D(INDArray[] inputArrays, INDArray[] outputs, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
+        super(null,inputArrays,outputs);
+        this.kh = kh;
+        this.kw = kw;
+        this.sy = sy;
+        this.sx = sx;
+        this.ph = ph;
+        this.pw = pw;
+        this.dh = dh;
+        this.dw = dw;
+        this.isSameMode = isSameMode;
+        addArgs();
+    }*/
 
     public Conv2D() {}
 

@@ -21,6 +21,10 @@ import org.nd4j.linalg.api.memory.enums.AllocationPolicy;
 import org.nd4j.linalg.api.memory.enums.LearningPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
+import org.nd4j.linalg.api.ops.impl.transforms.convolution.Conv2D;
+import org.nd4j.linalg.api.ops.impl.transforms.convolution.Conv3D;
+import org.nd4j.linalg.api.ops.impl.transforms.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.api.ops.impl.transforms.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
@@ -328,6 +332,9 @@ public class SameDiff {
     }
 
 
+
+
+
     /**
      * The set of defined function names
      * @return
@@ -409,6 +416,12 @@ public class SameDiff {
     }
 
 
+    /**
+     * Generates a set of strings
+     * based on int vertex ids
+     * @param vertexIds
+     * @return
+     */
     public String[] generateVertexIds(int...vertexIds) {
         String[] ret = new String[vertexIds.length];
         for(int i = 0; i < ret.length; i++)
@@ -709,6 +722,88 @@ public class SameDiff {
     }
 
 
+    /**
+     * Conv2d operation.
+     * @param inputs  the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable conv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        Conv2D conv2D = Conv2D.sameDiffBuilder()
+                .dh(conv2DConfig.getDh())
+                .dw(conv2DConfig.getDw())
+                .kh(conv2DConfig.getKh())
+                .kw(conv2DConfig.getKw())
+                .isSameMode(conv2DConfig.isSameMode())
+                .ph(conv2DConfig.getPh())
+                .pw(conv2DConfig.getPw())
+                .sx(conv2DConfig.getSx())
+                .sy(conv2DConfig.getSy())
+                .inputFunctions(getInputs(inputs))
+                .build();
+
+        SDVariable ret = SDVariable.builder()
+                .differentialFunction(conv2D)
+                .sameDiff(this)
+                .varName(conv2D.opName() + "(" + createName(inputs) + ")")
+                .build();
+        return ret;
+    }
+
+
+    /**
+     * Conv2d operation.
+     * @param inputs  the inputs to conv2d
+     * @param conv3DConfig the configuration
+     * @return
+     */
+    public SDVariable conv3d(SDVariable[] inputs, Conv3DConfig conv3DConfig) {
+        Conv3D conv3D = Conv3D.sameDiffBuilder()
+              .aH(conv3DConfig.getAH())
+                .aT(conv3DConfig.getAT())
+                .aW(conv3DConfig.getAW())
+                .biasUsed(conv3DConfig.isBiasUsed())
+                .dH(conv3DConfig.getDH())
+                .dW(conv3DConfig.getDW())
+                .pH(conv3DConfig.getPH())
+                .pW(conv3DConfig.getPW())
+                .pT(conv3DConfig.getPT())
+                .dilationH(conv3DConfig.getDilationH())
+                .dilationT(conv3DConfig.getDilationT())
+                .dilationW(conv3DConfig.getDilationW())
+                .inputFunctions(getInputs(inputs))
+                .build();
+
+        SDVariable ret = SDVariable.builder()
+                .differentialFunction(conv3D)
+                .sameDiff(this)
+                .varName(conv3D.opName() + "(" + createName(inputs) + ")")
+                .build();
+        return ret;
+    }
+
+
+    public DifferentialFunction[] getInputs(SDVariable...inputs) {
+        DifferentialFunction[] ret = new DifferentialFunction[inputs.length];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = inputs[i].getDifferentialFunction() != null ? inputs[i].getDifferentialFunction()
+                    : inputs[i].getArrayField();
+        }
+
+        return ret;
+    }
+
+    public String createName(SDVariable...inputs) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int i = 0; i < inputs.length; i++) {
+            stringBuilder.append(inputs[i].getVarName());
+            if(i < inputs.length - 1)
+                stringBuilder.append(",");
+        }
+
+        return stringBuilder.toString();
+    }
+
 
     /**
      *
@@ -725,7 +820,7 @@ public class SameDiff {
      * Returns the ndarrays
      * allocated for a given
      * {@link NDArrayInformation}
-     * @param info the informaton to get the array for
+     * @param info the information to get the array for
      * @return
      */
     public INDArray getNDArray(NDArrayInformation info) {
