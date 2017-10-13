@@ -3,17 +3,11 @@ package org.nd4j.autodiff.opstate;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.*;
-import org.nd4j.linalg.api.ops.aggregates.Aggregate;
-import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.api.ops.Op;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Describes the type of
@@ -38,10 +32,9 @@ public class OpState implements Serializable {
     private NDArrayInformation[] results;
     //function handle mainly used for autodiff invocation
     private DifferentialFunction differentialFunction;
-    private ArrayField arrayField;
     private boolean inPlace;
 
-     OpState(long n, Op.Type opType, String opName, int opNum, Number scalarValue, String[] vertexIds, String id, int[] axes, Object[] extraArgs, int[] extraBits, Object[] extraArgsWithoutInPlace, NDArrayInformation[] results, DifferentialFunction differentialFunction, ArrayField arrayField, boolean inPlace) {
+     OpState(long n, Op.Type opType, String opName, int opNum, Number scalarValue, String[] vertexIds, String id, int[] axes, Object[] extraArgs, int[] extraBits, Object[] extraArgsWithoutInPlace, NDArrayInformation[] results, DifferentialFunction differentialFunction, boolean inPlace) {
         this.n = n;
         this.opType = opType;
         this.opName = opName;
@@ -55,7 +48,6 @@ public class OpState implements Serializable {
         this.extraArgsWithoutInPlace = extraArgsWithoutInPlace;
         this.results = results;
         this.differentialFunction = differentialFunction;
-        this.arrayField = arrayField;
         this.inPlace = inPlace;
     }
 

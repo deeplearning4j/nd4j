@@ -2,10 +2,8 @@ package org.nd4j.linalg.api.ops;
 
 import com.google.common.primitives.Ints;
 import lombok.Getter;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.ArrayField;
-import org.nd4j.autodiff.functions.Differential;
+import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
@@ -157,11 +155,6 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public ArrayField doGetValue() {
-        throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
-    }
-
-    @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
         throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
     }
@@ -193,7 +186,6 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         for(DifferentialFunction input : args()) {
             validateFunctionReference(input);
             validateDifferentialFunctionGraph(input);
-            validateDifferentialFunctionsameDiff(input.getValue(true));
         }
 
 

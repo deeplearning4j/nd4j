@@ -1,7 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -10,7 +9,7 @@ import java.util.List;
 
 
 /**
- * Pooling2DDerivative operation
+ * Conv3DDerivative operation
  */
 @Slf4j
 public class Conv3DDerivative extends Conv3D {
@@ -32,11 +31,6 @@ public class Conv3DDerivative extends Conv3D {
         return "conv3d_bp";
     }
 
-
-    @Override
-    public ArrayField doGetValue() {
-        return null;
-    }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

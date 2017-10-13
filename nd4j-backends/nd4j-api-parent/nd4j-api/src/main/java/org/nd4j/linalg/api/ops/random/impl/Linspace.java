@@ -1,7 +1,6 @@
 package org.nd4j.linalg.api.ops.random.impl;
 
 import lombok.NonNull;
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.random.BaseRandomOp;
@@ -43,10 +42,7 @@ public class Linspace extends BaseRandomOp {
         return "linspace";
     }
 
-    @Override
-    public ArrayField doGetValue() {
-        throw new UnsupportedOperationException("Please use sameDiff.var(varName,Nd4j.linspace(..)) instead. Array creation routines are not operations executed in a graph.");
-    }
+
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

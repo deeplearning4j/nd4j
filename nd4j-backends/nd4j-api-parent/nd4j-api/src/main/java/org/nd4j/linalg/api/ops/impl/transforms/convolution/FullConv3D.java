@@ -2,7 +2,6 @@ package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -85,13 +84,6 @@ public class FullConv3D extends DynamicCustomOp {
         return "fullconv3d";
     }
 
-
-
-
-    @Override
-    public ArrayField doGetValue() {
-        return null;
-    }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

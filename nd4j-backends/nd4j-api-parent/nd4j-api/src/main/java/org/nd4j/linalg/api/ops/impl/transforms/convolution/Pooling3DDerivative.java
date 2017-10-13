@@ -2,7 +2,6 @@ package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -11,7 +10,7 @@ import java.util.List;
 
 
 /**
- * Pooling2DDerivative operation
+ * Pooling3DDerivative operation
  */
 @Slf4j
 public class Pooling3DDerivative extends Pooling3D {
@@ -33,10 +32,6 @@ public class Pooling3DDerivative extends Pooling3D {
     @Override
     public String opName() {
         return "pooling3d_bp";
-    }
-    @Override
-    public ArrayField doGetValue() {
-        return null;
     }
 
     @Override
