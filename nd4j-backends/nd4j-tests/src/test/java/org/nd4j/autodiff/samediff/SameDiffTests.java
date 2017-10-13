@@ -12,9 +12,11 @@ import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.transforms.Sigmoid;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.Variable;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
@@ -122,6 +124,24 @@ public class SameDiffTests {
         assertEquals(2, sameDiff.graph().numVertices());
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{4, 1}, result.getArr().shape());
+
+    }
+
+
+    @Test
+    public void testDynamicOp() {
+        SameDiff sameDiff = SameDiff.create();
+        DynamicCustomOp dynamicCustomOp = DynamicCustomOp.
+                sameDiffBuilder("testop",sameDiff)
+                .addInputs(
+                        new Variable(sameDiff,"i1",NDArrayInformation.newInfo(new int[]{2,2})),
+                        new Variable(sameDiff,"i2",NDArrayInformation.newInfo(new int[]{2,2})),
+                        new Variable(sameDiff,"i3",NDArrayInformation.newInfo(new int[]{2,2})))
+                .addOutputShape(new int[]{2,2})
+                .addOutputShape(new int[]{2,3})
+                .build();
+        assertEquals(2,dynamicCustomOp.getOutputs().length);
+
 
     }
 

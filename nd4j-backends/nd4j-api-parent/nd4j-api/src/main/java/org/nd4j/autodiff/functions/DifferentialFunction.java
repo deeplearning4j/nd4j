@@ -83,6 +83,14 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     /**
+     * Return the output functions for this differential function.
+     * @return
+     */
+    public DifferentialFunction[] outputFunctions() {
+        return new DifferentialFunction[]{this};
+    }
+
+    /**
      * Get the vertices of the outputs.
      * @return
      */
