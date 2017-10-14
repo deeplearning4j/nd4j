@@ -2,11 +2,14 @@ package org.nd4j.linalg.api.ops.impl.transforms.convolution;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
+import org.nd4j.autodiff.functions.Differential;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -87,7 +90,28 @@ public class FullConv3D extends DynamicCustomOp {
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+        List<DifferentialFunction> inputs = new ArrayList<>();
+        inputs.addAll(Arrays.asList(args()));
+        inputs.addAll(f1);
+        List<DifferentialFunction> ret = new ArrayList<>();
+        FullConv3DDerivative fullConv3DDerivative = FullConv3DDerivative.sameDiffDerivativeBuilder()
+                .aH(aH)
+                .aW(aW)
+                .aT(aT)
+                .biasUsed(biasUsed)
+                .dH(dH)
+                .dW(dW)
+                .dT(dT)
+                .dilationH(dilationH)
+                .dilationT(dilationT)
+                .dilationW(dilationW)
+                .pH(pH)
+                .pT(pT)
+                .pW(pW)
+                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .build();
+        ret.addAll(Arrays.asList(fullConv3DDerivative.getOutputFunctions()));
+        return ret;
     }
 
 }

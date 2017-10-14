@@ -36,7 +36,7 @@ public class Pooling3DDerivative extends Pooling3D {
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+        throw new UnsupportedOperationException("Unable to take derivative of derivative.");
     }
 
 }

@@ -8,6 +8,8 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -99,7 +101,27 @@ public class Conv3D extends DynamicCustomOp {
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+        List<DifferentialFunction> ret = new ArrayList<>();
+        List<DifferentialFunction> inputs = new ArrayList<>();
+        inputs.addAll(Arrays.asList(args()));
+        inputs.add(f1.get(0));
+        Conv3DDerivative conv3DDerivative = Conv3DDerivative.sameDiffDerivativeBuilder()
+                .dH(dH)
+                .dT(dT)
+                .biasUsed(biasUsed)
+                .aT(aT)
+                .aH(aH)
+                .aW(aW)
+                .dilationH(dilationH)
+                .dilationT(dilationT)
+                .dilationW(dilationW)
+                .pH(pH)
+                .pW(pW)
+                .pT(pT)
+                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .build();
+        ret.addAll(Arrays.asList(conv3DDerivative.getOutputFunctions()));
+        return ret;
     }
 
 }

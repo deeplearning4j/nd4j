@@ -6,6 +6,8 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -34,7 +36,24 @@ public class SConv2D extends Conv2D {
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+        List<DifferentialFunction> ret = new ArrayList<>();
+        List<DifferentialFunction> inputs = new ArrayList<>();
+        inputs.addAll(Arrays.asList(args()));
+        inputs.add(f1.get(0));
+        SConv2DDerivative conv2DDerivative = SConv2DDerivative.sameDiffDerivativeBuilder()
+                .dh(dh)
+                .dw(dw)
+                .isSameMode(isSameMode)
+                .kh(kh)
+                .kw(kw)
+                .ph(ph)
+                .pw(pw)
+                .sx(sx)
+                .sy(sy)
+                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .build();
+        ret.addAll(Arrays.asList(conv2DDerivative.getOutputFunctions()));
+        return ret;
     }
 
 }

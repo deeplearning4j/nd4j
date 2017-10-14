@@ -8,6 +8,8 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -19,8 +21,8 @@ import java.util.List;
 public class Conv2D extends DynamicCustomOp {
 
 
-    private int kh, kw, sy, sx, ph, pw, dh, dw;
-    private boolean isSameMode;
+    protected int kh, kw, sy, sx, ph, pw, dh, dw;
+    protected boolean isSameMode;
 
     @Builder(builderMethodName = "sameDiffBuilder")
     public Conv2D(SameDiff sameDiff, DifferentialFunction[] inputFunctions, boolean inPlace, int kh, int kw, int sy, int sx, int ph, int pw, int dh, int dw, boolean isSameMode) {
@@ -55,7 +57,7 @@ public class Conv2D extends DynamicCustomOp {
 
     public Conv2D() {}
 
-    private void addArgs() {
+    protected void addArgs() {
         getIArguments().add(kh);
         getIArguments().add(kw);
         getIArguments().add(sy);
@@ -78,7 +80,24 @@ public class Conv2D extends DynamicCustomOp {
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return null;
+        List<DifferentialFunction> ret = new ArrayList<>();
+        List<DifferentialFunction> inputs = new ArrayList<>();
+        inputs.addAll(Arrays.asList(args()));
+        inputs.add(f1.get(0));
+        Conv2DDerivative conv2DDerivative = Conv2DDerivative.sameDiffDerivativeBuilder()
+                .dh(dh)
+                .dw(dw)
+                .isSameMode(isSameMode)
+                .kh(kh)
+                .kw(kw)
+                .ph(ph)
+                .pw(pw)
+                .sx(sx)
+                .sy(sy)
+                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .build();
+        ret.addAll(Arrays.asList(conv2DDerivative.getOutputFunctions()));
+        return ret;
     }
 
 }
