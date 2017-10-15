@@ -35,7 +35,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Getter
     private NDArrayVertex[] outputs;
     @Getter
-    private DifferentialFunction[] outputFunctions;
+    protected DifferentialFunction[] outputFunctions;
     private List<int[]> outputShapes;
 
     public DynamicCustomOp() {
