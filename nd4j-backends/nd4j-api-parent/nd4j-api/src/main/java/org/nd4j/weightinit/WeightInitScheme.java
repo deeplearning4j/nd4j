@@ -21,6 +21,16 @@ public interface WeightInitScheme {
      */
     INDArray create(int[] shape,INDArray paramsView);
 
+
+
+    /**
+     * Create the array
+     * @param shape the shape of the array
+     * @return the created array
+     */
+    INDArray create(int[] shape);
+
+
     /**
      * The order of the weight init
      * @return

@@ -2,14 +2,17 @@ package org.nd4j.linalg.api.ops.impl.layers;
 
 import lombok.Builder;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseModule;
 import org.nd4j.linalg.api.ops.Module;
 import org.nd4j.linalg.api.ops.impl.accum.Mmul;
+import org.nd4j.linalg.api.ops.impl.transforms.Variable;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.weightinit.WeightInit;
 import org.nd4j.weightinit.WeightInitScheme;
 
 import java.util.ArrayList;
@@ -25,18 +28,36 @@ public class Linear extends BaseModule {
 
     private Mmul forward;
     private int nIn,nOut;
-    private WeightInitScheme weightInitScheme;
+    private WeightInitScheme weightInitScheme,biasWeightInitScheme;
 
     @Builder(builderMethodName = "execBuilder")
-    public Linear(int nIn,int nOut,WeightInitScheme weightInitScheme) {
-        super(null, new INDArray[]{Nd4j.create(nIn)},new INDArray[]{Nd4j.create()}, new ArrayList<Double>(), new ArrayList<Integer>(),new ArrayList<Module>());
+    public Linear(INDArray input,int nIn,int nOut,WeightInitScheme weightInitScheme,WeightInitScheme biasWeightInitScheme) {
+        super(null,
+                getParams(nIn,nOut,weightInitScheme,biasWeightInitScheme),
+                new INDArray[]{Nd4j.create(Shape.getMatrixMultiplyShape(input.shape(),
+                        new int[]{nOut,nIn}))},
+                new ArrayList<Double>(), new ArrayList<Integer>(),new ArrayList<Module>());
         this.weightInitScheme = weightInitScheme;
+        this.biasWeightInitScheme = biasWeightInitScheme;
+        this.nIn = nIn;
+        this.nOut = nOut;
     }
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Linear(SameDiff sameDiff, DifferentialFunction[] args, WeightInitScheme weightInitScheme) {
-        super(null, sameDiff, args, false, new ArrayList<Module>());
+    public Linear(SameDiff sameDiff,
+                  int nIn,
+                  int nOut,
+                  DifferentialFunction input,
+                  WeightInitScheme weightInitScheme,
+                  WeightInitScheme biasWeightInitScheme) {
+        super(null, sameDiff, new DifferentialFunction[]{input}, false, new ArrayList<Module>());
         this.weightInitScheme = weightInitScheme;
+        this.biasWeightInitScheme = biasWeightInitScheme;
+
+        this.args = getFunctionParams(nIn,nOut,weightInitScheme,biasWeightInitScheme);
+        this.nIn = nIn;
+        this.nOut = nOut;
+
     }
 
     @Override
@@ -54,6 +75,9 @@ public class Linear extends BaseModule {
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>();
         ret.add(Shape.getMatrixMultiplyShape(getInputArguments().get(0).shape(),getInputArguments().get(1).transpose().shape()));
+        if(biasWeightInitScheme != null) {
+            ret.add(new int[]{nOut,1});
+        }
         return ret;
     }
 
@@ -81,11 +105,43 @@ public class Linear extends BaseModule {
         }
 
         if(forward == null) {
-            forward = new Mmul(sameDiff, args()[0], args()[1],
+            forward =  new Mmul(sameDiff, args()[0], args()[1],
                     MMulTranspose.builder().transposeA(false).transposeB(true).build());
             this.outputFunctions = forward.outputFunctions();
         }
 
 
+    }
+
+    private static INDArray[] getParams(int nIn,
+                                        int nOut,
+                                        WeightInitScheme paramsScheme,
+                                        WeightInitScheme biasInitScheme) {
+        if(biasInitScheme != null) {
+            return new INDArray[] {paramsScheme.create(new int[]{nOut,nIn}),biasInitScheme.create(new int[]{nOut,1})};
+        }
+        else {
+            return new INDArray[] {paramsScheme.create(new int[]{nOut,nIn})};
+
+        }
+    }
+
+    private DifferentialFunction[] getFunctionParams(int nIn,
+                                                     int nOut,
+                                                     WeightInitScheme paramsScheme,
+                                                     WeightInitScheme biasWeightInitScheme) {
+        if(biasWeightInitScheme != null) {
+            return new DifferentialFunction[] {
+                    new Variable(sameDiff,"w", NDArrayInformation.newInfo(new int[]{nOut,nIn}
+                            ,weightInitScheme)),
+                    new Variable(sameDiff,"b", NDArrayInformation.newInfo(new int[]{nOut,1}
+                            ,biasWeightInitScheme))
+            };
+        }
+        else {
+            return new DifferentialFunction[] {
+                    new Variable(sameDiff,"w", NDArrayInformation.newInfo(new int[]{nOut,nIn}))
+            };
+        }
     }
 }

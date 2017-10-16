@@ -2,7 +2,6 @@ package org.nd4j.weightinit;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.weightinit.WeightInitScheme;
 
 import java.util.Arrays;
 
@@ -29,14 +28,20 @@ public abstract class BaseWeightInitScheme implements WeightInitScheme {
     }
 
     @Override
+    public INDArray create(int[] shape) {
+        INDArray ret = doCreate(shape,null);
+        return ret;
+    }
+
+    @Override
     public char order() {
         return order;
     }
 
     protected INDArray handleParamsView(INDArray outputArray, INDArray paramView) {
         //minor optimization when the views are the same, just return
-        if(paramView == outputArray)
-            return paramView;
+        if(paramView == null || paramView == outputArray)
+            return outputArray;
         INDArray flat = Nd4j.toFlattened(order(), outputArray);
         if (flat.length() != paramView.length())
             throw new RuntimeException("ParamView length does not match initialized weights length (view length: "
