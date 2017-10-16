@@ -7,6 +7,15 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Abstract base class for {@link Module}
+ * that handles Dynamic ops and handles nesting.
+ *
+ * This is a logical unit for defining layers
+ * very similar to pytorch's modules, or tensorflow's layers.
+ *
+ * @author Adam Gibson
+ */
 public abstract class BaseModule extends DynamicCustomOp implements Module {
     private List<Module> modules = new ArrayList<>();
 

@@ -9,6 +9,7 @@ import org.nd4j.linalg.api.ops.BaseModule;
 import org.nd4j.linalg.api.ops.Module;
 import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,15 +23,16 @@ import java.util.List;
 public class Linear extends BaseModule {
 
     private Mmul forward;
+    private int nIn,nOut;
 
     @Builder(builderMethodName = "execBuilder")
-    public Linear(INDArray[] inputs, INDArray[] outputs, List<Double> tArguments, List<Integer> iArguments, List<Module> modules) {
-        super(null, inputs, outputs, tArguments, iArguments, modules);
+    public Linear(int nIn,int nOut) {
+        super(null, new INDArray[]{Nd4j.create(nIn)},new INDArray[]{Nd4j.create()}, new ArrayList<Double>(), new ArrayList<Integer>(),new ArrayList<Module>());
     }
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Linear(SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace, List<Module> modules) {
-        super(null, sameDiff, args, inPlace, modules);
+    public Linear(SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+        super(null, sameDiff, args, inPlace, new ArrayList<Module>());
     }
 
     @Override
