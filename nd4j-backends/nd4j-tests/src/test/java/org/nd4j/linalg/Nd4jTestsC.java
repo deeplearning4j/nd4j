@@ -202,6 +202,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
     }
 
     @Test
+    @Ignore //temporary till libnd4j implements general broadcasting
     public void testAutoBroadcastAdd() {
         INDArray left = Nd4j.linspace(1,4,4).reshape(2,1,2,1);
         INDArray right = Nd4j.linspace(1,10,10).reshape(2,1,5);
