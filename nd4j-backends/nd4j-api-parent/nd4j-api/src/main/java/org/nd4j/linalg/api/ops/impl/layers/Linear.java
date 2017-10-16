@@ -25,7 +25,6 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class Linear extends BaseModule {
-
     private DifferentialFunction forward;
     private int nIn,nOut;
     private WeightInitScheme weightInitScheme,biasWeightInitScheme;
@@ -79,6 +78,8 @@ public class Linear extends BaseModule {
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>();
         ret.add(Shape.getMatrixMultiplyShape(getInputArguments().get(0).shape(),new int[]{nOut,nIn}));
+
+        ret.add(Shape.getMatrixMultiplyShape(getInputArguments().get(0).shape(),getInputArguments().get(1).transpose().shape()));
         if(biasWeightInitScheme != null) {
             ret.add(new int[]{nOut,1});
         }
