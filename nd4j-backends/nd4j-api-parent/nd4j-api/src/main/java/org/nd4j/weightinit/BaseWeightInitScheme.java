@@ -34,6 +34,9 @@ public abstract class BaseWeightInitScheme implements WeightInitScheme {
     }
 
     protected INDArray handleParamsView(INDArray outputArray, INDArray paramView) {
+        //minor optimization when the views are the same, just return
+        if(paramView == outputArray)
+            return paramView;
         INDArray flat = Nd4j.toFlattened(order(), outputArray);
         if (flat.length() != paramView.length())
             throw new RuntimeException("ParamView length does not match initialized weights length (view length: "

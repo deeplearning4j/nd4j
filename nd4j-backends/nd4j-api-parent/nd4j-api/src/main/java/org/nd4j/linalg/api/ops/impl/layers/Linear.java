@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.ops.Module;
 import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.weightinit.WeightInitScheme;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,15 +25,18 @@ public class Linear extends BaseModule {
 
     private Mmul forward;
     private int nIn,nOut;
+    private WeightInitScheme weightInitScheme;
 
     @Builder(builderMethodName = "execBuilder")
-    public Linear(int nIn,int nOut) {
+    public Linear(int nIn,int nOut,WeightInitScheme weightInitScheme) {
         super(null, new INDArray[]{Nd4j.create(nIn)},new INDArray[]{Nd4j.create()}, new ArrayList<Double>(), new ArrayList<Integer>(),new ArrayList<Module>());
+        this.weightInitScheme = weightInitScheme;
     }
 
     @Builder(builderMethodName = "sameDiffBuilder")
-    public Linear(SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
-        super(null, sameDiff, args, inPlace, new ArrayList<Module>());
+    public Linear(SameDiff sameDiff, DifferentialFunction[] args, WeightInitScheme weightInitScheme) {
+        super(null, sameDiff, args, false, new ArrayList<Module>());
+        this.weightInitScheme = weightInitScheme;
     }
 
     @Override
