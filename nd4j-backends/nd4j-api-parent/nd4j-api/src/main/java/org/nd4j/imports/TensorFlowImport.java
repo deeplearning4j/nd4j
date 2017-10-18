@@ -331,7 +331,7 @@ public class TensorFlowImport {
                 intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
             } else {
                 nodesCnt++;
-                log.debug("Adding op [{}]", tfNode.getOp());
+                log.info("Adding op [{}]", tfNode.getOp());
                 // operation node
 
                 //NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt, 0,varInformation);
@@ -372,10 +372,11 @@ public class TensorFlowImport {
 
                     } else {
                         Integer id = reverseVertexMap.get(input);
-                        tNode.addInput(id);
 
                         if (id == null)
                             throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
+
+                        tNode.addInput(id);
                     }
                 }
 
@@ -734,7 +735,8 @@ public class TensorFlowImport {
          }
 
          if (!Nd4j.getExecutioner().getCustomOperations().containsKey(lc))
-             throw new ND4JIllegalStateException("Unknown operation requested: ["+ tfNode.getOp() +"]");
+             log.warn("Unknown op: [{}]", lc);
+             //throw new ND4JIllegalStateException("Unknown operation requested: ["+ tfNode.getOp() +"]");
 
         return opState;
     }
