@@ -148,7 +148,7 @@ public class TGraph {
                     integerArgs,
                     dimensions,
                     -1,
-                    node.getOpState().getOpType() == Op.Type.SCALAR ? node.getOpState().getScalarValue().floatValue() : 0.0f);
+                    node.getOpState().getOpType() == Op.Type.SCALAR ? node.getOpState().getScalarValue().floatValue() : 0.0f, 0, 0);
 
             flatNodes.add(flatNode);
         }
