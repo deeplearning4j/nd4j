@@ -11,7 +11,7 @@ import org.nd4j.shade.jackson.annotation.JsonProperty;
 import java.util.Arrays;
 
 /**
- * Setup and Builder for Nadam updater.
+ * Setup and DynamicCustomOpsBuilder for Nadam updater.
  * https://arxiv.org/pdf/1609.04747.pdf
  *
  * @author Andrey Spiridonov

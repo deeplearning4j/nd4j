@@ -19,15 +19,14 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.ArrayField;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseOp;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.weightinit.impl.OneInitScheme;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,16 +42,16 @@ public class Ones extends Constant {
     }
 
 
-    public Ones(SameDiff sameDiff, int[] shape) {
-        super(sameDiff,sameDiff.getArrayFactory().one(shape), shape);
+    public Ones(SameDiff sameDiff, int[] shape,int vertexId) {
+        super(sameDiff,NDArrayInformation.newInfo(shape,new OneInitScheme('f')), shape,vertexId);
     }
 
-    public Ones(SameDiff sameDiff, ArrayField i_v, int[] shape, boolean inPlace) {
-        super(sameDiff, i_v, shape, inPlace);
+    public Ones(SameDiff sameDiff, NDArrayInformation i_v, int[] shape, boolean inPlace,int vertexId) {
+        super(sameDiff, i_v, shape, inPlace,vertexId);
     }
 
-    public Ones(SameDiff sameDiff, ArrayField i_v, int[] shape) {
-        super(sameDiff, i_v, shape);
+    public Ones(SameDiff sameDiff, NDArrayInformation i_v, int[] shape,int vertexId) {
+        super(sameDiff, i_v, shape,vertexId);
     }
 
     public Ones(INDArray x, INDArray z, int[] shape) {
@@ -147,10 +146,6 @@ public class Ones extends Constant {
         return Nd4j.ones(shape);
     }
 
-    @Override
-    public ArrayField doGetValue() {
-        return a().one(shape);
-    }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

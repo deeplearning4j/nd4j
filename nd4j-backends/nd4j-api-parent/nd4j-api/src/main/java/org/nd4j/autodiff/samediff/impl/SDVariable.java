@@ -12,6 +12,7 @@ import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
@@ -92,7 +93,10 @@ public class SDVariable  implements Serializable {
 
     public INDArray getArr() {
         if(differentialFunction == null)
-            return null;
+            if(arr != null)
+                return arr;
+            else
+                return null;
         Op op = (Op) differentialFunction;
         return op.z();
     }
@@ -101,10 +105,6 @@ public class SDVariable  implements Serializable {
         if(arr == null && requireArray) {
             if(sameDiff.getVertexIdxToInfo().get(vertexId) != null)
                 this.arr = sameDiff.getNDArray(sameDiff.getVertexIdxToInfo().get(vertexId));
-            if(this.arr == null && sameDiff.getArrayFieldInstances().get(vertexId) != null) {
-                this.arr = sameDiff.getNDArray(sameDiff.getArrayFieldInstances().get(vertexId).getInput());
-
-            }
 
             if(this.arr == null && sameDiff.getFunctionInstances().get(vertexId) != null) {
                 this.arr = sameDiff.getNDArray(sameDiff.getFunctionInstances().get(vertexId).getResult());
@@ -133,7 +133,7 @@ public class SDVariable  implements Serializable {
      * @return
      */
     public SDVariable gradient() {
-       return getGradient();
+        return getGradient();
     }
 
     /**
@@ -205,9 +205,12 @@ public class SDVariable  implements Serializable {
      * @return
      */
     public NDArrayInformation getInfo() {
-        if(differentialFunction != null)
+        if(differentialFunction == null && arrayField != null)
+            return arrayField.getM_x();
+        else if(differentialFunction !=  null)
             return differentialFunction.getResult();
-        return getArrayField().getM_x().getInput();
+        else
+            throw new IllegalStateException("No ndarray found. Please set either a differential function or a variable");
     }
 
     /**
@@ -235,10 +238,10 @@ public class SDVariable  implements Serializable {
             throw new IllegalStateException("Unable to infer shape. Function is null.");
         OpState opState =  differentialFunction.getOpState();
         if(opState == null) {
-            return differentialFunction.getValue(true).getInput().getShape();
+            return differentialFunction.getResultShape();
         }
 
-        return opState.getResult().getShape();
+        return opState.getResults()[0].getShape();
 
     }
 
@@ -1002,8 +1005,8 @@ public class SDVariable  implements Serializable {
         SameDiff exec = sameDiff.dup();
         exec.defineFunction("output", new SameDiff.SameDiffFunctionDefinition() {
             @Override
-            public SDVariable define(SameDiff sameDiff, Map<String, INDArray> inputs) {
-                return SDVariable.this;
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                return new SDVariable[] { SDVariable.this};
             }
         });
 
@@ -1016,7 +1019,7 @@ public class SDVariable  implements Serializable {
 
 
     private void assertShapeEquals(SDVariable variable) {
-        if(!Arrays.equals(shape,variable.getShape()) && ArrayUtil.prod(variable.getShape()) != 1) {
+        if(!Arrays.equals(shape,variable.getShape()) && ArrayUtil.prod(variable.getShape()) != 1 && Shape.broadcastOutputShape(shape,variable.shape) == null) {
             throw new IllegalArgumentException("Input shape must be the same as this shape " + Arrays.toString(shape) + " and shape was " + Arrays.toString(variable.getShape()));
         }
     }

@@ -59,7 +59,10 @@ public interface Op {
         AGGREGATION,
         CUSTOM,
         GRADIENT,
-        SHAPE
+        SHAPE,
+        CONDITIONAL,
+        LOOP,
+        IF
     }
 
     /**
@@ -288,5 +291,17 @@ public interface Op {
      * @param extraArgs
      */
     void setExtraArgs(Object[] extraArgs);
+
+    /**
+     * Converts this op to be a {@link CustomOp}
+     * A {@link CustomOp} is a more flexible op
+     * meant for multiple inputs and outputs.
+     * The default implementation in {@link BaseOp}
+     * converts a simple op to a multi input/output operation
+     * by mapping the x and y on to inputs , the op name
+     * and the z on to outputs.
+     * @return the equivalent {@link CustomOp}
+     */
+    CustomOp toCustomOp();
 
 }
