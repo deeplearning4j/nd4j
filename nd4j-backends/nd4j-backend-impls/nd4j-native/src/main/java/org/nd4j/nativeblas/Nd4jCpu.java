@@ -6986,8 +6986,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public FloatVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
             public FloatVariable(FloatNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(FloatNDArray arrayw, @Cast("char*") String name, int id);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
             public FloatVariable(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id);
             public FloatVariable(FloatNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
@@ -7032,8 +7036,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public HalfVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
             public HalfVariable(HalfNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(HalfNDArray arrayw, @Cast("char*") String name, int id);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
             public HalfVariable(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id);
             public HalfVariable(HalfNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
@@ -7078,8 +7086,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public DoubleVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
             public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(DoubleNDArray arrayw, @Cast("char*") String name, int id);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
             public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
             private native void allocate(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id);
             public DoubleVariable(DoubleNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
@@ -7301,6 +7313,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public native void putVariable(int id, FloatVariable variable);
             public native void putVariable(int id, FloatNDArray array);
 
+
             public native void putOutputVariable(FloatVariable variable);
 
             // memory-related statistics
@@ -7353,6 +7366,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public native void putVariable(int id, HalfVariable variable);
             public native void putVariable(int id, HalfNDArray array);
 
+
             public native void putOutputVariable(HalfVariable variable);
 
             // memory-related statistics
@@ -7404,6 +7418,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public native void putVariable(@ByRef IntIntPair pair, DoubleVariable variable);
             public native void putVariable(int id, DoubleVariable variable);
             public native void putVariable(int id, DoubleNDArray array);
+
 
             public native void putOutputVariable(DoubleVariable variable);
 
@@ -11565,7 +11580,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //                                                 };
 
 // #define LOGIC_OP_IMPL(NAME)     template <typename T>
-//                                 NAME<T>::NAME() : nd4j::ops::LogicOp<T>() { };
+//                                 NAME<T>::NAME() : nd4j::ops::LogicOp<T>(#NAME) { };
 //                                 template <typename OpName>
 //                                 struct __registratorFloat_##NAME {
 //                                     __registratorFloat_##NAME() {
@@ -11949,8 +11964,10 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             private native void allocate(int numInputs, int numOutputs, @Cast("char*") BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs);
 
             // constructor for logical ops (while, scope, etc)
-            public OpDescriptor(@Cast("bool") boolean isLogic) { super((Pointer)null); allocate(isLogic); }
-            private native void allocate(@Cast("bool") boolean isLogic);
+            public OpDescriptor(@Cast("char*") String opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
+            private native void allocate(@Cast("char*") String opName, @Cast("bool") boolean isLogic);
+            public OpDescriptor(@Cast("char*") BytePointer opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
+            private native void allocate(@Cast("char*") BytePointer opName, @Cast("bool") boolean isLogic);
 
             // default destructor
 
@@ -12434,15 +12451,11 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public FloatLogicOp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public FloatLogicOp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public FloatLogicOp position(long position) {
-                return (FloatLogicOp)super.position(position);
-            }
         
-            public FloatLogicOp() { super((Pointer)null); allocate(); }
-            private native void allocate();
+            public FloatLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public FloatLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
         }
@@ -12450,15 +12463,11 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public HalfLogicOp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public HalfLogicOp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public HalfLogicOp position(long position) {
-                return (HalfLogicOp)super.position(position);
-            }
         
-            public HalfLogicOp() { super((Pointer)null); allocate(); }
-            private native void allocate();
+            public HalfLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public HalfLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
         }
@@ -12466,15 +12475,11 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public DoubleLogicOp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public DoubleLogicOp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public DoubleLogicOp position(long position) {
-                return (DoubleLogicOp)super.position(position);
-            }
         
-            public DoubleLogicOp() { super((Pointer)null); allocate(); }
-            private native void allocate();
+            public DoubleLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public DoubleLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
         }
