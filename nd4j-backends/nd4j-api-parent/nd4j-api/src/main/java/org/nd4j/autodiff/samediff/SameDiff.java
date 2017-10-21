@@ -3046,12 +3046,15 @@ public class SameDiff {
     }
 
     public interface SameDiffConditional {
+
+
         /**
-         * The inputs
-         * @param inputs
+         *
+         * @param context
+         * @param body
          * @return
          */
-        boolean eval(SameDiff context,SameDiffFunctionDefinition body, SDVariable...inputs);
+        SDVariable eval(SameDiff context,SameDiffFunctionDefinition body);
     }
 
 
@@ -3073,7 +3076,7 @@ public class SameDiff {
 
     /**
      *
-      * @param conditional
+     * @param conditional
      * @param trueBody
      * @param falseBody
      * @return
@@ -3376,12 +3379,12 @@ public class SameDiff {
                 If ifOp = (If) op;
                 String opName = ifOp.getBlockName();
                 SameDiff execBody = getFunction(opName);
-                 //evaluate the result
+                //evaluate the result
                 execBody.exec();
                 //depending on the block add the proper graph body to this for persistence
                 //and possible later processing.
                 if(ifOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
-                   ifOp.getSameDiff().getFunction(ifOp.getTrueBodyName()).invokeGraphOn(this);
+                    ifOp.getSameDiff().getFunction(ifOp.getTrueBodyName()).invokeGraphOn(this);
                 }
                 else {
                     ifOp.getSameDiff().getFunction(ifOp.getFalseBodyName()).invokeGraphOn(this);
@@ -3389,15 +3392,17 @@ public class SameDiff {
             }
             else if(op instanceof While) {
                 While whileOp = (While) op;
-                String opName = whileOp.getBlockName();
-                SameDiff execBody = getFunction(opName);
-                //evaluate the result
-                execBody.exec();
+                SameDiff execBody = whileOp.getLoopBodyExecution();
                 //depending on the block add the proper graph body to this for persistence
                 //and possible later processing.
+                //note that we need to update the graph predicate by running the execution
+                whileOp.getPredicateExecution().exec();
                 while(whileOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
+                    //run the body
                     execBody.exec();
                     whileOp.getSameDiff().getFunction(whileOp.getTrueBodyName()).invokeGraphOn(this);
+                    //update the predicate
+                    whileOp.getPredicateExecution().exec();
                 }
 
             }
