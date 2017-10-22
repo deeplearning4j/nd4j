@@ -3,6 +3,7 @@ package org.nd4j.imports;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.TextFormat;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
@@ -241,12 +242,200 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
-    protected static Pair<TScope, TScope> importWhileLoop(int startPosition, Set<String> skipList, List<NodeDef> nodes) {
+    protected static void importWhileLoop(TGraph graph, TScope scopeCondition, TScope scopeLoop, int startPosition, Set<String> skipList, List<NodeDef> nodes) {
         for (int e = startPosition; e < nodes.size(); e++) {
             //val tfNode =
         }
 
-        return null;
+        return;
+    }
+
+
+    protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, @NonNull Map<String, Integer> reverseVertexMap, int nodeId) {
+        reverseVertexMap.put(tfNode.getName(), nodeId);
+        val tNode = TNode.builder()
+                .name(tfNode.getName())
+                .id(nodeId)
+                .opName(tfNode.getOp())
+                .build();
+
+
+        for (int e = 0; e < tfNode.getInputCount(); e++) {
+            String input = tfNode.getInput(e);
+
+
+            // input taken from mult
+            if (input.startsWith("^")) {
+                log.debug("Wow");
+            } else if (input.contains(":")) {
+                val split = input.split(":");
+
+                if (split.length == 1) {
+                    Integer id = reverseVertexMap.get(split[0]);
+
+                    tNode.addInput(id);
+                } else if (split.length == 2) {
+                    Integer node = reverseVertexMap.get(split[0]);
+                    Integer idx = Integer.valueOf(split[1]);
+
+                    tNode.addInput(node, idx);
+                } else
+                    throw new RuntimeException("Unknown input passed in: [" + input + "]");
+
+            } else {
+                Integer id = reverseVertexMap.get(input);
+
+                if (id == null)
+                    throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
+
+                tNode.addInput(id);
+            }
+        }
+
+        OpState opState = getOpStateFromNodeDef(tfNode, tfNode.getInputCount(), tNode, intermediateGraph.getVariableSpace());
+        tNode.setOpState(opState);
+
+        for (val index: tNode.getInputs()) {
+            if (index.getNode() < 0)
+                continue;
+
+            val node = intermediateGraph.getNode(index.getNode());
+            node.getOutputs().add(tNode.getId());
+        }
+
+        return tNode;
+    }
+
+    protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, Integer> reverseVertexMap, int varId) {
+        val variable = new TVariable();
+        val attributes = tfNode.getAttrMap();
+        List<Integer> dimensions = new ArrayList<>();
+
+        reverseVertexMap.put(tfNode.getName(), varId);
+
+        boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
+        boolean isVar = tfNode.getOp().startsWith("VariableV");
+        boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
+
+        variable.setName(tfNode.getName());
+        variable.setId(varId);
+        variable.setPlaceholder(isPlaceholder);
+
+        int[] arrayShape = null;
+
+        if (tfNode.getName().equalsIgnoreCase("mixed4b/concat_dim")) {
+            log.debug("concat found!");
+        }
+
+        if (attributes.containsKey("dtype")) {
+            AttrValue dtype = attributes.get("dtype");
+
+            dtype.getList();
+        }
+
+        if (attributes.containsKey("shape")) {
+            AttrValue shape = attributes.get("shape");
+            int dims = shape.getShape().getDimCount();
+            if (dims > 0) {
+
+                // even vector is 2d in nd4j
+                if (dims == 1)
+                    dimensions.add(1);
+
+                for (int e = 0; e < dims; e++) {
+                    // TODO: eventually we want long shapes :(
+                    dimensions.add((int) shape.getShape().getDim(e).getSize());
+                }
+            }
+
+            arrayShape = Ints.toArray(dimensions);
+
+            variable.setShape(arrayShape);
+        }
+
+        if (attributes.containsKey("value")) {
+            // value of?
+            AttrValue value = attributes.get("value");
+
+            //DataType type = value.
+
+            TensorProto tensor = value.getTensor();
+            log.debug("Dtype: {}", tensor.getDtype());
+            if (tensor.getDtype() == DataType.DT_FLOAT || tensor.getDtype() == DataType.DT_DOUBLE) {
+
+                INDArray array = getNDArrayFromTensor(tensor);
+                variable.setShape(array.shape());
+                variable.setArray(array);
+            } else {
+                val shape = getShapeFromTensor(tensor);
+
+                assert shape != null;
+                assert shape.length > 0;
+
+                variable.setShape(shape);
+            }
+        }
+
+        if (!variable.isPlaceholder())
+            log.debug("Variable: id: {}; name: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
+        else
+            log.debug("Placeholder shape: {}", Arrays.toString(variable.getShape()));
+
+
+        return variable;
+    }
+
+    protected static void traverseList(@NonNull TGraph intermediateGraph, @NonNull List<NodeDef> tfNodesList, @NonNull Map<String, Integer> reverseVertexMap,  Set<String> skipList, AtomicInteger varsCnt, AtomicInteger nodesCnt, int offset) {
+        for (int e = offset; e < tfNodesList.size(); e++) {
+            val tfNode = tfNodesList.get(e);
+
+            if (skipList.contains(tfNode.getName().toLowerCase()))
+                continue;
+
+            boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
+            boolean isVar = tfNode.getOp().startsWith("VariableV");
+            boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
+
+            if (isConst || isVar || isPlaceholder) {
+                val variable = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
+
+                intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
+            } else {
+                int cCnt = nodesCnt.incrementAndGet();
+
+                log.info("Adding op [{}]", tfNode.getOp());
+                // operation node
+
+                if (tfNode.getOp().equalsIgnoreCase("merge"))
+                    continue;
+
+                if (tfNode.getOp().equalsIgnoreCase("enter")) {
+                /*
+                    on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
+                 */
+
+                    log.info("Adding 2 new scopes for WHILE");
+
+                    val scopeCondition = new TScope(cCnt, "someCondition");
+                    val scopeLoop = new TScope(cCnt, "scopeLoop");
+
+                    intermediateGraph.addScope(scopeCondition);
+                    intermediateGraph.addScope(scopeLoop);
+
+
+                    skipList.add(tfNode.getName());
+
+                    importWhileLoop(intermediateGraph, scopeCondition, scopeLoop, cCnt, skipList, tfNodesList);
+
+                    continue;
+                }
+
+                val tNode = importNode(intermediateGraph, tfNode, reverseVertexMap, cCnt);
+
+                log.debug("Node: {}", tNode);
+                intermediateGraph.addNode(tNode);
+            }
+        }
     }
 
     /**
@@ -259,184 +448,14 @@ public class TensorFlowImport {
 
         Map<String, Integer> reverseVertexMap = new HashMap<>();
 
-        int varsCnt = 0;
-        int nodesCnt = 0;
+        val varsCnt = new AtomicInteger(0);
+        val nodesCnt = new AtomicInteger(0);
+
         val skipCounter = new AtomicInteger(0);
         Set<String> skipList = new HashSet<>();
         val tfNodesList = tfGraph.getNodeList();
-        for (NodeDef tfNode :tfGraph.getNodeList()) {
 
-            log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
-
-            if (tfNode.getOp().equalsIgnoreCase("enter")) {
-                /*
-                    on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
-                 */
-
-                val scopeCondition = new TScope(nodesCnt++, "someCondition");
-                val scopeLoop = new TScope(nodesCnt++, "scopeLoop");
-
-                intermediateGraph.addScope(scopeCondition);
-                intermediateGraph.addScope(scopeLoop);
-
-                continue;
-            }
-
-            if (skipList.contains(tfNode.getName().toLowerCase()))
-                continue;;
-
-
-            boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
-            boolean isVar = tfNode.getOp().startsWith("VariableV");
-            boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
-
-            Map<String, AttrValue> attributes = tfNode.getAttrMap();
-
-
-
-            if (isConst || isVar || isPlaceholder) {
-                varsCnt--;
-                val variable = new TVariable();
-                List<Integer> dimensions = new ArrayList<>();
-
-                reverseVertexMap.put(tfNode.getName(), varsCnt);
-
-                variable.setName(tfNode.getName());
-                variable.setId(varsCnt);
-                variable.setPlaceholder(isPlaceholder);
-
-                int[] arrayShape = null;
-
-                if (tfNode.getName().equalsIgnoreCase("mixed4b/concat_dim")) {
-                    log.debug("concat found!");
-                }
-
-                if (attributes.containsKey("dtype")) {
-                    AttrValue dtype = attributes.get("dtype");
-
-                    dtype.getList();
-                }
-
-                if (attributes.containsKey("shape")) {
-                    AttrValue shape = attributes.get("shape");
-                    int dims = shape.getShape().getDimCount();
-                    if (dims > 0) {
-
-                        // even vector is 2d in nd4j
-                        if (dims == 1)
-                            dimensions.add(1);
-
-                        for (int e = 0; e < dims; e++) {
-                            // TODO: eventually we want long shapes :(
-                            dimensions.add((int) shape.getShape().getDim(e).getSize());
-                        }
-                    }
-
-                    arrayShape = Ints.toArray(dimensions);
-
-                    variable.setShape(arrayShape);
-                }
-
-                if (attributes.containsKey("value")) {
-                    // value of?
-                    AttrValue value = attributes.get("value");
-
-                    //DataType type = value.
-
-                    TensorProto tensor = value.getTensor();
-                    log.debug("Dtype: {}", tensor.getDtype());
-                    if (tensor.getDtype() == DataType.DT_FLOAT || tensor.getDtype() == DataType.DT_DOUBLE) {
-
-                        INDArray array = getNDArrayFromTensor(tensor);
-                        variable.setShape(array.shape());
-                        variable.setArray(array);
-                    } else {
-                        val shape = getShapeFromTensor(tensor);
-
-                        assert shape != null;
-                        assert shape.length > 0;
-
-                        variable.setShape(shape);
-                    }
-                }
-
-                //diff.addVariable(variable);
-                //graph.addVertex(vertex);
-
-                if (!variable.isPlaceholder())
-                    log.debug("Variable: id: {}; name: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
-                else
-                    log.debug("Placeholder shape: {}", Arrays.toString(variable.getShape()));
-
-                intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
-            } else {
-                nodesCnt++;
-                log.info("Adding op [{}]", tfNode.getOp());
-                // operation node
-
-                //NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt, 0,varInformation);
-                //graph.addVertex(vertex);
-
-
-//                opState.setResult(varInformation);
-
-                reverseVertexMap.put(tfNode.getName(), nodesCnt);
-                val tNode = TNode.builder()
-                        .name(tfNode.getName())
-                        .id(nodesCnt)
-                        .opName(tfNode.getOp())
-                        .build();
-
-
-                for (int e = 0; e < tfNode.getInputCount(); e++) {
-                    String input = tfNode.getInput(e);
-
-
-                    // input taken from mult
-                    if (input.startsWith("^")) {
-                        log.debug("Wow");
-                    } else if (input.contains(":")) {
-                        val split = input.split(":");
-
-                        if (split.length == 1) {
-                            Integer id = reverseVertexMap.get(split[0]);
-
-                            tNode.addInput(id);
-                        } else if (split.length == 2) {
-                            Integer node = reverseVertexMap.get(split[0]);
-                            Integer idx = Integer.valueOf(split[1]);
-
-                            tNode.addInput(node, idx);
-                        } else
-                            throw new RuntimeException("Unknown input passed in: [" + input + "]");
-
-                    } else {
-                        Integer id = reverseVertexMap.get(input);
-
-                        if (id == null)
-                            throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
-
-                        tNode.addInput(id);
-                    }
-                }
-
-                OpState opState = getOpStateFromNodeDef(tfNode, tfNode.getInputCount(), tNode, intermediateGraph.getVariableSpace());
-                tNode.setOpState(opState);
-
-                for (val index: tNode.getInputs()) {
-                    if (index.getNode() < 0)
-                        continue;
-
-                    val node = intermediateGraph.getNode(index.getNode());
-                    node.getOutputs().add(tNode.getId());
-                }
-
-                log.debug("Node: {}", tNode);
-                intermediateGraph.addNode(tNode);
-            }
-
-            skipCounter.incrementAndGet();
-        }
+        traverseList(intermediateGraph, tfNodesList, reverseVertexMap, skipList, varsCnt, nodesCnt, 0);
 
         return intermediateGraph;
     }

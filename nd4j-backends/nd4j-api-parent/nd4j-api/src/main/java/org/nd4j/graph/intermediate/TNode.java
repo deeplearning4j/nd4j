@@ -39,6 +39,13 @@ public class TNode {
     // op group basically
     private OpClass opClass;
 
+    // this value defines, if this Node belongs to some scope
+    @Builder.Default private boolean scoped = false;
+
+
+    @Builder.Default private int scopeId = 0;
+    private String scopeName;
+
     // parameters for op
     private OpState opState;
 
