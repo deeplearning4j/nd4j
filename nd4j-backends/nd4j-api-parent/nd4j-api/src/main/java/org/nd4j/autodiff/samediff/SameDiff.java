@@ -198,6 +198,8 @@ public class SameDiff {
 
             if(functionInstances.containsKey(i + 1)) {
                 DifferentialFunction function = functionInstances.get(i + 1);
+                if(function instanceof SDVariable)
+                    continue;
                 DifferentialFunction clone = sameDiff.setupFunction(cloner.deepClone(function));
                 clone.setVertexId(newVertexMap);
                 sameDiff.functionInstances.put(newVertexMap,clone);
@@ -217,6 +219,7 @@ public class SameDiff {
             SDVariable deepClone = cloner.deepCloneDontCloneInstances(
                     variable,
                     variable.getDifferentialFunction(),
+                    variable.getVertex(),
                     variable.getArr(),
                     variable.getSameDiff(),
                     variable.getInfo(),
@@ -232,9 +235,16 @@ public class SameDiff {
 
             }
 
+            if(variable.getInfo() != null)
+                deepClone.setInfo(variable.getInfo());
+
+            if(variable.getVertex() != null)
+                deepClone.setVertex((NDArrayVertex) sameDiff.graph().getVertex(newVertexMap));
+
             deepClone.setVertexId(newVertexMap);
             deepClone.setSameDiff(sameDiff);
             sameDiff.addVariable(deepClone);
+
 
 
         }
@@ -407,27 +417,19 @@ public class SameDiff {
         }
         else {
             get = function;
-            //reset the vertex id, this is out of sync
-            //with the graphh
-            if(idx >= graph().getNextVertexId()) {
-                get.setVertexId(graph().nextVertexId());
-                idx = get.resultVertexId();
-            }
-
             functionInstances.put(idx,function);
         }
 
-        if(get.getSameDiff() != this)
+        if(get.getSameDiff() != this) {
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,graph().nextVertexId(),0,get.getResult());
+            graph().addVertex(ndArrayVertex);
+            get.setVertex(ndArrayVertex);
             get.setSameDiff(this);
-        if(get.getVertex() == null || graph().getVertex(get.resultVertexId()) == null) {
-            if(graph().getVertex(get.resultVertexId()) != null)
-                get.setVertex((NDArrayVertex) graph().getVertex(get.resultVertexId()));
-            else if(graph().getVertex(get.resultVertexId()) == null){
-                NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.resultVertexId(),0,get.getResult());
-                graph().addVertex(ndArrayVertex);
-                get.setVertex((NDArrayVertex) graph().getVertex(get.resultVertexId()));
+            get.setVertexId(ndArrayVertex.vertexID());
+        }
 
-            }
+        if(!graph().getVertices().containsKey(get.getVertex().vertexID())) {
+            graph().addVertex(get.getVertex());
         }
 
         return (X) get;
@@ -3140,14 +3142,17 @@ public class SameDiff {
             //re execute to populate subgraph
             SDVariable[] ret = new SDVariable[variables.length];
             for(int i = 0; i < ret.length; i++) {
-                ret[i] = SDVariable
+                NDArrayVertex ndArrayVertex = new NDArrayVertex(sub,sub.graph().nextVertexId(),0,variables[i].getInfo());
+                ret[i] = sub.setupFunction(SDVariable
                         .builder()
+                        .ndArrayVertex(ndArrayVertex)
                         .info(variables[i].getInfo())
-                        .sameDiff(sub)
-                        .differentialFunction(sub.setupFunction(variables[i].getDifferentialFunction()))
+                        .sameDiff(sub).vertexId(ndArrayVertex.getIdx())
+                        .differentialFunction(variables[i].getDifferentialFunction() != null ?
+                                sub.setupFunction(variables[i].getDifferentialFunction()) : null)
                         .varName(variables[i].getVarName())
                         .shape(variables[i].getShape())
-                        .build();
+                        .build());
             }
 
             functionDefinition.define(sub,null, ret);

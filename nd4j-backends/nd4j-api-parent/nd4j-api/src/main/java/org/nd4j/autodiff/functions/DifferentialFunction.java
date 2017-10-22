@@ -102,8 +102,8 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public NDArrayVertex getVertex() {
-        if(vertex == null)
-            return (NDArrayVertex) sameDiff.graph().getVertex(vertexId);
+        if(vertex == null && getSameDiff().graph().getVertices().containsKey(vertexId))
+            return (NDArrayVertex) getSameDiff().graph().getVertex(vertexId);
         return vertex;
     }
 

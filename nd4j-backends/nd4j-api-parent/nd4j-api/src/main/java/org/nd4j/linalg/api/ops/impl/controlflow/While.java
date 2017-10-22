@@ -3,6 +3,8 @@ package org.nd4j.linalg.api.ops.impl.controlflow;
 import lombok.Builder;
 import lombok.Getter;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.NDArrayInformation;
+import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -53,6 +55,7 @@ public class While extends DifferentialFunction implements CustomOp {
                  SameDiff.SameDiffFunctionDefinition condition,
                  SameDiff.SameDiffFunctionDefinition trueBody) {
 
+        this.sameDiff = parent;
         this.inputVars = inputVars;
         this.predicate = predicate;
         this.trueBody = trueBody;
@@ -70,12 +73,20 @@ public class While extends DifferentialFunction implements CustomOp {
         String trueBodyName = "true-body-" + UUID.randomUUID().toString();
         this.trueBodyName = trueBodyName;
         //running define function will setup a proper same diff instance
-        parent.defineFunction(trueBodyName,trueBody);
-        parent.defineFunction(blockName,condition);
+        parent.defineFunction(trueBodyName,trueBody,inputVars);
+        parent.defineFunction(blockName,condition,inputVars);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
 
         //add an indicator of the loop to the parent
+        NDArrayVertex whileVertex = new NDArrayVertex(parent,0,0, NDArrayInformation.newInfo(new int[]{1,1}));
+        parent.graph().addVertex(whileVertex);
+
+        /**
+         * How to handle edges for while loop..
+         * we don't have an array and it's not clear
+         * what inputs to connect.
+         */
         addEdges(parent,this,opName());
     }
 
