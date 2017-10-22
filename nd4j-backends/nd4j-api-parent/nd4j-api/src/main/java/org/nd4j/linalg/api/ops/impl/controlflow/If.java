@@ -28,16 +28,19 @@ public class If extends DifferentialFunction implements CustomOp {
     @Getter
     private String blockName,falseBodyName,trueBodyName;
 
+    private SDVariable[] inputVars;
 
 
     @Builder
     public If(String blockName,
               SameDiff parent,
+              SDVariable[] inputVars,
               SameDiff.SameDiffFunctionDefinition conditionBody,
               SameDiff.SameDiffConditional predicate,
               SameDiff.SameDiffFunctionDefinition trueBody,
               SameDiff.SameDiffFunctionDefinition falseBody) {
         this.blockName = blockName;
+        this.inputVars = inputVars;
         String falseBodyName = "false-body-" + UUID.randomUUID().toString();
         String trueBodyName = "true-body-" + UUID.randomUUID().toString();
         this.trueBodyName = trueBodyName;
@@ -47,7 +50,7 @@ public class If extends DifferentialFunction implements CustomOp {
         //predicate execution reference storage
         SameDiff sameDiff = SameDiff.create();
         this.predicateBody = sameDiff;
-        this.targetBoolean = predicate.eval(sameDiff,conditionBody);
+        this.targetBoolean = predicate.eval(sameDiff,conditionBody,inputVars);
         //store a reference to both the true and false block
         this.trueBlockExecution = parent.getFunction(trueBodyName);
         this.falseBlockExecution = parent.getFunction(falseBodyName);

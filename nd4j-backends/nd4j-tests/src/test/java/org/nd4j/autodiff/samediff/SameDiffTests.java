@@ -486,6 +486,41 @@ public class SameDiffTests {
 
 
     @Test
+    public void testWhileLoop() {
+        SameDiff sameDiff = SameDiff.create();
+        sameDiff.whileStatement(new SameDiff.SameDiffConditional() {
+            @Override
+            public SDVariable eval(SameDiff context, SameDiff.SameDiffFunctionDefinition body, Variable[] inputVars) {
+                context.defineFunction("eval",body,inputVars);
+                context.getFunction("eval").invokeGraphOn(context);
+                context.allocate();
+                OpExecOrder opExecOrder = context.getGraph().getOpOrder();
+                int finalId = opExecOrder.getActions().get(opExecOrder.getActions().size() - 1).getOutputId();
+                return context.getVertexIdToVariable().get(finalId);
+            }
+        }, new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable eqResult = sameDiff.neq(variableInputs[0],variableInputs[1]);
+                return new SDVariable[]{eqResult};
+            }
+        }, new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                return new SDVariable[]{variableInputs[0],variableInputs[0]};
+            }
+        },new Variable[] {
+                Variable.builder().i_name("one").i_v(NDArrayInformation.newInfo(new int[]{1,1})).sameDiff(sameDiff).vertexId(sameDiff.graph().nextVertexId()).build(),
+                Variable.builder().i_name("two").i_v(NDArrayInformation.newInfo(new int[]{1,1})).sameDiff(sameDiff).vertexId(sameDiff.graph().nextVertexId()).build(),
+
+        });
+
+        sameDiff.exec();
+    }
+
+
+
+    @Test
     public void testAutoBroadcastAddMatrixector() {
         SameDiff sameDiff = SameDiff.create();
         INDArray arr = Nd4j.linspace(1,4,4).reshape(2,2);

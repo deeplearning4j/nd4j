@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import lombok.Data;
 import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.impl.accum.*;
 import org.nd4j.linalg.api.ops.impl.accum.distances.CosineSimilarity;
@@ -81,8 +82,14 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
 
     @Override
-    public Variable  var(String iName, NDArrayInformation iX) {
-        return sameDiff().setupFunction(new Variable(sameDiff(),iName, iX,sameDiff.graph().nextVertexId()));
+    public SDVariable var(String iName, NDArrayInformation iX) {
+        return sameDiff().setupFunction(SDVariable.builder()
+                .info(iX)
+                .shape(iX.getShape())
+                .varName(iName)
+                .sameDiff(sameDiff())
+                .vertexId(sameDiff().graph().nextVertexId())
+                .build());
     }
 
     @Override
@@ -484,7 +491,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     }
 
     @Override
-    public DifferentialFunction rollAxis(Variable  iX, int axis) {
+    public DifferentialFunction rollAxis(SDVariable iX, int axis) {
         return sameDiff().setupFunction(new RollAxis(sameDiff(),iX,axis));
     }
 

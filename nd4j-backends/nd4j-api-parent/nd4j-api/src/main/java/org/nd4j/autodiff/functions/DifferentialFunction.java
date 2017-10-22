@@ -12,7 +12,6 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
-import org.nd4j.linalg.api.ops.impl.transforms.Variable;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
 
@@ -190,17 +189,6 @@ public abstract class DifferentialFunction implements Differential {
         return sameDiff.getFunctionFactory();
     }
 
-    @Override
-    public  String getFormula(List<Variable> variables) {
-        sameDiff.getGraph().freeze();
-        String ret = doGetFormula(variables);
-        sameDiff.getGraph().unfreeze();
-        return ret;
-    }
-
-    public  String doGetFormula(List<Variable> variables) {
-        return null;
-    }
 
 
     @Override
@@ -318,6 +306,8 @@ public abstract class DifferentialFunction implements Differential {
                             String opName,
                             Op.Type opType,
                             int[] shape, Object[] extraArgs) {
+        i_v1 = sameDiff.setupFunction(i_v1);
+        i_v2 = sameDiff.setupFunction(i_v2);
         validateFunctionReference(i_v1);
         validateFunctionReference(i_v2);
 
@@ -325,17 +315,7 @@ public abstract class DifferentialFunction implements Differential {
         validateDifferentialFunctionGraph(i_v2);
 
 
-        /**
-         * getValue() generates invalid vertex ids
-         * need to look at a way of getting the proper vertex
-         * metadata
-         *
-         * Should be looking at a way to derive the vertex id
-         * for each of these equations.
-         *
-         *
-         *
-         */
+
         int v1VertexId = i_v1.resultVertexId();
         int v2VertexId = i_v2.resultVertexId();
         NDArrayInformation arrInfo = inPlace ?  i_v1.getResult() : NDArrayInformation.builder()

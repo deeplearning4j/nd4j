@@ -92,7 +92,6 @@ public class NDArrayInformation implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
 
         NDArrayInformation that = (NDArrayInformation) o;
 

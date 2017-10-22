@@ -7,7 +7,6 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
-import org.nd4j.linalg.api.ops.impl.transforms.Variable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +38,9 @@ public class While extends DifferentialFunction implements CustomOp {
     @Getter
     private String blockName,trueBodyName;
 
+    @Getter
+    private SDVariable[] inputVars;
+
 
     @Getter
     private SDVariable targetBoolean;
@@ -46,18 +48,23 @@ public class While extends DifferentialFunction implements CustomOp {
     @Builder
     public While(String blockName,
                  SameDiff parent,
+                 SDVariable[] inputVars,
                  SameDiff.SameDiffConditional predicate,
                  SameDiff.SameDiffFunctionDefinition condition,
                  SameDiff.SameDiffFunctionDefinition trueBody) {
 
+        this.inputVars = inputVars;
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
         //create a samediff sub graph for running just the execution
         //return a reference to the loop for referencing during actual execution
         SameDiff sameDiff = SameDiff.create();
+        for(int i = 0; i < inputVars.length; i++) {
+            inputVars[i] = sameDiff.setupFunction(inputVars[i]);
+        }
         //store the reference to the result array and the same diff execution instance
-        this.targetBoolean = predicate.eval(sameDiff,condition);
+        this.targetBoolean = predicate.eval(sameDiff,condition, inputVars);
         this.predicateExecution = sameDiff;
         //store references to the loop body
         String trueBodyName = "true-body-" + UUID.randomUUID().toString();

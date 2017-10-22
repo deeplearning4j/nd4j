@@ -9,11 +9,10 @@ import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.Variable;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.*;
 
@@ -234,7 +233,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         for(int i = 0; i < outputShapes.size(); i++) {
             NDArrayInformation arrInfo = createOutputInfo(outputShapes.get(i),opName,UUID.randomUUID().toString());
             int nextVertexId = sameDiff.graph().nextVertexId();
-            Variable variable = sameDiff.setupFunction(new Variable(sameDiff,opName + "-" +nextVertexId + "-" + i,arrInfo,nextVertexId));
+            SDVariable variable = sameDiff.setupFunction(SDVariable.builder()
+                    .info(arrInfo)
+                    .shape(arrInfo.getShape())
+                    .vertexId(nextVertexId)
+                    .varName(sameDiff.generateVariableName(opName,false))
+                    .build());
 
             outputVertexIds[i] = variable.getVertex().vertexID();
             resultInfo[i] = arrInfo;

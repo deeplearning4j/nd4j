@@ -120,10 +120,6 @@ public class Constant extends BaseTransformOp {
         return m_x.toString();
     }
 
-    @Override
-    public String doGetFormula(List<Variable> variables) {
-        return m_x.toString();
-    }
 
 
     @Override
