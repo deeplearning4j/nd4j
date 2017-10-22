@@ -22,6 +22,8 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.Pair;
+import org.nd4j.linalg.primitives.Triple;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.*;
 
@@ -29,6 +31,8 @@ import java.io.*;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This class provides TensorFlow graphs & models import
@@ -91,17 +95,25 @@ public class TensorFlowImport {
         Map<String, Integer> reverseVertexMap = new HashMap<>();
 
         int nodesCnt = 0;
-        for (NodeDef tfNode :tfGraph.getNodeList()) {
+        val skipPoint = new AtomicLong(0);
+        Set<String> skipList = new HashSet<>();
+        val tfNodesList = tfGraph.getNodeList();
+        for (NodeDef tfNode : tfNodesList) {
             log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
 
+            if (tfNode.getOp().equalsIgnoreCase("enter")) {
+                continue;
+            }
+
+            // if we've used forward-scan (i.e. for loops ) we can already have this node mapped
+            if (skipList.contains(tfNode.getName()))
+                continue;
 
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
             boolean isVar = tfNode.getOp().startsWith("VariableV");
             boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
 
             Map<String, AttrValue> attributes = tfNode.getAttrMap();
-
-
 
 
 
@@ -229,6 +241,14 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
+    protected static Pair<TScope, TScope> importWhileLoop(int startPosition, Set<String> skipList, List<NodeDef> nodes) {
+        for (int e = startPosition; e < nodes.size(); e++) {
+            //val tfNode =
+        }
+
+        return null;
+    }
+
     /**
      * This method returns intermediate representation from TF GraphDef instance
      *
@@ -241,9 +261,29 @@ public class TensorFlowImport {
 
         int varsCnt = 0;
         int nodesCnt = 0;
+        val skipCounter = new AtomicInteger(0);
+        Set<String> skipList = new HashSet<>();
+        val tfNodesList = tfGraph.getNodeList();
         for (NodeDef tfNode :tfGraph.getNodeList()) {
 
             log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
+
+            if (tfNode.getOp().equalsIgnoreCase("enter")) {
+                /*
+                    on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
+                 */
+
+                val scopeCondition = new TScope(nodesCnt++, "someCondition");
+                val scopeLoop = new TScope(nodesCnt++, "scopeLoop");
+
+                intermediateGraph.addScope(scopeCondition);
+                intermediateGraph.addScope(scopeLoop);
+
+                continue;
+            }
+
+            if (skipList.contains(tfNode.getName().toLowerCase()))
+                continue;;
 
 
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
@@ -395,7 +435,7 @@ public class TensorFlowImport {
                 intermediateGraph.addNode(tNode);
             }
 
-           // System.out.println();
+            skipCounter.incrementAndGet();
         }
 
         return intermediateGraph;

@@ -40,6 +40,10 @@ public class TGraph {
     // here we're storing unmapped nodes
     protected List<TNode> unmapped = new ArrayList<>();
 
+    // storage for Scopes
+    protected Map<Integer, TScope> numericScopes = new HashMap<>();
+    protected Map<String, TScope> symbolicScopes = new HashMap<>();
+
     protected void expandOnion(int layer) {
         onionMap.put(layer, new ArrayList<TNode>());
     }
@@ -61,6 +65,41 @@ public class TGraph {
         while (getTailSize() > 0) {
 
         }
+    }
+
+    /**
+     * This mehtod adds Scope to this graph
+     * @param scope
+     */
+    public void addScope(@NonNull TScope scope) {
+        numericScopes.put(scope.getId(), scope);
+        symbolicScopes.put(scope.getName(), scope);
+    }
+
+    /**
+     * This method returns Scope by symbolic name
+     *
+     * @param name
+     * @return
+     */
+    public TScope getScope(@NonNull String name) {
+        if (!symbolicScopes.containsKey(name))
+            throw new ND4JIllegalStateException("No scope with given name found: [" + name + "]");
+
+        return symbolicScopes.get(name);
+    }
+
+    /**
+     * This method returns Scope by id
+     *
+     * @param id
+     * @return
+     */
+    public TScope getScope(int id) {
+        if (!numericScopes.containsKey(id))
+            throw new ND4JIllegalStateException("No scope with given name found: [" + id + "]");
+
+        return numericScopes.get(id);
     }
 
     public TGraph provideArrayForVariable(String id, INDArray array) {
