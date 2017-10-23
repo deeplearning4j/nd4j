@@ -243,9 +243,9 @@ public class TensorFlowImport {
     }
 
     protected static TNode importWhileLoop(TGraph intermediateGraph, @NonNull Map<String, Integer> reverseVertexMap, int startPosition, Set<String> skipList, List<NodeDef> nodes, @NonNull AtomicInteger varsCnt, @NonNull AtomicInteger nodesCnt) {
-        log.info("Adding 2 new scopes for WHILE");
 
-        val scopeCondition = new TScope(nodesCnt.incrementAndGet(), "someCondition");
+
+        val scopeCondition = new TScope(nodesCnt.incrementAndGet(), "scopeCondition");
         val scopeLoop = new TScope(nodesCnt.incrementAndGet(), "scopeLoop");
 
         intermediateGraph.addScope(scopeCondition);
@@ -257,6 +257,8 @@ public class TensorFlowImport {
                 .opNum(0)
                 .build();
 
+        log.info("Adding 2 new scopes for WHILE {}", tNode.getId());
+
 
         /**
          * Plan is simple:
@@ -267,7 +269,7 @@ public class TensorFlowImport {
          * 5) PROFIT!
          */
 
-        Map<String, Integer> localReverseMap = new HashMap<>();
+        Map<String, TIndex> localReverseMap = new HashMap<>();
 
         // parsing declarations first. they all come as Enter ops
         for (; startPosition < nodes.size(); startPosition++) {
@@ -286,6 +288,7 @@ public class TensorFlowImport {
         }
 
         // now we're skipping Merge step, since we've already captured variables at Enter step
+        int mergedCnt = 0;
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -293,6 +296,10 @@ public class TensorFlowImport {
                 break;
 
             skipList.add(tfNode.getName().toLowerCase());
+
+            //localReverseMap.put(tfNode.getName().toLowerCase(), TIndex.makeOf(tNode.getId(), mergedCnt));
+            reverseVertexMap.put(tfNode.getName(), tNode.getId());
+            mergedCnt++;
         }
 
 
@@ -397,7 +404,9 @@ public class TensorFlowImport {
                 continue;
 
             val node = intermediateGraph.getNode(index.getNode());
-            node.getOutputs().add(tNode.getId());
+
+            if (node != null)
+                node.getOutputs().add(tNode.getId());
         }
 
         return tNode;

@@ -170,6 +170,24 @@ public class TensorFlowImportTest {
     public void testIntermediateLoop2() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/three_arg_while.pb.txt").getFile());
+
+        val scopeCondition = tg.getScope("scopeCondition");
+        val scopeBody = tg.getScope("scopeLoop");
+
+        val whileNode = tg.getNode(11);
+        assertEquals("while", whileNode.getOpName());
+
+        assertNotNull(scopeCondition);
+        assertNotNull(scopeBody);
+
+        // checking condition ops first
+        assertEquals(2, scopeCondition.size());
+        val firstScopedNode = scopeCondition.getNodes().get(0);
+        assertEquals(whileNode.getId(), firstScopedNode.getInputs().get(0).getNode());
+
+        assertEquals(2, scopeBody.size());
+
+
     }
 
     @Test
