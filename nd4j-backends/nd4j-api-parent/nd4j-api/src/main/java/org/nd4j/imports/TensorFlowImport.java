@@ -320,6 +320,7 @@ public class TensorFlowImport {
 
             if (isConst || isVar || isPlaceholder) {
                 val var = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
+                log.info("Adding var [{}:{}]", var.getName(), var.getId());
 
                 intermediateGraph.getVariableSpace().addVariable(var.getId(), var);
             } else {
@@ -332,7 +333,6 @@ public class TensorFlowImport {
 
                 scopeCondition.addNode(scopedNode);
             }
-
 
             skipList.add(tfNode.getName().toLowerCase());
         }

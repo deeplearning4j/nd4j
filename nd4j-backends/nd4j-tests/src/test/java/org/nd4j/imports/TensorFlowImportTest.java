@@ -183,11 +183,22 @@ public class TensorFlowImportTest {
         // checking condition ops first
         assertEquals(2, scopeCondition.size());
         val firstScopedNode = scopeCondition.getNodes().get(0);
+        val secondScopedNode = scopeCondition.getNodes().get(1);
+
+        val condConstA = tg.getVariableSpace().getVariable("while/Const");
+        val condConstB = tg.getVariableSpace().getVariable("while/Less/y");
+
+
+        assertEquals("Sum", firstScopedNode.getOpName());
         assertEquals(whileNode.getId(), firstScopedNode.getInputs().get(0).getNode());
+        assertEquals(condConstA.getId(), firstScopedNode.getInputs().get(1).getNode());
+
+        assertEquals("Less", secondScopedNode.getOpName());
+        assertEquals(2, secondScopedNode.getInputs().size());
+        assertEquals(firstScopedNode.getId(), secondScopedNode.getInputs().get(0).getNode());
+        assertEquals(condConstB.getId(), secondScopedNode.getInputs().get(1).getNode());
 
         assertEquals(2, scopeBody.size());
-
-
     }
 
     @Test
