@@ -275,8 +275,10 @@ public class TensorFlowImport {
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
-            if (!tfNode.getOp().equalsIgnoreCase("enter"))
+            if (!tfNode.getOp().equalsIgnoreCase("enter")) {
+                skipList.add(tfNode.getName().toLowerCase());
                 break;
+            }
 
             skipList.add(tfNode.getName().toLowerCase());
 
@@ -292,8 +294,10 @@ public class TensorFlowImport {
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
-            if (!tfNode.getOp().equalsIgnoreCase("merge"))
+            if (!tfNode.getOp().equalsIgnoreCase("merge")) {
+                skipList.add(tfNode.getName().toLowerCase());
                 break;
+            }
 
             skipList.add(tfNode.getName().toLowerCase());
 
@@ -309,6 +313,7 @@ public class TensorFlowImport {
 
             // we're parsing up to condition
             if (tfNode.getOp().equalsIgnoreCase("LoopCond")) {
+                skipList.add(tfNode.getName().toLowerCase());
                 startPosition++;
                 break;
             }
@@ -320,7 +325,7 @@ public class TensorFlowImport {
 
             if (isConst || isVar || isPlaceholder) {
                 val var = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
-                log.info("Adding var [{}:{}]", var.getName(), var.getId());
+                log.info("Adding condition var [{}:{}]", var.getName(), var.getId());
 
                 intermediateGraph.getVariableSpace().addVariable(var.getId(), var);
             } else {
@@ -337,18 +342,57 @@ public class TensorFlowImport {
             skipList.add(tfNode.getName().toLowerCase());
         }
 
+
+
         // time to skip some Switch calls
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
             // we're parsing up to condition
-            if (tfNode.getOp().equalsIgnoreCase("Switch")) {
-                startPosition++;
+            if (!tfNode.getOp().equalsIgnoreCase("Switch"))
                 break;
-            }
+
+            reverseVertexMap.put(tfNode.getName(), tNode.getId());
+            skipList.add(tfNode.getName().toLowerCase());
         }
 
 
+        // parsing body scope
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+
+            if (tfNode.getOp().equalsIgnoreCase("NextIteration")) {
+                break;
+            }
+
+
+            boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
+            boolean isVar = tfNode.getOp().startsWith("VariableV");
+            boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
+
+
+            if (isConst || isVar || isPlaceholder) {
+                val var = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
+                log.info("Adding body var [{}:{}]", var.getName(), var.getId());
+
+                intermediateGraph.getVariableSpace().addVariable(var.getId(), var);
+            } else {
+                log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
+
+                val scopedNode = importNode(intermediateGraph, tfNode, reverseVertexMap, nodesCnt.incrementAndGet());
+                scopedNode.setScoped(true);
+                scopedNode.setScopeId(scopeLoop.getId());
+                scopedNode.setScopeName(scopeLoop.getName());
+
+                scopeLoop.addNode(scopedNode);
+            }
+
+            skipList.add(tfNode.getName().toLowerCase());
+        }
+
+
+        log.info("-------------------------------------------");
 
         return tNode;
     }
@@ -365,7 +409,7 @@ public class TensorFlowImport {
 
 
         for (int e = 0; e < tfNode.getInputCount(); e++) {
-            String input = tfNode.getInput(e);
+            val input = tfNode.getInput(e);
 
 
             // input taken from mult
@@ -381,6 +425,12 @@ public class TensorFlowImport {
                 } else if (split.length == 2) {
                     Integer node = reverseVertexMap.get(split[0]);
                     Integer idx = Integer.valueOf(split[1]);
+
+                    if (node == null) {
+                        log.error("Can't find mapped node [{}]", input);
+                        throw new ND4JIllegalStateException("Can't find mapped node [" + input + "]");
+                    }
+
 
                     tNode.addInput(node, idx);
                 } else
@@ -505,8 +555,8 @@ public class TensorFlowImport {
             boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
 
             if (isConst || isVar || isPlaceholder) {
-                log.info("Adding var [{}]", tfNode.getName());
                 val variable = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
+                log.info("Adding var [{}:{}]", variable.getName(), variable.getId());
 
                 intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
             } else {

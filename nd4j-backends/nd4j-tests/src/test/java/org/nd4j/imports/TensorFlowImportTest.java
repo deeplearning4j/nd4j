@@ -198,7 +198,21 @@ public class TensorFlowImportTest {
         assertEquals(firstScopedNode.getId(), secondScopedNode.getInputs().get(0).getNode());
         assertEquals(condConstB.getId(), secondScopedNode.getInputs().get(1).getNode());
 
-        assertEquals(2, scopeBody.size());
+        // TODO: we probably want to get rid of identity step
+        assertEquals(5, scopeBody.size());
+
+        val loopConstA = tg.getVariableSpace().getVariable("while/add/y");
+        val loopConstB = tg.getVariableSpace().getVariable("while/add_1/y");
+
+        val bodyNode4 = scopeBody.getNodes().get(3);
+        val bodyNode5 = scopeBody.getNodes().get(4);
+
+
+        assertEquals(2, bodyNode4.getInputs().size());
+        assertEquals(loopConstA.getId(), bodyNode4.getInputs().get(1).getNode());
+
+        assertEquals(loopConstB.getId(), bodyNode5.getInputs().get(1).getNode());
+
     }
 
     @Test
