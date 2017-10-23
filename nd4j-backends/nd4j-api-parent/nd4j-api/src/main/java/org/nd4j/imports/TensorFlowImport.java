@@ -242,13 +242,35 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
-    protected static void importWhileLoop(TGraph graph, TScope scopeCondition, TScope scopeLoop, int startPosition, Set<String> skipList, List<NodeDef> nodes) {
-        for (int e = startPosition; e < nodes.size(); e++) {
-            //val tfNode =
+    protected static TNode importWhileLoop(TGraph intermediateGraph, @NonNull Map<String, Integer> reverseVertexMap, int startPosition, Set<String> skipList, List<NodeDef> nodes, @NonNull AtomicInteger varsCnt, @NonNull AtomicInteger nodesCnt) {
+        log.info("Adding 2 new scopes for WHILE");
+
+        val scopeCondition = new TScope(nodesCnt.incrementAndGet(), "someCondition");
+        val scopeLoop = new TScope(nodesCnt.incrementAndGet(), "scopeLoop");
+
+        intermediateGraph.addScope(scopeCondition);
+        intermediateGraph.addScope(scopeLoop);
+
+        val tNode = TNode.builder().id(nodesCnt.incrementAndGet())
+                .inputs(TIndex.indices(TIndex.makeOf(scopeCondition.getId()), TIndex.makeOf(scopeLoop.getId())))
+                .opName("while")
+                .opNum(0)
+                .build();
+
+
+        for (int e = startPosition + 1; e < nodes.size(); e++) {
+            val tfNode = nodes.get(e);
+            log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
+
+            skipList.add(tfNode.getName().toLowerCase());
+
+            if (tfNode.getOp().equalsIgnoreCase("exit"))
+                e = nodes.size();
         }
 
-        return;
+        return tNode;
     }
+
 
 
     protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, @NonNull Map<String, Integer> reverseVertexMap, int nodeId) {
@@ -392,6 +414,8 @@ public class TensorFlowImport {
             if (skipList.contains(tfNode.getName().toLowerCase()))
                 continue;
 
+            skipList.add(tfNode.getName().toLowerCase());
+
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
             boolean isVar = tfNode.getOp().startsWith("VariableV");
             boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
@@ -410,24 +434,11 @@ public class TensorFlowImport {
                     continue;
 
                 if (tfNode.getOp().equalsIgnoreCase("enter")) {
-                /*
-                    on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
-                 */
-
-                    log.info("Adding 2 new scopes for WHILE");
-
-                    val scopeCondition = new TScope(cCnt, "someCondition");
-                    val scopeLoop = new TScope(cCnt, "scopeLoop");
-
-                    intermediateGraph.addScope(scopeCondition);
-                    intermediateGraph.addScope(scopeLoop);
-
-
-                    skipList.add(tfNode.getName());
-
-                    importWhileLoop(intermediateGraph, scopeCondition, scopeLoop, cCnt, skipList, tfNodesList);
-
-                    // add WHILE node here
+                    /*
+                        on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
+                    */
+                    val tNode = importWhileLoop(intermediateGraph, reverseVertexMap, e, skipList, tfNodesList, varsCnt, nodesCnt);
+                    intermediateGraph.addNode(tNode);
 
                     continue;
                 }
@@ -457,6 +468,7 @@ public class TensorFlowImport {
         Set<String> skipList = new HashSet<>();
         val tfNodesList = tfGraph.getNodeList();
 
+        // we're just starting our recursive fn here
         traverseList(intermediateGraph, tfNodesList, reverseVertexMap, skipList, varsCnt, nodesCnt, 0);
 
         return intermediateGraph;

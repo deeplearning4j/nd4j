@@ -4,6 +4,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NonNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @EqualsAndHashCode
 public class TScope {
-    @Getter private List<TNode> nodes;
+    @Getter private List<TNode> nodes = new ArrayList<>();
     @Getter private int id;
     @Getter private String name;
 
