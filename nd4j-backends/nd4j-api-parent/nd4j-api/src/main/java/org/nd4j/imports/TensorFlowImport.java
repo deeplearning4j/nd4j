@@ -427,6 +427,8 @@ public class TensorFlowImport {
 
                     importWhileLoop(intermediateGraph, scopeCondition, scopeLoop, cCnt, skipList, tfNodesList);
 
+                    // add WHILE node here
+
                     continue;
                 }
 
