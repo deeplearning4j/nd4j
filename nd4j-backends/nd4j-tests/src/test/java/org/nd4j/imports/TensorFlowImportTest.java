@@ -167,6 +167,18 @@ public class TensorFlowImportTest {
     }
 
     @Test
+    public void testIntermediateLoop2() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/three_arg_while.pb.txt").getFile());
+    }
+
+    @Test
+    public void testIntermediateLoop3() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/nested_while.pb.txt").getFile());
+    }
+
+    @Test
     public void testDefaultArgs() {
         val op = Nd4j.getOpFactory().getOpByName("relu");
 

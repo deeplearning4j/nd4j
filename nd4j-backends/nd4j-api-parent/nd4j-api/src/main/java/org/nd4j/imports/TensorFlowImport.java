@@ -258,15 +258,90 @@ public class TensorFlowImport {
                 .build();
 
 
-        for (int e = startPosition + 1; e < nodes.size(); e++) {
-            val tfNode = nodes.get(e);
-            log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
+        /**
+         * Plan is simple:
+         * 1) we read all declarations of variables used within loop
+         * 2) we set up conditional scope
+         * 3) we set up body scope
+         * 4) ???
+         * 5) PROFIT!
+         */
+
+        Map<String, Integer> localReverseMap = new HashMap<>();
+
+        // parsing declarations first. they all come as Enter ops
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            if (!tfNode.getOp().equalsIgnoreCase("enter"))
+                break;
 
             skipList.add(tfNode.getName().toLowerCase());
 
-            if (tfNode.getOp().equalsIgnoreCase("exit"))
-                e = nodes.size();
+            for (int e = 0; e < tfNode.getInputCount(); e++) {
+                val input = tfNode.getInput(e);
+                val idx = reverseVertexMap.get(input);
+                log.info("Mapping [{}] to [{}]", input, idx);
+            }
         }
+
+        // now we're skipping Merge step, since we've already captured variables at Enter step
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            if (!tfNode.getOp().equalsIgnoreCase("merge"))
+                break;
+
+            skipList.add(tfNode.getName().toLowerCase());
+        }
+
+
+        // now, we're adding conditional scope
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            // we're parsing up to condition
+            if (tfNode.getOp().equalsIgnoreCase("LoopCond")) {
+                startPosition++;
+                break;
+            }
+
+            boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
+            boolean isVar = tfNode.getOp().startsWith("VariableV");
+            boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
+
+
+            if (isConst || isVar || isPlaceholder) {
+                val var = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
+
+                intermediateGraph.getVariableSpace().addVariable(var.getId(), var);
+            } else {
+                log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
+
+                val scopedNode = importNode(intermediateGraph, tfNode, reverseVertexMap, nodesCnt.incrementAndGet());
+                scopedNode.setScoped(true);
+                scopedNode.setScopeId(scopeCondition.getId());
+                scopedNode.setScopeName(scopeCondition.getName());
+
+                scopeCondition.addNode(scopedNode);
+            }
+
+
+            skipList.add(tfNode.getName().toLowerCase());
+        }
+
+        // time to skip some Switch calls
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            // we're parsing up to condition
+            if (tfNode.getOp().equalsIgnoreCase("Switch")) {
+                startPosition++;
+                break;
+            }
+        }
+
+
 
         return tNode;
     }
@@ -421,13 +496,13 @@ public class TensorFlowImport {
             boolean isPlaceholder = tfNode.getOp().startsWith("Placeholder");
 
             if (isConst || isVar || isPlaceholder) {
+                log.info("Adding var [{}]", tfNode.getName());
                 val variable = importVariable(tfNode, reverseVertexMap, varsCnt.decrementAndGet());
 
                 intermediateGraph.getVariableSpace().addVariable(variable.getId(), variable);
             } else {
                 int cCnt = nodesCnt.incrementAndGet();
 
-                log.info("Adding op [{}]", tfNode.getOp());
                 // operation node
 
                 if (tfNode.getOp().equalsIgnoreCase("merge"))
@@ -442,6 +517,8 @@ public class TensorFlowImport {
 
                     continue;
                 }
+
+                log.info("Adding op [{}]", tfNode.getOp());
 
                 val tNode = importNode(intermediateGraph, tfNode, reverseVertexMap, cCnt);
 
