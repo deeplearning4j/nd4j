@@ -61,21 +61,21 @@ public class SameDiff {
     private SDGraph graph;
     private DifferentialFunctionFactory functionFactory;
     private Map<String,SDVariable> variableMap;
-    private Map<Integer,SDVariable> vertexIdToVariable;
+    private Map<int[],SDVariable> vertexIdToVariable;
     private Map<String,INDArray> vertexToArray;
     private IdentityHashMap<INDArray,NDArrayInformation> reverseArrayLookup;
-    private Map<Integer,NDArrayInformation> vertexIdxToInfo;
+    private Map<int[],NDArrayInformation> vertexIdxToInfo;
     private MemoryWorkspace workspace;
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
-    private Map<Integer,DifferentialFunction> functionInstances;
+    private Map<int[],DifferentialFunction> functionInstances;
     private static Cloner cloner = new Cloner();
     private static Map<String,Method> opMethods;
 
 
     //debug mode variables
     private boolean debugMode;
-    private Map<Integer,Op> opsForResult;
+    private Map<int[],Op> opsForResult;
     private Map<OpExecAction,ForwardBackwardState> forwardBackwardStates;
 
     static {
@@ -141,8 +141,8 @@ public class SameDiff {
             sameDiff.graph().addVertex(info);
         }
 
-        for(Map.Entry<Integer,NDArrayInformation> informationEntry : vertexIdxToInfo.entrySet()) {
-            sameDiff.vertexIdxToInfo.put(thisVertexIdToNew.get(informationEntry.getKey()),informationEntry.getValue());
+        for(Map.Entry<int[],NDArrayInformation> informationEntry : vertexIdxToInfo.entrySet()) {
+            sameDiff.vertexIdxToInfo.put(new int[]{thisVertexIdToNew.get(informationEntry.getKey())},informationEntry.getValue());
         }
 
 
@@ -201,8 +201,8 @@ public class SameDiff {
                 if(function instanceof SDVariable)
                     continue;
                 DifferentialFunction clone = sameDiff.setupFunction(cloner.deepClone(function));
-                clone.setVertexId(newVertexMap);
-                sameDiff.functionInstances.put(newVertexMap,clone);
+                clone.setVertexId(new int[]{newVertexMap});
+                sameDiff.functionInstances.put(new int[]{newVertexMap},clone);
                 ensureSameDiffInstance(sameDiff,clone);
             }
 
@@ -241,7 +241,7 @@ public class SameDiff {
             if(variable.getVertex() != null)
                 deepClone.setVertex((NDArrayVertex) sameDiff.graph().getVertex(newVertexMap));
 
-            deepClone.setVertexId(newVertexMap);
+            deepClone.setVertexId(new int[]{newVertexMap});
             deepClone.setSameDiff(sameDiff);
             sameDiff.addVariable(deepClone);
 
@@ -404,7 +404,7 @@ public class SameDiff {
      */
     public <X extends DifferentialFunction> X setupFunction(X  function) {
         Preconditions.checkNotNull(function,"Passed in function must not be null!");
-        int idx = function.getVertexId();
+        int[] idx = function.getVertexId();
         DifferentialFunction get = null;
 
         if(functionInstances.containsKey(idx)) {
@@ -421,11 +421,24 @@ public class SameDiff {
         }
 
         if(get.getSameDiff() != this || get.getVertex() == null) {
-            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.getSameDiff() != this ? graph().nextVertexId() : idx,0,get.getResult());
+            /**
+             * Note that we generate a new id
+             * if the intended samediff instance
+             * isn't "this" samediff.
+             *
+             * Otherwise, we assume that the intended index
+             * is already being set.
+             *
+             * The reason for this is to allow for people to
+             * set the id externally.
+             *
+             * We also check if the id is zero (unset, an id can never be < 1)
+             */
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.getSameDiff() != this || idx[0] == 0 ? graph().nextVertexId() : idx[0],0,get.getResult());
             graph().addVertex(ndArrayVertex);
             get.setVertex(ndArrayVertex);
             get.setSameDiff(this);
-            get.setVertexId(ndArrayVertex.vertexID());
+            get.setVertexId(new int[]{ndArrayVertex.vertexID()});
         }
 
         if(!graph().getVertices().containsKey(get.getVertex().vertexID())) {
@@ -435,6 +448,21 @@ public class SameDiff {
         return (X) get;
     }
 
+    /**
+     * Generates a set of strings
+     * based on int vertex ids
+     * @param vertexIds
+     * @return
+     */
+    public String[] generateVertexIds(int[]...vertexIds) {
+        List<String> ret = new ArrayList<>();
+        for(int i = 0; i < vertexIds.length; i++) {
+            for(int j = 0;j < vertexIds[i].length; j++)
+                ret.add(String.valueOf(vertexIds[i][j]));
+        }
+
+        return ret.toArray(new String[ret.size()]);
+    }
 
     /**
      * Generates a set of strings
@@ -601,7 +629,7 @@ public class SameDiff {
                 if(func != null)
                     variableBuilder.shape(func.getResultShape());
 
-                variableBuilder.vertexId(i);
+                variableBuilder.vertexId(new int[]{i});
 
                 SDVariable variable = variableBuilder.build();
                 variable.setShape(func.getResultShape());
@@ -694,7 +722,7 @@ public class SameDiff {
         SDVariable ret = SDVariable.builder()
                 .sameDiff(this)
                 .info(ndArrayInformation)
-                .vertexId(ndArrayVertex.getIdx())
+                .vertexId(new int[]{ndArrayVertex.getIdx()})
                 .shape(arr.shape())
                 .varName(name)
                 .arr(arr).build();
@@ -705,7 +733,7 @@ public class SameDiff {
         reverseArrayLookup.put(arr, ndArrayInformation);
 
 
-        vertexIdxToInfo.put(ndArrayVertex.vertexID(),ndArrayInformation);
+        vertexIdxToInfo.put(new int[]{ndArrayVertex.vertexID()},ndArrayInformation);
         variableMap.put(name,ret);
         return ret;
 
@@ -3147,7 +3175,7 @@ public class SameDiff {
                         .builder()
                         .ndArrayVertex(ndArrayVertex)
                         .info(variables[i].getInfo())
-                        .sameDiff(sub).vertexId(ndArrayVertex.getIdx())
+                        .sameDiff(sub).vertexId(new int[]{ndArrayVertex.getIdx()})
                         .differentialFunction(variables[i].getDifferentialFunction() != null ?
                                 sub.setupFunction(variables[i].getDifferentialFunction()) : null)
                         .varName(variables[i].getVarName())

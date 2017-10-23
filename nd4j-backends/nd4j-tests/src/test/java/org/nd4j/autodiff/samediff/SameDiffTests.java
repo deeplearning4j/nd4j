@@ -529,6 +529,7 @@ public class SameDiffTests {
         });
 
         sameDiff.exec();
+        sameDiff.toString();
     }
 
 

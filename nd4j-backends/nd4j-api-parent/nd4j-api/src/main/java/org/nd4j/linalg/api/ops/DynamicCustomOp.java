@@ -122,8 +122,8 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public int getVertexId() {
-        return getVertex().vertexID();
+    public int[] getVertexId() {
+        return new int[] {getVertex().vertexID()};
     }
 
     @Override
@@ -236,7 +236,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             SDVariable variable = sameDiff.setupFunction(SDVariable.builder()
                     .info(arrInfo)
                     .shape(arrInfo.getShape())
-                    .vertexId(nextVertexId)
+                    .vertexId(new int[]{nextVertexId})
                     .varName(sameDiff.generateVariableName(opName,false))
                     .build());
 

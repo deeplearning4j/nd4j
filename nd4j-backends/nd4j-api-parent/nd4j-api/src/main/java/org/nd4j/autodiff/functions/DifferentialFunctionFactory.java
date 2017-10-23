@@ -77,7 +77,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     @Override
     public Constant val(NDArrayInformation iX) {
         return sameDiff().setupFunction(new Constant(sameDiff(), iX,
-                iX.getShape(),sameDiff().graph().nextVertexId()));
+                iX.getShape(),new int[]{sameDiff().graph().nextVertexId()}));
     }
 
 
@@ -88,18 +88,18 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
                 .shape(iX.getShape())
                 .varName(iName)
                 .sameDiff(sameDiff())
-                .vertexId(sameDiff().graph().nextVertexId())
+                .vertexId(new int[]{sameDiff().graph().nextVertexId()})
                 .build());
     }
 
     @Override
     public Zero zero(int[] shape) {
-        return sameDiff().setupFunction(new Zero(sameDiff(),shape,sameDiff().graph().nextVertexId()));
+        return sameDiff().setupFunction(new Zero(sameDiff(),shape,new int[]{sameDiff().graph().nextVertexId()}));
     }
 
     @Override
     public Ones one(int[] shape) {
-        return sameDiff().setupFunction(new Ones(sameDiff(),shape,sameDiff.graph().nextVertexId()));
+        return sameDiff().setupFunction(new Ones(sameDiff(),shape,new int[]{ sameDiff.graph().nextVertexId()}));
     }
 
     @Override

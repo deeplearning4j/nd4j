@@ -32,7 +32,7 @@ public abstract class DifferentialFunction implements Differential {
     protected OpState opState;
     @Getter
     @Setter
-    protected int vertexId;
+    protected int[] vertexId;
     @Setter
     protected NDArrayVertex vertex;
     @Getter
@@ -94,7 +94,12 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public NDArrayVertex[] getVertices() {
-        return new NDArrayVertex[] {getVertex()};
+        NDArrayVertex[] ret = new NDArrayVertex[vertexId.length];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = (NDArrayVertex) sameDiff.graph().getVertex(vertexId[i]);
+        }
+
+        return ret;
     }
 
     /**
@@ -102,8 +107,10 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public NDArrayVertex getVertex() {
+        if(vertexId == null || vertexId.length > 1)
+            throw new IllegalStateException("Unable to obtain signle vertex. Function has more than 1.");
         if(vertex == null && getSameDiff().graph().getVertices().containsKey(vertexId))
-            return (NDArrayVertex) getSameDiff().graph().getVertex(vertexId);
+            return (NDArrayVertex) getSameDiff().graph().getVertex(vertexId[0]);
         return vertex;
     }
 
@@ -157,7 +164,7 @@ public abstract class DifferentialFunction implements Differential {
 
 
     public List<DifferentialFunction> outputs() {
-        List<Edge<OpState>> opStates =  sameDiff.graph().getEdgesOut(new int[]{vertexId});
+        List<Edge<OpState>> opStates =  sameDiff.graph().getEdgesOut(vertexId);
         return Arrays.asList(opStates.get(0).getValue().getDifferentialFunction());
     }
 
@@ -316,15 +323,15 @@ public abstract class DifferentialFunction implements Differential {
 
 
 
-        int v1VertexId = i_v1.resultVertexId();
-        int v2VertexId = i_v2.resultVertexId();
+        int[] v1VertexId = i_v1.resultVertexId();
+        int[] v2VertexId = i_v2.resultVertexId();
         NDArrayInformation arrInfo = inPlace ?  i_v1.getResult() : NDArrayInformation.builder()
                 .arrId(UUID.randomUUID().toString())
                 .id(opName +"(" + i_v1.getResult().getId() + "," + i_v2.getResult().getId() + ")")
                 .shape(shape).build();
         //result
         if(vertex == null) {
-            vertex = (NDArrayVertex) sameDiff.graph().getVertex(vertexId);
+            vertex = (NDArrayVertex) sameDiff.graph().getVertex(vertexId[0]);
         }
 
         NDArrayVertex newVertex = new NDArrayVertex(
@@ -332,10 +339,10 @@ public abstract class DifferentialFunction implements Differential {
                 sameDiff.getGraph().nextVertexId(),
                 Math.max(i_v1   .getVertex().depth(),i_v2.getVertex().getDepth()) + 1,
                 arrInfo);
-        if(newVertex.vertexID() == v2VertexId || newVertex.vertexID() == v1VertexId)
+        if(Arrays.equals(new int[]{newVertex.vertexID()},v2VertexId) || Arrays.equals(new int[]{newVertex.vertexID()},v1VertexId))
             throw new ND4JIllegalStateException("Illegal vertex id specified in new vertex." +
                     " Perhaps a mismatched graph call? Another likely cause is applyGraph");
-        this.vertexId = newVertex.vertexID();
+        this.vertexId = new int[]  {newVertex.vertexID()};
         //add the result vertex
         sameDiff.getGraph().addVertex(newVertex);
         OpState opState,opState2;
@@ -347,14 +354,14 @@ public abstract class DifferentialFunction implements Differential {
                     Math.max(i_v1.getVertex().depth(),i_v2.getVertex().getDepth()) + 1,
                     arrInfo);
             //update vertex id
-            v2VertexId = dupVertex.vertexID();
+            v2VertexId = new int[] {dupVertex.vertexID()};
             sameDiff.getGraph().addVertex(dupVertex);
             opState = OpState.builder()
                     .opType(opType).inPlace(inPlace)
                     .differentialFunction(this)
                     .opName(opName)
                     .id(opName + "(" + dupVertex.getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
-                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,newVertex.vertexID()))
+                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,new int[]{newVertex.vertexID()}))
                     .n(ArrayUtil.prod(shape))
                     .extraArgs(extraArgs)
                     .results(new NDArrayInformation[]{arrInfo})
@@ -368,7 +375,7 @@ public abstract class DifferentialFunction implements Differential {
                     .opName(opName).inPlace(inPlace)
                     .differentialFunction(this)
                     .id(opName + "(" + i_v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
-                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,newVertex.vertexID()))
+                    .vertexIds(sameDiff.generateVertexIds(v2VertexId,new int[]{newVertex.vertexID()}))
                     .n(ArrayUtil.prod(shape))
                     .extraArgs(extraArgs)
                     .results(new NDArrayInformation[]{arrInfo})
@@ -380,7 +387,7 @@ public abstract class DifferentialFunction implements Differential {
                 .opName(opName)
                 .results(new NDArrayInformation[]{arrInfo})
                 .id(opName + "(" + i_v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
-                .vertexIds(sameDiff.generateVertexIds(v1VertexId,newVertex.vertexID()))
+                .vertexIds(sameDiff.generateVertexIds(v1VertexId,new int[]{newVertex.vertexID()}))
                 .n(ArrayUtil.prod(shape))
                 .extraArgs(extraArgs)
                 .differentialFunction(this)
@@ -389,12 +396,12 @@ public abstract class DifferentialFunction implements Differential {
 
         //add the first vertex no matter what as normal
         sameDiff.graph().addEdge(
-                new int[]{v1VertexId},
+                v1VertexId,
                 new int[]{newVertex.vertexID()},
                 opState2,true);
 
         sameDiff.graph().addEdge(
-                new int[]{v2VertexId},
+                v2VertexId,
                 new int[]{newVertex.vertexID()},
                 opState
                 ,true);
@@ -506,7 +513,7 @@ public abstract class DifferentialFunction implements Differential {
      *
      * @return
      */
-    public  int resultVertexId() {
+    public  int[] resultVertexId() {
         return vertexId;
     }
 
@@ -536,7 +543,7 @@ public abstract class DifferentialFunction implements Differential {
                 sameDiff.graph().nextVertexId(),
                 i_v1.getVertex().depth() + 1,
                 information);
-        this.vertexId = newVertex.vertexID();
+        this.vertexId = new int[] {newVertex.vertexID()};
         sameDiff.graph().addVertex(newVertex);
         Preconditions.checkArgument(sameDiff == i_v1.sameDiff,"Illegal samediff instance");
         OpState owner =  OpState.builder()
@@ -550,7 +557,7 @@ public abstract class DifferentialFunction implements Differential {
 
 
         sameDiff.getGraph().addEdge(
-                new int[]{arg().resultVertexId()},
+                arg().resultVertexId(),
                 new int[]{newVertex.vertexID()},
                 owner,
                 true);
@@ -567,7 +574,7 @@ public abstract class DifferentialFunction implements Differential {
         this.opState = owner;
 
         if(!sameDiff.getVertexIdxToInfo().containsKey(newVertex.vertexID()))
-            sameDiff.getVertexIdxToInfo().put(newVertex.vertexID(),information);
+            sameDiff.getVertexIdxToInfo().put(new int[]{newVertex.vertexID()},information);
 
         else
             throw new IllegalStateException("Found duplicate vertex information");
@@ -607,7 +614,7 @@ public abstract class DifferentialFunction implements Differential {
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (opState != null ? opState.hashCode() : 0);
-        result = 31 * result + vertexId;
+        result = 31 * result + Arrays.hashCode(vertexId);
         return result;
     }
 

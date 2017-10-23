@@ -49,6 +49,8 @@ public class While extends DifferentialFunction implements CustomOp {
     @Getter
     private SDVariable targetBoolean;
 
+    private NDArrayInformation dummyResult;
+
     @Builder
     public While(String blockName,
                  SameDiff parent,
@@ -62,7 +64,7 @@ public class While extends DifferentialFunction implements CustomOp {
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
-
+        this.dummyResult = NDArrayInformation.newInfo(new int[]{1,1});
         int[] inputEdges = new int[inputVars.length];
         int[] outputEdges = new int[inputVars.length];
         String[] opEdgeIds = new String[inputVars.length * 2];
@@ -83,7 +85,7 @@ public class While extends DifferentialFunction implements CustomOp {
                             .varName(inputVars[i].getVarName() + "-output")
                             .sameDiff(parent)
                             .info(outputInfo)
-                            .vertexId(ndArrayVertex.vertexID())
+                            .vertexId(new int[]{ndArrayVertex.vertexID()})
                             .ndArrayVertex(ndArrayVertex)
                             .build());
         }
@@ -129,10 +131,19 @@ public class While extends DifferentialFunction implements CustomOp {
 
         parent.graph().addEdge(inputEdges,outputEdges,opState,true);
 
+
     }
 
 
+    @Override
+    public int[] getResultShape() {
+        return dummyResult.getShape();
+    }
 
+    @Override
+    public NDArrayInformation getResult() {
+        return dummyResult;
+    }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
