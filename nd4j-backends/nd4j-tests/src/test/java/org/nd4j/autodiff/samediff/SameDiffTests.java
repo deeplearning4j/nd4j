@@ -514,17 +514,17 @@ public class SameDiffTests {
                 return new SDVariable[]{variableInputs[0],variableInputs[0]};
             }
         },new SDVariable[] {
-                SDVariable.builder().varName("one")
+                sameDiff.setupFunction(SDVariable.builder().varName("one")
                         .info(NDArrayInformation.newInfo(new int[]{1,1}))
                         .sameDiff(sameDiff)
                         .vertexId(sameDiff.graph().nextVertexId())
-                        .build(),
-                SDVariable.builder()
+                        .build()),
+                sameDiff.setupFunction(SDVariable.builder()
                         .varName("two")
                         .info(NDArrayInformation.newInfo(new int[]{1,1}))
                         .sameDiff(sameDiff)
                         .vertexId(sameDiff.graph().nextVertexId())
-                        .build(),
+                        .build()),
 
         });
 

@@ -5,10 +5,12 @@ import lombok.Getter;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
+import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
+import org.nd4j.linalg.api.ops.Op;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -60,12 +62,48 @@ public class While extends DifferentialFunction implements CustomOp {
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
+
+        int[] inputEdges = new int[inputVars.length];
+        int[] outputEdges = new int[inputVars.length];
+        String[] opEdgeIds = new String[inputVars.length * 2];
+        NDArrayInformation[] results = new NDArrayInformation[inputVars.length];
+        for(int i = 0; i < inputVars.length; i++) {
+            inputVars[i] = parent.setupFunction(inputVars[i]);
+            NDArrayInformation outputInfo = NDArrayInformation.newInfo(
+                    inputVars[i].getInfo().getShape()
+                    ,inputVars[i].getInfo().getWeightInitScheme());
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(parent,parent.graph().nextVertexId(),inputVars[i].depth() + 1, outputInfo);
+            inputEdges[i] = inputVars[i].getVertex().vertexID();
+            outputEdges[i] = ndArrayVertex.vertexID();
+            results[i] = outputInfo;
+            parent.graph().addVertex(ndArrayVertex);
+            parent.addVariable(
+                    SDVariable.builder()
+                            .shape(inputVars[i].getShape())
+                            .varName(inputVars[i].getVarName() + "-output")
+                            .sameDiff(parent)
+                            .info(outputInfo)
+                            .vertexId(ndArrayVertex.vertexID())
+                            .ndArrayVertex(ndArrayVertex)
+                            .build());
+        }
+
+
+        /**
+         * Setup the opstate ids
+         */
+        int opEdgeIdIdx = 0;
+        for(int i = 0; i < inputEdges.length; i++) {
+            opEdgeIds[opEdgeIdIdx++] = String.valueOf(inputEdges[i]);
+        }
+
+        for(int i = 0; i < inputEdges.length; i++) {
+            opEdgeIds[opEdgeIdIdx++] = String.valueOf(outputEdges[i]);
+        }
+
         //create a samediff sub graph for running just the execution
         //return a reference to the loop for referencing during actual execution
         SameDiff sameDiff = SameDiff.create();
-        for(int i = 0; i < inputVars.length; i++) {
-            inputVars[i] = sameDiff.setupFunction(inputVars[i]);
-        }
         //store the reference to the result array and the same diff execution instance
         this.targetBoolean = predicate.eval(sameDiff,condition, inputVars);
         this.predicateExecution = sameDiff;
@@ -75,19 +113,22 @@ public class While extends DifferentialFunction implements CustomOp {
         //running define function will setup a proper same diff instance
         parent.defineFunction(trueBodyName,trueBody,inputVars);
         parent.defineFunction(blockName,condition,inputVars);
+        parent.getSameDiffFunctionInstances().put("predicate-eval-body",sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
 
-        //add an indicator of the loop to the parent
-        NDArrayVertex whileVertex = new NDArrayVertex(parent,0,0, NDArrayInformation.newInfo(new int[]{1,1}));
-        parent.graph().addVertex(whileVertex);
+        OpState opState = OpState.builder()
+                .opName(opName())
+                .opType(Op.Type.LOOP)
+                .differentialFunction(this)
+                .inPlace(false)
+                .results(results)
+                .id(UUID.randomUUID().toString())
+                .vertexIds(opEdgeIds)
+                .build();
 
-        /**
-         * How to handle edges for while loop..
-         * we don't have an array and it's not clear
-         * what inputs to connect.
-         */
-        addEdges(parent,this,opName());
+        parent.graph().addEdge(inputEdges,outputEdges,opState,true);
+
     }
 
 

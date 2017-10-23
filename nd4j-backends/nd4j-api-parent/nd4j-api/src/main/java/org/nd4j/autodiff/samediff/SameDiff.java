@@ -420,8 +420,8 @@ public class SameDiff {
             functionInstances.put(idx,function);
         }
 
-        if(get.getSameDiff() != this) {
-            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,graph().nextVertexId(),0,get.getResult());
+        if(get.getSameDiff() != this || get.getVertex() == null) {
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.getSameDiff() != this ? graph().nextVertexId() : idx,0,get.getResult());
             graph().addVertex(ndArrayVertex);
             get.setVertex(ndArrayVertex);
             get.setSameDiff(this);
