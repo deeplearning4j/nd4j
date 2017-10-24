@@ -29,6 +29,7 @@ import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.collection.IntArrayKeyMap;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -197,7 +198,7 @@ public class SameDiff {
 
 
 
-            if(functionInstances.containsKey(i + 1)) {
+            if(functionInstances.containsKey(new int[]{i + 1})) {
                 DifferentialFunction function = functionInstances.get(new int[]{i + 1});
                 if(function instanceof SDVariable)
                     continue;
@@ -254,6 +255,20 @@ public class SameDiff {
         sameDiff.vertexToArray.putAll(vertexToArray);
         return sameDiff.variables().get(sameDiff.variables().size() - 1);
 
+    }
+
+
+    /**
+     * Get the variable for the given vertex id
+     * @param vertexId the vertex id (usually a 1 length array but can be multiple)
+     * @return the variable for this vertex
+     */
+    public SDVariable getVariableForVertexId(int[] vertexId) {
+        if(!vertexIdToVariable.containsKey(vertexId)) {
+            throw new IllegalArgumentException("No vertex id of " + Arrays.toString(vertexId) + " found!");
+        }
+
+        return vertexIdToVariable.get(vertexId);
     }
 
     /**
@@ -376,13 +391,13 @@ public class SameDiff {
         functionFactory = new DifferentialFunctionFactory(this);
         variableMap = new HashMap<>();
         vertexToArray = new HashMap<>();
-        vertexIdxToInfo = new HashMap<>();
+        vertexIdxToInfo = new IntArrayKeyMap<>();
         sameDiffFunctionDefinitionMap = new HashMap<>();
         sameDiffFunctionInstances = new HashMap<>();
-        functionInstances = new HashMap<>();
-        vertexIdToVariable = new HashMap<>();
+        functionInstances = new IntArrayKeyMap<>();
+        vertexIdToVariable = new IntArrayKeyMap<>();
         forwardBackwardStates = new HashMap<>();
-        opsForResult = new HashMap<>();
+        opsForResult = new IntArrayKeyMap<>();
         reverseArrayLookup = new IdentityHashMap<>();
     }
 
@@ -406,6 +421,8 @@ public class SameDiff {
     public <X extends DifferentialFunction> X setupFunction(X  function) {
         Preconditions.checkNotNull(function,"Passed in function must not be null!");
         int[] idx = function.getVertexId();
+        Preconditions.checkNotNull(idx,"Function must have a vertex id");
+
         DifferentialFunction get = null;
 
         if(functionInstances.containsKey(idx)) {
@@ -2936,7 +2953,7 @@ public class SameDiff {
      * @return
      */
     public DifferentialFunction createOp(Op.Type opType,
-                                 OpExecAction opExecAction) {
+                                         OpExecAction opExecAction) {
         DifferentialFunction differentialFunction = opExecAction.getOpState().getDifferentialFunction();
 
         if(differentialFunction instanceof Op) {
@@ -3414,65 +3431,73 @@ public class SameDiff {
                     whileOp.getPredicateExecution().exec();
                 }
 
+
             }
 
-            Op op = (Op) differentialFunction;
-
-            if(debugMode) {
-                opsForResult.put(opExecAction.getOutputId(),op);
-            }
-
-            ops.add(differentialFunction);
-
-            if(opExecAction.getOpState().getAxes() == null)
-                Nd4j.getExecutioner().exec(op);
-
-            else {
-                int[] axes = opExecAction.getOpState().getAxes();
-                if(differentialFunction instanceof Accumulation) {
-                    Accumulation accumulation = (Accumulation) differentialFunction;
-                    Nd4j.getExecutioner().exec(accumulation,axes);
-
-                }
-
-                else if(differentialFunction instanceof BroadcastOp) {
-                    BroadcastOp broadcastOp = (BroadcastOp) differentialFunction;
-                    Nd4j.getExecutioner().exec(broadcastOp,axes);
-                }
-                else if(differentialFunction instanceof GradientOp) {
+            else if(differentialFunction instanceof Op) {
+                Op op = (Op) differentialFunction;
+                if(opExecAction.getOpState().getAxes() == null)
                     Nd4j.getExecutioner().exec(op);
+
+                else {
+                    int[] axes = opExecAction.getOpState().getAxes();
+                    if(differentialFunction instanceof Accumulation) {
+                        Accumulation accumulation = (Accumulation) differentialFunction;
+                        Nd4j.getExecutioner().exec(accumulation,axes);
+
+                    }
+
+                    else if(differentialFunction instanceof BroadcastOp) {
+                        BroadcastOp broadcastOp = (BroadcastOp) differentialFunction;
+                        Nd4j.getExecutioner().exec(broadcastOp,axes);
+                    }
+                    else if(differentialFunction instanceof GradientOp) {
+                        Nd4j.getExecutioner().exec(op);
+                    }
+                    else if(differentialFunction instanceof IndexAccumulation) {
+                        IndexAccumulation indexAccumulation = (IndexAccumulation) differentialFunction;
+                        Nd4j.getExecutioner().exec(indexAccumulation,axes);
+
+                    }
                 }
-                else if(differentialFunction instanceof IndexAccumulation) {
-                    IndexAccumulation indexAccumulation = (IndexAccumulation) differentialFunction;
-                    Nd4j.getExecutioner().exec(indexAccumulation,axes);
+
+
+                if(debugMode) {
+                    opsForResult.put(opExecAction.getOutputId(),op);
+                }
+
+                ops.add(differentialFunction);
+
+
+                SDVariable currVariable = getVertexIdToVariable().get(opExecAction.getOutputId());
+                if(currVariable ==  null) {
+                    List<SDVariable> functions = new ArrayList<>(opExecAction.getInputsIds().length);
+                    SDVariable add = SDVariable.builder()
+                            .differentialFunction(opExecAction.getOpState().getDifferentialFunction())
+                            .sameDiff(this)
+                            .varName(!functions.isEmpty() ? generateVariableName(opExecAction.getOpState().getOpName(),true,
+                                    functions.toArray(new SDVariable[functions.size()])) : opExecAction.getOpState().getOpName() + "-" + UUID.randomUUID().toString())
+                            .arr(op.z())
+                            .shape(op.z().shape())
+                            .vertexId(opExecAction.getOutputId())
+                            .build();
+                    addVariable(add);
+                    currVariable = add;
 
                 }
+                else
+
+                    currVariable.setArr(op.z());
+                opMap.put(currVariable,differentialFunction);
+                vertexIdxToInfo.put(opExecAction.getOutputId(),opExecAction.getOutput());
+                getVertexToArray().put(opExecAction.getOutput().getArrId(),op.z());
+                getFunctionInstances().put(opExecAction.getOutputId(),opExecAction.getOpState().getDifferentialFunction());
             }
 
-            SDVariable currVariable = getVertexIdToVariable().get(opExecAction.getOutputId());
-            if(currVariable ==  null) {
-                List<SDVariable> functions = new ArrayList<>(opExecAction.getInputsIds().length);
-                SDVariable add = SDVariable.builder()
-                        .differentialFunction(opExecAction.getOpState().getDifferentialFunction())
-                        .sameDiff(this)
-                        .varName(!functions.isEmpty() ? generateVariableName(opExecAction.getOpState().getOpName(),true,
-                                functions.toArray(new SDVariable[functions.size()])) : opExecAction.getOpState().getOpName() + "-" + UUID.randomUUID().toString())
-                        .arr(op.z())
-                        .shape(op.z().shape())
-                        .vertexId(opExecAction.getOutputId())
-                        .build();
-                addVariable(add);
-                currVariable = add;
-
-            }
-            else
-
-                currVariable.setArr(op.z());
-            opMap.put(currVariable,differentialFunction);
-            vertexIdxToInfo.put(opExecAction.getOutputId(),opExecAction.getOutput());
-            getVertexToArray().put(opExecAction.getOutput().getArrId(),op.z());
-            getFunctionInstances().put(opExecAction.getOutputId(),opExecAction.getOpState().getDifferentialFunction());
         }
+
+
+
 
 
 

@@ -501,7 +501,7 @@ public class SameDiffTests {
                 context.allocate();
                 OpExecOrder opExecOrder = context.getGraph().getOpOrder();
                 int[] finalId = opExecOrder.getActions().get(opExecOrder.getActions().size() - 1).getOutputId();
-                return context.getVertexIdToVariable().get(finalId);
+                return context.getVariableForVertexId(finalId);
             }
         }, new SameDiff.SameDiffFunctionDefinition() {
             @Override
