@@ -3,15 +3,14 @@ package org.nd4j.linalg.api.ops.impl.controlflow;
 import lombok.Builder;
 import lombok.Getter;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.NDArrayInformation;
+import org.nd4j.autodiff.opstate.NDArrayVertex;
+import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
-<<<<<<< HEAD
-import org.nd4j.linalg.api.ops.impl.transforms.Variable;
-=======
 import org.nd4j.linalg.api.ops.Op;
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,12 +42,9 @@ public class While extends DifferentialFunction implements CustomOp {
     @Getter
     private String blockName,trueBodyName;
 
-<<<<<<< HEAD
-=======
     @Getter
     private SDVariable[] inputVars;
 
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
 
     @Getter
     private SDVariable targetBoolean;
@@ -58,19 +54,11 @@ public class While extends DifferentialFunction implements CustomOp {
     @Builder
     public While(String blockName,
                  SameDiff parent,
-<<<<<<< HEAD
-=======
                  SDVariable[] inputVars,
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
                  SameDiff.SameDiffConditional predicate,
                  SameDiff.SameDiffFunctionDefinition condition,
                  SameDiff.SameDiffFunctionDefinition trueBody) {
 
-<<<<<<< HEAD
-        this.predicate = predicate;
-        this.trueBody = trueBody;
-        this.blockName = blockName;
-=======
         this.sameDiff = parent;
         this.inputVars = inputVars;
         this.predicate = predicate;
@@ -115,34 +103,16 @@ public class While extends DifferentialFunction implements CustomOp {
             opEdgeIds[opEdgeIdIdx++] = String.valueOf(outputEdges[i]);
         }
 
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
         //create a samediff sub graph for running just the execution
         //return a reference to the loop for referencing during actual execution
         SameDiff sameDiff = SameDiff.create();
         //store the reference to the result array and the same diff execution instance
-<<<<<<< HEAD
-        this.targetBoolean = predicate.eval(sameDiff,condition);
-=======
         this.targetBoolean = predicate.eval(sameDiff,condition, inputVars);
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
         this.predicateExecution = sameDiff;
         //store references to the loop body
         String trueBodyName = "true-body-" + UUID.randomUUID().toString();
         this.trueBodyName = trueBodyName;
         //running define function will setup a proper same diff instance
-<<<<<<< HEAD
-        parent.defineFunction(trueBodyName,trueBody);
-        parent.defineFunction(blockName,condition);
-        //get a reference to the actual loop body
-        this.loopBodyExecution = parent.getFunction(trueBodyName);
-
-        //add an indicator of the loop to the parent
-        addEdges(parent,this,opName());
-    }
-
-
-
-=======
         parent.defineFunction(trueBodyName,trueBody,inputVars);
         parent.defineFunction(blockName,condition,inputVars);
         parent.getSameDiffFunctionInstances().put("predicate-eval-body",sameDiff);
@@ -164,6 +134,10 @@ public class While extends DifferentialFunction implements CustomOp {
 
     }
 
+    @Override
+    public NDArrayVertex getVertex() {
+        return vertex;
+    }
 
     @Override
     public int[] getResultShape() {
@@ -174,7 +148,6 @@ public class While extends DifferentialFunction implements CustomOp {
     public NDArrayInformation getResult() {
         return dummyResult;
     }
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

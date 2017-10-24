@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
+import org.nd4j.autodiff.functions.Differential;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.transforms.Constant;
@@ -197,7 +198,7 @@ public class SameDiff {
 
 
             if(functionInstances.containsKey(i + 1)) {
-                DifferentialFunction function = functionInstances.get(i + 1);
+                DifferentialFunction function = functionInstances.get(new int[]{i + 1});
                 if(function instanceof SDVariable)
                     continue;
                 DifferentialFunction clone = sameDiff.setupFunction(cloner.deepClone(function));
@@ -224,13 +225,13 @@ public class SameDiff {
                     variable.getSameDiff(),
                     variable.getInfo(),
                     variable.getShape());
-            Preconditions.checkState(thisVertexIdToNew.containsKey(variable.getVertexId()),variable.getVertexId() + " not found in mapped vertices!");
-            int newVertexMap = thisVertexIdToNew.get(variable.getVertexId());
+            Preconditions.checkState(thisVertexIdToNew.containsKey(variable.getVertexId()[0]),variable.getVertexId()[0] + " not found in mapped vertices!");
+            int newVertexMap = thisVertexIdToNew.get(variable.getVertexId()[0]);
 
             //change the vertex id to the new value
             //for the graph transition
             if(variable.getDifferentialFunction() != null) {
-                DifferentialFunction val = sameDiff.functionInstances.get(newVertexMap);
+                DifferentialFunction val = sameDiff.functionInstances.get(new int[]{newVertexMap});
                 deepClone.setDifferentialFunction(val);
 
             }
@@ -434,7 +435,7 @@ public class SameDiff {
              *
              * We also check if the id is zero (unset, an id can never be < 1)
              */
-            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.getSameDiff() != this || idx[0] == 0 ? graph().nextVertexId() : idx[0],0,get.getResult());
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(this,get.getSameDiff() != this || idx == null || idx[0] == 0 ? graph().nextVertexId() : idx[0],0,get.getResult());
             graph().addVertex(ndArrayVertex);
             get.setVertex(ndArrayVertex);
             get.setSameDiff(this);
@@ -565,12 +566,13 @@ public class SameDiff {
 
         SameDiff execPipeline = dup();
 
-        List<Op> opExecAction = execPipeline.exec().getRight();
+        List<DifferentialFunction> opExecAction = execPipeline.exec().getRight();
         if(opExecAction.isEmpty())
             throw new IllegalStateException("No ops found to execute.");
         INDArray[] ret = new INDArray[opExecAction.size()];
         for(int i = 0; i < ret.length; i++) {
-            ret[i] = opExecAction.get(i).z();
+            Op op = (Op) opExecAction.get(i);
+            ret[i] = op.z();
         }
         return ret;
     }
@@ -614,7 +616,7 @@ public class SameDiff {
 
         for (Integer i : graph().getVertices().keySet()) {
             NDArrayInformation info = graph.getInformationFor(i);
-            DifferentialFunction func = functionInstances.get(i);
+            DifferentialFunction func = functionInstances.get(new int[]{i});
 
             if(!variableMap.containsKey(info.getId())) {
 
@@ -627,12 +629,11 @@ public class SameDiff {
                     variableBuilder.differentialFunction(func);
 
                 if(func != null)
-                    variableBuilder.shape(func.getResultShape());
+                    variableBuilder.shape(info.getShape());
 
                 variableBuilder.vertexId(new int[]{i});
 
                 SDVariable variable = variableBuilder.build();
-                variable.setShape(func.getResultShape());
                 variableMap.put(info.getId(),variable);
             }
 
@@ -653,7 +654,7 @@ public class SameDiff {
                     reverseArrayLookup.put(arr,info);
                 }
                 else {
-                    INDArray newAlloc = info.getWeightInitScheme().create(func.getResultShape(),Nd4j.zeros(func.getResultShape(),info.getWeightInitScheme().order()));
+                    INDArray newAlloc = info.getWeightInitScheme().create(info.getShape(),Nd4j.zeros(info.getShape(),info.getWeightInitScheme().order()));
                     vertexToArray.put(info.getArrId(),newAlloc);
                     reverseArrayLookup.put(newAlloc,info);
                 }
@@ -2934,85 +2935,42 @@ public class SameDiff {
      * @param opExecAction
      * @return
      */
-    public Op createOp(Op.Type opType,
-                       OpExecAction opExecAction) {
-      /*  OpState opState = opExecAction.getOpState();
-        switch (opType) {
-            case GRADIENT:
-                return Nd4j.getOpFactory().createGradientOp(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction));
-            case SHAPE:
-                return Nd4j.getOpFactory().createShape(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs());
-            case SCALAR:
-                return Nd4j.getOpFactory().createScalarTransform(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs(),
-                        opState.getScalarValue().doubleValue());
-            case REDUCE3:
-            case REDUCE:
-                return Nd4j.getOpFactory().createAccum(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs());
-            case PAIRWISE:
-            case TRANSFORM:
-                return Nd4j.getOpFactory().createTransform(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs());
-            case BROADCAST:
-                return Nd4j.getOpFactory().createBroadcastOp(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs());
+    public DifferentialFunction createOp(Op.Type opType,
+                                 OpExecAction opExecAction) {
+        DifferentialFunction differentialFunction = opExecAction.getOpState().getDifferentialFunction();
 
-            case INDEXREDUCE:
-                return Nd4j.getOpFactory().createIndexAccum(
-                        opState.getOpName(),
-                        getX(opExecAction),
-                        getY(opExecAction),
-                        getZ(opExecAction),
-                        opState.getExtraArgs());
-            case AGGREGATION: break;
-        }
+        if(differentialFunction instanceof Op) {
 
-        throw new IllegalStateException("Illegal opType specified " + opType);*/
-        Op op = (Op) opExecAction.getOpState().getDifferentialFunction();
-        DifferentialFunction differentialFunction = (DifferentialFunction) op;
-        if(op instanceof ScalarOp) {
-            ScalarOp scalarOp = (ScalarOp) op;
-            scalarOp.setScalar(differentialFunction.getScalarValue());
+            if (differentialFunction instanceof ScalarOp) {
+                ScalarOp scalarOp = (ScalarOp) differentialFunction;
+                scalarOp.setScalar(differentialFunction.getScalarValue());
+
+            }
+
+
+            Op op = (Op) differentialFunction;
+            differentialFunction.fillInArrays();
+            op.setN(op.x().length());
 
         }
+        //if and while are special
+        if(differentialFunction instanceof  If || differentialFunction instanceof While) {
+            return differentialFunction;
+        }
 
-        differentialFunction.fillInArrays();
-        op.setN(op.x().length());
-        return op;
+
+
+        return differentialFunction;
     }
 
     /**
      *u
      * @return
      */
-    public INDArray execAndEndResult(List<Op> ops) {
-        List<Op> exec = exec(ops);
-        return exec.get(exec.size() - 1).z();
+    public INDArray execAndEndResult(List<DifferentialFunction> ops) {
+        List<DifferentialFunction> exec = exec(ops);
+        Op op = (Op) exec.get(exec.size() - 1);
+        return op.z();
     }
 
     /**
@@ -3020,8 +2978,9 @@ public class SameDiff {
      * @return
      */
     public INDArray execAndEndResult() {
-        List<Op> exec = exec().getRight();
-        return exec.get(exec.size() - 1).z();
+        List<DifferentialFunction> exec = exec().getRight();
+        Op op = (Op) exec.get(exec.size() - 1);
+        return op.z();
     }
 
 
@@ -3033,7 +2992,7 @@ public class SameDiff {
      * @param ops the list of already created ops
      * @return the passes in list
      */
-    public List<Op> exec(List<Op> ops) {
+    public List<DifferentialFunction> exec(List<DifferentialFunction> ops) {
         /**
          * Need to ensure op references
          * are consistent across a graph.
@@ -3051,7 +3010,7 @@ public class SameDiff {
 
 
         for(int i = 0; i < ops.size(); i++) {
-            Op op = ops.get(i);
+            Op op = (Op) ops.get(i);
             Nd4j.getExecutioner().exec(op);
         }
         return ops;
@@ -3078,16 +3037,13 @@ public class SameDiff {
          *
          * @param context
          * @param body
-<<<<<<< HEAD
          * @return
-         */
-        SDVariable eval(SameDiff context,SameDiffFunctionDefinition body);
-=======
-         * @param inputVars
+         *
+         * * @param inputVars
          * @return
          */
         SDVariable eval(SameDiff context, SameDiffFunctionDefinition body, SDVariable[] inputVars);
->>>>>>> e17d4a7036e1d8835ccf085e55dc92fa58b9539b
+
     }
 
 
@@ -3240,7 +3196,7 @@ public class SameDiff {
      *                     to invoke
      * @return
      */
-    public Pair<Map<SDVariable, Op>, List<Op>> exec(String functionName) {
+    public Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> exec(String functionName) {
         if(debugMode) {
             return sameDiffFunctionInstances.get(functionName).enableDebugMode().exec();
 
@@ -3257,7 +3213,7 @@ public class SameDiff {
      * @param cachedOps the cached operations
      * @return
      */
-    public List<Op> exec(String functionName,List<Op> cachedOps) {
+    public List<DifferentialFunction> exec(String functionName,List<DifferentialFunction> cachedOps) {
         return sameDiffFunctionInstances.get(functionName).exec(cachedOps);
     }
 
@@ -3268,7 +3224,7 @@ public class SameDiff {
      * on that graph.
      * @return
      */
-    public Pair<Map<SDVariable, Op>, List<Op>> execBackwards() {
+    public Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> execBackwards() {
         final SameDiff outer = this;
         if(getFunction("grad") == null)
             defineFunction("grad", new SameDiffFunctionDefinition() {
@@ -3379,7 +3335,7 @@ public class SameDiff {
             });
 
 
-        Pair<Map<SDVariable, Op>, List<Op>> forward = exec("grad");
+        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> forward = exec("grad");
         SameDiff grad = getFunction("grad");
         if(grad.isDebugMode()) {
             //ensure all gradients are present for all variables
@@ -3398,8 +3354,9 @@ public class SameDiff {
      * @return
      */
     public INDArray execBackwardAndEndResult() {
-        List<Op> backwards = execBackwards().getRight();
-        return backwards.get(backwards.size() - 1).z();
+        List<DifferentialFunction> backwards = execBackwards().getRight();
+        Op op = (Op) backwards.get(backwards.size() - 1);
+        return op.z();
     }
 
 
@@ -3409,12 +3366,12 @@ public class SameDiff {
      * Creates and executes a list of operations
      * @return
      */
-    public Pair<Map<SDVariable,Op>,List<Op>> exec() {
+    public Pair<Map<SDVariable,DifferentialFunction>,List<DifferentialFunction>> exec() {
         allocate();
-        List<Op> ops = new ArrayList<>();
+        List<DifferentialFunction> ops = new ArrayList<>();
         List<OpExecAction> opExecActions = graph().getOpOrder().getActions();
 
-        Map<SDVariable,Op> opMap = new HashMap<>();
+        Map<SDVariable,DifferentialFunction> opMap = new HashMap<>();
 
         boolean onBackward = false;
         for(int i = 0; i < opExecActions.size(); i++) {
@@ -3424,11 +3381,11 @@ public class SameDiff {
                 onBackward = true;
             }
 
-            Op op = createOp(
+            DifferentialFunction differentialFunction = createOp(
                     opExecAction.getOpState().getOpType(),
                     opExecAction);
-            if(op instanceof If) {
-                If ifOp = (If) op;
+            if(differentialFunction instanceof If) {
+                If ifOp = (If) differentialFunction;
                 String opName = ifOp.getBlockName();
                 SameDiff execBody = getFunction(opName);
                 //evaluate the result
@@ -3442,8 +3399,8 @@ public class SameDiff {
                     ifOp.getSameDiff().getFunction(ifOp.getFalseBodyName()).invokeGraphOn(this);
                 }
             }
-            else if(op instanceof While) {
-                While whileOp = (While) op;
+            else if(differentialFunction instanceof While) {
+                While whileOp = (While) differentialFunction;
                 SameDiff execBody = whileOp.getLoopBodyExecution();
                 //depending on the block add the proper graph body to this for persistence
                 //and possible later processing.
@@ -3459,32 +3416,34 @@ public class SameDiff {
 
             }
 
+            Op op = (Op) differentialFunction;
+
             if(debugMode) {
                 opsForResult.put(opExecAction.getOutputId(),op);
             }
 
-            ops.add(op);
+            ops.add(differentialFunction);
 
             if(opExecAction.getOpState().getAxes() == null)
                 Nd4j.getExecutioner().exec(op);
 
             else {
                 int[] axes = opExecAction.getOpState().getAxes();
-                if(op instanceof Accumulation) {
-                    Accumulation accumulation = (Accumulation) op;
+                if(differentialFunction instanceof Accumulation) {
+                    Accumulation accumulation = (Accumulation) differentialFunction;
                     Nd4j.getExecutioner().exec(accumulation,axes);
 
                 }
 
-                else if(op instanceof BroadcastOp) {
-                    BroadcastOp broadcastOp = (BroadcastOp) op;
+                else if(differentialFunction instanceof BroadcastOp) {
+                    BroadcastOp broadcastOp = (BroadcastOp) differentialFunction;
                     Nd4j.getExecutioner().exec(broadcastOp,axes);
                 }
-                else if(op instanceof GradientOp) {
+                else if(differentialFunction instanceof GradientOp) {
                     Nd4j.getExecutioner().exec(op);
                 }
-                else if(op instanceof IndexAccumulation) {
-                    IndexAccumulation indexAccumulation = (IndexAccumulation) op;
+                else if(differentialFunction instanceof IndexAccumulation) {
+                    IndexAccumulation indexAccumulation = (IndexAccumulation) differentialFunction;
                     Nd4j.getExecutioner().exec(indexAccumulation,axes);
 
                 }
@@ -3509,7 +3468,7 @@ public class SameDiff {
             else
 
                 currVariable.setArr(op.z());
-            opMap.put(currVariable,op);
+            opMap.put(currVariable,differentialFunction);
             vertexIdxToInfo.put(opExecAction.getOutputId(),opExecAction.getOutput());
             getVertexToArray().put(opExecAction.getOutput().getArrId(),op.z());
             getFunctionInstances().put(opExecAction.getOutputId(),opExecAction.getOpState().getDifferentialFunction());
