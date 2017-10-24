@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is basic scope representation: as ordered list of ops
@@ -13,6 +15,9 @@ import java.util.List;
  */
 @EqualsAndHashCode
 public class TScope {
+    private Map<Integer, TNode> numericMap = new HashMap<>();
+    private Map<String, TNode> symbolicMap = new HashMap<>();
+
     @Getter private List<TNode> nodes = new ArrayList<>();
     @Getter private int id;
     @Getter private String name;
@@ -30,7 +35,23 @@ public class TScope {
      */
     public void addNode(@NonNull TNode node) {
         nodes.add(node);
+        if (node.getId() != 0)
+            numericMap.put(node.getId(), node);
+
+        if (node.getName() != null && !node.getName().isEmpty())
+            symbolicMap.put(node.getName(), node);
     }
+
+
+    public TNode getNode(@NonNull String name) {
+        return symbolicMap.get(name);
+    }
+
+
+    public TNode getNode(int id) {
+        return numericMap.get(id);
+    }
+
 
     /**
      * This method returns last node of this scope

@@ -36,6 +36,7 @@ public class TGraph {
     protected Map<Integer, List<TNode>> onionMap = new HashMap<>();
 
     protected Map<Integer, TNode> outputMap = new HashMap<>();
+    protected Map<String, TNode> symbolicMap = new HashMap<>();
 
     // here we're storing unmapped nodes
     protected List<TNode> unmapped = new ArrayList<>();
@@ -52,9 +53,18 @@ public class TGraph {
         return outputMap.get(index);
     }
 
+    public TNode getNode(@NonNull String name) {
+        return symbolicMap.get(name);
+    }
+
     public void addNode(@NonNull TNode node) {
         unmapped.add(node);
         outputMap.put(node.getId(), node);
+
+        if (node.getName() != null && !node.getName().isEmpty()) {
+            log.info("Adding node by name: [{}]", node.getName());
+            symbolicMap.put(node.getName(), node);
+        }
     }
 
     protected int getTailSize() {

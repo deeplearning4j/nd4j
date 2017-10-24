@@ -204,13 +204,23 @@ public class TensorFlowImportTest {
         val loopConstA = tg.getVariableSpace().getVariable("while/add/y");
         val loopConstB = tg.getVariableSpace().getVariable("while/add_1/y");
 
+        val identity0 = scopeBody.getNode("while/Identity");
+        val identity1 = scopeBody.getNode("while/Identity_1");
+        val identity2 = scopeBody.getNode("while/Identity_2");
+
+        assertNotNull(identity0);
+        assertNotNull(identity1);
+        assertNotNull(identity2);
+
         val bodyNode4 = scopeBody.getNodes().get(3);
         val bodyNode5 = scopeBody.getNodes().get(4);
 
 
         assertEquals(2, bodyNode4.getInputs().size());
+        assertEquals(identity0.getId(), bodyNode4.getInputs().get(0).getNode());
         assertEquals(loopConstA.getId(), bodyNode4.getInputs().get(1).getNode());
 
+        assertEquals(identity1.getId(), bodyNode5.getInputs().get(0).getNode());
         assertEquals(loopConstB.getId(), bodyNode5.getInputs().get(1).getNode());
 
     }
