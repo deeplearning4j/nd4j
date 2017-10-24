@@ -256,6 +256,7 @@ public class TensorFlowImport {
                 .inputs(TIndex.indices(TIndex.makeOf(scopeCondition.getId()), TIndex.makeOf(scopeLoop.getId())))
                 .opName("while")
                 .opNum(0)
+                .opState(OpState.builder().opName("while").opNum(0).opType(Op.Type.LOOP).build())
                 .build();
 
         log.info("Adding 2 new scopes for WHILE {}", tNode.getId());
@@ -840,6 +841,9 @@ public class TensorFlowImport {
 
     protected static OpState getOpStateFromNodeDef(NodeDef tfNode, int numInputs, TNode tNode, TVariableSpace variableSpace) {
         String lc = tfNode.getOp().toLowerCase();
+        if (lc.equalsIgnoreCase("while"))
+            log.info("While found");
+
         log.debug("Looking for [{}] op...", lc);
         if (numInputs > 0 && numInputs <= 2) {
             int opNum = Nd4j.getOpFactory().getOpNumIfExists(lc);

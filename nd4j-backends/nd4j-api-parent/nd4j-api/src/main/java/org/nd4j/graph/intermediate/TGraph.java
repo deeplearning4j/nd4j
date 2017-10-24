@@ -241,7 +241,7 @@ public class TGraph {
     }
 
     public static long getOpNum(String name, Op.Type type) {
-        if (type == Op.Type.CUSTOM)
+        if (type == Op.Type.CUSTOM || type == Op.Type.LOOP || type == Op.Type.IF || type == Op.Type.CONDITIONAL)
             return Nd4j.getExecutioner().getCustomOperations().get(name.toLowerCase()).getHash();
         else
             return (long) Nd4j.getOpFactory().getOpNumByName(name);
@@ -261,6 +261,8 @@ public class TGraph {
                 return OpType.ACCUMULATION;
             case INDEXREDUCE:
                 return OpType.INDEX_ACCUMULATION;
+            case LOOP:
+                return OpType.LOGIC;
             case CUSTOM:
                 return OpType.CUSTOM;
             default:
