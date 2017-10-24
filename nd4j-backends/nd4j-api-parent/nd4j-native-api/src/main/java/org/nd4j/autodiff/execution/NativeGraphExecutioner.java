@@ -108,7 +108,7 @@ public class NativeGraphExecutioner implements GraphExecutioner {
             node.setId(nodesCount);
             node.setName(action.getOpState().getId());
             node.setOpExecAction(action);
-            node.setOriginalOutput(action.getOutputId());
+            //node.setOriginalOutput(action.getOutputId());
 
 
             mappedInputs.put(action.getOutputId(), new int[]{nodesCount});
