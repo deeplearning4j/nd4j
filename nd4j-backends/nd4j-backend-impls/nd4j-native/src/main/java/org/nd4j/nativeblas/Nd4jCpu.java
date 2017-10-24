@@ -7218,10 +7218,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         }
     
 
+        // default constructor
         public Intervals() { super((Pointer)null); allocate(); }
         private native void allocate();
-
-        // default constructor    
+        
+        // constructor
         
         // accessing operator
         public native @StdVector @Name("operator []") IntPointer get(int i);
@@ -7230,6 +7231,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native int size();
 
     }
+
+
 
 
 // #endif //LIBND4J_INTERVALS_H
