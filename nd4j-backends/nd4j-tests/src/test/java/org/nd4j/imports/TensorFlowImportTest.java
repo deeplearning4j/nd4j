@@ -165,6 +165,8 @@ public class TensorFlowImportTest {
     public void testIntermediateLoop1() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/simple_while.pb.txt").getFile());
+
+        assertNotNull(tg);
     }
 
     @Test
@@ -191,7 +193,7 @@ public class TensorFlowImportTest {
 
 
         assertEquals("Sum", firstScopedNode.getOpName());
-        assertEquals(whileNode.getId(), firstScopedNode.getInputs().get(0).getNode());
+        assertEquals(TIndex.makeOf(whileNode.getId()), firstScopedNode.getInputs().get(0));
         assertEquals(condConstA.getId(), firstScopedNode.getInputs().get(1).getNode());
 
         assertEquals("Less", secondScopedNode.getOpName());
@@ -249,6 +251,12 @@ public class TensorFlowImportTest {
 
         assertEquals(constAddY1.getId(), nodeAdd1.getInputs().get(1).getNode());
         assertEquals(TIndex.makeOf(whileNode.getId(), 1), nodeAdd1.getInputs().get(0));
+
+
+        // now converting to FlatBuffer
+        val fb = tg.asFlatBuffers();
+        assertNotNull(fb);
+
     }
 
     @Test
