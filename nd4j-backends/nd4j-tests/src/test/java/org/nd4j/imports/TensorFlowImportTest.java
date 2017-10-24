@@ -8,6 +8,7 @@ import org.nd4j.autodiff.opstate.OpExecAction;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.graph.intermediate.TIndex;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
@@ -198,7 +199,7 @@ public class TensorFlowImportTest {
         assertEquals(firstScopedNode.getId(), secondScopedNode.getInputs().get(0).getNode());
         assertEquals(condConstB.getId(), secondScopedNode.getInputs().get(1).getNode());
 
-        // TODO: we probably want to get rid of identity step
+        // TODO: we probably want to get rid of identity step? or, let it be?
         assertEquals(5, scopeBody.size());
 
         val loopConstA = tg.getVariableSpace().getVariable("while/add/y");
@@ -212,9 +213,14 @@ public class TensorFlowImportTest {
         assertNotNull(identity1);
         assertNotNull(identity2);
 
+        // now we're validating Identity input, it's derived from While op
+        assertEquals(TIndex.makeOf(whileNode.getId(), 0), identity0.getInputs().get(0));
+        assertEquals(TIndex.makeOf(whileNode.getId(), 1), identity1.getInputs().get(0));
+        assertEquals(TIndex.makeOf(whileNode.getId(), 2), identity2.getInputs().get(0));
+
+
         val bodyNode4 = scopeBody.getNodes().get(3);
         val bodyNode5 = scopeBody.getNodes().get(4);
-
 
         assertEquals(2, bodyNode4.getInputs().size());
         assertEquals(identity0.getId(), bodyNode4.getInputs().get(0).getNode());
@@ -223,6 +229,26 @@ public class TensorFlowImportTest {
         assertEquals(identity1.getId(), bodyNode5.getInputs().get(0).getNode());
         assertEquals(loopConstB.getId(), bodyNode5.getInputs().get(1).getNode());
 
+
+        // Now, we're checking ops that will be executed after the cycle
+        val constAddY0 = tg.getVariableSpace().getVariable("add/y");
+        val constAddY1 = tg.getVariableSpace().getVariable("add_1/y");
+
+        val nodeAdd0 = tg.getNode("add");
+        val nodeAdd1 = tg.getNode("add_1");
+
+        assertNotNull(nodeAdd0);
+        assertNotNull(nodeAdd1);
+
+        assertNotNull(constAddY0);
+        assertNotNull(constAddY1);
+
+        assertEquals(constAddY0.getId(), nodeAdd0.getInputs().get(1).getNode());
+        assertEquals(TIndex.makeOf(whileNode.getId(), 0), nodeAdd0.getInputs().get(0));
+
+
+        assertEquals(constAddY1.getId(), nodeAdd1.getInputs().get(1).getNode());
+        assertEquals(TIndex.makeOf(whileNode.getId(), 1), nodeAdd1.getInputs().get(0));
     }
 
     @Test

@@ -1,5 +1,6 @@
 package org.nd4j.imports;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.TextFormat;
@@ -356,11 +357,32 @@ public class TensorFlowImport {
             skipList.add(tfNode.getName().toLowerCase());
         }
 
+        // now we're parsing Identity step
+        int identityCnt = 0;
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+
+            if (!tfNode.getOp().equalsIgnoreCase("Identity")) {
+                break;
+            }
+
+            val scopedNode = importNode(intermediateGraph, tfNode, reverseVertexMap, nodesCnt.incrementAndGet());
+            scopedNode.setScopeId(scopeLoop.getId());
+            scopedNode.setScopeName(scopeLoop.getName());
+
+            // we overwrite inputs here, because that's always mapping to the While scope operands
+            scopedNode.setInputs(Lists.newArrayList(TIndex.makeOf(tNode.getId(), identityCnt++)));
+
+            scopeLoop.addNode(scopedNode);
+
+            skipList.add(tfNode.getName().toLowerCase());
+        }
+
 
         // parsing body scope
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
-
 
             if (tfNode.getOp().equalsIgnoreCase("NextIteration")) {
                 break;
@@ -389,6 +411,29 @@ public class TensorFlowImport {
             }
 
             skipList.add(tfNode.getName().toLowerCase());
+        }
+
+
+        // skipping NextIterations, we just know when the Scope ends
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            if (!tfNode.getOp().equalsIgnoreCase("NextIteration"))
+                break;
+
+            skipList.add(tfNode.getName().toLowerCase());
+        }
+
+        // we should also map While/Exit to libnd4j while
+        for (; startPosition < nodes.size(); startPosition++) {
+            val tfNode = nodes.get(startPosition);
+
+            if (!tfNode.getOp().equalsIgnoreCase("Exit"))
+                break;
+
+            skipList.add(tfNode.getName().toLowerCase());
+
+            reverseVertexMap.put(tfNode.getName(), tNode.getId());
         }
 
 
