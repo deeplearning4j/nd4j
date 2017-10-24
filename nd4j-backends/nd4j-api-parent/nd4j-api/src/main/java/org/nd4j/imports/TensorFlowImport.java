@@ -243,7 +243,7 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
-    protected static TNode importWhileLoop(TGraph intermediateGraph, @NonNull Map<String, Integer> reverseVertexMap, int startPosition, Set<String> skipList, List<NodeDef> nodes, @NonNull AtomicInteger varsCnt, @NonNull AtomicInteger nodesCnt) {
+    protected static TNode importWhileLoop(TGraph intermediateGraph, @NonNull Map<String, TIndex> reverseVertexMap, int startPosition, Set<String> skipList, List<NodeDef> nodes, @NonNull AtomicInteger varsCnt, @NonNull AtomicInteger nodesCnt) {
 
 
         val scopeCondition = new TScope(nodesCnt.incrementAndGet(), "scopeCondition");
@@ -302,9 +302,9 @@ public class TensorFlowImport {
 
             skipList.add(tfNode.getName().toLowerCase());
 
+
             //localReverseMap.put(tfNode.getName().toLowerCase(), TIndex.makeOf(tNode.getId(), mergedCnt));
-            reverseVertexMap.put(tfNode.getName(), tNode.getId());
-            mergedCnt++;
+            reverseVertexMap.put(tfNode.getName(), TIndex.makeOf(tNode.getId(), mergedCnt++));
         }
 
 
@@ -346,6 +346,7 @@ public class TensorFlowImport {
 
 
         // time to skip some Switch calls
+        int switchCnt = 0;
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -353,7 +354,7 @@ public class TensorFlowImport {
             if (!tfNode.getOp().equalsIgnoreCase("Switch"))
                 break;
 
-            reverseVertexMap.put(tfNode.getName(), tNode.getId());
+            reverseVertexMap.put(tfNode.getName(), TIndex.makeOf(tNode.getId(), switchCnt++));
             skipList.add(tfNode.getName().toLowerCase());
         }
 
@@ -425,6 +426,7 @@ public class TensorFlowImport {
         }
 
         // we should also map While/Exit to libnd4j while
+        int exitCnt = 0;
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -433,7 +435,7 @@ public class TensorFlowImport {
 
             skipList.add(tfNode.getName().toLowerCase());
 
-            reverseVertexMap.put(tfNode.getName(), tNode.getId());
+            reverseVertexMap.put(tfNode.getName(), TIndex.makeOf(tNode.getId(), exitCnt++));
         }
 
 
@@ -444,8 +446,8 @@ public class TensorFlowImport {
 
 
 
-    protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, @NonNull Map<String, Integer> reverseVertexMap, int nodeId) {
-        reverseVertexMap.put(tfNode.getName(), nodeId);
+    protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, @NonNull Map<String, TIndex> reverseVertexMap, int nodeId) {
+        reverseVertexMap.put(tfNode.getName(), TIndex.makeOf(nodeId, 0));
         val tNode = TNode.builder()
                 .name(tfNode.getName())
                 .id(nodeId)
@@ -464,11 +466,11 @@ public class TensorFlowImport {
                 val split = input.split(":");
 
                 if (split.length == 1) {
-                    Integer id = reverseVertexMap.get(split[0]);
+                    Integer id = reverseVertexMap.get(split[0]).getNode();
 
                     tNode.addInput(id);
                 } else if (split.length == 2) {
-                    Integer node = reverseVertexMap.get(split[0]);
+                    Integer node = reverseVertexMap.get(split[0]).getNode();
                     Integer idx = Integer.valueOf(split[1]);
 
                     if (node == null) {
@@ -482,7 +484,7 @@ public class TensorFlowImport {
                     throw new RuntimeException("Unknown input passed in: [" + input + "]");
 
             } else {
-                Integer id = reverseVertexMap.get(input);
+                val id = reverseVertexMap.get(input);
 
                 if (id == null)
                     throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
@@ -507,12 +509,12 @@ public class TensorFlowImport {
         return tNode;
     }
 
-    protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, Integer> reverseVertexMap, int varId) {
+    protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, TIndex> reverseVertexMap, int varId) {
         val variable = new TVariable();
         val attributes = tfNode.getAttrMap();
         List<Integer> dimensions = new ArrayList<>();
 
-        reverseVertexMap.put(tfNode.getName(), varId);
+        reverseVertexMap.put(tfNode.getName(), TIndex.makeOf(varId, 0));
 
         boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
         boolean isVar = tfNode.getOp().startsWith("VariableV");
@@ -586,7 +588,7 @@ public class TensorFlowImport {
         return variable;
     }
 
-    protected static void traverseList(@NonNull TGraph intermediateGraph, @NonNull List<NodeDef> tfNodesList, @NonNull Map<String, Integer> reverseVertexMap,  Set<String> skipList, AtomicInteger varsCnt, AtomicInteger nodesCnt, int offset) {
+    protected static void traverseList(@NonNull TGraph intermediateGraph, @NonNull List<NodeDef> tfNodesList, @NonNull Map<String, TIndex> reverseVertexMap,  Set<String> skipList, AtomicInteger varsCnt, AtomicInteger nodesCnt, int offset) {
         for (int e = offset; e < tfNodesList.size(); e++) {
             val tfNode = tfNodesList.get(e);
 
@@ -640,7 +642,7 @@ public class TensorFlowImport {
     public static TGraph importIntermediate(GraphDef tfGraph) {
         TGraph intermediateGraph = new TGraph();
 
-        Map<String, Integer> reverseVertexMap = new HashMap<>();
+        Map<String, TIndex> reverseVertexMap = new HashMap<>();
 
         val varsCnt = new AtomicInteger(0);
         val nodesCnt = new AtomicInteger(0);
