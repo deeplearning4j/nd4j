@@ -174,6 +174,10 @@ public class TensorFlowImportTest {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/three_arg_while.pb.txt").getFile());
 
+        val phi = tg.getVariableSpace().getVariable("phi");
+        assertNotNull(phi);
+        assertArrayEquals(new int[] {2, 2}, phi.getShape());
+
         val scopeCondition = tg.getScope("scopeCondition");
         val scopeBody = tg.getScope("scopeLoop");
 
@@ -256,7 +260,7 @@ public class TensorFlowImportTest {
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-/*
+
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -265,7 +269,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/three_args_while.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-*/
+
     }
 
     @Test

@@ -527,6 +527,9 @@ public class TensorFlowImport {
 
         int[] arrayShape = null;
 
+        if (tfNode.getName().equalsIgnoreCase("while/Const"))
+            log.debug("");
+
         if (tfNode.getName().equalsIgnoreCase("mixed4b/concat_dim")) {
             log.debug("concat found!");
         }
@@ -575,6 +578,10 @@ public class TensorFlowImport {
 
                 assert shape != null;
                 assert shape.length > 0;
+
+                for (int e = 0; e < shape.length; e++)
+                    if (shape[e] == 0)
+                        shape[e] = 1;
 
                 variable.setShape(shape);
             }
@@ -629,7 +636,7 @@ public class TensorFlowImport {
 
                 val tNode = importNode(intermediateGraph, tfNode, reverseVertexMap, cCnt);
 
-                log.debug("Node: {}", tNode);
+                log.info("Node: {}", tNode);
                 intermediateGraph.addNode(tNode);
             }
         }

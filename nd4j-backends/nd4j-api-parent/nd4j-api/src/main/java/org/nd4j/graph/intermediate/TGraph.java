@@ -122,7 +122,25 @@ public class TGraph {
     }
 
     protected int asFlatNode(@NonNull TScope scope, @NonNull FlatBufferBuilder bufferBuilder) {
-        return 0;
+
+        int scopeName = bufferBuilder.createString(scope.getName());
+
+        int flatNode = FlatNode.createFlatNode(bufferBuilder,
+                scope.getId(),
+                scopeName,
+                OpType.LOGIC,
+                10, // hardcoded value
+                0,
+                0,
+                (byte) 0,
+                0,
+                0,
+                0,
+                0,
+                -1,
+                0.0f, 0, 0);
+
+        return flatNode;
     }
 
     protected int asFlatNode(@NonNull TNode node, @NonNull FlatBufferBuilder bufferBuilder) {
@@ -182,9 +200,15 @@ public class TGraph {
         for (val variable: variableSpace.getAllVariables()) {
             log.info("Exporting variable: [{}]", variable.getName());
 
+
+            if (variable.getArray() == null) {
+                if (variable.getShape() == null)
+                    throw new ND4JIllegalStateException("Both array and shape are NULL");
+
+                variable.setArray(Nd4j.create(variable.getShape()));
+            }
             val arr = variable.getArray();
-            if (arr == null)
-                continue;
+
 
             int name = bufferBuilder.createString(variable.getName());
             int values = FlatVariable.createValuesVector(bufferBuilder, arr.data().asFloat());
