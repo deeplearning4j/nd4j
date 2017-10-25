@@ -566,46 +566,104 @@ public class SameDiffTests {
 
 
     @Test
-    public void testIfStatement() {
+    public void testIfStatementTrueBody() {
         SameDiff sameDiff = SameDiff.create();
-        sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), new SameDiff.SameDiffFunctionDefinition() {
-                    @Override
-                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
-                        SDVariable result = sameDiff.gt(sum,1.0);
-                        return new SDVariable[] {result};
-                    }
-                }, new SameDiff.SameDiffFunctionDefinition() {
-                    @Override
-                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
-                        SDVariable result = sameDiff.lt(sum,1.0);
-                        return new SDVariable[] {result};
-                    }
-                },
-                new SameDiff.SameDiffFunctionDefinition() {
-                    @Override
-                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        return new SDVariable[0];
-                    }
-                },new SDVariable[] {
-                        sameDiff.setupFunction(SDVariable.builder().varName("one")
-                                .info(NDArrayInformation.newInfo(new int[]{1,1}))
-                                .arr(Nd4j.ones(new int[]{1,1}))
-                                .sameDiff(sameDiff)
-                                .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                                .build()),
-                        sameDiff.setupFunction(SDVariable.builder()
-                                .varName("two")
-                                .arr(Nd4j.zeros(new int[]{1,1}))
-                                .info(NDArrayInformation.newInfo(new int[]{1,1}))
-                                .sameDiff(sameDiff)
-                                .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                                .build()),
 
-                });
+        SameDiff.SameDiffFunctionDefinition conditionBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
+                SDVariable result = sameDiff.gt(sum,1.0);
+                return new SDVariable[] {result};
+            }
+        };
+
+
+        SameDiff.SameDiffFunctionDefinition trueBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable add = variableInputs[0].add(1.0);
+                return new SDVariable[] {add};
+            }
+        };
+
+        SameDiff.SameDiffFunctionDefinition falseBody =  new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sub = variableInputs[0].sub(1.0);
+                return new SDVariable[] {sub};
+            }
+        };
+
+        //true body trigger
+        SDVariable[] firstInputs = new SDVariable[] {
+                sameDiff.setupFunction(SDVariable.builder().varName("one")
+                        .info(NDArrayInformation.newInfo(new int[]{1,1}))
+                        .arr(Nd4j.ones(new int[]{1,1}))
+                        .sameDiff(sameDiff)
+                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
+                        .build())
+
+        };
+
+
+
+        sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), conditionBody, trueBody, falseBody,firstInputs);
+        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> exec = sameDiff.exec();
+
     }
 
+
+    @Test
+    public void testIfStatementFalseBody() {
+        SameDiff sameDiff = SameDiff.create();
+
+        SameDiff.SameDiffFunctionDefinition conditionBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
+                SDVariable result = sameDiff.gt(sum,1.0);
+                return new SDVariable[] {result};
+            }
+        };
+
+
+        SameDiff.SameDiffFunctionDefinition trueBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable add = variableInputs[0].add(1.0);
+                return new SDVariable[] {add};
+            }
+        };
+
+        SameDiff.SameDiffFunctionDefinition falseBody =  new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sub = variableInputs[0].sub(1.0);
+                return new SDVariable[] {sub};
+            }
+        };
+
+
+        //false body trigger
+        SDVariable[] secondInputs = new SDVariable[] {
+                sameDiff.setupFunction(SDVariable.builder().varName("two")
+                        .info(NDArrayInformation.newInfo(new int[]{1,1}))
+                        .arr(Nd4j.zeros(new int[]{1,1}))
+                        .sameDiff(sameDiff)
+                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
+                        .build())
+
+        };
+
+        sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), conditionBody, trueBody, falseBody,secondInputs);
+
+        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> exec = sameDiff.exec();
+
+
+
+
+    }
 
 
     @Test
