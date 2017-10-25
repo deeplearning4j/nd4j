@@ -528,18 +528,7 @@ public class SameDiffTests {
     @Test
     public void testWhileLoop() {
         SameDiff sameDiff = SameDiff.create();
-        sameDiff.whileStatement(new SameDiff.SameDiffConditional() {
-            @Override
-            public SDVariable eval(SameDiff context, SameDiff.SameDiffFunctionDefinition body, SDVariable[] inputVars) {
-                context.defineFunction("eval",body,inputVars);
-                context.invokeFunctionOn("eval",context);
-                //context.getFunction("eval").invokeGraphOn(context);
-                context.allocate();
-                OpExecOrder opExecOrder = context.getGraph().getOpOrder();
-                int[] finalId = opExecOrder.getActions().get(opExecOrder.getActions().size() - 1).getOutputId();
-                return context.getVariableForVertexId(finalId);
-            }
-        }, new SameDiff.SameDiffFunctionDefinition() {
+        sameDiff.whileStatement(new SameDiff.DefaultSameDiffConditional(), new SameDiff.SameDiffFunctionDefinition() {
             @Override
             public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
                 SDVariable eqResult = sameDiff.neq(variableInputs[0],variableInputs[1]);
@@ -571,7 +560,48 @@ public class SameDiffTests {
         Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> exec = sameDiff.exec();
         While function = (While) exec.getRight().get(exec.getRight().size() - 1);
         assumeNotNull(function.getOutputVars());
+        assertEquals(1,function.getNumLooped());
         sameDiff.toString();
+    }
+
+
+    @Test
+    public void testIfStatement() {
+        SameDiff sameDiff = SameDiff.create();
+        sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), new SameDiff.SameDiffFunctionDefinition() {
+                    @Override
+                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                        SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
+                        SDVariable result = sameDiff.gt();
+                        return new SDVariable[0];
+                    }
+                }, new SameDiff.SameDiffFunctionDefinition() {
+                    @Override
+                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                        return new SDVariable[0];
+                    }
+                },
+                new SameDiff.SameDiffFunctionDefinition() {
+                    @Override
+                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                        return new SDVariable[0];
+                    }
+                },new SDVariable[] {
+                        sameDiff.setupFunction(SDVariable.builder().varName("one")
+                                .info(NDArrayInformation.newInfo(new int[]{1,1}))
+                                .arr(Nd4j.ones(new int[]{1,1}))
+                                .sameDiff(sameDiff)
+                                .vertexId(new int[]{sameDiff.graph().nextVertexId()})
+                                .build()),
+                        sameDiff.setupFunction(SDVariable.builder()
+                                .varName("two")
+                                .arr(Nd4j.zeros(new int[]{1,1}))
+                                .info(NDArrayInformation.newInfo(new int[]{1,1}))
+                                .sameDiff(sameDiff)
+                                .vertexId(new int[]{sameDiff.graph().nextVertexId()})
+                                .build()),
+
+                });
     }
 
 

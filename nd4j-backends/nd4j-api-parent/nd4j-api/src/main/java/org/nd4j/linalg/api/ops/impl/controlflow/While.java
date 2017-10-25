@@ -56,6 +56,9 @@ public class While extends DifferentialFunction implements CustomOp {
     @Setter
     private SDVariable[] outputVars;
 
+    @Getter
+    private int numLooped = 0;
+
     @Builder
     public While(String blockName,
                  SameDiff parent,
@@ -141,6 +144,11 @@ public class While extends DifferentialFunction implements CustomOp {
 
         parent.graph().addEdge(inputEdges,outputEdges,opState,true);
 
+    }
+
+
+    public void incrementLoopCounter() {
+        numLooped++;
     }
 
     @Override

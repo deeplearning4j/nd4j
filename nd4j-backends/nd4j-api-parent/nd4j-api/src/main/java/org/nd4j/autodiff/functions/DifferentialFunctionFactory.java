@@ -7,16 +7,21 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.impl.accum.*;
+import org.nd4j.linalg.api.ops.impl.accum.Max;
+import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.CosineSimilarity;
 import org.nd4j.linalg.api.ops.impl.accum.distances.EuclideanDistance;
 import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
+import org.nd4j.linalg.api.ops.impl.scalar.comparison.ScalarGreaterThan;
+import org.nd4j.linalg.api.ops.impl.scalar.comparison.ScalarGreaterThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.scalar.comparison.ScalarLessThan;
+import org.nd4j.linalg.api.ops.impl.scalar.comparison.ScalarLessThanOrEqual;
 import org.nd4j.linalg.api.ops.impl.shape.*;
 import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
-import org.nd4j.linalg.api.ops.impl.transforms.comparison.EqualTo;
-import org.nd4j.linalg.api.ops.impl.transforms.comparison.NotEqualTo;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
 import org.nd4j.linalg.api.shape.Shape;
@@ -810,6 +815,112 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         return sameDiff().setupFunction(new ScalarDivision(sameDiff(),differentialFunction,i_v,true));
     }
 
+    @Override
+    public DifferentialFunction gt(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new GreaterThan(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction lt(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new LessThan(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction gti(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new GreaterThan(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction lti(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new LessThan(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction gtOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction ltOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction gtOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction ltOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        validateDifferentialFunctionsameDiff(functionInput1);
+        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+    }
+
+
+
+    @Override
+    public DifferentialFunction gt(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarGreaterThan(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction lt(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarLessThan(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction gti(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarGreaterThan(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction lti(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarLessThan(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction gtOrEq(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarGreaterThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction ltOrEq(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarLessThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+    }
+
+    @Override
+    public DifferentialFunction gtOrEqi(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarGreaterThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+    }
+
+    @Override
+    public DifferentialFunction ltOrEqi(DifferentialFunction functionInput, double functionInput1) {
+        validateDifferentialFunctionsameDiff(functionInput);
+        return sameDiff().setupFunction(new ScalarLessThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+    }
+
     /**
      *
      * @param func
@@ -819,9 +930,6 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         validateDifferentialFunctionsameDiff(func);
         int[] inputShape = func.arg().shape;
         return ArrayUtil.prod(inputShape);
-
-
-
     }
 
 

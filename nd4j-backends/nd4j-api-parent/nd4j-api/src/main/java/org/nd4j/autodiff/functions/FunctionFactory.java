@@ -218,4 +218,31 @@ public interface FunctionFactory {
     DifferentialFunction div(DifferentialFunction xDifferentialFunction, double i_v);
     DifferentialFunction divi(DifferentialFunction xDifferentialFunction, double i_v);
 
+    DifferentialFunction gt(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction lt(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+
+    DifferentialFunction gti(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction lti(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+
+    DifferentialFunction gtOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction ltOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+
+    DifferentialFunction gtOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction ltOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+
+    DifferentialFunction gt(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction lt(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction gti(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction lti(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction gtOrEq(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction ltOrEq(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction gtOrEqi(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction ltOrEqi(DifferentialFunction functionInput, double functionInput1);
 }
