@@ -463,6 +463,21 @@ public class SameDiff {
             graph().addVertex(get.getVertex());
         }
 
+        if(get instanceof SDVariable) {
+            SDVariable sdVariable  = (SDVariable) get;
+            if(!variableMap.containsKey(sdVariable.getVarName()))
+                variableMap.put(sdVariable.getVarName(),sdVariable);
+            if(!vertexIdToVariable.containsKey(sdVariable.getOutputVertexIds()))
+                vertexIdToVariable.put(sdVariable.getOutputVertexIds(),sdVariable);
+
+            if(sdVariable.getInfo() != null && sdVariable.getArr() != null) {
+                reverseArrayLookup.put(sdVariable.getArr(),sdVariable.getInfo());
+                vertexToArray.put(sdVariable.getInfo().getArrId(),sdVariable.getArr());
+            }
+
+        }
+
+
         return (X) get;
     }
 
@@ -3141,7 +3156,7 @@ public class SameDiff {
      *
      * @param function
      */
-    public void defineFunction(String function,SameDiffFunctionDefinition functionDefinition,SDVariable[] variables) {
+    public SameDiff defineFunction(String function,SameDiffFunctionDefinition functionDefinition,SDVariable[] variables) {
         if(!sameDiffFunctionInstances.containsKey(function)) {
             SameDiff sub = SameDiff.create();
             sub.setWorkspace(workspace);
@@ -3154,6 +3169,7 @@ public class SameDiff {
                         .builder()
                         .ndArrayVertex(ndArrayVertex)
                         .info(variables[i].getInfo())
+                        .arr(variables[i].getArr())
                         .sameDiff(sub).vertexId(new int[]{ndArrayVertex.getIdx()})
                         .differentialFunction(variables[i].getDifferentialFunction() != null ?
                                 sub.setupFunction(variables[i].getDifferentialFunction()) : null)
@@ -3165,6 +3181,8 @@ public class SameDiff {
             functionDefinition.define(sub,null, ret);
             sameDiffFunctionInstances.put(function,sub);
         }
+
+        return sameDiffFunctionInstances.get(function);
     }
 
     /**
@@ -3415,6 +3433,9 @@ public class SameDiff {
                 else {
                     ifOp.getSameDiff().getFunction(ifOp.getFalseBodyName()).invokeGraphOn(this);
                 }
+
+                ops.add(differentialFunction);
+
             }
             else if(differentialFunction instanceof While) {
                 While whileOp = (While) differentialFunction;
@@ -3426,10 +3447,22 @@ public class SameDiff {
                 while(whileOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
                     //run the body
                     execBody.exec();
-                    whileOp.getSameDiff().getFunction(whileOp.getTrueBodyName()).invokeGraphOn(this);
                     //update the predicate
                     whileOp.getPredicateExecution().exec();
+
                 }
+
+                List<int[]> list = execBody.graph().getOutputIds();
+                List<SDVariable> outputs = new ArrayList<>();
+                /**
+                 * Find why this is null.
+                 */
+                for(int[] output : list) {
+                    outputs.add(execBody.getVariableForVertexId(output));
+                }
+
+                whileOp.setOutputVars(outputs.toArray(new SDVariable[outputs.size()]));
+                ops.add(differentialFunction);
 
 
             }
