@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import org.nd4j.autodiff.functions.Differential;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.transforms.Constant;
@@ -906,6 +905,125 @@ public class SameDiff {
     }
 
 
+
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gte(SDVariable iX, double iy) {
+        return gte(generateVariableName("gte",false,iX),iX,iy);
+
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lte(SDVariable iX, double iy) {
+        return lte(generateVariableName("lte",false,iX),iX,iy);
+
+    }
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gt(SDVariable iX, double iy) {
+        return lt(generateVariableName("gt",false,iX),iX,iy);
+
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lt(SDVariable iX, double iy) {
+        return lt(generateVariableName("lt",false,iX),iX,iy);
+
+    }
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable neq(SDVariable iX, double iy) {
+        return neq(generateVariableName("neq",false,iX),iX,iy);
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable eq(SDVariable iX, double iy) {
+        return eq(generateVariableName("eq",false,iX),iX,iy);
+    }
+
+
+
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gte(SDVariable iX, SDVariable iy) {
+        return gte(generateVariableName("gte",false,iX,iy),iX,iy);
+
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lte(SDVariable iX, SDVariable iy) {
+        return lte(generateVariableName("lte",false,iX,iy),iX,iy);
+
+    }
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gt(SDVariable iX, SDVariable iy) {
+        return lt(generateVariableName("gt",false,iX,iy),iX,iy);
+
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lt(SDVariable iX, SDVariable iy) {
+        return lt(generateVariableName("lt",false,iX,iy),iX,iy);
+
+    }
+
+
+
     /**
      *
      * @param iX
@@ -1589,6 +1707,116 @@ public class SameDiff {
      * @param iX
      * @return
      */
+    public SDVariable neq(String name,SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.neq(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable eq(String name,SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.eq(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gte(String name, SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.gte(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lte(String name, SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.lte(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable gt(String name,SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.gt(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
+    public SDVariable lt(String name,SDVariable iX,double iy) {
+        SDVariable ret = SDVariable.builder()
+                .arr(null).shape(iX.getShape())
+                .differentialFunction(functionFactory.lt(getFunctionInput(iX),iy))
+                .varName(name)
+                .sameDiff(this)
+                .build();
+        Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
+        addVariable(ret);
+        return ret;
+    }
+
+
+
+
+
+    /**
+     *
+     * @param iX
+     * @return
+     */
     public SDVariable neq(String name,SDVariable iX, SDVariable iy) {
         SDVariable ret = SDVariable.builder()
                 .arr(null).shape(iX.getShape())
@@ -1624,10 +1852,10 @@ public class SameDiff {
      * @param iX
      * @return
      */
-    public SDVariable gtOrEq(String name,SDVariable iX, SDVariable iy) {
+    public SDVariable gte(String name, SDVariable iX, SDVariable iy) {
         SDVariable ret = SDVariable.builder()
                 .arr(null).shape(iX.getShape())
-                .differentialFunction(functionFactory.gtOrEq(getFunctionInput(iX),getFunctionInput(iy)))
+                .differentialFunction(functionFactory.gte(getFunctionInput(iX),getFunctionInput(iy)))
                 .varName(name)
                 .sameDiff(this)
                 .build();
@@ -1641,10 +1869,10 @@ public class SameDiff {
      * @param iX
      * @return
      */
-    public SDVariable ltOrEq(String name,SDVariable iX, SDVariable iy) {
+    public SDVariable lte(String name, SDVariable iX, SDVariable iy) {
         SDVariable ret = SDVariable.builder()
                 .arr(null).shape(iX.getShape())
-                .differentialFunction(functionFactory.ltOrEq(getFunctionInput(iX),getFunctionInput(iy)))
+                .differentialFunction(functionFactory.lte(getFunctionInput(iX),getFunctionInput(iy)))
                 .varName(name)
                 .sameDiff(this)
                 .build();

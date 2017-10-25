@@ -572,13 +572,15 @@ public class SameDiffTests {
                     @Override
                     public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
                         SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
-                        SDVariable result = sameDiff.gt();
-                        return new SDVariable[0];
+                        SDVariable result = sameDiff.gt(sum,1.0);
+                        return new SDVariable[] {result};
                     }
                 }, new SameDiff.SameDiffFunctionDefinition() {
                     @Override
                     public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        return new SDVariable[0];
+                        SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
+                        SDVariable result = sameDiff.lt(sum,1.0);
+                        return new SDVariable[] {result};
                     }
                 },
                 new SameDiff.SameDiffFunctionDefinition() {

@@ -97,6 +97,12 @@ public interface FunctionFactory {
 
     DifferentialFunction eq(DifferentialFunction iX, DifferentialFunction i_y);
 
+    DifferentialFunction neq(DifferentialFunction iX, double i_y);
+
+    DifferentialFunction neqi(DifferentialFunction iX, double i_y);
+
+    DifferentialFunction neqi(DifferentialFunction iX, DifferentialFunction i_y);
+
     DifferentialFunction neq(DifferentialFunction iX, DifferentialFunction i_y);
 
     DifferentialFunction pow(DifferentialFunction iX, double i_y);
@@ -224,10 +230,10 @@ public interface FunctionFactory {
     DifferentialFunction gti(DifferentialFunction functionInput, DifferentialFunction functionInput1);
     DifferentialFunction lti(DifferentialFunction functionInput, DifferentialFunction functionInput1);
 
-    DifferentialFunction gtOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1);
-    DifferentialFunction ltOrEq(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction gte(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction lte(DifferentialFunction functionInput, DifferentialFunction functionInput1);
 
-    DifferentialFunction gtOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1);
+    DifferentialFunction gtei(DifferentialFunction functionInput, DifferentialFunction functionInput1);
     DifferentialFunction ltOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1);
 
     DifferentialFunction gt(DifferentialFunction functionInput, double functionInput1);
@@ -238,11 +244,15 @@ public interface FunctionFactory {
 
     DifferentialFunction lti(DifferentialFunction functionInput, double functionInput1);
 
-    DifferentialFunction gtOrEq(DifferentialFunction functionInput, double functionInput1);
+    DifferentialFunction gte(DifferentialFunction functionInput, double functionInput1);
 
-    DifferentialFunction ltOrEq(DifferentialFunction functionInput, double functionInput1);
+    DifferentialFunction lte(DifferentialFunction functionInput, double functionInput1);
 
-    DifferentialFunction gtOrEqi(DifferentialFunction functionInput, double functionInput1);
+    DifferentialFunction gtei(DifferentialFunction functionInput, double functionInput1);
 
-    DifferentialFunction ltOrEqi(DifferentialFunction functionInput, double functionInput1);
+    DifferentialFunction ltei(DifferentialFunction functionInput, double functionInput1);
+
+    DifferentialFunction eq(DifferentialFunction iX, double i_y);
+
+    DifferentialFunction eqi(DifferentialFunction iX, double i_y);
 }
