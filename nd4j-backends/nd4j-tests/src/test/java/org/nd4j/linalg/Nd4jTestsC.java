@@ -5474,23 +5474,21 @@ public class Nd4jTestsC extends BaseNd4jTest {
         val input = Nd4j.create(2, 1, inY, inX);
         val output = Nd4j.create(2, 1, 5, 5, 28, 28);
 
-        val im2colOp = new Im2col(new INDArray[]{input}, new INDArray[]{output} , kY, kX, sY, sX, pY, pX, dY, dX ,true);
+        val im2colOp = Im2col.execBuilder()
+                .arrayInputs(new INDArray[]{input})
+                .arrayOutputs(new INDArray[]{output})
+                .kh(kY)
+                .kw(kX)
+                .sy(sY)
+                .sx(sX)
+                .ph(pY)
+                .pw(pX)
+                .dh(dY)
+                .dw(dX)
+                .isSameMode(isSameMode)
+                .build();
 
         Nd4j.getExecutioner().exec(im2colOp);
-
-/*
-        NDArray<double> x('c', {2, 1, inY, inX});
-        NDArrayFactory<double>::linspace(1, x);
-
-        int oY, oX;
-
-        nd4j::ops::ConvolutionUtils<double>::calcOutHWpool2D(oY, oX, kY, kX, sY, sX, pY, pX, dY, dX, inY, inX, isSameMode);
-
-        if (isSameMode)
-            nd4j::ops::ConvolutionUtils<double>::_calcPadding2D(pY, pX, oY, oX, inY, inX, kY, kX, sY, sX, dY, dX);
-
-        NDArray<double> im2col0('c', {2, 1, kY, kX, oY, oX});
-        */
     }
 
     @Override
