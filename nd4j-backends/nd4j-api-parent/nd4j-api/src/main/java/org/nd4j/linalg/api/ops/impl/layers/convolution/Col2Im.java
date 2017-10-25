@@ -32,12 +32,12 @@ public class Col2Im extends DynamicCustomOp {
         this.dh = dh;
         this.dw = dw;
         this.isSameMode = isSameMode;
-        getIArguments().add(h);
-        getIArguments().add(w);
         getIArguments().add(sy);
         getIArguments().add(sx);
         getIArguments().add(ph);
         getIArguments().add(pw);
+        getIArguments().add(h);
+        getIArguments().add(w);
         getIArguments().add(dh);
         getIArguments().add(dw);
         getIArguments().add(fromBoolean(isSameMode));
@@ -54,12 +54,12 @@ public class Col2Im extends DynamicCustomOp {
     @Builder(builderMethodName = "execBuilder")
     public Col2Im(INDArray[] x, INDArray[] z,int sy, int sx, int ph, int pw, int h, int w, int dh, int dw, boolean isSameMode) {
         super("col2im",x,z);
-        getIArguments().add(h);
-        getIArguments().add(w);
         getIArguments().add(sy);
         getIArguments().add(sx);
         getIArguments().add(ph);
         getIArguments().add(pw);
+        getIArguments().add(h);
+        getIArguments().add(w);
         getIArguments().add(dh);
         getIArguments().add(dw);
         getIArguments().add(fromBoolean(isSameMode));
