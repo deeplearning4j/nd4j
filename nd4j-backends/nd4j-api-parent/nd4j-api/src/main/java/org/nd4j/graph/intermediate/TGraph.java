@@ -265,7 +265,11 @@ public class TGraph {
     }
 
     public static long getOpNum(String name, Op.Type type) {
-        if (type == Op.Type.CUSTOM || type == Op.Type.LOOP || type == Op.Type.IF || type == Op.Type.CONDITIONAL)
+        if (type == Op.Type.LOOP ) {
+            return 0;
+        } else if (type == Op.Type.IF || type == Op.Type.CONDITIONAL) {
+            return 10;
+        } else if (type == Op.Type.CUSTOM )
             return Nd4j.getExecutioner().getCustomOperations().get(name.toLowerCase()).getHash();
         else
             return (long) Nd4j.getOpFactory().getOpNumByName(name);

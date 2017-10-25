@@ -255,6 +255,7 @@ public class TensorFlowImport {
         val tNode = TNode.builder().id(nodesCnt.incrementAndGet())
                 .inputs(TIndex.indices(TIndex.makeOf(scopeCondition.getId()), TIndex.makeOf(scopeLoop.getId())))
                 .opName("while")
+                .name("whileLoop")
                 .opNum(0)
                 .opState(OpState.builder().opName("while").opNum(0).opType(Op.Type.LOOP).build())
                 .build();
@@ -579,6 +580,7 @@ public class TensorFlowImport {
                 assert shape != null;
                 assert shape.length > 0;
 
+                // in most of cases this loop will fix scalars. i.e shapes [0, 1] or [1, 0]
                 for (int e = 0; e < shape.length; e++)
                     if (shape[e] == 0)
                         shape[e] = 1;
@@ -618,6 +620,8 @@ public class TensorFlowImport {
                 int cCnt = nodesCnt.incrementAndGet();
 
                 // operation node
+                if (tfNode.getOp().equalsIgnoreCase("NoOp"))
+                    continue;
 
                 if (tfNode.getOp().equalsIgnoreCase("merge"))
                     continue;
