@@ -253,7 +253,6 @@ public class TensorFlowImport {
         intermediateGraph.addScope(scopeLoop);
 
         val tNode = TNode.builder().id(nodesCnt.incrementAndGet())
-                .inputs(TIndex.indices(TIndex.makeOf(scopeCondition.getId()), TIndex.makeOf(scopeLoop.getId())))
                 .opName("while")
                 .name("whileLoop")
                 .opNum(0)
@@ -274,7 +273,9 @@ public class TensorFlowImport {
 
         Map<String, TIndex> localReverseMap = new HashMap<>();
 
+
         // parsing declarations first. they all come as Enter ops
+        val whileInputs = new ArrayList<TIndex>();
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -289,8 +290,14 @@ public class TensorFlowImport {
                 val input = tfNode.getInput(e);
                 val idx = reverseVertexMap.get(input);
                 log.info("Mapping [{}] to [{}]", input, idx);
+
+                // mapping this
+                whileInputs.add(idx);
             }
         }
+        whileInputs.add(TIndex.makeOf(scopeCondition.getId()));
+        whileInputs.add(TIndex.makeOf(scopeLoop.getId()));
+        tNode.setInputs(whileInputs);
 
         // now we're skipping Merge step, since we've already captured variables at Enter step
         int mergedCnt = 0;
