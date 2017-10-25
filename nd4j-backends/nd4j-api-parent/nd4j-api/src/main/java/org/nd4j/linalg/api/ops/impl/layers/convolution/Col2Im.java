@@ -22,7 +22,7 @@ public class Col2Im extends DynamicCustomOp {
 
     @Builder(builderMethodName = "sameDiffBuilder")
     public Col2Im(SameDiff sameDiff, DifferentialFunction[] inputs,boolean inPlace, int sy, int sx, int ph, int pw, int h, int w, int dh, int dw, boolean isSameMode) {
-        super(null,sameDiff, inputs, inPlace);
+        super("col2im",sameDiff, inputs, inPlace);
         this.sy = sy;
         this.sx = sx;
         this.ph = ph;
@@ -53,7 +53,7 @@ public class Col2Im extends DynamicCustomOp {
 
     @Builder(builderMethodName = "execBuilder")
     public Col2Im(INDArray[] x, INDArray[] z,int sy, int sx, int ph, int pw, int h, int w, int dh, int dw, boolean isSameMode) {
-        super(null,x,z);
+        super("col2im",x,z);
         getIArguments().add(h);
         getIArguments().add(w);
         getIArguments().add(sy);

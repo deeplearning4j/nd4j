@@ -27,6 +27,7 @@ import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.math3.util.FastMath;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.impl.accum.LogSumExp;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.Im2col;
 import org.nd4j.linalg.primitives.Pair;
 import org.junit.After;
 import org.junit.Before;
@@ -5452,6 +5453,44 @@ public class Nd4jTestsC extends BaseNd4jTest {
         //
 
         //log.info("C shape: {}", Arrays.toString(c.shapeInfoDataBuffer().asInt()));
+    }
+
+
+    @Test
+    public void testIm2Col() {
+        int kY = 5;
+        int kX = 5;
+        int sY = 1;
+        int sX = 1;
+        int pY = 0;
+        int pX = 0;
+        int dY = 1;
+        int dX = 1;
+        int inY = 28;
+        int inX = 28;
+
+        boolean isSameMode = true;
+
+        val input = Nd4j.create(2, 1, inY, inX);
+        val output = Nd4j.create(2, 1, 5, 5, 28, 28);
+
+        val im2colOp = new Im2col(new INDArray[]{input}, new INDArray[]{output} , kY, kX, sY, sX, pY, pX, dY, dX ,true);
+
+        Nd4j.getExecutioner().exec(im2colOp);
+
+/*
+        NDArray<double> x('c', {2, 1, inY, inX});
+        NDArrayFactory<double>::linspace(1, x);
+
+        int oY, oX;
+
+        nd4j::ops::ConvolutionUtils<double>::calcOutHWpool2D(oY, oX, kY, kX, sY, sX, pY, pX, dY, dX, inY, inX, isSameMode);
+
+        if (isSameMode)
+            nd4j::ops::ConvolutionUtils<double>::_calcPadding2D(pY, pX, oY, oX, inY, inX, kY, kX, sY, sX, dY, dX);
+
+        NDArray<double> im2col0('c', {2, 1, kY, kX, oY, oX});
+        */
     }
 
     @Override
