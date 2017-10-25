@@ -597,12 +597,7 @@ public class SameDiffTests {
 
         //true body trigger
         SDVariable[] firstInputs = new SDVariable[] {
-                sameDiff.setupFunction(SDVariable.builder().varName("one")
-                        .info(NDArrayInformation.newInfo(new int[]{1,1}))
-                        .arr(Nd4j.ones(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build())
+               sameDiff.var("one",NDArrayInformation.newInfo(new int[]{1,1}))
 
         };
 

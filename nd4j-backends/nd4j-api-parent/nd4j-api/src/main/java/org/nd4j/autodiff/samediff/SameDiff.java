@@ -143,7 +143,7 @@ public class SameDiff {
         }
 
         for(Map.Entry<int[],NDArrayInformation> informationEntry : vertexIdxToInfo.entrySet()) {
-            sameDiff.vertexIdxToInfo.put(new int[]{thisVertexIdToNew.get(informationEntry.getKey())},informationEntry.getValue());
+                sameDiff.vertexIdxToInfo.put(new int[]{thisVertexIdToNew.get(informationEntry.getKey()[0])},informationEntry.getValue());
         }
 
 
@@ -466,7 +466,7 @@ public class SameDiff {
             SDVariable sdVariable  = (SDVariable) get;
             if(!variableMap.containsKey(sdVariable.getVarName()))
                 variableMap.put(sdVariable.getVarName(),sdVariable);
-            if(!vertexIdToVariable.containsKey(sdVariable.getOutputVertexIds()))
+            if(!vertexIdToVariable.containsKey(sdVariable.resultVertexId()))
                 vertexIdToVariable.put(sdVariable.getOutputVertexIds(),sdVariable);
 
             if(sdVariable.getInfo() != null && sdVariable.getArr() != null) {
@@ -716,6 +716,44 @@ public class SameDiff {
     public List<SDVariable> variables() {
         return new ArrayList<>(variableMap.values());
     }
+
+    /**
+     *
+     *
+     * @param name
+     * @param arr
+     * @return
+     */
+    public SDVariable var(String name, NDArrayInformation arr) {
+        if(variableMap.containsKey(name) && variableMap.get(name).getArr() != null)
+            return variableMap.get(name);
+
+
+        if(name == null || name.length() < 1)
+            throw new IllegalArgumentException("Name for variable must be defined");
+
+        if(arr == null)
+            throw new IllegalArgumentException("Array for " + name + " must not be null");
+
+        if(workspace == null)
+            initWorkspace();
+
+        NDArrayVertex ndArrayVertex = new NDArrayVertex(this,graph.nextVertexId(), 0,arr);
+        graph.addVertex(ndArrayVertex);
+        SDVariable ret = SDVariable.builder()
+                .sameDiff(this)
+                .info(arr)
+                .vertexId(new int[]{ndArrayVertex.getIdx()})
+                .shape(arr.getShape())
+                .varName(name)
+                .build();
+        addVariable(ret);
+        vertexIdxToInfo.put(new int[]{ndArrayVertex.vertexID()},arr);
+        variableMap.put(name,ret);
+        return ret;
+
+    }
+
 
 
     /**
@@ -3736,17 +3774,14 @@ public class SameDiff {
                     opExecAction);
             if(differentialFunction instanceof If) {
                 If ifOp = (If) differentialFunction;
-                String opName = ifOp.getBlockName();
-                SameDiff execBody = getFunction(opName);
-                //evaluate the result
-                execBody.exec();
+                ifOp.getPredicateExecution().exec();
                 //depending on the block add the proper graph body to this for persistence
                 //and possible later processing.
                 if(ifOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
-                    ifOp.getSameDiff().getFunction(ifOp.getTrueBodyName()).invokeGraphOn(this);
+                    ifOp.getLoopBodyExecution().exec();
                 }
                 else {
-                    ifOp.getSameDiff().getFunction(ifOp.getFalseBodyName()).invokeGraphOn(this);
+                    ifOp.getFalseBodyExecution().exec();
                 }
 
                 ops.add(differentialFunction);
