@@ -7,12 +7,12 @@ import org.nd4j.graph.intermediate.TNode;
 import org.tensorflow.framework.NodeDef;
 
 /**
- * MaxPool2D op converter
+ * Conv2D converter
  *
  * @author raver119@gmail.com
  */
 @Slf4j
-public class MaxPool extends BaseTensorFlowNode {
+public class Conv2D extends BaseTensorFlowNode {
     @Override
     public TNode asIntermediateRepresentation(NodeDef tfNode, TGraph graph) {
         val tNode = buildBasicNode(tfNode, graph);
@@ -22,30 +22,33 @@ public class MaxPool extends BaseTensorFlowNode {
         val sY = tfStrides.get(1);
         val sX = tfStrides.get(2);
 
-        val aKernels = tfNode.getAttrOrThrow("ksize");
-        val tfKernels = aKernels.getList().getIList();
+        val aPadding = tfNode.getAttrOrDefault("padding", null);
 
-        val kY = tfKernels.get(1);
-        val kX = tfKernels.get(2);
+        val paddingMode = aPadding.getS().toStringUtf8();
 
-        val aPadding = tfNode.getAttrOrThrow("padding");
+        // we know that second input to conv2d is weights array
+        val weightsIndex = tNode.getInputs().get(1);
+        val variable = graph.getVariableSpace().getVariable(weightsIndex);
 
-        val paddingMode = aPadding.getS().toStringUtf8().replaceAll("\"","");
+        val kY = variable.getArray().size(0);
+        val kX = variable.getArray().size(1);
+
+        variable.setArray(variable.getArray().permute(3, 2, 0, 1).dup('c'));
 
         boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
 
         if (!isSameMode)
             log.debug("Mode: {}", paddingMode);
 
-        log.debug("Pooling: k: [{},{}]; s: [{}, {}], padding: {}", kY, kX, sY, sX, aPadding);
+        log.debug("Conv2D: k: [{}, {}]; s: [{}, {}]; padding: {}", kY, kX, sY, sX,  paddingMode);
 
-        tNode.getOpState().setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0 });
+        tNode.getOpState().setExtraBits(new int[] {kY, kX, sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0});
 
         return tNode;
     }
 
     @Override
     public String opName() {
-        return "maxpool";
+        return "conv2d";
     }
 }

@@ -7,9 +7,12 @@ import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TIndex;
 import org.nd4j.graph.intermediate.TNode;
+import org.nd4j.graph.intermediate.TVariableSpace;
 import org.nd4j.imports.converters.ExternalNode;
+import org.nd4j.linalg.api.ops.BaseOp;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
+import org.nd4j.linalg.factory.Nd4j;
 import org.tensorflow.framework.NodeDef;
 
 @Slf4j
@@ -90,8 +93,7 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
             }
         }
 
-        //OpState opState = getOpStateFromNodeDef(tfNode, tfNode.getInputCount(), tNode, intermediateGraph.getVariableSpace());
-        //tNode.setOpState(opState);
+        tNode.setOpState(getOpStateFromNodeDef(tfNode, tfNode.getInputCount(), tNode, intermediateGraph.getVariableSpace()));
 
         for (val index: tNode.getInputs()) {
             if (index.getNode() < 0)
@@ -104,5 +106,50 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
         }
 
         return tNode;
+    }
+
+
+    protected OpState getOpStateFromNodeDef(NodeDef tfNode, int numInputs) {
+        return getOpStateFromNodeDef(tfNode, numInputs, null, null);
+    }
+
+    protected OpState getOpStateFromNodeDef(NodeDef tfNode, int numInputs, TNode tNode, TVariableSpace variableSpace) {
+        String lc = tfNode.getOp().toLowerCase();
+        if (lc.equalsIgnoreCase("while"))
+            log.info("While found");
+
+        log.debug("Looking for [{}] op...", lc);
+        if (numInputs > 0 && numInputs <= 2) {
+            int opNum = Nd4j.getOpFactory().getOpNumIfExists(lc);
+
+            if (opNum >= 0) {
+
+                val type = BaseOp.getOpType(Nd4j.getOpFactory().getOpByName(lc));
+
+                if (type != Op.Type.SHAPE && type != Op.Type.CUSTOM) {
+                    val op = Nd4j.getOpFactory().getOpByName(lc);
+                    OpState opState = OpState.builder()
+                            .opType(type)
+                            .extraArgs(op.extraArgs())
+                            .opNum(opNum)
+                            .opName(lc)
+                            .build();
+
+                    return opState;
+                }
+            }
+        }
+
+        OpState opState = OpState.builder()
+                .opType(Op.Type.CUSTOM)
+                .opNum(-1)
+                .opName(tfNode.getOp())
+                .build();
+
+        if (!Nd4j.getExecutioner().getCustomOperations().containsKey(lc))
+            log.warn("Unknown op: [{}]", lc);
+        //throw new ND4JIllegalStateException("Unknown operation requested: ["+ tfNode.getOp() +"]");
+
+        return opState;
     }
 }
