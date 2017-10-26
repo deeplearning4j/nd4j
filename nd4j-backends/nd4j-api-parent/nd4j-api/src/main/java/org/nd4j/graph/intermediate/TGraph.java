@@ -18,10 +18,8 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class provides intermediate representation of Graph
@@ -31,6 +29,9 @@ import java.util.Map;
 @Slf4j
 public class TGraph {
     @Getter protected TVariableSpace variableSpace = new TVariableSpace();
+
+    // this map contains reverse lookup information, between external graph (i.e. tf) and ours
+    @Getter protected Map<String, TIndex> reverseMap = new HashMap<>();
 
     // this is the layered representation
     protected Map<Integer, List<TNode>> onionMap = new HashMap<>();
@@ -44,6 +45,13 @@ public class TGraph {
     // storage for Scopes
     protected Map<Integer, TScope> numericScopes = new HashMap<>();
     protected Map<String, TScope> symbolicScopes = new HashMap<>();
+
+    // counters for import processs
+    protected AtomicInteger varsCnt = new AtomicInteger(0);
+    protected AtomicInteger nodesCnt = new AtomicInteger(0);
+
+    // here we store nodes which were already processed by
+    @Getter protected Set<String> skipSet = new HashSet<>();
 
     protected void expandOnion(int layer) {
         onionMap.put(layer, new ArrayList<TNode>());
@@ -65,6 +73,38 @@ public class TGraph {
             log.info("Adding node by name: [{}]", node.getName());
             symbolicMap.put(node.getName(), node);
         }
+    }
+
+    /**
+     * This method returns current node id, without increment
+     * @return
+     */
+    public int getCurrentNodeId() {
+        return nodesCnt.get();
+    }
+
+    /**
+     * This method returns new node id, pre-increment
+     * @return
+     */
+    public int getNewNodeId() {
+        return nodesCnt.incrementAndGet();
+    }
+
+    /**
+     * This method returns current var id, without decrement
+     * @return
+     */
+    public int getCurrentVariableId() {
+        return varsCnt.get();
+    }
+
+    /**
+     * This method returns new node id, pre-decrement
+     * @return
+     */
+    public int getNewVariableId() {
+        return varsCnt.decrementAndGet();
     }
 
     protected int getTailSize() {

@@ -18,9 +18,11 @@ import java.util.Arrays;
 public class Reshape extends BaseTensorFlowNode {
     @Override
     public TNode asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
         // in reshape operation we replace second input, and replace it with extra args
-        log.debug("TNode inputs: {}", node.getInputs());
-        val shapeIndex = node.getInputs().remove(1);
+        log.debug("TNode inputs: {}", tNode.getInputs());
+        val shapeIndex = tNode.getInputs().remove(1);
         val variable = graph.getVariableSpace().getVariable(shapeIndex);
 
         assert variable != null;
@@ -29,7 +31,6 @@ public class Reshape extends BaseTensorFlowNode {
         // we know that TF is always C order
         int[] args = ArrayUtils.add(variable.getShape(),  0, (int)'c');
 
-        val tNode = buildBasicNode(node, graph);
 
         log.debug("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
 

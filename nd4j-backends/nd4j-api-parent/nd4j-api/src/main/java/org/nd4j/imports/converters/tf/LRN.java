@@ -14,6 +14,8 @@ public class LRN extends BaseTensorFlowNode {
 
     @Override
     public TNode asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
         val aAlpha = node.getAttrOrThrow("alpha");
         val aBeta = node.getAttrOrThrow("beta");
         val aBias = node.getAttrOrThrow("bias");
@@ -23,8 +25,6 @@ public class LRN extends BaseTensorFlowNode {
         val beta = aBeta.getF();
         val bias = aBias.getF();
         val depth = aDepth.getF();
-
-        val tNode = buildBasicNode(node, graph);
 
         tNode.getOpState().setExtraArgs(new Object[]{alpha, beta, bias, depth});
 
