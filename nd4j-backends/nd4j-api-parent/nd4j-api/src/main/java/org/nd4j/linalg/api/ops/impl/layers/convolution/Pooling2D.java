@@ -57,10 +57,7 @@ public class Pooling2D extends DynamicCustomOp {
         getIArguments().add(config.getPw());
         getIArguments().add(config.getDh());
         getIArguments().add(config.getDw());
-        getIArguments().add(config.getVirtualHeight());
-        getIArguments().add(config.getVirtualWidth());
         getIArguments().add(fromBoolean(config.isSameMode()));
-        getTArguments().add(config.getExtra());
 
     }
 
