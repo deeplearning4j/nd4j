@@ -951,6 +951,7 @@ public class TensorFlowImport {
              opState.setExtraBits(new int[] {kY.intValue(), kX.intValue(), sY.intValue(), sX.intValue(), 0, 0, 1, 1, isSameMode ? 1 : 0 });
 
          } else if (lc.equalsIgnoreCase("lrn")) {
+             /*
              val aAlpha = tfNode.getAttrOrThrow("alpha");
              val aBeta = tfNode.getAttrOrThrow("beta");
              val aBias = tfNode.getAttrOrThrow("bias");
@@ -964,7 +965,9 @@ public class TensorFlowImport {
 
              opState.setExtraArgs(new Object[]{alpha, beta, bias, depth});
              log.debug("LRN: alpha: {}; beta: {}; bias: {}; depth: {};", alpha, beta, bias, depth);
+             */
          } else if (lc.equalsIgnoreCase("reshape")) {
+             /*
              // in reshape operation we replace second input, and replace it with extra args
              log.debug("TNode inputs: {}", tNode.getInputs());
              val shapeIndex = tNode.getInputs().remove(1);
@@ -980,6 +983,7 @@ public class TensorFlowImport {
 
              // new shape goes here
              opState.setExtraBits(args);
+             */
          } else if (lc.equalsIgnoreCase("concat")) {
              log.debug("TNode inputs: {}", tNode.getInputs());
              TIndex dimIndex;

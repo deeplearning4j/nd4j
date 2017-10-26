@@ -1,6 +1,7 @@
 package org.nd4j.imports.converters.tf;
 
 import lombok.NonNull;
+import lombok.val;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TNode;
 import org.nd4j.imports.converters.ExternalNode;
@@ -36,5 +37,13 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
     @Override
     public Op asExecutableOperation(@NonNull NodeDef node, @NonNull TGraph graph) {
         return null;
+    }
+
+    protected TNode buildBasicNode(@NonNull NodeDef node, @NonNull TGraph graph) {
+        val tNode = TNode.builder()
+                .name(node.getName())
+                .build();
+
+        return tNode;
     }
 }
