@@ -32,12 +32,12 @@ public class Col2Im extends DynamicCustomOp {
     public Col2Im() {}
 
     protected void addArgs() {
-        getIArguments().add(conv2DConfig.getKh());
-        getIArguments().add(conv2DConfig.getKw());
         getIArguments().add(conv2DConfig.getSy());
         getIArguments().add(conv2DConfig.getSx());
         getIArguments().add(conv2DConfig.getPh());
         getIArguments().add(conv2DConfig.getPw());
+        getIArguments().add(conv2DConfig.getKh());
+        getIArguments().add(conv2DConfig.getKw());
         getIArguments().add(conv2DConfig.getDh());
         getIArguments().add(conv2DConfig.getDw());
         getIArguments().add(fromBoolean(conv2DConfig.isSameMode()));

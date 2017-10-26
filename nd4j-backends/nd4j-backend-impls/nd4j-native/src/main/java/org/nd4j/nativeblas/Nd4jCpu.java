@@ -6912,6 +6912,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native int size();
         public native FloatNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(FloatNDArray array);
+
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
     }
     @Name("nd4j::ArrayList<float16>") @NoOffset public static class HalfArrayList extends Pointer {
         static { Loader.load(); }
@@ -6931,6 +6934,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native int size();
         public native HalfNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(HalfNDArray array);
+
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
     }
     @Name("nd4j::ArrayList<double>") @NoOffset public static class DoubleArrayList extends Pointer {
         static { Loader.load(); }
@@ -6950,6 +6956,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native int size();
         public native DoubleNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(DoubleNDArray array);
+
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
     }
 
 
