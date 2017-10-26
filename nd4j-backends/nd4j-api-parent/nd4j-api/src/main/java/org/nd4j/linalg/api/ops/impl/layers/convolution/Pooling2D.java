@@ -37,7 +37,7 @@ public class Pooling2D extends DynamicCustomOp {
            getInputArguments().addAll(Arrays.asList(arrayInputs));
        }
 
-       if(getOutputFunctions() != null) {
+       if(arrayOutputs != null) {
            getOutputArguments().addAll(Arrays.asList(arrayOutputs));
        }
 

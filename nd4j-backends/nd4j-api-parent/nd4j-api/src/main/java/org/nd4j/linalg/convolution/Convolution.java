@@ -221,6 +221,25 @@ public class Convolution {
         return im2col.getOutputArguments().get(0);
     }
 
+    /**
+     * Pooling 2d implementation
+     * @param img
+     * @param kh
+     * @param kw
+     * @param sy
+     * @param sx
+     * @param ph
+     * @param pw
+     * @param dh
+     * @param dw
+     * @param isSameMode
+     * @param type
+     * @param extra
+     * @param virtualHeight
+     * @param virtualWidth
+     * @param out
+     * @return
+     */
     public static INDArray pooling2D(INDArray img, int kh, int kw, int sy, int sx, int ph, int pw,
                                      int dh, int dw, boolean isSameMode, Pooling2D.Pooling2DType type, double extra, int virtualHeight, int virtualWidth,
                                      INDArray out) {
@@ -237,6 +256,7 @@ public class Convolution {
                         .pw(pw)
                         .isSameMode(isSameMode)
                         .sx(sx)
+                        .sy(sy)
                         .virtualHeight(virtualHeight)
                         .virtualWidth(virtualWidth)
                         .type(type)
