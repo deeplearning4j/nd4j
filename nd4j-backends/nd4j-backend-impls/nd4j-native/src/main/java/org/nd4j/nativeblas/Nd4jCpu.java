@@ -8037,9 +8037,12 @@ public static final long MAX_UINT = MAX_UINT();
             public native void fillInputs(@StdVector IntPointer inputs);
             public native void fillInputs(@StdVector IntBuffer inputs);
             public native void fillInputs(@StdVector int[] inputs);
+            public native @StdVector IntIntPair inputs();
 
             public native int getBranch();
             public native void setBranch(int branch);
+
+            public native void updateVariables();
 
             /**
              * This method returns number of inputs available in this block
@@ -8103,9 +8106,12 @@ public static final long MAX_UINT = MAX_UINT();
             public native void fillInputs(@StdVector IntPointer inputs);
             public native void fillInputs(@StdVector IntBuffer inputs);
             public native void fillInputs(@StdVector int[] inputs);
+            public native @StdVector IntIntPair inputs();
 
             public native int getBranch();
             public native void setBranch(int branch);
+
+            public native void updateVariables();
 
             /**
              * This method returns number of inputs available in this block
@@ -8169,9 +8175,12 @@ public static final long MAX_UINT = MAX_UINT();
             public native void fillInputs(@StdVector IntPointer inputs);
             public native void fillInputs(@StdVector IntBuffer inputs);
             public native void fillInputs(@StdVector int[] inputs);
+            public native @StdVector IntIntPair inputs();
 
             public native int getBranch();
             public native void setBranch(int branch);
+
+            public native void updateVariables();
 
             /**
              * This method returns number of inputs available in this block
