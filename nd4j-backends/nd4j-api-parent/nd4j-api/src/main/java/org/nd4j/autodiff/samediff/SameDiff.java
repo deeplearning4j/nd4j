@@ -3764,9 +3764,12 @@ public class SameDiff {
                 //and possible later processing.
                 if(ifOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
                     ifOp.getLoopBodyExecution().exec();
+                    ifOp.exectedTrueOrFalse(true);
                 }
                 else {
                     ifOp.getFalseBodyExecution().exec();
+                    ifOp.exectedTrueOrFalse(false);
+
                 }
 
                 ops.add(differentialFunction);
