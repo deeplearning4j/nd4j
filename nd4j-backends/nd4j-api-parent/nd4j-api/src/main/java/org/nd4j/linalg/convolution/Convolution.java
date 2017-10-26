@@ -234,7 +234,7 @@ public class Convolution {
      * @param dw
      * @param isSameMode
      * @param type
-     * @param extra
+     * @param extra optional argument. I.e. used in pnorm pooling.
      * @param virtualHeight
      * @param virtualWidth
      * @param out
