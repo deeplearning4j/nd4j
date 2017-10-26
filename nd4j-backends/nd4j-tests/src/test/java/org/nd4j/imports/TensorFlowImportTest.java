@@ -9,6 +9,7 @@ import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.graph.intermediate.TIndex;
+import org.nd4j.imports.converters.TensorFlowMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
@@ -276,6 +277,12 @@ public class TensorFlowImportTest {
     public void testIntermediateLoop3() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/nested_while.pb.txt").getFile());
+    }
+
+    @Test
+    public void testIntermediateHelper() throws Exception {
+        assertTrue(TensorFlowMapper.getInstance().knownOps().size() > 0);
+        assertTrue(TensorFlowMapper.getInstance().knownOps().contains("lrn"));
     }
 
     @Test

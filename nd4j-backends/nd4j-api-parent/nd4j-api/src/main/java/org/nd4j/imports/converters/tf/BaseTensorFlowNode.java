@@ -14,16 +14,13 @@ import org.tensorflow.framework.NodeDef;
 
 @Slf4j
 public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
-    protected NodeDef tfNode;
-    protected TGraph tGraph;
 
     protected BaseTensorFlowNode() {
         //
     }
 
     protected BaseTensorFlowNode(@NonNull Object nodeDef, @NonNull TGraph tGraph) {
-        this.tfNode = (NodeDef) nodeDef;
-        this.tGraph = tGraph;
+
     }
 
     /**
@@ -44,8 +41,9 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
         return null;
     }
 
-    protected TNode buildBasicNode(@NonNull NodeDef node, @NonNull TGraph intermediateGraph) {
+    protected TNode buildBasicNode(@NonNull NodeDef tfNode, @NonNull TGraph intermediateGraph) {
         val nodeId = intermediateGraph.getCurrentNodeId();
+        log.info("Adding reverse point [{}] -> [{}:0]", tfNode.getName(), nodeId);
         intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(nodeId, 0));
         val tNode = TNode.builder()
                 .name(tfNode.getName())
@@ -72,7 +70,7 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
                     Integer lnode = intermediateGraph.getReverseMap().get(split[0]).getNode();
                     Integer idx = Integer.valueOf(split[1]);
 
-                    if (node == null) {
+                    if (lnode == null) {
                         log.error("Can't find mapped node [{}]", input);
                         throw new ND4JIllegalStateException("Can't find mapped node [" + input + "]");
                     }

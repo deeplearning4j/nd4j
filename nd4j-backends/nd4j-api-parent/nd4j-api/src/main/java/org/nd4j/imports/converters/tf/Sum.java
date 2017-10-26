@@ -18,7 +18,7 @@ public class Sum extends BaseTensorFlowNode{
 
     @Override
     public String opName() {
-        return "Sum";
+        return "sum";
     }
 
     /**
@@ -28,11 +28,7 @@ public class Sum extends BaseTensorFlowNode{
      */
     @Override
     public TNode asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
-        val tNode = TNode.builder()
-                .opName(opName())
-                .opNum(0)
-                .build();
-
+        val tNode = buildBasicNode(node, graph);
 
 
         return tNode;
