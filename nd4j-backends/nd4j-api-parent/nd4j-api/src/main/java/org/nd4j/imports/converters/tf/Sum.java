@@ -30,6 +30,10 @@ public class Sum extends BaseTensorFlowNode{
     public TNode asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
         val tNode = buildBasicNode(node, graph);
 
+        /**
+         * 2 options here. We either have specific dimension, or not.
+         * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension
+         */
 
         return tNode;
     }
