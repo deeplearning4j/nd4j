@@ -198,8 +198,10 @@ public class TensorFlowImportTest {
 
 
         assertEquals("Sum", firstScopedNode.getOpName());
+        assertEquals(1, firstScopedNode.getInputs().size());
         assertEquals(TIndex.makeOf(whileNode.getId()), firstScopedNode.getInputs().get(0));
-        assertEquals(condConstA.getId(), firstScopedNode.getInputs().get(1).getNode());
+        assertEquals(Integer.MAX_VALUE, firstScopedNode.getOpState().getAxes()[0]);
+//        assertEquals(condConstA.getId(), firstScopedNode.getInputs().get(1).getNode());
 
         assertEquals("Less", secondScopedNode.getOpName());
         assertEquals(2, secondScopedNode.getInputs().size());
