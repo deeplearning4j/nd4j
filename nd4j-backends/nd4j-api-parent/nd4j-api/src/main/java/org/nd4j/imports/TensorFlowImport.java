@@ -337,7 +337,7 @@ public class TensorFlowImport {
 
 
             if (isConst || isVar || isPlaceholder) {
-                val var = importVariable(tfNode, intermediateGraph.getReverseMap(), intermediateGraph.getCurrentVariableId());
+                val var = importVariable(tfNode, intermediateGraph.getReverseMap(), intermediateGraph.getNewVariableId());
                 log.info("Adding condition var [{}:{}]", var.getName(), var.getId());
 
                 intermediateGraph.getVariableSpace().addVariable(var.getId(), var);

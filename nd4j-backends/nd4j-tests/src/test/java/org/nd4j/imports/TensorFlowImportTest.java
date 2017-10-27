@@ -197,6 +197,16 @@ public class TensorFlowImportTest {
         val condConstB = tg.getVariableSpace().getVariable("while/Less/y");
 
 
+        val var5 = tg.getVariableSpace().getVariable(-5);
+        val varC = tg.getVariableSpace().getVariable("Const_2");
+
+        assertTrue(var5 == varC);
+
+        val var6 = tg.getVariableSpace().getVariable(-6);
+        assertEquals("omega", var6.getName());
+
+
+
         assertEquals("Sum", firstScopedNode.getOpName());
         assertEquals(1, firstScopedNode.getInputs().size());
         assertEquals(TIndex.makeOf(whileNode.getId()), firstScopedNode.getInputs().get(0));
