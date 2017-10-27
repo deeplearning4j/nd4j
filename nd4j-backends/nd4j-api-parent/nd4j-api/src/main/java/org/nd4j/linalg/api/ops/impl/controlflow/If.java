@@ -173,7 +173,12 @@ public class If extends DifferentialFunction implements CustomOp {
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         if(trueBodyExecuted != null) {
+            if(trueBodyExecuted) {
+               loopBodyExecution.execBackwards();
+            }
+            else {
 
+            }
         }
         else {
 
