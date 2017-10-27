@@ -70,6 +70,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_im2col.class,
         float_col2im.class,
         float_strided_slice.class,
+        float_upsampling2d.class,
+        float_upsampling2d_bp.class,
         float_sru1.class,
         float_sru2.class,
         float_sru_bp_1.class,
@@ -86,8 +88,6 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_batchnorm_bp.class,
         float_conv3d.class,
         float_conv3d_bp.class,
-        float_upsampling2d.class,
-        float_upsampling2d_bp.class,
         float_maxpool3d.class,
         float_ismax.class,
         float_firas_sparse.class,
@@ -158,6 +158,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_im2col.class,
         half_col2im.class,
         half_strided_slice.class,
+        half_upsampling2d.class,
+        half_upsampling2d_bp.class,
         half_sru1.class,
         half_sru2.class,
         half_sru_bp_1.class,
@@ -174,8 +176,6 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_batchnorm_bp.class,
         half_conv3d.class,
         half_conv3d_bp.class,
-        half_upsampling2d.class,
-        half_upsampling2d_bp.class,
         half_maxpool3d.class,
         half_ismax.class,
         half_firas_sparse.class,
@@ -246,6 +246,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_im2col.class,
         double_col2im.class,
         double_strided_slice.class,
+        double_upsampling2d.class,
+        double_upsampling2d_bp.class,
         double_sru1.class,
         double_sru2.class,
         double_sru_bp_1.class,
@@ -262,8 +264,6 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_batchnorm_bp.class,
         double_conv3d.class,
         double_conv3d_bp.class,
-        double_upsampling2d.class,
-        double_upsampling2d_bp.class,
         double_maxpool3d.class,
         double_ismax.class,
         double_firas_sparse.class,
@@ -15344,6 +15344,90 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
                                                                                 } // TODO: new op type needed. that returns VIEW
+        @Name("nd4j::ops::upsampling2d<float>") public static class float_upsampling2d extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_upsampling2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_upsampling2d position(long position) {
+                return (float_upsampling2d)super.position(position);
+            }
+        public float_upsampling2d() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
+                                                                                }
+        @Name("nd4j::ops::upsampling2d<float16>") public static class half_upsampling2d extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_upsampling2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_upsampling2d position(long position) {
+                return (half_upsampling2d)super.position(position);
+            }
+        public half_upsampling2d() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
+                                                                                }
+        @Name("nd4j::ops::upsampling2d<double>") public static class double_upsampling2d extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_upsampling2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_upsampling2d position(long position) {
+                return (double_upsampling2d)super.position(position);
+            }
+        public double_upsampling2d() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
+                                                                                }
+        @Name("nd4j::ops::upsampling2d_bp<float>") public static class float_upsampling2d_bp extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_upsampling2d_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_upsampling2d_bp position(long position) {
+                return (float_upsampling2d_bp)super.position(position);
+            }
+        public float_upsampling2d_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
+                                                                                }
+        @Name("nd4j::ops::upsampling2d_bp<float16>") public static class half_upsampling2d_bp extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_upsampling2d_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_upsampling2d_bp position(long position) {
+                return (half_upsampling2d_bp)super.position(position);
+            }
+        public half_upsampling2d_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
+                                                                                }
+        @Name("nd4j::ops::upsampling2d_bp<double>") public static class double_upsampling2d_bp extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_upsampling2d_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_upsampling2d_bp position(long position) {
+                return (double_upsampling2d_bp)super.position(position);
+            }
+        public double_upsampling2d_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
+                                                                                }
 
 
         // recurrent ops
@@ -16025,90 +16109,7 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
                                                                                 } // TODO: to be implemented
-        @Name("nd4j::ops::upsampling2d<float>") public static class float_upsampling2d extends FloatDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public float_upsampling2d(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public float_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public float_upsampling2d position(long position) {
-                return (float_upsampling2d)super.position(position);
-            }
-        public float_upsampling2d() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
-                                                                                }
-        @Name("nd4j::ops::upsampling2d<float16>") public static class half_upsampling2d extends HalfDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public half_upsampling2d(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public half_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public half_upsampling2d position(long position) {
-                return (half_upsampling2d)super.position(position);
-            }
-        public half_upsampling2d() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
-                                                                                }
-        @Name("nd4j::ops::upsampling2d<double>") public static class double_upsampling2d extends DoubleDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public double_upsampling2d(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public double_upsampling2d(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public double_upsampling2d position(long position) {
-                return (double_upsampling2d)super.position(position);
-            }
-        public double_upsampling2d() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
-                                                                                } // make this one custom
-        @Name("nd4j::ops::upsampling2d_bp<float>") public static class float_upsampling2d_bp extends FloatDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public float_upsampling2d_bp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public float_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public float_upsampling2d_bp position(long position) {
-                return (float_upsampling2d_bp)super.position(position);
-            }
-        public float_upsampling2d_bp() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
-                                                                                }
-        @Name("nd4j::ops::upsampling2d_bp<float16>") public static class half_upsampling2d_bp extends HalfDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public half_upsampling2d_bp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public half_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public half_upsampling2d_bp position(long position) {
-                return (half_upsampling2d_bp)super.position(position);
-            }
-        public half_upsampling2d_bp() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
-                                                                                }
-        @Name("nd4j::ops::upsampling2d_bp<double>") public static class double_upsampling2d_bp extends DoubleDeclarableOp {
-            static { Loader.load(); }
-            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
-            public double_upsampling2d_bp(Pointer p) { super(p); }
-            /** Native array allocator. Access with {@link Pointer#position(long)}. */
-            public double_upsampling2d_bp(long size) { super((Pointer)null); allocateArray(size); }
-            private native void allocateArray(long size);
-            @Override public double_upsampling2d_bp position(long position) {
-                return (double_upsampling2d_bp)super.position(position);
-            }
-        public double_upsampling2d_bp() { super((Pointer)null); allocate(); }
-private native void allocate();
-                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
-                                                                                } // make this one custom
+
         @Name("nd4j::ops::maxpool3d<float>") public static class float_maxpool3d extends FloatDeclarableOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
@@ -16123,6 +16124,7 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
                                                                                 }
+
         @Name("nd4j::ops::maxpool3d<float16>") public static class half_maxpool3d extends HalfDeclarableOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
@@ -16137,6 +16139,7 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
                                                                                 }
+
         @Name("nd4j::ops::maxpool3d<double>") public static class double_maxpool3d extends DoubleDeclarableOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */

@@ -286,6 +286,18 @@ public class TensorFlowImportTest {
     }
 
     @Test
+    public void testIntermediateReduction() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getFile());
+
+        val sumNode = tg.getNode("Sum");
+        assertNotNull(sumNode);
+
+        assertNotNull(sumNode.getOpState().getAxes());
+        assertEquals(1, sumNode.getOpState().getAxes()[0]);
+    }
+
+    @Test
     public void testDefaultArgs() {
         val op = Nd4j.getOpFactory().getOpByName("relu");
 
