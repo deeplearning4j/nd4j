@@ -466,6 +466,10 @@ public class TensorFlowImport {
     }
 
     protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, TIndex> reverseVertexMap, int varId) {
+        if (tfNode.getName().equalsIgnoreCase("while/Less/y"))
+        //if (tfNode.getName().equalsIgnoreCase("while/Sum"))
+            log.debug("wow");
+
         val variable = new TVariable();
         val attributes = tfNode.getAttrMap();
         List<Integer> dimensions = new ArrayList<>();
@@ -523,7 +527,7 @@ public class TensorFlowImport {
 
             TensorProto tensor = value.getTensor();
             log.debug("Dtype: {}", tensor.getDtype());
-            if (tensor.getDtype() == DataType.DT_FLOAT || tensor.getDtype() == DataType.DT_DOUBLE) {
+            if (tensor.getDtype() == DataType.DT_FLOAT || tensor.getDtype() == DataType.DT_DOUBLE || tensor.getDtype() == DataType.DT_INT32 || tensor.getDtype() == DataType.DT_INT64) {
 
                 INDArray array = getNDArrayFromTensor(tensor);
                 variable.setShape(array.shape());
@@ -699,7 +703,19 @@ public class TensorFlowImport {
                 return array;
             } else {
                 // FIXME: INT bytebuffers should be converted to floating point
-                throw new UnsupportedOperationException("To be implemented yet");
+                //throw new UnsupportedOperationException("To be implemented yet");
+                long length = ArrayUtil.prodLong(arrayShape);
+                // binary representation
+                val bb = tfTensor.getTensorContent().asReadOnlyByteBuffer();
+                val fb = bb.order(ByteOrder.nativeOrder()).asIntBuffer();
+                val fa = new float[fb.capacity()];
+                for (int e = 0; e < fb.capacity(); e++)
+                    fa[e] = (float) fb.get(e);
+
+                val array = Nd4j.create(fa, arrayShape, 'c', 0);
+                //log.debug("SUM1: {}", array.sumNumber());
+                //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
+                return array;
             }
         } else if (tfTensor.getDtype() == DataType.DT_FLOAT) {
             if (tfTensor.getFloatValCount() == 1) {

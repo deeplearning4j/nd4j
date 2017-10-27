@@ -46,10 +46,15 @@ public class Sum extends BaseTensorFlowNode{
         val variable = graph.getVariableSpace().getVariable(shapeIndex);
 
         // reduce to scalar
-        if (variable.getShape().length == 2 && variable.getShape()[0] == 1 && variable.getShape()[1] == 1)
+        if (variable.getArray() == null && variable.getShape().length == 2 && variable.getShape()[0] == 1 && variable.getShape()[1] == 1)
             tNode.getOpState().setAxes(new int[]{Integer.MAX_VALUE});// we're going for scalar
-        else
-            tNode.getOpState().setAxes(variable.getShape());
+        else {
+            if (variable.getArray() != null) {
+              val axes = variable.getArray().data().asInt();
+              tNode.getOpState().setAxes(axes);
+            } else
+                tNode.getOpState().setAxes(variable.getShape());
+        }
 
         return tNode;
     }
