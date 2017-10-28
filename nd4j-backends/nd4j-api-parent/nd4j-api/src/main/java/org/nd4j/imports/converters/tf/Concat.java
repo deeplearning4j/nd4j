@@ -32,6 +32,14 @@ public class Concat extends BaseTensorFlowNode {
             if (variable != null && variable.getId() < 0 && variable.getArray() == null) {
                 idx = cnt;
                 concatDimension = variable.getShape()[0];
+                break;
+            } else if (variable != null && variable.getId() < 0) {
+                val arr = variable.getArray();
+                if (arr.length() == 1) {
+                    concatDimension = arr.getInt(0);
+                    idx = cnt;
+                    break;
+                }
             }
             cnt++;
         }
