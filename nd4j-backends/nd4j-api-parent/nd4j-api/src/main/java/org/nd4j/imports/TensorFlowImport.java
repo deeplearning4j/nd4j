@@ -426,8 +426,24 @@ public class TensorFlowImport {
             intermediateGraph.getSkipSet().add(tfNode.getName().toLowerCase());
         }
 
+        val returnOp = TNode.builder()
+                .opState(OpState.builder()
+                        .opType(Op.Type.RETURN)
+                        .opNum(40)
+                        .opName("return")
+                        .build())
+                .name("whileReturn")
+                .id(intermediateGraph.getNewNodeId())
+                .opName("return")
+                .opNum(40)
+                .scoped(true)
+                .scopeId(scopeLoop.getId())
+                .scopeName(scopeLoop.getName())
+                .build();
 
-        // skipping NextIterations, we just know when the Scope ends
+        val returnInputs = new ArrayList<TIndex>();
+        val returnOutputs = new ArrayList<Integer>();
+        // mapping NextIterations, to Return op
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -435,7 +451,14 @@ public class TensorFlowImport {
                 break;
 
             intermediateGraph.getSkipSet().add(tfNode.getName().toLowerCase());
+            val inputName = tfNode.getInput(0);
+            val input = intermediateGraph.getReverseMap().get(inputName);
+            returnInputs.add(input);
+            returnOutputs.add(tNode.getId());
         }
+        returnOp.setInputs(returnInputs);
+        returnOp.setOutputs(returnOutputs);
+        scopeLoop.addNode(returnOp);
 
         // we should also map While/Exit to libnd4j while
         int exitCnt = 0;

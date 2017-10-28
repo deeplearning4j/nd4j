@@ -307,6 +307,8 @@ public class TGraph {
     public static long getOpNum(String name, Op.Type type) {
         if (type == Op.Type.LOOP ) {
             return 0;
+        } else if (type == Op.Type.RETURN) {
+            return 40;
         } else if (type == Op.Type.IF || type == Op.Type.CONDITIONAL) {
             return 10;
         } else if (type == Op.Type.CUSTOM )
@@ -330,6 +332,8 @@ public class TGraph {
             case INDEXREDUCE:
                 return OpType.INDEX_ACCUMULATION;
             case LOOP:
+                return OpType.LOGIC;
+            case RETURN:
                 return OpType.LOGIC;
             case CUSTOM:
                 return OpType.CUSTOM;

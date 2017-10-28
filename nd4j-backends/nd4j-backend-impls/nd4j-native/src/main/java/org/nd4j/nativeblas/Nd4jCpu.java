@@ -41,6 +41,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_While.class,
         float_Scope.class,
         float_Conditional.class,
+        float_Return.class,
         float_testcustom.class,
         float_concat.class,
         float_matmul.class,
@@ -129,6 +130,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_While.class,
         half_Scope.class,
         half_Conditional.class,
+        half_Return.class,
         half_testcustom.class,
         half_concat.class,
         half_matmul.class,
@@ -217,6 +219,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_While.class,
         double_Scope.class,
         double_Conditional.class,
+        double_Return.class,
         double_testcustom.class,
         double_concat.class,
         double_matmul.class,
@@ -14121,6 +14124,45 @@ private native void allocate();
                 return (double_Conditional)super.position(position);
             }
         public double_Conditional() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                }
+        @Name("nd4j::ops::Return<float>") public static class float_Return extends FloatLogicOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_Return(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_Return(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_Return position(long position) {
+                return (float_Return)super.position(position);
+            }
+        public float_Return() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                }
+        @Name("nd4j::ops::Return<float16>") public static class half_Return extends HalfLogicOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_Return(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_Return(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_Return position(long position) {
+                return (half_Return)super.position(position);
+            }
+        public half_Return() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                }
+        @Name("nd4j::ops::Return<double>") public static class double_Return extends DoubleLogicOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_Return(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_Return(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_Return position(long position) {
+                return (double_Return)super.position(position);
+            }
+        public double_Return() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                 }
 

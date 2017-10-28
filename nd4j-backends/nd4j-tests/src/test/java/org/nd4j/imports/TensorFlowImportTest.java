@@ -219,7 +219,7 @@ public class TensorFlowImportTest {
         assertEquals(condConstB.getId(), secondScopedNode.getInputs().get(1).getNode());
 
         // TODO: we probably want to get rid of identity step? or, let it be?
-        assertEquals(5, scopeBody.size());
+        assertEquals(6, scopeBody.size());
 
         val loopConstA = tg.getVariableSpace().getVariable("while/add/y");
         val loopConstB = tg.getVariableSpace().getVariable("while/add_1/y");
@@ -227,15 +227,19 @@ public class TensorFlowImportTest {
         val identity0 = scopeBody.getNode("while/Identity");
         val identity1 = scopeBody.getNode("while/Identity_1");
         val identity2 = scopeBody.getNode("while/Identity_2");
+        val returnScope = scopeBody.getNode("whileReturn");
 
         assertNotNull(identity0);
         assertNotNull(identity1);
         assertNotNull(identity2);
+        assertNotNull(returnScope);
 
         // now we're validating Identity input, it's derived from While op
         assertEquals(TIndex.makeOf(whileNode.getId(), 0), identity0.getInputs().get(0));
         assertEquals(TIndex.makeOf(whileNode.getId(), 1), identity1.getInputs().get(0));
         assertEquals(TIndex.makeOf(whileNode.getId(), 2), identity2.getInputs().get(0));
+
+        assertEquals(3, returnScope.getInputs().size());
 
 
         val bodyNode4 = scopeBody.getNodes().get(3);
