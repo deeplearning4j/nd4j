@@ -87,7 +87,7 @@ public abstract class BaseTensorFlowNode implements ExternalNode<NodeDef> {
                 val id = intermediateGraph.getReverseMap().get(input);
 
                 if (id == null)
-                    throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
+                    throw new ND4JIllegalStateException("TF Node [" + tfNode.getName() + "] refers to unknown input: [" + input + "]");
 
                 tNode.addInput(id);
             }

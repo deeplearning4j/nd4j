@@ -179,8 +179,8 @@ public class TensorFlowImportTest {
         assertNotNull(phi);
         assertArrayEquals(new int[] {2, 2}, phi.getShape());
 
-        val scopeCondition = tg.getScope("scopeCondition");
-        val scopeBody = tg.getScope("scopeLoop");
+        val scopeCondition = tg.getScope(9);
+        val scopeBody = tg.getScope(10);
 
         val whileNode = tg.getNode(11);
         assertEquals("while", whileNode.getOpName());
@@ -227,7 +227,7 @@ public class TensorFlowImportTest {
         val identity0 = scopeBody.getNode("while/Identity");
         val identity1 = scopeBody.getNode("while/Identity_1");
         val identity2 = scopeBody.getNode("while/Identity_2");
-        val returnScope = scopeBody.getNode("whileReturn");
+        val returnScope = scopeBody.lastNode();
 
         assertNotNull(identity0);
         assertNotNull(identity1);
@@ -293,6 +293,8 @@ public class TensorFlowImportTest {
     public void testIntermediateLoop3() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/nested_while.pb.txt").getFile());
+
+
     }
 
     @Test
