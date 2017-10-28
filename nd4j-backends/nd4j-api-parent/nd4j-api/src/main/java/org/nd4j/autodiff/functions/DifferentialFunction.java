@@ -5,10 +5,10 @@ import com.rits.cloning.Cloner;
 import lombok.*;
 
 import org.nd4j.autodiff.graph.api.Edge;
-import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
@@ -267,7 +267,7 @@ public abstract class DifferentialFunction implements Differential {
 
     private INDArray getY() {
         if(args().length > 1) {
-            NDArrayInformation opId = args()[1].getResult();
+            SDVariable opId = args()[1].getResult();
             INDArray ret = sameDiff.getVertexToArray().get(opId.getArrId());
             return ret;
         }
@@ -277,7 +277,7 @@ public abstract class DifferentialFunction implements Differential {
     private INDArray getZ() {
         if(this.opState.isInPlace())
             return getX();
-        NDArrayInformation opId = opState.getResults()[0];
+        SDVariable opId = opState.getResults()[0];
         INDArray ret =  sameDiff.getVertexToArray().get(opId.getArrId());
         return ret;
     }
@@ -300,10 +300,7 @@ public abstract class DifferentialFunction implements Differential {
      * Get the result
      * @return
      */
-    public NDArrayInformation getResult() {
-        if(opState == null || opState.getResults() == null) {
-            return  sameDiff.getVertexIdxToInfo().get(resultVertexId());
-        }
+    public SDVariable getResult() {
         return opState.getResults()[0];
     }
 
@@ -325,9 +322,9 @@ public abstract class DifferentialFunction implements Differential {
 
         int[] v1VertexId = i_v1.resultVertexId();
         int[] v2VertexId = i_v2.resultVertexId();
-        NDArrayInformation arrInfo = inPlace ?  i_v1.getResult() : NDArrayInformation.builder()
+        SDVariable arrInfo = inPlace ?  i_v1.getResult() : SDVariable.builder()
                 .arrId(UUID.randomUUID().toString())
-                .id(opName +"(" + i_v1.getResult().getId() + "," + i_v2.getResult().getId() + ")")
+                .varName(opName +"(" + i_v1.getResult().getVarName() + "," + i_v2.getResult().getVarName() + ")")
                 .shape(shape).build();
 
         NDArrayVertex newVertex = new NDArrayVertex(
@@ -357,11 +354,11 @@ public abstract class DifferentialFunction implements Differential {
                     .opType(opType).inPlace(inPlace)
                     .differentialFunction(this)
                     .opName(opName)
-                    .id(opName + "(" + dupVertex.getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                    .id(opName + "(" + dupVertex.getValue().getVarName() + " -> " + newVertex.getValue().getVarName() + ")")
                     .vertexIds(sameDiff.generateVertexIds(v2VertexId,new int[]{newVertex.vertexID()}))
                     .n(ArrayUtil.prod(shape))
                     .extraArgs(extraArgs)
-                    .results(new NDArrayInformation[]{arrInfo})
+                    .results(new SDVariable[]{arrInfo})
                     .build();
 
 
@@ -371,19 +368,19 @@ public abstract class DifferentialFunction implements Differential {
                     .opType(opType)
                     .opName(opName).inPlace(inPlace)
                     .differentialFunction(this)
-                    .id(opName + "(" + i_v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                    .id(opName + "(" + i_v1.getVertex().getValue().getVarName() + " -> " + newVertex.getValue().getVarName() + ")")
                     .vertexIds(sameDiff.generateVertexIds(v2VertexId,new int[]{newVertex.vertexID()}))
                     .n(ArrayUtil.prod(shape))
                     .extraArgs(extraArgs)
-                    .results(new NDArrayInformation[]{arrInfo})
+                    .results(new SDVariable[]{arrInfo})
                     .build();
         }
 
         opState2 = OpState.builder()
                 .opType(opType).inPlace(inPlace)
                 .opName(opName)
-                .results(new NDArrayInformation[]{arrInfo})
-                .id(opName + "(" + i_v1.getVertex().getValue().getId() + " -> " + newVertex.getValue().getId() + ")")
+                .results(new SDVariable[]{arrInfo})
+                .id(opName + "(" + i_v1.getVertex().getValue().getVarName() + " -> " + newVertex.getValue().getVarName() + ")")
                 .vertexIds(sameDiff.generateVertexIds(v1VertexId,new int[]{newVertex.vertexID()}))
                 .n(ArrayUtil.prod(shape))
                 .extraArgs(extraArgs)
@@ -529,10 +526,11 @@ public abstract class DifferentialFunction implements Differential {
                             String opName,
                             int...shape) {
         validateFunctionReference(i_v1);
-        NDArrayInformation information =   inPlace ? i_v1.getResult() :  NDArrayInformation.builder()
+        SDVariable information =   inPlace ? i_v1.getResult() :  SDVariable.builder()
+
                 .arrId(UUID.randomUUID().toString())
-                .id(opName + "(" + i_v1.getResult().getId() + " -> " +
-                        i_v1.getResult().getId() + ")")
+                .varName(opName + "(" + i_v1.getResult().getVarName() + " -> " +
+                        i_v1.getResult().getVarName() + ")")
                 .shape(shape).build();
         //result
         NDArrayVertex newVertex = new NDArrayVertex(
@@ -547,9 +545,9 @@ public abstract class DifferentialFunction implements Differential {
                 .opType(resolveType()).differentialFunction(this)
                 .opName(opName).inPlace(inPlace)
                 .extraArgs(extraArgs).axes(dimensions)
-                .id(opName + "(" + i_v1.getResult().getId() + " -> " + newVertex.getValue().getId() + ")")
+                .id(opName + "(" + i_v1.getResult().getVarName() + " -> " + newVertex.getValue().getVarName() + ")")
                 .vertexIds(sameDiff.generateVertexIds(i_v1.getVertex().vertexID(),newVertex.vertexID()))
-                .n(ArrayUtil.prod(shape)).results(new NDArrayInformation[] { information })
+                .n(ArrayUtil.prod(shape)).results(new SDVariable[] { information })
                 .build();
 
 
@@ -563,18 +561,14 @@ public abstract class DifferentialFunction implements Differential {
 
         newVertex.setOpState(owner);
         information.setOwner(owner);
-        owner.setResults(new NDArrayInformation[]{information});
+        owner.setResults(new SDVariable[]{information});
         if(owner.isInPlace()) {
             information.setArrId(i_v1.getResult().getArrId());
         }
 
         this.opState = owner;
 
-        if(!sameDiff.getVertexIdxToInfo().containsKey(new int[]{newVertex.vertexID()}))
-            sameDiff.getVertexIdxToInfo().put(new int[]{newVertex.vertexID()},information);
 
-        else
-            throw new IllegalStateException("Found duplicate vertex information");
 
     }
 

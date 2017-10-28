@@ -8,30 +8,22 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
-import org.nd4j.autodiff.graph.api.Edge;
-import org.nd4j.autodiff.graph.api.Vertex;
-import org.nd4j.autodiff.opstate.NDArrayInformation;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SDGraph;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.graph.intermediate.*;
-import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseOp;
 import org.nd4j.linalg.api.ops.Op;
-import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
-import org.nd4j.linalg.primitives.Pair;
-import org.nd4j.linalg.primitives.Triple;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.*;
 
 import java.io.*;
 import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -89,7 +81,6 @@ public class TensorFlowImport {
                 .graph(graph)
                 .vertexToArray(Maps.<String, INDArray>newHashMap())
                 .variableMap(Maps.<String, SDVariable>newHashMap())
-                .vertexIdxToInfo(Maps.<int[], NDArrayInformation>newHashMap())
                 .build();
 
         graph.setSameDiff(diff);
@@ -126,8 +117,8 @@ public class TensorFlowImport {
                         .varName(tfNode.getName())
                         .build();
 
-                NDArrayInformation varInformation = NDArrayInformation.builder()
-                        .id(tfNode.getName())
+                SDVariable varInformation = SDVariable.builder()
+                        .varName(tfNode.getName())
                         .arrId(tfNode.getName())
                         .build();
 
@@ -181,15 +172,15 @@ public class TensorFlowImport {
                 graph.addVertex(vertex);
             } else {
                 // operation node
-                NDArrayInformation varInformation = NDArrayInformation.builder()
-                        .id(tfNode.getName())
+                SDVariable varInformation = SDVariable.builder()
+                        .varName(tfNode.getName())
                         .build();
 
                 NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt, 0,varInformation);
                 graph.addVertex(vertex);
 
                 OpState opState = getOpStateFromNodeDef(tfNode, tfNode.getInputCount());
-                opState.setResults(new NDArrayInformation[]{varInformation});
+                opState.setResults(new SDVariable[]{varInformation});
 
                 reverseVertexMap.put(tfNode.getName(), nodesCnt);
 
