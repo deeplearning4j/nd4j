@@ -255,14 +255,14 @@ public class TensorFlowImport {
         intermediateGraph.addScope(scopeCondition);
         intermediateGraph.addScope(scopeLoop);
 
-        val tNode = TNode.builder().id(intermediateGraph.getNewNodeId())
+        val whileNode = TNode.builder().id(intermediateGraph.getNewNodeId())
                 .opName("while")
                 .name("whileLoop_" + uniqueId)
                 .opNum(0)
                 .opState(OpState.builder().opName("while").opNum(0).opType(Op.Type.LOOP).build())
                 .build();
 
-        log.info("Adding 2 new scopes for WHILE {}", tNode.getId());
+        log.info("Adding 2 new scopes for WHILE {}", whileNode.getId());
 
 
         /**
@@ -283,7 +283,7 @@ public class TensorFlowImport {
             val tfNode = nodes.get(startPosition);
 
             if (!tfNode.getOp().equalsIgnoreCase("enter")) {
-                intermediateGraph.getSkipSet().add(tfNode.getName());
+                //intermediateGraph.getSkipSet().add(tfNode.getName());
                 break;
             }
 
@@ -303,7 +303,7 @@ public class TensorFlowImport {
         }
         whileInputs.add(TIndex.makeOf(scopeCondition.getId()));
         whileInputs.add(TIndex.makeOf(scopeLoop.getId()));
-        tNode.setInputs(whileInputs);
+        whileNode.setInputs(whileInputs);
 
         // now we're skipping Merge step, since we've already captured variables at Enter step
         int mergedCnt = 0;
@@ -311,14 +311,13 @@ public class TensorFlowImport {
             val tfNode = nodes.get(startPosition);
 
             if (!tfNode.getOp().equalsIgnoreCase("merge")) {
-                intermediateGraph.getSkipSet().add(tfNode.getName());
                 break;
             }
 
             intermediateGraph.getSkipSet().add(tfNode.getName());
 
             //localReverseMap.put(tfNode.getName(), TIndex.makeOf(tNode.getId(), mergedCnt));
-            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(tNode.getId(), mergedCnt++));
+            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(whileNode.getId(), mergedCnt++));
         }
 
 
@@ -368,7 +367,7 @@ public class TensorFlowImport {
             if (!tfNode.getOp().equalsIgnoreCase("Switch"))
                 break;
 
-            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(tNode.getId(), switchCnt++));
+            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(whileNode.getId(), switchCnt++));
             intermediateGraph.getSkipSet().add(tfNode.getName());
         }
 
@@ -387,7 +386,7 @@ public class TensorFlowImport {
             scopedNode.setScopeName(scopeLoop.getName());
 
             // we overwrite inputs here, because that's always mapping to the While scope operands
-            scopedNode.setInputs(Lists.newArrayList(TIndex.makeOf(tNode.getId(), identityCnt++)));
+            scopedNode.setInputs(Lists.newArrayList(TIndex.makeOf(whileNode.getId(), identityCnt++)));
 
             scopeLoop.addNode(scopedNode);
 
@@ -399,9 +398,21 @@ public class TensorFlowImport {
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
+            if (intermediateGraph.getSkipSet().contains(tfNode.getName())) {
+                log.info("Skipping: {}", tfNode.getName());
+                continue;
+            }
+
             if (tfNode.getOp().equalsIgnoreCase("NextIteration")) {
+//                intermediateGraph.getSkipSet().add(tfNode.getName());
                 break;
             }
+
+            if (intermediateGraph.getSkipSet().contains(tfNode.getName())) {
+                log.info("Skipping: {}", tfNode.getName());
+                continue;
+            }
+
 
 
             boolean isConst = tfNode.getOp().equalsIgnoreCase("const");
@@ -465,10 +476,11 @@ public class TensorFlowImport {
                 break;
 
             intermediateGraph.getSkipSet().add(tfNode.getName());
+
             val inputName = tfNode.getInput(0);
             val input = intermediateGraph.getReverseMap().get(inputName);
             returnInputs.add(input);
-            returnOutputs.add(tNode.getId());
+            returnOutputs.add(whileNode.getId());
         }
         returnOp.setInputs(returnInputs);
         returnOp.setOutputs(returnOutputs);
@@ -479,18 +491,20 @@ public class TensorFlowImport {
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
-            if (!tfNode.getOp().equalsIgnoreCase("Exit"))
+            if (!tfNode.getOp().equalsIgnoreCase("Exit")) {
+                //intermediateGraph.getSkipSet().add(tfNode.getName());
                 break;
+            }
 
             intermediateGraph.getSkipSet().add(tfNode.getName());
 
-            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(tNode.getId(), exitCnt++));
+            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(whileNode.getId(), exitCnt++));
         }
 
 
         log.info("-------------------------------------------");
 
-        return tNode;
+        return whileNode;
     }
 
 

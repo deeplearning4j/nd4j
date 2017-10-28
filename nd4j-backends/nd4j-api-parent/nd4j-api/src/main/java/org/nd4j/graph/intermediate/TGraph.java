@@ -51,7 +51,7 @@ public class TGraph {
     protected AtomicInteger nodesCnt = new AtomicInteger(0);
 
     // here we store nodes which were already processed by
-    @Getter protected Set<String> skipSet = new HashSet<>();
+    @Getter protected Collection<String> skipSet = new ArrayList<>();
 
     protected void expandOnion(int layer) {
         onionMap.put(layer, new ArrayList<TNode>());
@@ -184,7 +184,7 @@ public class TGraph {
     }
 
     protected int asFlatNode(@NonNull TNode node, @NonNull FlatBufferBuilder bufferBuilder) {
-        log.info("Exporting node: [{}]", node.getOpName());
+        log.info("Exporting node: [{}:<{}>]", node.getOpName(), node.getName());
 
         float[] extras = node.getOpState().getExtraArgs() != null ? new float[node.getOpState().getExtraArgs().length] : new float[0];
         for (int e = 0; e < extras.length; e++) {

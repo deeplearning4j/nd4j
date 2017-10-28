@@ -294,7 +294,20 @@ public class TensorFlowImportTest {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/nested_while.pb.txt").getFile());
 
+        assertNotNull(tg);
 
+        // now converting to FlatBuffer
+        val fb = tg.asFlatBuffers();
+        assertNotNull(fb);
+
+        val offset = fb.position();
+
+        log.info("Length: {}; Offset: {};", fb.capacity(), offset);
+        val array = fb.array();
+
+        try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/nested_while.fb"); val dos = new DataOutputStream(fos)) {
+            dos.write(array, offset, array.length - offset);
+        }
     }
 
     @Test
@@ -325,7 +338,6 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/reduce_dim.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-
     }
 
     @Test
