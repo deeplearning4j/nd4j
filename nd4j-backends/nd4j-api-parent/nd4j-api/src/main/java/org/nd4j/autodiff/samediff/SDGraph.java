@@ -232,8 +232,8 @@ public class SDGraph extends Graph<SDVariable,OpState> {
                 for (Edge<OpState> edge : inputOpStates) {
                     inputIdsList.addAll(Ints.asList(edge.getFrom()));
                     for(int input : edge.getFrom())  {
-                        Preconditions.checkNotNull(getInformationFor(input));
-                        inputInfo.add(getInformationFor(input));
+                        Preconditions.checkNotNull(getVariableForVertex(input));
+                        inputInfo.add(getVariableForVertex(input));
                         inputsCount++;
                     }
                 }
@@ -281,7 +281,7 @@ public class SDGraph extends Graph<SDVariable,OpState> {
      * @param vertex the vertex id
      * @return the information for the vertex
      */
-    public SDVariable getInformationFor(int vertex) {
+    public SDVariable getVariableForVertex(int vertex) {
         Vertex<SDVariable> ndArrayInformation = getVertex(vertex);
         if(ndArrayInformation == null)
             return null;

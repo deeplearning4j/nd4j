@@ -221,6 +221,37 @@ public class SameDiffTests {
 
 
     @Test
+    public void testCrossSameDiffVariableInitWithAlloc() {
+      SameDiff first = SameDiff.create();
+      SameDiff second = SameDiff.create();
+      first.allocate();
+
+
+      SDVariable firstVar = first.var("one",new int[]{2,2});
+      SDVariable secondVar = second.var(firstVar);
+      assertTrue(firstVar.getArr() == secondVar.getArr());
+      assertEquals(firstVar.getVarName(),secondVar.getVarName());
+
+    }
+
+
+
+    @Test
+    public void testCrossSameDiffVariableInitWithPlaceHolder() {
+        SameDiff first = SameDiff.create();
+        SameDiff second = SameDiff.create();
+
+
+        SDVariable firstVar = first.var("one",new int[]{2,2});
+        SDVariable secondVar = second.var(firstVar);
+        assumeNotNull(firstVar.getArr());
+        assertTrue(firstVar.getArr() == secondVar.getArr());
+        assertEquals(firstVar.getVarName(),secondVar.getVarName());
+
+    }
+
+
+    @Test
     public void testVariableArrayReference() {
         SameDiff sameDiff = SameDiff.create();
         SDVariable arr = sameDiff.var("one",new int[]{2,2});

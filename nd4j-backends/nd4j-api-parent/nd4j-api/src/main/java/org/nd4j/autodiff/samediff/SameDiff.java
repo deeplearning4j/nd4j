@@ -33,6 +33,7 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.nd4j.weightinit.impl.NDArraySupplierInitScheme;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 
 import java.lang.reflect.Method;
@@ -623,7 +624,11 @@ public class SameDiff {
 
 
     /**
-     *
+     * Allocate ndarrays in to memory,
+     * linking the {@link SDVariable}
+     * {@link INDArray}
+     * provided with {@link SDVariable#getArr()}
+     * as needed.
      */
     public void allocate() {
         if(workspace != null) {
@@ -635,54 +640,75 @@ public class SameDiff {
 
 
         for (Integer i : graph().getVertices().keySet()) {
-            SDVariable info = graph.getInformationFor(i);
-            DifferentialFunction func = functionInstances.get(new int[]{i});
-
-            if(!variableMap.containsKey(info.getVarName())) {
-                SDVariable.SDVariableBuilder variableBuilder = SDVariable.builder()
-                        .sameDiff(this)
-                        .varName(info.getVarName());
-                //associate the proper differential function with the given
-                //variable
-                if(func != null)
-                    variableBuilder.differentialFunction(func);
-
-                if(func != null)
-                    variableBuilder.shape(info.getShape());
-
-                variableBuilder.vertexId(new int[]{i});
-
-                SDVariable variable = variableBuilder.build();
-                variableMap.put(info.getVarName(),variable);
-            }
-
-            /**
-             * Problem:
-             * Vertexes are not a unique identifier of an actual array.
-             * Duplicate vertices are put in to place
-             * to avoid cycles by may point at the same array.
-             * NDArrayInformation should somehow be unique
-             * and point to an actual array.
-             */
-            if(!vertexToArray.containsKey(info.getVarName()) || vertexToArray.get(info.getVarName()) == null) {
-                //initialize value if it's actually a scalar constant (zero or 1 typically...)
-                if(info.getScalarValue() != null && ArrayUtil.prod(info.getShape()) == 1) {
-                    INDArray arr = Nd4j.valueArrayOf(info.getShape(),
-                            info.getScalarValue().doubleValue());
-                    vertexToArray.put(info.getVarName(),arr);
-                    reverseArrayLookup.put(arr,info);
-                    info.setArr(arr);
-                }
-                else {
-                    INDArray newAlloc = info.getWeightInitScheme().create(info.getShape(),Nd4j.zeros(info.getShape(),info.getWeightInitScheme().order()));
-                    vertexToArray.put(info.getVarName(),newAlloc);
-                    reverseArrayLookup.put(newAlloc,info);
-                    info.setArr(newAlloc);
-
-                }
-
-            }
+            SDVariable info = graph.getVariableForVertex(i);
+            allocateArrayFor(info);
         }
+
+    }
+
+
+    /**
+     * Allocate an individual {@link INDArray}
+     * for a given {@link SDVariable}
+     * @param sdVariable the variable to allocate
+     *                   memory for
+     */
+    public void allocateArrayFor(SDVariable sdVariable) {
+        if(workspace != null) {
+            workspace.close();
+        }
+        else {
+            initWorkspace();
+        }
+
+        SDVariable info = sdVariable;
+        DifferentialFunction func = functionInstances.get(info.getVertexId());
+
+        if(!variableMap.containsKey(info.getVarName())) {
+            SDVariable.SDVariableBuilder variableBuilder = SDVariable.builder()
+                    .sameDiff(this)
+                    .varName(info.getVarName());
+            //associate the proper differential function with the given
+            //variable
+            if(func != null)
+                variableBuilder.differentialFunction(func);
+
+            if(func != null)
+                variableBuilder.shape(info.getShape());
+
+            variableBuilder.vertexId(info.getVertexId());
+
+            SDVariable variable = variableBuilder.build();
+            variableMap.put(info.getVarName(),variable);
+        }
+
+        /**
+         * Problem:
+         * Vertexes are not a unique identifier of an actual array.
+         * Duplicate vertices are put in to place
+         * to avoid cycles by may point at the same array.
+         * NDArrayInformation should somehow be unique
+         * and point to an actual array.
+         */
+        if(!vertexToArray.containsKey(info.getVarName()) || vertexToArray.get(info.getVarName()) == null) {
+            //initialize value if it's actually a scalar constant (zero or 1 typically...)
+            if(info.getScalarValue() != null && ArrayUtil.prod(info.getShape()) == 1) {
+                INDArray arr = Nd4j.valueArrayOf(info.getShape(),
+                        info.getScalarValue().doubleValue());
+                vertexToArray.put(info.getVarName(),arr);
+                reverseArrayLookup.put(arr,info);
+                info.setArr(arr);
+            }
+            else {
+                INDArray newAlloc = info.getWeightInitScheme().create(info.getShape(),Nd4j.zeros(info.getShape(),info.getWeightInitScheme().order()));
+                vertexToArray.put(info.getVarName(),newAlloc);
+                reverseArrayLookup.put(newAlloc,info);
+                info.setArr(newAlloc);
+
+            }
+
+        }
+
 
     }
 
@@ -745,22 +771,29 @@ public class SameDiff {
 
 
     /**
+     * Initialize a {@link SDVariable}
+     * reference tying this variable to this
+     * samediff instance.
      *
+     * {@link NDArraySupplierInitScheme} is used
+     * to ensure that if the array is allocated anywhere
+     * in any setting, the same array reference will be preserved
+     * while allowing a separate {@link NDArrayVertex}
+     * and {@link SameDiff} instance to exist as a copy of the variable.
      *
-     * @param name
      * @param arr
      * @return
      */
-    public SDVariable var(String name, SDVariable arr) {
-        if(variableMap.containsKey(name) && variableMap.get(name).getArr() != null)
-            return variableMap.get(name);
+    public SDVariable var(final SDVariable arr) {
+        if(variableMap.containsKey(arr.getVarName()) && variableMap.get(arr.getVarName()).getArr() != null)
+            return variableMap.get(arr.getVarName());
 
 
-        if(name == null || name.length() < 1)
+        if(arr.getVarName() == null || arr.getVarName().length() < 1)
             throw new IllegalArgumentException("Name for variable must be defined");
 
         if(arr == null)
-            throw new IllegalArgumentException("Array for " + name + " must not be null");
+            throw new IllegalArgumentException("Array for " + arr.getVarName() + " must not be null");
 
         if(workspace == null)
             initWorkspace();
@@ -771,14 +804,28 @@ public class SameDiff {
                 .sameDiff(this)
                 .vertexId(new int[]{ndArrayVertex.getIdx()})
                 .shape(arr.getShape())
-                .varName(name)
-                .weightInitScheme(new ZeroInitScheme('f'))
+                .varName(arr.getVarName())
+                .weightInitScheme(new NDArraySupplierInitScheme(new NDArraySupplierInitScheme.NDArraySupplier() {
+                    @Override
+                    public INDArray getArr() {
+                        /**
+                         * Pre allocate the array if it doesn't already exist.
+                         * The reason we do this is to avoid race conditions with
+                         * {@link #allocate()}
+                         */
+                        if(arr.getArr() == null) {
+                            arr.setArr(arr.getWeightInitScheme().create(arr.getShape()));
+                        }
+                        return arr.getArr();
+                    }
+                }))
                 .build();
         addVariable(ret);
-        variableMap.put(name,ret);
+        variableMap.put(arr.getVarName(),ret);
         return ret;
 
     }
+
 
 
 

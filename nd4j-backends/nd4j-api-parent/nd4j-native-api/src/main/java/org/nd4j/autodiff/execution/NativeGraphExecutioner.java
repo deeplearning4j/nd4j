@@ -261,13 +261,13 @@ public class NativeGraphExecutioner implements GraphExecutioner {
                 sd.getVariableMap().get(var.name()).setArr(val);
             } else {
                 int[] original = intermediate.get(var.id()).getOriginalOutput();
-                //log.info("Original id: {}; out: {}; out2: {}", original, sd.getVertexIdxToInfo().get(original), graph.getInformationFor(original));
-                if (sd.getVariableMap().get(sd.getGraph().getInformationFor(original[0]).getVarName()) != null) {
-                    sd.getVariableMap().get(sd.getGraph().getInformationFor(original[0]).getVarName()).setArr(val);
+                //log.info("Original id: {}; out: {}; out2: {}", original, sd.getVertexIdxToInfo().get(original), graph.getVariableForVertex(original));
+                if (sd.getVariableMap().get(sd.getGraph().getVariableForVertex(original[0]).getVarName()) != null) {
+                    sd.getVariableMap().get(sd.getGraph().getVariableForVertex(original[0]).getVarName()).setArr(val);
                 } else {
                     SDVariable variable = SDVariable.builder()
                             .arr(val)
-                            .varName(sd.getGraph().getInformationFor(original[0]).getVarName())
+                            .varName(sd.getGraph().getVariableForVertex(original[0]).getVarName())
                             .shape(val.shape())
                             .sameDiff(sd)
                             .build();

@@ -12,6 +12,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.weightinit.WeightInitScheme;
@@ -43,8 +44,8 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private SDVariable forwardVariable;
     protected DifferentialFunction differentialFunction;
     protected OpState owner;
-   @Getter
-   @Setter
+    @Getter
+    @Setter
     protected WeightInitScheme weightInitScheme;
     @Builder
     private SDVariable(DifferentialFunction differentialFunction,
@@ -93,12 +94,33 @@ public class SDVariable extends DifferentialFunction implements Serializable {
 
     }
 
+    /**
+     * A getter for the allocated ndarray
+     * with this {@link SDVariable}.
+     *
+     * This getter will lazy initialize an array if one is not found
+     * based on the associated shape and {@link WeightInitScheme}
+     * if neither are found, an {@link ND4JIllegalStateException}
+     * is thrown.
+     *
+     * If a {@link DifferentialFunction} is defined, note that
+     * its getArr() method is called instead.
+     * @return the {@link INDArray} associated with this variable.
+     */
     public INDArray getArr() {
         if(differentialFunction == null)
             if(arr != null)
                 return arr;
-            else
-                return null;
+            else {
+                if(shape == null || weightInitScheme == null) {
+                    throw new ND4JIllegalStateException("Unable to initialize array from getArr(), no shape found.");
+                }
+
+                //note that we ensure the array reference is properly set for this variable.
+                setArr(weightInitScheme.create(shape));
+                return arr;
+
+            }
         Op op = (Op) differentialFunction;
         return op.z();
     }
