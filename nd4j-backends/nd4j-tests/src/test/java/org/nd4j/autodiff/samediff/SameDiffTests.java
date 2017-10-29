@@ -245,6 +245,7 @@ public class SameDiffTests {
         SDVariable firstVar = first.var("one",new int[]{2,2});
         SDVariable secondVar = second.var(firstVar);
         assumeNotNull(firstVar.getArr());
+        assertFalse("Vertex ids found to be the same reference",firstVar.getVertexId() == secondVar.getVertexId());
         assertTrue(firstVar.getArr() == secondVar.getArr());
         assertEquals(firstVar.getVarName(),secondVar.getVarName());
 
