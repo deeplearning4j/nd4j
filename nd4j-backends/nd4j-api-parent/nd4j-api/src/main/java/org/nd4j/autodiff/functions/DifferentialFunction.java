@@ -261,14 +261,14 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     private INDArray getX() {
-        INDArray ret =  sameDiff.getVertexToArray().get(args()[0].getResult().getArrId());
+        INDArray ret =  sameDiff.getVertexToArray().get(args()[0].getResult().getVarName());
         return ret;
     }
 
     private INDArray getY() {
         if(args().length > 1) {
             SDVariable opId = args()[1].getResult();
-            INDArray ret = sameDiff.getVertexToArray().get(opId.getArrId());
+            INDArray ret = sameDiff.getVertexToArray().get(opId.getVarName());
             return ret;
         }
         return null;
@@ -278,7 +278,7 @@ public abstract class DifferentialFunction implements Differential {
         if(this.opState.isInPlace())
             return getX();
         SDVariable opId = opState.getResults()[0];
-        INDArray ret =  sameDiff.getVertexToArray().get(opId.getArrId());
+        INDArray ret =  sameDiff.getVertexToArray().get(opId.getVarName());
         return ret;
     }
 
@@ -323,7 +323,6 @@ public abstract class DifferentialFunction implements Differential {
         int[] v1VertexId = i_v1.resultVertexId();
         int[] v2VertexId = i_v2.resultVertexId();
         SDVariable arrInfo = inPlace ?  i_v1.getResult() : SDVariable.builder()
-                .arrId(UUID.randomUUID().toString())
                 .varName(opName +"(" + i_v1.getResult().getVarName() + "," + i_v2.getResult().getVarName() + ")")
                 .shape(shape).build();
 
@@ -527,8 +526,6 @@ public abstract class DifferentialFunction implements Differential {
                             int...shape) {
         validateFunctionReference(i_v1);
         SDVariable information =   inPlace ? i_v1.getResult() :  SDVariable.builder()
-
-                .arrId(UUID.randomUUID().toString())
                 .varName(opName + "(" + i_v1.getResult().getVarName() + " -> " +
                         i_v1.getResult().getVarName() + ")")
                 .shape(shape).build();
@@ -563,7 +560,7 @@ public abstract class DifferentialFunction implements Differential {
         information.setOwner(owner);
         owner.setResults(new SDVariable[]{information});
         if(owner.isInPlace()) {
-            information.setArrId(i_v1.getResult().getArrId());
+            information.setVarName(i_v1.getResult().getVarName());
         }
 
         this.opState = owner;

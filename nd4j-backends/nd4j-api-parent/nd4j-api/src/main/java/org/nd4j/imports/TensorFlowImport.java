@@ -119,7 +119,6 @@ public class TensorFlowImport {
 
                 SDVariable varInformation = SDVariable.builder()
                         .varName(tfNode.getName())
-                        .arrId(tfNode.getName())
                         .build();
 
                 NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt,0, varInformation);

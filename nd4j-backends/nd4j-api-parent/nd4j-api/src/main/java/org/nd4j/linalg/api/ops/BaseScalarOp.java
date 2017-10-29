@@ -133,7 +133,6 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
                             int[] shape) {
         validateFunctionReference(i_v1);
         SDVariable information =   inPlace ? i_v1.getResult() : SDVariable.builder()
-                .arrId(UUID.randomUUID().toString())
                 .varName(opName + "(" + i_v1.getResult().getVarName() + " -> " +
                         i_v1.getResult().getVarName() + ")")
                 .shape(i_v1.getResultShape()).build();
@@ -171,7 +170,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
         owner.setResults(new SDVariable[]{information});
 
         if(owner.isInPlace()) {
-            information.setArrId(i_v1.getResult().getArrId());
+            information.setVarName(i_v1.getResult().getVarName());
         }
 
         this.opState = owner;

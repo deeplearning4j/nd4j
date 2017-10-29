@@ -38,9 +38,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private INDArray arr;
     @Getter
     @Setter
-    private String arrId;
-    @Getter
-    @Setter
     private String varName;
     private SDVariable gradient;
     private SDVariable forwardVariable;
@@ -53,7 +50,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private SDVariable(DifferentialFunction differentialFunction,
                        String varName,
                        INDArray arr,
-                       String arrId,
                        OpState opState,
                        SameDiff sameDiff,
                        int[] shape,
@@ -61,7 +57,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                        NDArrayVertex ndArrayVertex,
                        int[] vertexId) {
         this.shape =  shape;
-        this.arrId = arrId == null ? UUID.randomUUID().toString() : arrId;
         this.differentialFunction = differentialFunction;
         this.varName = varName;
         this.vertex = ndArrayVertex;

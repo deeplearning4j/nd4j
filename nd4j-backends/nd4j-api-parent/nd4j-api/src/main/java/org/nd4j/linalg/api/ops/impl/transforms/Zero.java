@@ -16,7 +16,6 @@ public class Zero extends Constant {
                 .builder()
                 .varName("zero")
                 .shape(shape)
-                .arrId(UUID.randomUUID().toString())
                 .build(),shape,vertexId);
     }
 
