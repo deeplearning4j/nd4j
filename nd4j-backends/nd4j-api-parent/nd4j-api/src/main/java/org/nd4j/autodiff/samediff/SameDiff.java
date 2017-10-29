@@ -671,11 +671,13 @@ public class SameDiff {
                             info.getScalarValue().doubleValue());
                     vertexToArray.put(info.getVarName(),arr);
                     reverseArrayLookup.put(arr,info);
+                    info.setArr(arr);
                 }
                 else {
                     INDArray newAlloc = info.getWeightInitScheme().create(info.getShape(),Nd4j.zeros(info.getShape(),info.getWeightInitScheme().order()));
                     vertexToArray.put(info.getVarName(),newAlloc);
                     reverseArrayLookup.put(newAlloc,info);
+                    info.setArr(newAlloc);
 
                 }
 
