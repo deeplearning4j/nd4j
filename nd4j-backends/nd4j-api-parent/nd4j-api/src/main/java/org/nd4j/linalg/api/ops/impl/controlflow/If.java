@@ -82,7 +82,6 @@ public class If extends DifferentialFunction implements CustomOp {
         SDVariable[] results = new SDVariable[inputVars.length];
         for(int i = 0; i < inputVars.length; i++) {
             inputVars[i] = parent.setupFunction(inputVars[i]);
-
             int vertexId = parent.graph().nextVertexId();
 
 

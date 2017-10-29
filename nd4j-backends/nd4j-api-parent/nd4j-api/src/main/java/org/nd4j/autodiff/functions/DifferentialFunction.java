@@ -3,7 +3,6 @@ package org.nd4j.autodiff.functions;
 import com.google.common.base.Preconditions;
 import com.rits.cloning.Cloner;
 import lombok.*;
-
 import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
@@ -17,7 +16,6 @@ import org.nd4j.linalg.util.ArrayUtil;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 
 @AllArgsConstructor
@@ -71,6 +69,10 @@ public abstract class DifferentialFunction implements Differential {
     protected Object[] extraArgs;
 
 
+    /**
+     * Get the output vertex ids for this function
+     * @return the set of output vertex ids for this function.
+     */
     public int[] getOutputVertexIds() {
         NDArrayVertex[] outputs = getVertices();
         int[] ret = new int[outputs.length];
@@ -158,11 +160,19 @@ public abstract class DifferentialFunction implements Differential {
     }
 
 
+    /**
+     * Get the gradient for this function.
+     * @return
+     */
     public DifferentialFunction getGradient() {
         return gradient;
     }
 
 
+    /**
+     * Get the output functions for this function
+     * @return
+     */
     public List<DifferentialFunction> outputs() {
         List<Edge<OpState>> opStates =  sameDiff.graph().getEdgesOut(vertexId);
         return Arrays.asList(opStates.get(0).getValue().getDifferentialFunction());
@@ -463,11 +473,26 @@ public abstract class DifferentialFunction implements Differential {
     }
 
 
+    /**
+     * The left argument for this function
+     * @return
+     */
     public DifferentialFunction larg() {
+        if(args == null || args.length == 0)
+            throw new ND4JIllegalStateException("No arguments found.");
         return args[0];
     }
 
+    /**
+     * The right argument for this function.
+     * Note that this assumes that there are 2 args for this
+     * function, if 2 are not set, it throws an
+     * {@link ND4JIllegalStateException}
+     * @return
+     */
     public DifferentialFunction rarg() {
+        if(args == null || args.length != 2)
+            throw new ND4JIllegalStateException("In order to use this function, the numebr of arguments for this function must be 2.");
         return args[1];
     }
 

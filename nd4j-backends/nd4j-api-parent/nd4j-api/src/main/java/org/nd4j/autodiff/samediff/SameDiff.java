@@ -805,6 +805,7 @@ public class SameDiff {
                 .vertexId(new int[]{ndArrayVertex.getIdx()})
                 .shape(arr.getShape())
                 .varName(arr.getVarName())
+                .differentialFunction(arr.getDifferentialFunction())
                 .weightInitScheme(new NDArraySupplierInitScheme(new NDArraySupplierInitScheme.NDArraySupplier() {
                     @Override
                     public INDArray getArr() {
