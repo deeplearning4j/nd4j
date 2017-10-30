@@ -996,14 +996,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         DifferentialFunction[] outputFunctions = new DifferentialFunction[outputShapes.size()];
         SDVariable[] resultInfo = new SDVariable[outputShapes.size()];
         for (int i = 0; i < outputShapes.size(); i++) {
-            int nextVertexId = sameDiff.graph().nextVertexId();
-            SDVariable variable = sameDiff.setupFunction(SDVariable.builder()
-                    .varName(opName + "-" + UUID.randomUUID().toString())
-                    .shape(outputShapes.get(i))
-                    .vertexId(new int[]{nextVertexId})
-                    .varName(sameDiff.generateVariableName(opName, false))
-                    .build());
-
+            SDVariable variable = sameDiff.var(sameDiff.generateVariableName(opName, false),outputShapes.get(i));
             outputVertexIds[i] = variable.getVertex().vertexID();
             resultInfo[i] = variable;
             outputs[i] = variable.getVertex();

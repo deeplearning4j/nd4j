@@ -172,8 +172,7 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public List<DifferentialFunction> outputs() {
-        List<Edge<OpState>> opStates =  sameDiff.graph().getEdgesOut(vertexId);
-        return Arrays.asList(opStates.get(0).getValue().getDifferentialFunction());
+        return Arrays.asList(this);
     }
 
     public  boolean isVariable() {
@@ -245,6 +244,10 @@ public abstract class DifferentialFunction implements Differential {
 
 
     public String opName() {
+        if(this instanceof  Op) {
+            Op op = (Op) this;
+            return op.name();
+        }
         throw new UnsupportedOperationException();
     }
 

@@ -414,11 +414,10 @@ public class SameDiff {
     public <X extends DifferentialFunction> X setupFunction(X  function) {
         Preconditions.checkNotNull(function,"Passed in function must not be null!");
         int[] idx = function.getVertexId();
-        Preconditions.checkNotNull(idx,"Function must have a vertex id");
 
         DifferentialFunction get = null;
 
-        if(functionInstances.containsKey(idx)) {
+        if(idx != null && functionInstances.containsKey(idx)) {
             get = functionInstances.get(idx);
             //note that we check if the graph is frozen
             //if the graph is frozen this reference is disposable
@@ -426,12 +425,15 @@ public class SameDiff {
                 throw new IllegalStateException("Attempted to override Differential Function instance with idx " + idx + " with instance " + function);
             }
         }
-        else {
+        else if(idx != null) {
             get = function;
             functionInstances.put(idx,function);
         }
+        else {
+            get = function;
+        }
 
-        if(get.getSameDiff() != this || get.getVertex() == null) {
+        if(idx == null || get.getSameDiff() != this || get.getVertex() == null) {
             /**
              * Note that we generate a new id
              * if the intended samediff instance

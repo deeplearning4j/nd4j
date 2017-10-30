@@ -16,6 +16,7 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.weightinit.WeightInitScheme;
+import org.nd4j.weightinit.impl.ZeroInitScheme;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -76,6 +77,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                         .build();
         }
 
+
+        if(weightInitScheme == null) {
+            this.weightInitScheme = new ZeroInitScheme('f');
+        }
 
         this.sameDiff = sameDiff;
         if(differentialFunction != null) {
@@ -1068,7 +1073,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 0;
         result = 31 * result + (arr != null ? arr.hashCode() : 0);
         result = 31 * result + (varName != null ? varName.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(shape);

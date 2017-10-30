@@ -297,7 +297,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
 
     @Override
     public Type opType() {
-        if(rarg() != null)
+        if(args() != null && args().length > 1)
             return Type.REDUCE3;
         return Type.REDUCE;
     }
