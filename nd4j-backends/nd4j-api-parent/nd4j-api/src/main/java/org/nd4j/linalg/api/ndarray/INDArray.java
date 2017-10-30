@@ -1836,13 +1836,17 @@ public interface INDArray extends Serializable {
     /**
      * stride setter
      * @param stride
+     * @deprecated, use {@link #reshape(int...) }
      */
+    @Deprecated
     void setStride(int... stride);
 
     /**
      * Shape setter
      * @param shape
+     * @deprecated, use {@link #reshape(int...) }
      */
+    @Deprecated
     void setShape(int... shape);
 
     /**
