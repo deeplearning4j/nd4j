@@ -42,8 +42,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private SDVariable gradient;
     private SDVariable forwardVariable;
     protected DifferentialFunction differentialFunction;
-    protected OpState owner;
-    @Getter
+   @Getter
     @Setter
     protected WeightInitScheme weightInitScheme;
     @Builder
@@ -63,7 +62,21 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         this.weightInitScheme = weightInitScheme;
         this.arr = arr;
         this.vertexId = vertexId;
-        this.owner = opState;
+
+        if(opState == null) {
+            if(differentialFunction != null)
+                this.opState = differentialFunction.getOpState();
+            else
+                this.opState = OpState.builder()
+                        .opType(Op.Type.RETURN)
+                        .inPlace(true)
+                        .results(new SDVariable[] {this})
+                        .vertexIds(ArrayUtil.convertToString(vertexId))
+                        .opName(varName)
+                        .build();
+        }
+
+
         this.sameDiff = sameDiff;
         if(differentialFunction != null) {
             this.vertexId = differentialFunction.getVertexId();
@@ -71,6 +84,17 @@ public class SDVariable extends DifferentialFunction implements Serializable {
 
 
 
+    }
+
+    @Override
+    public boolean isVariable() {
+        return true;
+    }
+
+
+    @Override
+    public SDVariable getResult() {
+        return this;
     }
 
     @Override

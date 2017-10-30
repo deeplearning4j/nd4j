@@ -132,8 +132,8 @@ public class SameDiff {
         for(int i = 0; i < graph().numVertices(); i++) {
             int nextVertexId = sameDiff.graph.nextVertexId();
             SDVariable clone = cloner.deepClone(graph.getVertex(i + 1).getValue());
-            if(clone.getOwner() != null && clone.getOwner().getDifferentialFunction() != null)
-                clone.getOwner().getDifferentialFunction().setSameDiff(sameDiff);
+            if(clone.getOpState() != null && clone.getOpState().getDifferentialFunction() != null)
+                clone.getOpState().getDifferentialFunction().setSameDiff(sameDiff);
             NDArrayVertex info = new NDArrayVertex(
                     sameDiff,
                     nextVertexId,
@@ -734,6 +734,7 @@ public class SameDiff {
         return new ArrayList<>(variableMap.values());
     }
 
+
     /**
      *
      *
@@ -741,7 +742,7 @@ public class SameDiff {
      * @param shape
      * @return
      */
-    public SDVariable var(String name, int[] shape) {
+    public SDVariable var(String name, int[] shape,int depth) {
         if(variableMap.containsKey(name) && variableMap.get(name).getArr() != null)
             return variableMap.get(name);
 
@@ -761,11 +762,27 @@ public class SameDiff {
                 .varName(name)
                 .build();
 
-        NDArrayVertex ndArrayVertex = new NDArrayVertex(this,vertexId[0], 0,ret);
+        NDArrayVertex ndArrayVertex = new NDArrayVertex(this,vertexId[0], depth,ret);
         graph.addVertex(ndArrayVertex);
         addVariable(ret);
         variableMap.put(name,ret);
         return ret;
+
+    }
+
+
+    /**
+     * Creates a {@link SDVariable}
+     * ,{@link NDArrayVertex}
+     * with the given shape
+     * and a depth of 0.
+     *
+     * @param name the name of the variable
+     * @param shape the shape of the variable
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape) {
+        return var(name,shape,0);
 
     }
 
@@ -3567,17 +3584,7 @@ public class SameDiff {
             //re execute to populate subgraph
             SDVariable[] ret = new SDVariable[variables.length];
             for(int i = 0; i < ret.length; i++) {
-                NDArrayVertex ndArrayVertex = new NDArrayVertex(sub,sub.graph().nextVertexId(),0,variables[i]);
-                ret[i] = sub.setupFunction(SDVariable
-                        .builder()
-                        .ndArrayVertex(ndArrayVertex)
-                        .arr(variables[i].getArr())
-                        .sameDiff(sub).vertexId(new int[]{ndArrayVertex.getIdx()})
-                        .differentialFunction(variables[i].getDifferentialFunction() != null ?
-                                sub.setupFunction(variables[i].getDifferentialFunction()) : null)
-                        .varName(variables[i].getVarName())
-                        .shape(variables[i].getShape())
-                        .build());
+                ret[i] = sub.var(variables[i]);
             }
 
             functionDefinition.define(sub,null, ret);
