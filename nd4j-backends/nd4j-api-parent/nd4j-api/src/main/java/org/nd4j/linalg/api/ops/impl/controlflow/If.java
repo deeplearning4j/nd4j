@@ -61,9 +61,6 @@ public class If extends DifferentialFunction implements CustomOp {
               SameDiff.SameDiffConditional predicate,
               SameDiff.SameDiffFunctionDefinition trueBody,
               SameDiff.SameDiffFunctionDefinition falseBody) {
-
-
-
         this.sameDiff = parent;
         this.inputVars = inputVars;
         this.predicate = predicate;
@@ -83,6 +80,9 @@ public class If extends DifferentialFunction implements CustomOp {
         int[] inputEdges = new int[inputVars.length];
         String[] opEdgeIds = new String[inputVars.length * 2];
 
+        for(int i = 0; i < inputEdges.length; i++) {
+            inputEdges[i] = inputVars[i].getVertex().vertexID();
+        }
 
         /**
          * Setup the opstate ids
