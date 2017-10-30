@@ -398,7 +398,15 @@ public class SameDiff {
             //note that we check if the graph is frozen
             //if the graph is frozen this reference is disposable
             if(!graph().isFrozen() && !function.equals(get)) {
-                throw new IllegalStateException("Attempted to override Differential Function instance with idx " + idx + " with instance " + function);
+                //sometimes vertex ids can overlap
+                if(get instanceof SDVariable) {
+                    SDVariable var = (SDVariable) get;
+                    if(var.getDifferentialFunction() != null && var.getDifferentialFunction() == function)  {
+                        return function;
+                    }
+                }
+                else
+                    throw new IllegalStateException("Attempted to override Differential Function instance with idx " + idx + " with instance " + function);
             }
         }
         else if(idx != null) {
@@ -3354,6 +3362,11 @@ public class SameDiff {
     public DifferentialFunction createOp(Op.Type opType,
                                          OpExecAction opExecAction) {
         DifferentialFunction differentialFunction = opExecAction.getOpState().getDifferentialFunction();
+        if(differentialFunction instanceof SDVariable) {
+            SDVariable var = (SDVariable) differentialFunction;
+            if(var.getDifferentialFunction() != null)
+                differentialFunction =  var.getDifferentialFunction();
+        }
 
         if(differentialFunction instanceof Op) {
 

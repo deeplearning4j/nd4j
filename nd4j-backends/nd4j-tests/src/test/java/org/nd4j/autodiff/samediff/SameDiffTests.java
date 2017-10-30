@@ -616,6 +616,7 @@ public class SameDiffTests {
         });
 
         Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> exec = sameDiff.exec();
+        assertFalse(exec.getRight().isEmpty());
         While function = (While) exec.getRight().get(exec.getRight().size() - 1);
         assumeNotNull(function.getOutputVars());
         assertEquals(1,function.getNumLooped());

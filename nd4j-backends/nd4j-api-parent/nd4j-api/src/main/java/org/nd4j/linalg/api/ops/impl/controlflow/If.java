@@ -67,16 +67,11 @@ public class If extends DifferentialFunction implements CustomOp {
         this.trueBody = trueBody;
         this.falseBody = falseBody;
         this.blockName = blockName;
-        this.vertexId = new int[] {parent.graph().nextVertexId()};
-        this.dummyResult = SDVariable.builder()
-        .varName("dummyresult-" + UUID.randomUUID().toString())
-                .sameDiff(parent).shape(new int[]{1,1}).vertexId(vertexId)
-                .build();
-
-        NDArrayVertex dummyVertex = new NDArrayVertex(parent,this.vertexId[0],0,dummyResult);
-        dummyResult.setVertex(dummyVertex);
-        parent.graph().addVertex(dummyVertex);
+        this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1});
+        this.dummyResult.setDifferentialFunction(this);
+        NDArrayVertex dummyVertex = dummyResult.getVertex();
         this.vertex = dummyVertex;
+        this.vertexId = new int[] {dummyVertex.vertexID()};
         int[] inputEdges = new int[inputVars.length];
         String[] opEdgeIds = new String[inputVars.length * 2];
 
