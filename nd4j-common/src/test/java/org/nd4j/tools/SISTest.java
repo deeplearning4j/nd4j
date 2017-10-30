@@ -24,7 +24,7 @@ public class SISTest {
 	//
 	
 	@Test
-	public void test_all() throws Exception {
+	public void testAll() throws Exception {
 		//
 		sis = new SIS();
 		//
