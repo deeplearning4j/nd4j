@@ -43,7 +43,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private SDVariable gradient;
     private SDVariable forwardVariable;
     protected DifferentialFunction differentialFunction;
-   @Getter
+    @Getter
     @Setter
     protected WeightInitScheme weightInitScheme;
     @Builder
@@ -63,6 +63,13 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         this.weightInitScheme = weightInitScheme;
         this.arr = arr;
         this.vertexId = vertexId;
+        if(shape == null) {
+            if(arr != null) {
+                this.shape = arr.shape();
+            }
+            else
+                throw new ND4JIllegalStateException("Variable must have a shape.");
+        }
 
         if(opState == null) {
             if(differentialFunction != null)

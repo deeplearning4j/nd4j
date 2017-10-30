@@ -65,22 +65,20 @@ public class While extends DifferentialFunction implements CustomOp {
                  SameDiff.SameDiffConditional predicate,
                  SameDiff.SameDiffFunctionDefinition condition,
                  SameDiff.SameDiffFunctionDefinition trueBody) {
-
         this.sameDiff = parent;
         this.inputVars = inputVars;
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
-        this.dummyResult =  SDVariable.builder()
-                .varName("dummyresult-" + UUID.randomUUID().toString()).sameDiff(parent).shape(new int[]{1,1}).build();
-        this.vertexId = new int[] {parent.graph().nextVertexId()};
-        NDArrayVertex dummyVertex = new NDArrayVertex(parent,this.vertexId[0],0,dummyResult);
-        parent.graph().addVertex(dummyVertex);
+        this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1});
+        NDArrayVertex dummyVertex = dummyResult.getVertex();
         this.vertex = dummyVertex;
+        this.vertexId = new int[] {dummyVertex.vertexID()};
         int[] inputEdges = new int[inputVars.length];
         String[] opEdgeIds = new String[inputVars.length];
         for(int i = 0; i < inputVars.length; i++) {
             inputVars[i] = parent.var(inputVars[i]);
+            inputEdges[i] = inputVars[i].getVertex().vertexID();
         }
 
 

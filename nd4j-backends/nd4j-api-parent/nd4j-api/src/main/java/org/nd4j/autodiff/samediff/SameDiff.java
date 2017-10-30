@@ -141,72 +141,48 @@ public class SameDiff {
                     clone);
             thisVertexIdToNew.put(graph.getVertex(i + 1).vertexID(),nextVertexId);
             sameDiff.graph().addVertex(info);
+
+        }
+
+        for(List<Edge<OpState>> edgeList : graph().getEdges().values()) {
+            for(Edge<OpState> edge : edgeList) {
+                OpStateEdge newEdge = new OpStateEdge(
+                        new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
+                        new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
+                        cloner.deepCloneDontCloneInstances(edge.getValue()),true);
+                newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
+
+
+                if(newEdge.getValue().getDifferentialFunction() != null) {
+                    ensureSameDiffInstance(sameDiff,newEdge.getValue().getDifferentialFunction());
+                    newEdge.getValue().setDifferentialFunction(sameDiff.setupFunction(newEdge.getValue().getDifferentialFunction()));
+                    newEdge.getValue().getDifferentialFunction().setVertexId(edge.getValue().getDifferentialFunction().resultVertexId());
+                }
+
+
+                sameDiff.graph().addEdge(newEdge);
+            }
         }
 
 
+        for(List<Edge<OpState>> edgeList : graph().getIncomingEdges().values()) {
+            for(Edge<OpState> edge : edgeList) {
+                OpStateEdge newEdge = new OpStateEdge(
+                        new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
+                        new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
+                        cloner.deepCloneDontCloneInstances(edge.getValue()),true);
+                newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
 
-        for(int i = 0; i < graph().numVertices(); i++) {
-            /**
-             * In this loop also remap the
-             * same diff variables
-             * with setupFunction,
-             */
-            List<Edge<OpState>> edgesForVertex = graph.getEdges().get(new int[]{i + 1});
-            List<Edge<OpState>> incomingEdgesForVertex = graph.getIncomingEdges()
-                    .get(new int[]{i + 1});
-            //map to new vertex
-            int newVertexMap = thisVertexIdToNew.get(i + 1);
-            if(edgesForVertex != null) {
-                List<Edge<OpState>> edgesForNewVertex = new ArrayList<>();
-                sameDiff.graph().getEdges().put(new int[]{newVertexMap}, edgesForNewVertex);
-                for (Edge<OpState> edge : edgesForVertex) {
-                    Preconditions.checkState(thisVertexIdToNew.containsKey(edge.getFrom()[0]),"Edge missing from vertex id for copy " + edge.getFrom()[0]);
-                    Preconditions.checkState(thisVertexIdToNew.containsKey(edge.getTo()[0]),"Edge missing to vertex id for copy " + edge.getTo()[0]);
 
-                    OpStateEdge newEdge = new OpStateEdge(
-                            new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
-                            new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
-                            cloner.deepClone(edge.getValue()), true);
-                    newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
-                    edgesForNewVertex.add(newEdge);
-
+                if(newEdge.getValue().getDifferentialFunction() != null) {
+                    ensureSameDiffInstance(sameDiff,newEdge.getValue().getDifferentialFunction());
+                    newEdge.getValue().setDifferentialFunction(sameDiff.setupFunction(newEdge.getValue().getDifferentialFunction()));
+                    newEdge.getValue().getDifferentialFunction().setVertexId(edge.getValue().getDifferentialFunction().resultVertexId());
                 }
+
+
+                sameDiff.graph().addEdge(newEdge);
             }
-
-            if(incomingEdgesForVertex != null) {
-                List<Edge<OpState>> newIncomingEdges = new ArrayList<>();
-                sameDiff.graph().getIncomingEdges().put(new int[]{newVertexMap},newIncomingEdges);
-                for(Edge<OpState> edge : incomingEdgesForVertex) {
-                    OpStateEdge newEdge = new OpStateEdge(
-                            new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
-                            new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
-                            cloner.deepCloneDontCloneInstances(edge.getValue()),true);
-                    newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
-
-                    newIncomingEdges.add(newEdge);
-
-                    if(newEdge.getValue().getDifferentialFunction() != null) {
-                        ensureSameDiffInstance(sameDiff,newEdge.getValue().getDifferentialFunction());
-                        newEdge.getValue().setDifferentialFunction(sameDiff.setupFunction(newEdge.getValue().getDifferentialFunction()));
-                        newEdge.getValue().getDifferentialFunction().setVertexId(edge.getValue().getDifferentialFunction().resultVertexId());
-                    }
-                }
-            }
-
-
-
-            if(functionInstances.containsKey(new int[]{i + 1})) {
-                DifferentialFunction function = functionInstances.get(new int[]{i + 1});
-                if(function instanceof SDVariable)
-                    continue;
-                DifferentialFunction clone = sameDiff.setupFunction(cloner.deepClone(function));
-                clone.setVertexId(new int[]{newVertexMap});
-                sameDiff.functionInstances.put(new int[]{newVertexMap},clone);
-                ensureSameDiffInstance(sameDiff,clone);
-            }
-
-
-
         }
 
 

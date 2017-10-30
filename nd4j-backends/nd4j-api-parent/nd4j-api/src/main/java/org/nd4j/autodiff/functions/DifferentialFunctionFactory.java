@@ -982,13 +982,21 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         List<Integer> inputIdsList = new ArrayList<>();
         for (int i = 0; i < inputs.length; i++) {
             DifferentialFunction differentialFunction = inputs[i];
-            List<DifferentialFunction> outputs = differentialFunction.outputs();
-            for (DifferentialFunction output : outputs) {
-                for (int vertexId : output.getOutputVertexIds()) {
-                    if (!inputIdsList.contains(vertexId))
-                        inputIdsList.add(vertexId);
+            if(differentialFunction instanceof SDVariable) {
+                inputIdsList.addAll(Ints.asList(differentialFunction.vertexId));
+            }
+            else {
+                List<DifferentialFunction> outputs = differentialFunction.outputs();
+                for (DifferentialFunction output : outputs) {
+                    if(output == differentialFunction)
+                        continue;
+                    for (int vertexId : output.getOutputVertexIds()) {
+                        if (!inputIdsList.contains(vertexId))
+                            inputIdsList.add(vertexId);
+                    }
                 }
             }
+
 
         }
 
@@ -1002,6 +1010,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
             outputs[i] = variable.getVertex();
             outputFunctions[i] = variable;
         }
+
 
         int[] inputIds = Ints.toArray(inputIdsList);
 
