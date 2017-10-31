@@ -143,21 +143,26 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @return the {@link INDArray} associated with this variable.
      */
     public INDArray getArr() {
-        if(differentialFunction == null)
-            if(arr != null)
-                return arr;
-            else {
-                if(shape == null || weightInitScheme == null) {
-                    throw new ND4JIllegalStateException("Unable to initialize array from getArr(), no shape found.");
-                }
+        if(arr != null)
+            return arr;
 
-                //note that we ensure the array reference is properly set for this variable.
-                setArr(weightInitScheme.create(shape));
-                return arr;
+        //initialize value if it's actually a scalar constant (zero or 1 typically...)
+        if(getScalarValue() != null && ArrayUtil.prod(getShape()) == 1) {
+            INDArray arr = Nd4j.valueArrayOf(getShape(),
+                    getScalarValue().doubleValue());
+            sameDiff.getVertexToArray().put(getVarName(),arr);
+            sameDiff.getReverseArrayLookup().put(arr,this);
+            setArr(arr);
+        }
+        else {
+            INDArray newAlloc = getWeightInitScheme().create(getShape(),Nd4j.zeros(getShape(),getWeightInitScheme().order()));
+            sameDiff.getVertexToArray().put(getVarName(),newAlloc);
+            sameDiff.getReverseArrayLookup().put(newAlloc,this);
+            setArr(newAlloc);
 
-            }
-        Op op = (Op) differentialFunction;
-        return op.z();
+        }
+
+        return arr;
     }
 
     public INDArray getArr(boolean requireArray) {

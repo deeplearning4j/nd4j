@@ -15,7 +15,7 @@ public class Zero extends Constant {
         super(sameDiff, SDVariable
                 .builder()
                 .varName("zero")
-                .shape(shape)
+                .shape(shape).vertexId(vertexId)
                 .build(),shape,vertexId);
     }
 

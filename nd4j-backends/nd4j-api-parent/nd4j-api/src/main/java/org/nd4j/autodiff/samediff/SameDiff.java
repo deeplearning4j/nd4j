@@ -609,95 +609,6 @@ public class SameDiff {
 
 
 
-    /**
-     * Allocate ndarrays in to memory,
-     * linking the {@link SDVariable}
-     * {@link INDArray}
-     * provided with {@link SDVariable#getArr()}
-     * as needed.
-     */
-    public void allocate() {
-        if(workspace != null) {
-            workspace.close();
-        }
-        else {
-            initWorkspace();
-        }
-
-
-        for (Integer i : graph().getVertices().keySet()) {
-            SDVariable info = graph.getVariableForVertex(i);
-            allocateArrayFor(info);
-        }
-
-    }
-
-
-    /**
-     * Allocate an individual {@link INDArray}
-     * for a given {@link SDVariable}
-     * @param sdVariable the variable to allocate
-     *                   memory for
-     */
-    public void allocateArrayFor(SDVariable sdVariable) {
-        if(workspace != null) {
-            workspace.close();
-        }
-        else {
-            initWorkspace();
-        }
-
-        SDVariable info = sdVariable;
-        DifferentialFunction func = functionInstances.get(info.getVertexId());
-
-        if(!variableMap.containsKey(info.getVarName())) {
-            SDVariable.SDVariableBuilder variableBuilder = SDVariable.builder()
-                    .sameDiff(this)
-                    .varName(info.getVarName());
-            //associate the proper differential function with the given
-            //variable
-            if(func != null)
-                variableBuilder.differentialFunction(func);
-
-            if(func != null)
-                variableBuilder.shape(info.getShape());
-
-            variableBuilder.vertexId(info.getVertexId());
-
-            SDVariable variable = variableBuilder.build();
-            variableMap.put(info.getVarName(),variable);
-        }
-
-        /**
-         * Problem:
-         * Vertexes are not a unique identifier of an actual array.
-         * Duplicate vertices are put in to place
-         * to avoid cycles by may point at the same array.
-         * NDArrayInformation should somehow be unique
-         * and point to an actual array.
-         */
-        if(!vertexToArray.containsKey(info.getVarName()) || vertexToArray.get(info.getVarName()) == null) {
-            //initialize value if it's actually a scalar constant (zero or 1 typically...)
-            if(info.getScalarValue() != null && ArrayUtil.prod(info.getShape()) == 1) {
-                INDArray arr = Nd4j.valueArrayOf(info.getShape(),
-                        info.getScalarValue().doubleValue());
-                vertexToArray.put(info.getVarName(),arr);
-                reverseArrayLookup.put(arr,info);
-                info.setArr(arr);
-            }
-            else {
-                INDArray newAlloc = info.getWeightInitScheme().create(info.getShape(),Nd4j.zeros(info.getShape(),info.getWeightInitScheme().order()));
-                vertexToArray.put(info.getVarName(),newAlloc);
-                reverseArrayLookup.put(newAlloc,info);
-                info.setArr(newAlloc);
-
-            }
-
-        }
-
-
-    }
-
 
     private void initWorkspace() {
         workspace = Nd4j.getWorkspaceManager().createNewWorkspace(
@@ -2806,6 +2717,7 @@ public class SameDiff {
                 .arr(null)
                 .differentialFunction(functionFactory.transpose(getFunctionInput(iX)))
                 .varName(name)
+                .shape(ArrayUtil.reverseCopy(iX.getShape()))
                 .sameDiff(this)
                 .build();
         Preconditions.checkState(Arrays.equals(ret.getShape(),ret.getDifferentialFunction().getResultShape()));
@@ -2844,8 +2756,8 @@ public class SameDiff {
                 .sameDiff(this)
                 .differentialFunction(functionFactory.mmul(x, y))
                 .varName(name)
+                .shape(Shape.getMatrixMultiplyShape(x.getShape(),y.getShape()))
                 .build();
-        ret.setShape(Shape.getMatrixMultiplyShape(x.getShape(),y.getShape()));
         addVariable(ret);
         return ret;
     }
@@ -3433,7 +3345,6 @@ public class SameDiff {
          * Exceptions thrown during calculation should happen
          * in the graph very similar to nd4j.
          */
-        allocate();
         if(graph().numVertices() == 0)
             throw new ND4JIllegalStateException("Unable to run exec pipeline. No vertices in graph");
 
@@ -3482,7 +3393,6 @@ public class SameDiff {
         public SDVariable eval(SameDiff context, SameDiff.SameDiffFunctionDefinition body, SDVariable[] inputVars) {
             context.defineFunction("eval",body,inputVars);
             context.invokeFunctionOn("eval",context);
-            context.allocate();
             OpExecOrder opExecOrder = context.getGraph().getOpOrder();
             int[] finalId = opExecOrder.getActions().get(opExecOrder.getActions().size() - 1).getOutputId();
             return context.getVariableForVertexId(finalId);
@@ -3699,7 +3609,7 @@ public class SameDiff {
                         }
 
                         DifferentialFunction currFunction = action.getOpState().getDifferentialFunction();
-                        currFunction.toString();
+
                         List<DifferentialFunction> backwardResult = currFunction.diff(Arrays.asList(currFunction.getGradient()));
 
                         //clear out all the variables
@@ -3802,7 +3712,6 @@ public class SameDiff {
      * @return
      */
     public Pair<Map<SDVariable,DifferentialFunction>,List<DifferentialFunction>> exec() {
-        allocate();
         List<DifferentialFunction> ops = new ArrayList<>();
         List<OpExecAction> opExecActions = graph().getOpOrder().getActions();
 
@@ -3928,11 +3837,6 @@ public class SameDiff {
             }
 
         }
-
-
-
-
-
 
         return new Pair<>(opMap,ops);
     }

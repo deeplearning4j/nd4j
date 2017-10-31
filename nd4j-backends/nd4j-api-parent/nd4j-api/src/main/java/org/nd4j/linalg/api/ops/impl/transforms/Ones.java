@@ -45,7 +45,7 @@ public class Ones extends Constant {
     public Ones(SameDiff sameDiff, int[] shape,int[] vertexId) {
         super(sameDiff, SDVariable.builder()
                 .sameDiff(sameDiff).vertexId(vertexId)
-                .shape(shape)
+                .shape(shape).vertexId(vertexId)
                 .weightInitScheme(new OneInitScheme('f'))
                 .build(), shape,vertexId);
     }

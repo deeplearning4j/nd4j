@@ -86,7 +86,6 @@ public class SameDiffTests {
         assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
         OpState opState = sameDiff.graph().getOpOrder().getActions().get(0).getOpState();
         assertEquals("sigmoid", opState.getOpName());
-        sameDiff.allocate();
         Op op = (Op) sameDiff.createOp(Op.Type.TRANSFORM, sameDiff.graph().getOpOrder().getActions().get(0));
         assertTrue(op instanceof Sigmoid);
         Nd4j.getExecutioner().exec(op);
@@ -124,7 +123,7 @@ public class SameDiffTests {
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.transpose(x);
         sameDiff.exec();
-        assertEquals(2, sameDiff.graph().numVertices());
+        assertEquals(3, sameDiff.graph().numVertices());
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{4, 1}, result.getArr().shape());
 
@@ -136,14 +135,8 @@ public class SameDiffTests {
         SameDiff sameDiff = SameDiff.create();
         DynamicCustomOp dynamicCustomOp = DynamicCustomOp.
                 sameDiffBuilder("testop",sameDiff)
-                .addInputs(SDVariable.builder().sameDiff(sameDiff)
-                                .varName("i1")
-                                .shape(new int[]{2,2}).build(),
-                        SDVariable.builder().
-                                sameDiff(sameDiff)
-                                .varName("i2").
-                                shape(new int[]{2,2})
-                                .build())
+                .addInputs(sameDiff.var("i1",new int[]{2,2}),
+                       sameDiff.var("i2",new int[]{2,2}))
                 .addOutputShape(new int[]{2,2})
                 .addOutputShape(new int[]{2,3})
                 .build();
@@ -242,7 +235,6 @@ public class SameDiffTests {
     public void testCrossSameDiffVariableInitWithAlloc() {
         SameDiff first = SameDiff.create();
         SameDiff second = SameDiff.create();
-        first.allocate();
 
 
         SDVariable firstVar = first.var("one",new int[]{2,2});
@@ -274,7 +266,6 @@ public class SameDiffTests {
     public void testVariableArrayReference() {
         SameDiff sameDiff = SameDiff.create();
         SDVariable arr = sameDiff.var("one",new int[]{2,2});
-        sameDiff.allocate();
         assertArrayEquals(new int[]{2,2},arr.getShape());
         assumeNotNull(arr.getArr());
         assertArrayEquals(new int[]{2,2},arr.getArr().shape());

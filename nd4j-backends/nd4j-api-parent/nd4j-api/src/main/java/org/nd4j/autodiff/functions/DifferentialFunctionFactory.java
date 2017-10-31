@@ -982,7 +982,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         List<Integer> inputIdsList = new ArrayList<>();
         for (int i = 0; i < inputs.length; i++) {
             DifferentialFunction differentialFunction = inputs[i];
-            if(differentialFunction instanceof SDVariable) {
+            if(differentialFunction instanceof SDVariable || differentialFunction.outputs().size() == 1 && differentialFunction.outputs().get(0) == differentialFunction) {
                 inputIdsList.addAll(Ints.asList(differentialFunction.vertexId));
             }
             else {

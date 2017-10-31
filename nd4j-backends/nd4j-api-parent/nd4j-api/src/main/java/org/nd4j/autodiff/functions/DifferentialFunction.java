@@ -285,7 +285,7 @@ public abstract class DifferentialFunction implements Differential {
             Op op = (Op) this;
             op.setX(getX());
             //y is often optional for many problems
-            if(getY() != null)
+            if(args().length > 1)
                 op.setY(getY());
             op.setZ(getZ());
         }
