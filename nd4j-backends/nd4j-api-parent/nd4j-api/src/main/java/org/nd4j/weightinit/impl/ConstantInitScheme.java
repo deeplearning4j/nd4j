@@ -21,7 +21,7 @@ public class ConstantInitScheme extends BaseWeightInitScheme {
 
     @Override
     public INDArray doCreate(int[] shape, INDArray paramsView) {
-        return Nd4j.complexValueOf(shape,constant);
+        return Nd4j.valueArrayOf(shape,constant);
     }
 
 

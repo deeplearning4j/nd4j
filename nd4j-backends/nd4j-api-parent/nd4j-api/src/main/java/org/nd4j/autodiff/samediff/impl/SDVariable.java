@@ -1,6 +1,7 @@
 package org.nd4j.autodiff.samediff.impl;
 
 import com.google.common.base.Preconditions;
+import com.sun.xml.internal.ws.api.server.SDDocument;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
@@ -207,14 +208,24 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @return
      */
     public SDVariable getGradient() {
-        Op grad = (Op) (this.getDifferentialFunction() == null ? getGradient() : this.getDifferentialFunction().getGradient());
+
+        DifferentialFunction grad =  (this.getDifferentialFunction() != null ?  this.getDifferentialFunction().getGradient() : gradient);
+        INDArray arr  = null;
+        if(grad instanceof Op) {
+            Op o = (Op) grad;
+            arr = o.z();
+        }
+        else if(grad instanceof SDVariable) {
+            SDVariable sdVariable = (SDVariable) grad;
+            arr = sdVariable.getArr();
+        }
 
         if(gradient == null && differentialFunction != null && differentialFunction.getGradient() != null) {
             this.gradient = differentialFunction != null && differentialFunction.getGradient() != null ? SDVariable.builder()
                     .sameDiff(sameDiff)
                     .differentialFunction(differentialFunction.getGradient())
                     .varName(varName + "-grad")
-                    .arr(grad.z())
+                    .arr(arr)
                     .shape(differentialFunction.getGradient() != null ? differentialFunction.getGradient().getResultShape() : null)
                     .build() : null;
 

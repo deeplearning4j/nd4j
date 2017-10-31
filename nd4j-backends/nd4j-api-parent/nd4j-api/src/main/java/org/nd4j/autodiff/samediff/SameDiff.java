@@ -719,6 +719,7 @@ public class SameDiff {
 
         NDArrayVertex ndArrayVertex = new NDArrayVertex(this,vertexId[0], depth,ret);
         graph.addVertex(ndArrayVertex);
+        ret.setVertex(ndArrayVertex);
         addVariable(ret);
         variableMap.put(name,ret);
         return ret;
@@ -3663,6 +3664,7 @@ public class SameDiff {
                     DifferentialFunction initialGrad = sameDiff.setupFunction(sameDiff.functionFactory.one(new int[]{1,1}));
                     DifferentialFunction firstBackward = opOrder.get(0).getOpState().getDifferentialFunction();
                     firstBackward.setGradient(initialGrad);
+
                     SDVariable initialGradVar = SDVariable.builder()
                             .varName("initialgrad")
                             .vertexId(initialGrad.resultVertexId())
@@ -3673,7 +3675,11 @@ public class SameDiff {
                     sameDiff.addVariable(initialGradVar);
 
 
+                    List<DifferentialFunction> passGrad = new ArrayList<>();
+                    passGrad.add(initialGrad);
+
                     Set<DifferentialFunction> seen = new HashSet<>();
+
                     for(OpExecAction action : opOrder) {
                         if(action == null || action.getOpState() == null) {
                             log.warn("Action op state is null");
@@ -3681,14 +3687,14 @@ public class SameDiff {
                         }
 
                         DifferentialFunction currFunction = action.getOpState().getDifferentialFunction();
-
-                        List<DifferentialFunction> backwardResult = currFunction.diff(Arrays.asList(currFunction.getGradient()));
-
+                        Preconditions.checkNotNull("Gradient for " + currFunction.opName() + " was null ! " + currFunction.getGradient());
+                        List<DifferentialFunction> backwardResult = currFunction.diff(passGrad);
+                        passGrad = backwardResult;
                         //clear out all the variables
                         List<SDVariable> functionVars = debugMode ? new ArrayList<SDVariable>(2) : null;
 
                         for(int i = 0; i < backwardResult.size(); i++) {
-                            DifferentialFunction differentialFunction = backwardResult.get(i);
+                            DifferentialFunction differentialFunction = sameDiff.setupFunction(backwardResult.get(i));
                             DifferentialFunction x  = sameDiff.setupFunction(currFunction.args()[i]);
                             if(!seen.contains(x)) {
                                 seen.add(x);
@@ -3746,7 +3752,7 @@ public class SameDiff {
                     return new   SDVariable[] {SDVariable.builder()
                             .differentialFunction(opOrder.get(0).getOpState().getDifferentialFunction())
                             .sameDiff(sameDiff)
-                            .varName("grad")
+                            .varName("grad").shape(new int[]{1,1})
                             .build()};
                 }
             });

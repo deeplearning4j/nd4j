@@ -163,7 +163,9 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public DifferentialFunction getGradient() {
-        return gradient;
+        if(gradient == null)
+            return null;
+        return sameDiff.setupFunction(gradient);
     }
 
 
@@ -229,7 +231,7 @@ public abstract class DifferentialFunction implements Differential {
         for(int i = 0; i < vals.size(); i++) {
             DifferentialFunction differentialFunction = sameDiff.setupFunction(vals.get(i));
             DifferentialFunction arg = sameDiff.setupFunction(args()[i]);
-            DifferentialFunction grad = arg.getGradient() != null ? sameDiff.setupFunction(arg.getGradient()) : null;
+            DifferentialFunction grad = arg.getGradient();
             if(grad != null) {
                 DifferentialFunction ret = f().addi(differentialFunction, grad);
                 arg.setGradient(ret);
