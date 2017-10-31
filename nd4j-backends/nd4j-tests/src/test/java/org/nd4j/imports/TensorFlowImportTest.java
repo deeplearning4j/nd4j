@@ -327,7 +327,7 @@ public class TensorFlowImportTest {
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-
+/*
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -336,6 +336,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_slice.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
+        */
     }
 
     @Test
