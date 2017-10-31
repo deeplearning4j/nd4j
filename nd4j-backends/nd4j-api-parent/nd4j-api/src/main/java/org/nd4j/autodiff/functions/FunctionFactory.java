@@ -3,8 +3,6 @@ package org.nd4j.autodiff.functions;
 import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.impl.transforms.Constant;
-import org.nd4j.linalg.api.ops.impl.transforms.Ones;
-import org.nd4j.linalg.api.ops.impl.transforms.Zero;
 
 /**
  * Created by agibsonccc on 4/9/17.
