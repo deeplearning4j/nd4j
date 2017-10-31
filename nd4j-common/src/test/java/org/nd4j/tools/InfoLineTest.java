@@ -15,7 +15,7 @@ public class InfoLineTest {
 	//
 	
 	@Test
-	public void test_all() throws Exception {
+	public void testAll() throws Exception {
 		//
 		InfoValues iv0 = new InfoValues( " A", " B" );
 		InfoValues iv1 = new InfoValues( " C", " D" );

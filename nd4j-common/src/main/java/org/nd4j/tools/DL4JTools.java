@@ -26,7 +26,7 @@ public class DL4JTools {
 		initValues( superiorModuleCode );
 	}
 	//
-	private final String  baseModuleCode = "AIT";
+	private final String  baseModuleCode = "DL4JT";
 	private String  moduleCode     = "";
 	//
 	

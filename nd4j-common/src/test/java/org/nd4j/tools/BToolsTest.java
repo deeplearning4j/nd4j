@@ -15,7 +15,7 @@ public class BToolsTest {
 	//
 	
 	@Test
-	public void test_getMtLvESS() throws Exception {
+	public void testgetMtLvESS() throws Exception {
 		//
 		assertEquals( "?", BTools.getMtLvESS( -5 ) );
 		assertEquals( "", BTools.getMtLvESS( 0 ) );
@@ -24,14 +24,14 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getMtLvISS() throws Exception {
+	public void testgetMtLvISS() throws Exception {
 		//
 		assertEquals( " ", BTools.getMtLvISS() );
 		//
 	}
 	
 	@Test
-	public void test_getSpaces() throws Exception {
+	public void testgetSpaces() throws Exception {
 		//
 		assertEquals( "?", BTools.getSpaces( -3 ) );
 		assertEquals( "", BTools.getSpaces( 0 ) );
@@ -40,7 +40,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getSBln() throws Exception {
+	public void testgetSBln() throws Exception {
 		//
 		assertEquals( "?", BTools.getSBln() );
 		assertEquals( "?", BTools.getSBln( null ) );
@@ -52,7 +52,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getSDbl() throws Exception {
+	public void testgetSDbl() throws Exception {
 		//
 		assertEquals( "NaN", BTools.getSDbl( Double.NaN, 0 ) );
 		assertEquals( "-6", BTools.getSDbl( -5.5D, 0 ) );
@@ -82,7 +82,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getSInt() throws Exception {
+	public void testgetSInt() throws Exception {
 		//
 		assertEquals( "23", BTools.getSInt( 23, 1 ) );
 		assertEquals( "23", BTools.getSInt( 23, 2 ) );
@@ -93,7 +93,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getSIntA() throws Exception {
+	public void testgetSIntA() throws Exception {
 		//
 		assertEquals( "?", BTools.getSIntA( null ) );
 		assertEquals( "?", BTools.getSIntA(  ) );
@@ -105,7 +105,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getIndexCharsCount() throws Exception {
+	public void testgetIndexCharsCount() throws Exception {
 		//
 		assertEquals( 1, BTools.getIndexCharsCount( -5 ) );
 		assertEquals( 1, BTools.getIndexCharsCount( 5 ) );
@@ -114,7 +114,7 @@ public class BToolsTest {
 	}
 	
 	@Test
-	public void test_getSLcDtTm() throws Exception {
+	public void testgetSLcDtTm() throws Exception {
 		//
 		assertEquals( 15, BTools.getSLcDtTm().length() );
 		assertEquals( "LDTm: ", BTools.getSLcDtTm().substring( 0, 6 ) );

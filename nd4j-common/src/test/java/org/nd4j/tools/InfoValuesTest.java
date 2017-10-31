@@ -19,7 +19,7 @@ public class InfoValuesTest {
 	//
 	
 	@Test
-	public void test_constructor() throws Exception {
+	public void testconstructor() throws Exception {
 		//
 		InfoValues iv;
 		//
@@ -42,7 +42,7 @@ public class InfoValuesTest {
 	}
 	
 	@Test
-	public void test_getValues() throws Exception {
+	public void testgetValues() throws Exception {
 		//
 		InfoValues iv;
 		//

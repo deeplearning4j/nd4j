@@ -1,7 +1,7 @@
-package org.deeplearning4j.tools2;
+package org.nd4j.tools2;
 
-import org.deeplearning4j.tools.SIS;
-import org.deeplearning4j.tools.DL4JTools;
+import org.nd4j.tools.SIS;
+import org.nd4j.tools.DL4JTools;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
@@ -31,7 +31,7 @@ public class DL4JToolsTest {
 	private SIS sis;
 	//
 	@Test
-	public void test_all() throws Exception {
+	public void testAll() throws Exception {
 		//
 		sis = new SIS();
 		//
