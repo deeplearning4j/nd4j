@@ -318,6 +318,12 @@ public class TensorFlowImportTest {
 
         assertNotNull(tg);
 
+        val constIn = tg.getVariableSpace().getVariable("StridedSlice/input");
+        assertNotNull(constIn);
+
+        assertEquals(139.5, constIn.getArray().sumNumber().doubleValue(), 1e-5);
+
+
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
