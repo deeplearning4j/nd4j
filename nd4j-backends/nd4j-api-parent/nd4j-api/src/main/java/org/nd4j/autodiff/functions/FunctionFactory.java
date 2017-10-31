@@ -23,9 +23,9 @@ public interface FunctionFactory {
 
 
 
-    Zero zero(int[] shape);
+    SDVariable zero(int[] shape);
 
-    Ones one(int[] shape);
+    SDVariable one(int[] shape);
 
 
     DifferentialFunction tile(DifferentialFunction iX, int[] repeat);

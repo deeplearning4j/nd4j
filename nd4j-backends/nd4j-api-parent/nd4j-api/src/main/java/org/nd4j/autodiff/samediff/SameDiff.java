@@ -33,6 +33,8 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.nd4j.weightinit.WeightInitScheme;
+import org.nd4j.weightinit.impl.ConstantInitScheme;
 import org.nd4j.weightinit.impl.NDArraySupplierInitScheme;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 
@@ -631,15 +633,71 @@ public class SameDiff {
         return new ArrayList<>(variableMap.values());
     }
 
+    /**
+     * Variable initialization
+     * with 1.0
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @return the created variable
+     */
+    public SDVariable one(String name, int[] shape) {
+        return var(name,shape,1.0);
+
+    }
+
 
     /**
-     *
-     *
-     * @param name
-     * @param shape
-     * @return
+     * Variable initialization
+     * with 0.0
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @return the created variable
      */
-    public SDVariable var(String name, int[] shape,int depth) {
+    public SDVariable zero(String name, int[] shape) {
+        return var(name,shape,0.0);
+
+    }
+
+
+
+    /**
+     * Variable initialization
+     * with a  constant
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @param constant the value to be initialized with
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape,double constant) {
+        return var(name,shape,new ConstantInitScheme('f',constant),0);
+
+    }
+
+
+    /**
+     * Variable initialization
+     * with a specified {@link WeightInitScheme}
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @param weightInitScheme the weight init scheme
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme) {
+        return var(name,shape,weightInitScheme,0);
+
+    }
+
+
+    /**
+     * Variable initialization
+     * with a specified {@link WeightInitScheme}
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @param weightInitScheme the weight init scheme
+     * @param depth the depth in the graph (default 0)
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int depth) {
         if(variableMap.containsKey(name) && variableMap.get(name).getArr() != null)
             return variableMap.get(name);
 
@@ -655,7 +713,7 @@ public class SameDiff {
         SDVariable ret = SDVariable.builder()
                 .sameDiff(this)
                 .vertexId(vertexId)
-                .shape(shape).weightInitScheme(new ZeroInitScheme('f'))
+                .shape(shape).weightInitScheme(weightInitScheme)
                 .varName(name)
                 .build();
 
@@ -665,6 +723,19 @@ public class SameDiff {
         variableMap.put(name,ret);
         return ret;
 
+    }
+
+
+
+    /**
+     *
+     *
+     * @param name
+     * @param shape
+     * @return
+     */
+    public SDVariable var(String name, int[] shape,int depth) {
+        return var(name,shape,new ZeroInitScheme('f'),depth);
     }
 
 
@@ -3227,6 +3298,7 @@ public class SameDiff {
         return sb.toString();
 
     }
+
 
 
 

@@ -136,7 +136,7 @@ public class SameDiffTests {
         DynamicCustomOp dynamicCustomOp = DynamicCustomOp.
                 sameDiffBuilder("testop",sameDiff)
                 .addInputs(sameDiff.var("i1",new int[]{2,2}),
-                       sameDiff.var("i2",new int[]{2,2}))
+                        sameDiff.var("i2",new int[]{2,2}))
                 .addOutputShape(new int[]{2,2})
                 .addOutputShape(new int[]{2,3})
                 .build();
@@ -575,6 +575,7 @@ public class SameDiffTests {
 
 
     }
+
 
     @Test
     public void testWhileLoop() {

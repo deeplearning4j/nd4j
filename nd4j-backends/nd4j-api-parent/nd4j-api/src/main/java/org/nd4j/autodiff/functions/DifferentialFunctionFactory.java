@@ -96,13 +96,13 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     }
 
     @Override
-    public Zero zero(int[] shape) {
-        return sameDiff().setupFunction(new Zero(sameDiff(),shape,new int[]{sameDiff().graph().nextVertexId()}));
+    public SDVariable zero(int[] shape) {
+        return sameDiff().setupFunction(sameDiff.zero("one-" + UUID.randomUUID().toString(),shape));
     }
 
     @Override
-    public Ones one(int[] shape) {
-        return sameDiff().setupFunction(new Ones(sameDiff(),shape,new int[]{ sameDiff.graph().nextVertexId()}));
+    public SDVariable one(int[] shape) {
+        return sameDiff().setupFunction(sameDiff.one("one-" + UUID.randomUUID().toString(),shape));
     }
 
     @Override
