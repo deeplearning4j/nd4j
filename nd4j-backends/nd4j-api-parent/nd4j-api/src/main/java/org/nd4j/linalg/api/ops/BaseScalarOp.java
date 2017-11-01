@@ -104,6 +104,8 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
+
+        addAsNewVertexId();
     }
 
 

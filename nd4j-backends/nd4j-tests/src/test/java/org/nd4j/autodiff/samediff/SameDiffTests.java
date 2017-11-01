@@ -424,7 +424,24 @@ public class SameDiffTests {
     }
 
 
+    @Test
+    public void testVariableReferenceNoFunction() {
+        /**
+         * Creating a variable should not create a differential function.
+         */
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable sdVariable = sameDiff.var("one",Nd4j.scalar(1.0));
+        assumeNotNull(sameDiff.getVariableForVertexId(sdVariable.getVertexId()));
+        assertFalse(sameDiff.getFunctionForVertexId(sdVariable.getVertexId()) != null);
+    }
 
+
+    @Test
+    public void testVariableWithFunction() {
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable sdVariable = sameDiff.var("one",Nd4j.scalar(1.0));
+        SDVariable add = sdVariable.add(1.0);
+    }
 
 
     @Test
