@@ -52,15 +52,12 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             this.dimensions = dimensions;
             this.shape = Shape.getReducedShape(i_v.getResultShape(),dimensions);
             f().validateDifferentialFunctionsameDiff(i_v);
-
+            addAsNewVertexId();
             f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
-
-
-        addAsNewVertexId();
 
     }
 
@@ -75,13 +72,13 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             this.shape = Shape.getReducedShape(i_v.getResultShape(),dimensions);
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
+            addAsNewVertexId();
             f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
 
-        addAsNewVertexId();
     }
 
 

@@ -977,9 +977,6 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
 
         String opName = op.opName();
-        //add something for the current variable.
-        SDVariable currVar = sameDiff.var(sameDiff.generateVariableName(opName, false),op.getShape(),new ZeroInitScheme('f'),op.vertexId);
-        sameDiff.addVariable(currVar);
 
         List<int[]> outputShapes = op.calculateOutputShape();
         int[] outputVertexIds = new int[outputShapes.size()];
@@ -1004,14 +1001,12 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
         }
 
-        NDArrayVertex[] outputs = new NDArrayVertex[outputShapes.size()];
         DifferentialFunction[] outputFunctions = new DifferentialFunction[outputShapes.size()];
         SDVariable[] resultInfo = new SDVariable[outputShapes.size()];
         for (int i = 0; i < outputShapes.size(); i++) {
             SDVariable variable = sameDiff.var(sameDiff.generateVariableName(opName, false),outputShapes.get(i));
-            outputVertexIds[i] = variable.getVertex().vertexID();
+            outputVertexIds[i] = variable.getVertexId()[0];
             resultInfo[i] = variable;
-            outputs[i] = variable.getVertex();
             outputFunctions[i] = variable;
 
         }

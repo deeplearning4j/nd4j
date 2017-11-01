@@ -51,11 +51,9 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                        SameDiff sameDiff,
                        int[] shape,
                        WeightInitScheme weightInitScheme,
-                       NDArrayVertex ndArrayVertex,
                        int[] vertexId) {
         this.shape =  shape;
         this.varName = varName;
-        this.vertex = ndArrayVertex;
         this.weightInitScheme = weightInitScheme;
         this.arr = arr;
         this.vertexId = vertexId;

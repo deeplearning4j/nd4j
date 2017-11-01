@@ -175,17 +175,12 @@ public class SameDiff {
         for(SDVariable variable : variables) {
             SDVariable deepClone = cloner.deepCloneDontCloneInstances(
                     variable,
-                    variable.getVertex(),
                     variable.getArr(),
                     variable.getSameDiff(),
                     variable.getShape());
             Preconditions.checkState(thisVertexIdToNew.containsKey(variable.getVertexId()[0]),variable.getVertexId()[0] + " not found in mapped vertices!");
             int newVertexMap = thisVertexIdToNew.get(variable.getVertexId()[0]);
 
-
-
-            if(variable.getVertex() != null)
-                deepClone.setVertex((NDArrayVertex) sameDiff.graph().getVertex(newVertexMap));
 
             deepClone.setVertexId(new int[]{newVertexMap});
             deepClone.setSameDiff(sameDiff);
@@ -716,9 +711,11 @@ public class SameDiff {
                 .varName(name)
                 .build();
 
-        NDArrayVertex ndArrayVertex = new NDArrayVertex(this,vertexId[0], depth,ret);
-        graph.addVertex(ndArrayVertex);
-        ret.setVertex(ndArrayVertex);
+        if(graph().getVertex(vertexId[0]) == null) {
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(this, vertexId[0], depth, ret);
+            graph.addVertex(ndArrayVertex);
+        }
+
         addVariable(ret);
         variableMap.put(name,ret);
         return ret;
