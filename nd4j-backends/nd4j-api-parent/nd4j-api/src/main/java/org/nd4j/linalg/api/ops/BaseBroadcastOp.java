@@ -1,5 +1,6 @@
 package org.nd4j.linalg.api.ops;
 
+import com.google.common.base.Preconditions;
 import lombok.NoArgsConstructor;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -42,6 +43,8 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
+
+        Preconditions.checkState(sameDiff.setupFunction(this) == this);
     }
 
     public BaseBroadcastOp(SameDiff sameDiff) {
@@ -67,6 +70,9 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
+
+        Preconditions.checkState(sameDiff.setupFunction(this) == this);
+
     }
 
 
@@ -93,6 +99,9 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
+
+        Preconditions.checkState(sameDiff.setupFunction(this) == this);
+
     }
 
 

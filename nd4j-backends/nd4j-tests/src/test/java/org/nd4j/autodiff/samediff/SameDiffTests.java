@@ -5,6 +5,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.graph.Graph;
 import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.graph.api.Vertex;
+import org.nd4j.autodiff.opstate.OpExecAction;
 import org.nd4j.autodiff.opstate.OpExecOrder;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -79,8 +80,8 @@ public class SameDiffTests {
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(arr.shape(), sigmoid.getShape());
         assertEquals(1, sameDiff.graph()
-                .getVertexInDegree(sigmoid.getDifferentialFunction().getVertexId()));
-        int[][] sorted = new int[][]{x.getVertexId(), sigmoid.getDifferentialFunction().getVertexId()};
+                .getVertexInDegree(sigmoid.getVertexId()));
+        int[][] sorted = new int[][]{x.getVertexId(), sigmoid.getVertexId()};
         assertArrayEquals(sorted, sameDiff.graph().topologicalSort());
         assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
         OpState opState = sameDiff.graph().getOpOrder().getActions().get(0).getOpState();
@@ -421,6 +422,7 @@ public class SameDiffTests {
         INDArray executions = sameDiff.execAndEndResult("sum");
         assertEquals(assertion, executions);
     }
+
 
 
 
@@ -1060,21 +1062,7 @@ public class SameDiffTests {
     }
 
 
-    @Test
-    public void testResolveArrayReferences() {
-        SameDiff sameDiff = SameDiff.create();
-        SDVariable var1 = sameDiff.var("x",Nd4j.ones(2));
-        SDVariable var2 = sameDiff.var("y",Nd4j.valueArrayOf(2,3.0));
-        SDVariable result = var1.add(var2);
-        sameDiff.exec();
-        DifferentialFunction resultVarTest = result.getDifferentialFunction();
-        Op op = (Op) resultVarTest;
-        assertEquals(result.getArr(true),op.z());
-        assumeNotNull(sameDiff.getInfoFor(result.getArr(true)));
-        assertEquals(resultVarTest.getResult(),sameDiff.getInfoFor(result.getArr(true)));
 
-
-    }
 
     @Test
     public void testMmulGradient() {

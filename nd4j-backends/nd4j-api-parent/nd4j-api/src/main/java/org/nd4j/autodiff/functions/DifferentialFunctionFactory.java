@@ -1019,12 +1019,10 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         String[] vertexIds = sameDiff.generateVertexIds(Ints.concat(inputIds, outputVertexIds));
         OpState opState = OpState.builder()
                 .opType(opType).inPlace(op.isInPlace())
-                .differentialFunction(op)
                 .opName(opName)
                 .id(opName + "(" + vertexIds + ")")
                 .vertexIds(sameDiff.generateVertexIds(Ints.concat(inputIds, outputVertexIds)))
                 .extraArgs(op.getExtraArgs())
-                .results(resultInfo)
                 .build();
 
 

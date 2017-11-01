@@ -19,6 +19,7 @@
 
 package org.nd4j.linalg.api.ops;
 
+import com.google.common.base.Preconditions;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -60,6 +61,9 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
+
+        addAsNewVertexId();
+
     }
 
     public BaseTransformOp(SameDiff sameDiff) {
@@ -83,6 +87,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
+
+        addAsNewVertexId();
     }
 
 
@@ -90,6 +96,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
     public BaseTransformOp(SameDiff sameDiff,DifferentialFunction i_v,boolean inPlace) {
         this(sameDiff,i_v,i_v.getResultShape(),inPlace,null);
+        addAsNewVertexId();
     }
 
     public BaseTransformOp(SameDiff sameDiff,
@@ -108,6 +115,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
         }
+
+        addAsNewVertexId();
     }
 
 
@@ -115,6 +124,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
                            DifferentialFunction i_v,
                            Object[] extraArgs) {
         this(sameDiff,i_v,i_v.getResultShape(),false,extraArgs);
+        addAsNewVertexId();
     }
 
 

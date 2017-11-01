@@ -242,9 +242,7 @@ public class SDGraph extends Graph<SDVariable,OpState> {
                 Edge<OpState> opStateEdge = inputOpStates.get(0);
                 if(!seenStates.contains(opStateEdge.getValue())) {
                     ret.add(OpExecAction.builder()
-                            .output(opStateEdge.getValue().getResults()[0])
                             .opState(opStateEdge.getValue())
-                            .inputs(inputInfo.toArray(new SDVariable[inputInfo.size()]))
                             .inputsIds(Ints.toArray(inputIdsList))
                             .outputId(order[i])
                             .build());

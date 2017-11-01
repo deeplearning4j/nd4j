@@ -41,13 +41,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     private String varName;
     private SDVariable gradient;
     private SDVariable forwardVariable;
-    protected DifferentialFunction differentialFunction;
     @Getter
     @Setter
     protected WeightInitScheme weightInitScheme;
     @Builder
-    private SDVariable(DifferentialFunction differentialFunction,
-                       String varName,
+    private SDVariable(String varName,
                        INDArray arr,
                        OpState opState,
                        SameDiff sameDiff,
@@ -56,7 +54,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                        NDArrayVertex ndArrayVertex,
                        int[] vertexId) {
         this.shape =  shape;
-        this.differentialFunction = differentialFunction;
         this.varName = varName;
         this.vertex = ndArrayVertex;
         this.weightInitScheme = weightInitScheme;
@@ -71,16 +68,12 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         }
 
         if(opState == null) {
-            if(differentialFunction != null)
-                this.opState = differentialFunction.getOpState();
-            else
-                this.opState = OpState.builder()
-                        .opType(Op.Type.RETURN)
-                        .inPlace(true)
-                        .results(new SDVariable[] {this})
-                        .vertexIds(ArrayUtil.convertToString(vertexId))
-                        .opName(varName)
-                        .build();
+            this.opState = OpState.builder()
+                    .opType(Op.Type.RETURN)
+                    .inPlace(true)
+                    .vertexIds(ArrayUtil.convertToString(vertexId))
+                    .opName(varName)
+                    .build();
         }
 
 
@@ -89,10 +82,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         }
 
         this.sameDiff = sameDiff;
-        if(differentialFunction != null) {
-            this.vertexId = differentialFunction.getVertexId();
-        }
 
+        if(this.vertexId == null) {
+            this.vertexId = new int[] {sameDiff.graph().nextVertexId()};
+        }
 
 
     }
@@ -120,13 +113,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         }
 
         this.arr = arr;
-        if(differentialFunction instanceof Op) {
-            Op op = (Op) differentialFunction;
-            op.setZ(arr);
-        }
-
-
     }
+
+
+
 
     /**
      * A getter for the allocated ndarray
@@ -200,35 +190,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @return
      */
     public SDVariable getGradient() {
-
-        DifferentialFunction grad =  (this.getDifferentialFunction() != null ?  this.getDifferentialFunction().getGradient() : gradient);
-        INDArray arr  = null;
-        if(grad instanceof Op) {
-            Op o = (Op) grad;
-            arr = o.z();
-        }
-        else if(grad instanceof SDVariable) {
-            SDVariable sdVariable = (SDVariable) grad;
-            arr = sdVariable.getArr();
-        }
-
-        if(gradient == null && differentialFunction != null && differentialFunction.getGradient() != null) {
-            this.gradient = differentialFunction != null && differentialFunction.getGradient() != null ? SDVariable.builder()
-                    .sameDiff(sameDiff)
-                    .differentialFunction(differentialFunction.getGradient())
-                    .varName(varName + "-grad")
-                    .arr(arr)
-                    .shape(differentialFunction.getGradient() != null ? differentialFunction.getGradient().getResultShape() : null)
-                    .build() : null;
-
-            if(sameDiff.isDebugMode() && this.gradient != null) {
-                sameDiff.addVariable(this.gradient);
-            }
-        }
-
-
-
-
         if(this.gradient != null) {
             this.gradient.setForwardVariable(this);
         }
@@ -262,14 +223,8 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     public int[] getShape() {
         if(shape != null)
             return shape;
-        if(differentialFunction == null)
-            throw new IllegalStateException("Unable to infer shape. Function is null.");
-        OpState opState =  differentialFunction.getOpState();
-        if(opState == null) {
-            return differentialFunction.getResultShape();
-        }
 
-        return opState.getResults()[0].getShape();
+        return sameDiff.getVariableForVertexId(this.vertexId).getShape();
 
     }
 
@@ -297,7 +252,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable dup() {
         return SDVariable.builder()
-                .differentialFunction(differentialFunction)
                 .varName(varName)
                 .shape(shape)
                 .sameDiff(sameDiff)
@@ -579,7 +533,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName )
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -597,7 +550,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName )
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -614,7 +566,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName )
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -632,7 +583,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " - " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(result)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -650,7 +600,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " / " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -668,7 +617,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " * " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -687,7 +635,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " - " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -706,7 +653,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " / " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -724,7 +670,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName )
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -742,7 +687,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName + " - " + "scalar")
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -761,7 +705,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .arr(null)
                 .sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -779,7 +722,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName)
                 .arr(null).sameDiff(getSameDiff())
                 .shape(getTransformOutputShape(this))
-                .differentialFunction(function)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -797,12 +739,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rsub(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().rsub(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret =  SDVariable.builder().sameDiff(getSameDiff())
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().rsub(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -815,11 +756,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rdiv(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().rdiv(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret = SDVariable.builder().sameDiff(getSameDiff())
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff()).shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().rdiv(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -832,12 +772,12 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable add(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
+        DifferentialFunction result = sameDiff.f().add(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret =  SDVariable.builder()
                 .sameDiff(getSameDiff())
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().add(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
 
         sameDiff.addVariable(ret);
@@ -860,7 +800,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .arr(null)
                 .sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(result)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -873,12 +812,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable div(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().div(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret = SDVariable.builder()
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().div(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -903,7 +841,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(result)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -917,12 +854,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rsubi(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().rsubi(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret =  SDVariable.builder()
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().rsubi(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -935,11 +871,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rdivi(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().rdivi(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret = SDVariable.builder()
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff()).shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().rdivi(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -952,11 +887,10 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable addi(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().addi(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret = SDVariable.builder()
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff()).shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().addi(getFunction(this),getFunction(sameDiffVariable)))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -978,7 +912,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .arr(null)
                 .sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(result)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -991,11 +924,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable divi(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
-
+        DifferentialFunction result = sameDiff.f().divi(getFunction(this),getFunction(sameDiffVariable));
         SDVariable ret = SDVariable.builder()
                 .varName(varName)
-                .arr(null).sameDiff(sameDiffVariable.getSameDiff()).shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(sameDiff.f().divi(getFunction(this),getFunction(sameDiffVariable)))
+                .arr(null).sameDiff(sameDiffVariable.getSameDiff())
+                .shape(getTransformOutputShape(sameDiffVariable))
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -1016,7 +949,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .varName(varName)
                 .arr(null).sameDiff(sameDiffVariable.getSameDiff())
                 .shape(getTransformOutputShape(sameDiffVariable))
-                .differentialFunction(result)
                 .build();
         sameDiff.addVariable(ret);
         return ret;
@@ -1044,7 +976,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
 
 
 
-
     private void assertShapeEquals(SDVariable variable) {
         if(!Arrays.equals(shape,variable.getShape()) && ArrayUtil.prod(variable.getShape()) != 1 && Shape.broadcastOutputShape(shape,variable.shape) == null) {
             throw new IllegalArgumentException("Input shape must be the same as this shape " + Arrays.toString(shape) + " and shape was " + Arrays.toString(variable.getShape()));
@@ -1062,7 +993,12 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     public static DifferentialFunction getFunction(SDVariable variable) {
         if(variable == null)
             throw new IllegalArgumentException("Unable to get function for null variable");
-        return variable.getDifferentialFunction() != null ? variable.getDifferentialFunction() : variable;
+        if(variable.vertexId == null)
+            return variable;
+        DifferentialFunction result = variable.getSameDiff().getVariableForVertexId(variable.vertexId);
+        if(result != null)
+            return result;
+        return variable;
     }
 
     @Override
@@ -1079,7 +1015,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
 
         if (arr != null ? !arr.equals(variable.arr) : variable.arr != null) return false;
         if (varName != null ? !varName.equals(variable.varName) : variable.varName != null) return false;
-        return differentialFunction != null ? differentialFunction.equals(variable.differentialFunction) : variable.differentialFunction == null;
+        return true;
     }
 
     @Override
@@ -1088,7 +1024,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         result = 31 * result + (arr != null ? arr.hashCode() : 0);
         result = 31 * result + (varName != null ? varName.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(shape);
-        result = 31 * result + (differentialFunction != null ? differentialFunction.hashCode() : 0);
         return result;
     }
 }

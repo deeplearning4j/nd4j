@@ -71,7 +71,6 @@ public class While extends DifferentialFunction implements CustomOp {
         this.trueBody = trueBody;
         this.blockName = blockName;
         this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1});
-        this.dummyResult.setDifferentialFunction(this);
         NDArrayVertex dummyVertex = dummyResult.getVertex();
         this.vertex = dummyVertex;
         this.vertexId = new int[] {dummyVertex.vertexID()};
@@ -111,9 +110,7 @@ public class While extends DifferentialFunction implements CustomOp {
         OpState opState = OpState.builder()
                 .opName(opName())
                 .opType(Op.Type.LOOP)
-                .differentialFunction(this)
                 .inPlace(false)
-                .results(new SDVariable[]{dummyResult})
                 .id(UUID.randomUUID().toString())
                 .vertexIds(opEdgeIds)
                 .build();

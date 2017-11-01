@@ -50,6 +50,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         if (i_v != null) {
             this.args = new DifferentialFunction[] {i_v};
             this.dimensions = dimensions;
+            this.shape = Shape.getReducedShape(i_v.getResultShape(),dimensions);
             f().validateDifferentialFunctionsameDiff(i_v);
 
             f().addFunctionEdges(this);
@@ -57,6 +58,10 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
+
+
+        addAsNewVertexId();
+
     }
 
     public BaseAccumulation(SameDiff sameDiff,
@@ -67,6 +72,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         if (i_v != null) {
             this.args = new DifferentialFunction[] {i_v,i_v2};
             this.dimensions = dimensions;
+            this.shape = Shape.getReducedShape(i_v.getResultShape(),dimensions);
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
             f().addFunctionEdges(this);
@@ -74,6 +80,8 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
+
+        addAsNewVertexId();
     }
 
 
