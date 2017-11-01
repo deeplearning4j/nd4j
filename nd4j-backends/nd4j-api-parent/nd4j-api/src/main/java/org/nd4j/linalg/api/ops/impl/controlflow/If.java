@@ -7,7 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.Op;
@@ -105,7 +105,7 @@ public class If extends DifferentialFunction implements CustomOp {
         this.loopBodyExecution = parent.defineFunction(trueBodyName,trueBody,inputVars);
         this.falseBodyExecution = parent.defineFunction(falseBodyName,falseBody,inputVars);
         parent.defineFunction(blockName,conditionBody,inputVars);
-        parent.getSameDiffFunctionInstances().put("predicate-eval-body",sameDiff);
+        parent.putSubFunction("predicate-eval-body",sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
 

@@ -7,7 +7,6 @@ import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.graph.api.Vertex;
 import org.nd4j.autodiff.opstate.OpExecOrder;
 import org.nd4j.autodiff.opstate.OpState;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -86,7 +85,7 @@ public class SameDiffTests {
         assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
         OpState opState = sameDiff.graph().getOpOrder().getActions().get(0).getOpState();
         assertEquals("sigmoid", opState.getOpName());
-        Op op = (Op) sameDiff.createOp(Op.Type.TRANSFORM, sameDiff.graph().getOpOrder().getActions().get(0));
+        Op op = (Op) sameDiff.createOp(sameDiff.graph().getOpOrder().getActions().get(0));
         assertTrue(op instanceof Sigmoid);
         Nd4j.getExecutioner().exec(op);
         assertEquals(Transforms.sigmoid(Nd4j.linspace(1, 4, 4)), op.z());
@@ -925,7 +924,7 @@ public class SameDiffTests {
             }
         });
 
-        SameDiff secondAdd = outer.getSameDiffFunctionInstances().get("secondadd");
+        SameDiff secondAdd = outer.getFunction("secondadd");
         INDArray[] outputs = secondAdd.eval(input);
         INDArray outputsAssertion = Nd4j.valueArrayOf(2, 2.0);
         assertEquals(outputsAssertion, outputs[0]);
@@ -1204,7 +1203,7 @@ public class SameDiffTests {
             }
         },params);
 
-        SameDiff logisticGraph = sameDiff.getSameDiffFunctionInstances().get("rsubop");
+        SameDiff logisticGraph = sameDiff.getFunction("rsubop");
         INDArray[] outputs = logisticGraph.eval(params);
         assertEquals(Nd4j.ones(4).muli(-1),outputs[0]);
         System.out.println(Arrays.toString(outputs));
@@ -1343,7 +1342,7 @@ public class SameDiffTests {
             @Override
             public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
                 SDVariable outputs = sameDiffOuter.invokeFunctionOn("logisticPredictions", sameDiff);
-                SDVariable y = sameDiff.getVariableMap().get("y");
+                SDVariable y = sameDiff.getVariable("y");
                 SDVariable outputTimesY = outputs.mul(y);
                 return new SDVariable[]{outputTimesY};
 

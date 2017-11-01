@@ -15,7 +15,7 @@ import org.nd4j.autodiff.graph.api.Vertex;
 import org.nd4j.autodiff.graph.exception.NoEdgesException;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
 

@@ -1,13 +1,11 @@
 package org.nd4j.autodiff.functions;
 
-import com.google.common.base.Preconditions;
 import com.rits.cloning.Cloner;
 import lombok.*;
-import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
@@ -202,7 +200,7 @@ public abstract class DifferentialFunction implements Differential {
      * @return
      */
     public DifferentialFunctionFactory f() {
-        return sameDiff.getFunctionFactory();
+        return sameDiff.f();
     }
 
 
@@ -260,14 +258,14 @@ public abstract class DifferentialFunction implements Differential {
 
 
     private INDArray getX() {
-        INDArray ret =  sameDiff.getVertexToArray().get(args()[0].getResult().getVarName());
+        INDArray ret =  sameDiff.getVariable(args()[0].getResult().getVarName()).getArr();
         return ret;
     }
 
     private INDArray getY() {
         if(args().length > 1) {
             SDVariable opId = args()[1].getResult();
-            INDArray ret = sameDiff.getVertexToArray().get(opId.getVarName());
+            INDArray ret = sameDiff.getVariable(opId.getVarName()).getArr();
             return ret;
         }
         return null;
@@ -277,7 +275,7 @@ public abstract class DifferentialFunction implements Differential {
         if(this.opState.isInPlace())
             return getX();
         SDVariable opId = opState.getResults()[0];
-        INDArray ret =  sameDiff.getVertexToArray().get(opId.getVarName());
+        INDArray ret =  sameDiff.getVariable(opId.getVarName()).getArr();
         return ret;
     }
 
@@ -372,7 +370,7 @@ public abstract class DifferentialFunction implements Differential {
      * @param gradient
      */
     public void setGradient(DifferentialFunction gradient) {
-        DifferentialFunction functionRef = sameDiff.getFunctionInstances().get(vertexId);
+        DifferentialFunction functionRef = sameDiff.getFunctionForVertexId(vertexId);
         if(functionRef != this)
             functionRef.setGradient(gradient);
         this.gradient = sameDiff.setupFunction(gradient);

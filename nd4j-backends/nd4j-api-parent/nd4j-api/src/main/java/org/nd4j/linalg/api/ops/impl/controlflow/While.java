@@ -7,7 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.Op;
@@ -104,7 +104,7 @@ public class While extends DifferentialFunction implements CustomOp {
         //running define function will setup a proper same diff instance
         parent.defineFunction(trueBodyName,trueBody,inputVars);
         parent.defineFunction(blockName,condition,inputVars);
-        parent.getSameDiffFunctionInstances().put("predicate-eval-body",sameDiff);
+        parent.putSubFunction("predicate-eval-body",sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
 
@@ -123,6 +123,11 @@ public class While extends DifferentialFunction implements CustomOp {
     }
 
 
+    /**
+     * Increments the loop counter.
+     * This should be called when the loop
+     * actually executes.
+     */
     public void incrementLoopCounter() {
         numLooped++;
     }

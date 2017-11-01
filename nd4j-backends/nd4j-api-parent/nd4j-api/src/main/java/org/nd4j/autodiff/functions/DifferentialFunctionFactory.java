@@ -6,7 +6,7 @@ import lombok.Data;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.autodiff.samediff.impl.SDVariable;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.accum.Max;
@@ -1088,9 +1088,8 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
 
     public void validateFunctionReference(DifferentialFunction reference) {
-        if(sameDiff.getFunctionInstances().containsKey(reference.getVertexId())) {
-            DifferentialFunction get = sameDiff.getFunctionInstances()
-                    .get(reference.getVertexId());
+        if(sameDiff.getFunctionForVertexId(reference.getVertexId()) != null) {
+            DifferentialFunction get = sameDiff.getFunctionForVertexId(reference.getVertexId());
             Preconditions.checkState(reference.equals(get), "Found invalid reference " + reference + " for vertex id "
                     + reference.getVertexId());
         }
