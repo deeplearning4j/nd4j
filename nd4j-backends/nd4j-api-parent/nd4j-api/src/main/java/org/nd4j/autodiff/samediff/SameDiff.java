@@ -422,7 +422,8 @@ public class SameDiff {
     public <X extends DifferentialFunction> X setupFunction(X  function) {
         Preconditions.checkNotNull(function,"Passed in function must not be null!");
         int[] idx = function.getVertexId();
-
+        if(function instanceof SDVariable)
+            return function;
         DifferentialFunction get = null;
 
         if(idx != null && functionInstances.containsKey(idx)) {
@@ -430,6 +431,7 @@ public class SameDiff {
             //note that we check if the graph is frozen
             //if the graph is frozen this reference is disposable
             if(!graph().isFrozen() && !function.equals(get)) {
+
                 throw new IllegalStateException("Attempted to override Differential Function instance with idx " + idx + " with instance " + function);
             }
         }
@@ -677,10 +679,25 @@ public class SameDiff {
      * @param name the name of the variable
      * @param shape the shape of the array to be created
      * @param weightInitScheme the weight init scheme
+     * @param vertexId  the vertex id to use for the variable
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int[] vertexId) {
+        return var(name,shape,weightInitScheme,vertexId,0);
+    }
+
+
+    /**
+     * Variable initialization
+     * with a specified {@link WeightInitScheme}
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @param weightInitScheme the weight init scheme
+     * @param vertexId  the vertex id to use for the variable
      * @param depth the depth in the graph (default 0)
      * @return the created variable
      */
-    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int depth) {
+    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int[] vertexId,int depth) {
         if(variableMap.containsKey(name) && variableMap.get(name).getArr() != null)
             return variableMap.get(name);
 
@@ -692,7 +709,6 @@ public class SameDiff {
             initWorkspace();
 
 
-        int[] vertexId = {graph.nextVertexId()};
         SDVariable ret = SDVariable.builder()
                 .sameDiff(this)
                 .vertexId(vertexId)
@@ -706,6 +722,22 @@ public class SameDiff {
         addVariable(ret);
         variableMap.put(name,ret);
         return ret;
+
+    }
+
+
+    /**
+     * Variable initialization
+     * with a specified {@link WeightInitScheme}
+     * , depth, and vertex id of{@link SDGraph#nextVertexId}
+     * @param name the name of the variable
+     * @param shape the shape of the array to be created
+     * @param weightInitScheme the weight init scheme
+     * @param depth the depth in the graph (default 0)
+     * @return the created variable
+     */
+    public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int depth) {
+      return var(name, shape, weightInitScheme, new int[]{graph.nextVertexId()},depth);
 
     }
 
@@ -2683,8 +2715,7 @@ public class SameDiff {
             throw new IllegalArgumentException("Variable already found with variable name " + variable.getVarName());
         }
 
-        DifferentialFunction input = getFunctionInput(variable);
-        vertexIdToVariable.put(input.resultVertexId(),variable);
+        vertexIdToVariable.put(variable.resultVertexId(),variable);
         variableMap.put(variable.getVarName(),variable);
         if( variable.getArr() != null) {
             reverseArrayLookup.put(variable.getArr(),variable);

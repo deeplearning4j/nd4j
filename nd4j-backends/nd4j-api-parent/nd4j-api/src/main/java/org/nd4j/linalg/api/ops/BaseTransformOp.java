@@ -56,6 +56,10 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateFunctionReference(i_v2);
             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
+            this.shape = i_v1.getShape();
+            /**
+             * Race condition between addFunctionEdges and addNewVertexId
+             */
             f().addFunctionEdges(this);
 
         } else {

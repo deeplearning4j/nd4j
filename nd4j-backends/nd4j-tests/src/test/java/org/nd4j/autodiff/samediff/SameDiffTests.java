@@ -27,6 +27,7 @@ import org.nd4j.weightinit.impl.ZeroInitScheme;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeNotNull;
 
 /**
@@ -438,9 +439,18 @@ public class SameDiffTests {
 
     @Test
     public void testVariableWithFunction() {
+        /**
+         * A variable's function should be null
+         * when just a variable but
+         * have a function result
+         * when the variable itself is the result of a function.
+         *
+         */
         SameDiff sameDiff = SameDiff.create();
         SDVariable sdVariable = sameDiff.var("one",Nd4j.scalar(1.0));
         SDVariable add = sdVariable.add(1.0);
+        assertEquals(sameDiff.getVariableForVertexId(add.getVertexId()),add);
+        assumeFalse(sameDiff.getFunctionForVertexId(sdVariable.getVertexId()) != null);
     }
 
 

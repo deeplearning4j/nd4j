@@ -26,6 +26,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.nd4j.weightinit.impl.ZeroInitScheme;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -976,6 +977,9 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
 
         String opName = op.opName();
+        //add something for the current variable.
+        SDVariable currVar = sameDiff.var(sameDiff.generateVariableName(opName, false),op.getShape(),new ZeroInitScheme('f'),op.vertexId);
+        sameDiff.addVariable(currVar);
 
         List<int[]> outputShapes = op.calculateOutputShape();
         int[] outputVertexIds = new int[outputShapes.size()];
@@ -1009,6 +1013,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
             resultInfo[i] = variable;
             outputs[i] = variable.getVertex();
             outputFunctions[i] = variable;
+
         }
 
 
@@ -1086,6 +1091,9 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
 
     public void validateFunctionReference(DifferentialFunction reference) {
+        if(reference instanceof SDVariable)
+            return;
+
         if(sameDiff.getFunctionForVertexId(reference.getVertexId()) != null) {
             DifferentialFunction get = sameDiff.getFunctionForVertexId(reference.getVertexId());
             Preconditions.checkState(reference.equals(get), "Found invalid reference " + reference + " for vertex id "
