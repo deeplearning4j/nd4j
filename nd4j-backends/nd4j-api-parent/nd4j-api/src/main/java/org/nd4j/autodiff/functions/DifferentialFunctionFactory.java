@@ -25,6 +25,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
 import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 
@@ -974,7 +975,15 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
             validateDifferentialFunctionGraph(input);
         }
 
-
+        /**
+         * Note here that we need to ensure the vertex is properly added.
+         * The output variable creation can create skipped vertices.
+         */
+        if(sameDiff.graph().getVertex(op.vertexId[0]) == null) {
+            SDVariable var = sameDiff.var(op.opName() + "-" + UUID.randomUUID().toString(),op.shape,new ZeroInitScheme('f'),op.vertexId,0);
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff,op.vertexId[0],0,var);
+            sameDiff.graph().addVertex(ndArrayVertex);
+        }
 
         String opName = op.opName();
 
@@ -1003,8 +1012,11 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
         DifferentialFunction[] outputFunctions = new DifferentialFunction[outputShapes.size()];
         SDVariable[] resultInfo = new SDVariable[outputShapes.size()];
+        if(outputShapes.size() > 1) {
+            throw new ND4JIllegalStateException("Automatically generating edges assumes *only* 1 output for now. Consider using DynamicCustomOp for multi output");
+        }
         for (int i = 0; i < outputShapes.size(); i++) {
-            SDVariable variable = sameDiff.var(sameDiff.generateVariableName(opName, false),outputShapes.get(i));
+            SDVariable variable = sameDiff.var(sameDiff.generateVariableName(opName, false),outputShapes.get(i),new ZeroInitScheme('f'),op.getVertexId(),op.depth());
             outputVertexIds[i] = variable.getVertexId()[0];
             resultInfo[i] = variable;
             outputFunctions[i] = variable;

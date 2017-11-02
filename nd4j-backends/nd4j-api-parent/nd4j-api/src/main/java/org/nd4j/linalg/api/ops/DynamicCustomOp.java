@@ -123,7 +123,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return vertexId;
     }
 
-   
+
 
     @Override
     public DifferentialFunction[] outputFunctions() {

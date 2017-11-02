@@ -122,8 +122,11 @@ public abstract class DifferentialFunction implements Differential {
 
     protected void addAsNewVertexId(int[] vertexId) {
         SDVariable var = sameDiff.var(opName() + "-" + UUID.randomUUID().toString(),shape,new ZeroInitScheme('f'),vertexId,0);
-        NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff,var.vertexId[0],depth(),var);
-        var.setVertexId(new int[]{ndArrayVertex.vertexID()});
+        if(sameDiff.graph().getVertex(vertexId[0]) == null) {
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff, var.vertexId[0], depth(), var);
+            var.setVertexId(new int[]{ndArrayVertex.vertexID()});
+        }
+
         this.vertexId = var.getVertexId();
         var.setOpState(opState);
         sameDiff.addVariable(var);
@@ -132,7 +135,8 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     protected void addAsNewVertexId() {
-         addAsNewVertexId(new int[]{sameDiff.graph().nextVertexId()});
+        int vertexId = sameDiff.graph().getNextVertexId()  > sameDiff.graph().numVertices() ? sameDiff.graph().getNextVertexId() : sameDiff.graph().nextVertexId();
+         addAsNewVertexId(new int[]{vertexId});
     }
 
 
