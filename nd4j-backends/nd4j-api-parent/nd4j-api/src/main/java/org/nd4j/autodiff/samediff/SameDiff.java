@@ -164,6 +164,7 @@ public class SameDiff {
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
                 newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
                 sameDiff.graph().addEdge(newEdge);
+
             }
         }
 
@@ -190,6 +191,11 @@ public class SameDiff {
 
         }
 
+
+        for(DifferentialFunction function : sameDiff.functionInstances.values())  {
+            function.setSameDiff(sameDiff);
+        }
+
         sameDiff.reverseArrayLookup.putAll(reverseArrayLookup);
         return sameDiff.variables().get(sameDiff.variables().size() - 1);
 
@@ -213,6 +219,7 @@ public class SameDiff {
                 if(func == null)
                     throw new IllegalArgumentException("No vertex id of " + Arrays.toString(vertexId) + " function or variable found!");
                 SDVariable newVar = var(generateVariableName(func.opName(),false,func.args()),func.getShape(),func.depth() + 1);
+                Preconditions.checkState(newVar.getSameDiff() == this,"Same diff instance for variable must be the same!");
                 vertexIdToVariable.put(vertexId,newVar);
                 addVariable(newVar);
             }
@@ -417,8 +424,12 @@ public class SameDiff {
     public <X extends DifferentialFunction> X setupFunction(X  function) {
         Preconditions.checkNotNull(function,"Passed in function must not be null!");
         int[] idx = function.getVertexId();
-        if(function instanceof SDVariable)
+        if(function instanceof SDVariable) {
+            if(function.getSameDiff() != this) {
+                function.setSameDiff(this);
+            }
             return function;
+        }
         DifferentialFunction get = null;
 
         if(idx != null && functionInstances.containsKey(idx)) {
@@ -432,7 +443,7 @@ public class SameDiff {
         }
         else if(idx != null) {
             get = function;
-            if(!(get instanceof SDVariable))
+            if(!(get instanceof SDVariable) && !(function instanceof GradientBackwardsMarker))
                 functionInstances.put(idx,function);
         }
         else {
@@ -734,7 +745,7 @@ public class SameDiff {
      * @return the created variable
      */
     public SDVariable var(String name, int[] shape, WeightInitScheme weightInitScheme,int depth) {
-      return var(name, shape, weightInitScheme, new int[]{graph.nextVertexId()},depth);
+        return var(name, shape, weightInitScheme, new int[]{graph.nextVertexId()},depth);
 
     }
 
@@ -2696,6 +2707,7 @@ public class SameDiff {
         if(variableMap == null)
             variableMap = new HashMap<>();
 
+        Preconditions.checkState(variable.getSameDiff() == this,"Samediff instance must be the same.");
 
 
         /**
@@ -2712,6 +2724,7 @@ public class SameDiff {
             throw new IllegalArgumentException("Variable already found with variable name " + variable.getVarName());
         }
 
+        Preconditions.checkState(variable.getSameDiff() == this,"Same diff instance for variable must be the same!");
         vertexIdToVariable.put(variable.resultVertexId(),variable);
         variableMap.put(variable.getVarName(),variable);
         if( variable.getArr() != null) {
@@ -2809,8 +2822,14 @@ public class SameDiff {
      * @param function the function
      */
     public void putFunction(int[] vertexId,DifferentialFunction function) {
+        if(function instanceof GradientBackwardsMarker) {
+            return;
+        }
+
+
         if(function instanceof SDVariable) {
             SDVariable sdVariable = (SDVariable) function;
+            Preconditions.checkState(sdVariable.getSameDiff() == this,"Same diff instance for variable must be the same!");
             this.vertexIdToVariable.put(vertexId,sdVariable);
         }
         else {
@@ -3145,11 +3164,11 @@ public class SameDiff {
                     outer.invokeGraphOn(sameDiff);
                     List<OpExecAction> opOrder = sameDiff.graph().getOpOrder(true).getActions();
                     List<OpExecAction> exec = new ArrayList<>();
-                    sameDiff.gradientBackwardsMarker(sameDiff.getVariableForVertexId(opOrder.get(0).getOutputId()));
+                    SDVariable gradientBackwardsMarker = sameDiff.gradientBackwardsMarker(sameDiff.getVariableForVertexId(opOrder.get(0).getOutputId()));
 
                     //start with scalar backprop
                     SDVariable initialGrad = sameDiff.one("one-var",new int[]{1,1});
-                    SDVariable firstBackward = sameDiff.getVariableForVertexId(opOrder.get(0).getOutputId());
+                    SDVariable firstBackward = sameDiff.getVariableForVertexId(opOrder.get(opOrder.size() - 1).getOutputId());
                     firstBackward.setGradient(initialGrad);
 
 
@@ -3164,7 +3183,9 @@ public class SameDiff {
 
                         DifferentialFunction currFunction = getFunctionForVertexId(action.getOutputId());
                         Preconditions.checkNotNull("Gradient for " + currFunction.opName() + " was null ! " + sameDiff.getVariableForVertexId(currFunction.getVertexId()).getGradient());
-                        List<DifferentialFunction> backwardResult = currFunction.diff(Arrays.<DifferentialFunction>asList(sameDiff.getVariableForVertexId(currFunction.getVertexId()).gradient()));
+                        SDVariable currVar = sameDiff.getVariableForVertexId(currFunction.getVertexId());
+                        SDVariable inputGrad = currVar.gradient();
+                        List<DifferentialFunction> backwardResult = currFunction.diff(Arrays.<DifferentialFunction>asList(inputGrad));
                         //clear out all the variables
                         List<SDVariable> functionVars = debugMode ? new ArrayList<SDVariable>(2) : null;
 

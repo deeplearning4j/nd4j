@@ -1069,7 +1069,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
         Preconditions.checkState(function.getSameDiff() ==
                         this.getSameDiff(),
                 "Function applications must be contained " +
-                        "in same sameDiff. The left " + function +"" +
+                        "in same sameDiff. The left " + function  +
                         " must match this function " + this);
         Preconditions.checkState(sameDiff ==
                 this.getSameDiff(),"Function applications m" +
