@@ -100,20 +100,6 @@ public class SDGraph extends Graph<SDVariable,OpState> {
     }
 
 
-    /**
-     * Get the output vertices
-     * @return
-     */
-    public List<SDVariable> getOutputs() {
-        List<SDVariable> ret = new ArrayList<>();
-        List<SDVariable> outVars = sameDiff.variables();
-        for (SDVariable entry : outVars) {
-           if(getEdgesOut(entry.getVertexId()).size() < 1)
-               ret.add(entry);
-        }
-
-        return ret;
-    }
 
     /**
      * Get the input vertices
@@ -121,17 +107,25 @@ public class SDGraph extends Graph<SDVariable,OpState> {
      */
     public List<SDVariable> getInputs() {
         List<SDVariable> ret = new ArrayList<>();
-        for (int i : getVertices().keySet()) {
-            int[] key = {i};
-            if (getVertexInDegree(key) < 1) {
-                ret.add(getVertex(i).getValue());
-            }
+        List<SDVariable> outVars = sameDiff.variables();
+        for (SDVariable entry : outVars) {
+            if(numInputsFor(entry.getVertexId()) < 1)
+                ret.add(entry);
         }
 
         return ret;
     }
 
-
+    /**
+     * Get the number of inputs for a particular vertex id
+     * @param vertexId the vertex id to check
+     * @return the number of inputs for a particular vertex
+     */
+    public int numInputsFor(int...vertexId)  {
+        if(getIncomingEdges().containsKey(vertexId))
+            return getIncomingEdges().get(vertexId).size();
+        return 0;
+    }
 
     /**
      *

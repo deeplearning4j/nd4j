@@ -83,7 +83,8 @@ public class SameDiffTests {
         assertEquals(1, sameDiff.graph()
                 .getVertexInDegree(sigmoid.getVertexId()));
         int[][] sorted = new int[][]{x.getVertexId(), sigmoid.getVertexId()};
-        assertArrayEquals(sorted, sameDiff.graph().topologicalSort());
+        int[][] topoSortResult= sameDiff.graph().topologicalSort();
+        assertArrayEquals(sorted, topoSortResult);
         assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
         OpState opState = sameDiff.graph().getOpOrder().getActions().get(0).getOpState();
         assertEquals("sigmoid", opState.getOpName());
@@ -170,10 +171,10 @@ public class SameDiffTests {
         SDVariable y = sameDiff.var("y", arr);
         SDVariable result = sameDiff.mmul(x, y);
         SDVariable otherResult = result.add(result);
-        //3 vertices and 1 op result
-        assertEquals(5, sameDiff.graph().numVertices()); // XXX: Why 5 instead of 3?
-        //2 edges for matrix multiply and 1 op for result
-        assertEquals(4, sameDiff.graph().getEdges().size()); // XXX: Why 3 instead of 2?
+        //2 inputs and 2 op results
+        assertEquals(4, sameDiff.graph().numVertices());
+        //2 edges for output
+        assertEquals(2, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{2, 2}, result.getShape());
     }
 
@@ -186,18 +187,7 @@ public class SameDiffTests {
         SDVariable y = sameDiff.var("y", arr);
         SDVariable result = sameDiff.mmul(x, y);
         SDVariable otherResult = result.add(result);
-        assertEquals(3, sameDiff.graph().getInputs().size());
-    }
-
-    @Test
-    public void testGetOutputs() {
-        SameDiff sameDiff = SameDiff.create();
-        INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4)).reshape(2, 2);
-        SDVariable x = sameDiff.var("x", arr);
-        SDVariable y = sameDiff.var("y", arr);
-        SDVariable result = sameDiff.mmul(x, y);
-        SDVariable otherResult = result.add(result);
-        assertEquals(1, sameDiff.graph().getOutputs().size());
+        assertEquals(2, sameDiff.graph().getInputs().size());
     }
 
     @Test

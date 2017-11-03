@@ -302,7 +302,7 @@ public abstract class DifferentialFunction implements Differential {
         if(this.opState.isInPlace())
             return getX();
         SDVariable opId = getResult();
-        INDArray ret =  sameDiff.getVariable(opId.getVarName()).getArr();
+        INDArray ret = opId.getArr();
         return ret;
     }
 

@@ -102,7 +102,6 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
     public BaseTransformOp(SameDiff sameDiff,DifferentialFunction i_v,boolean inPlace) {
         this(sameDiff,i_v,i_v.getResultShape(),inPlace,null);
-        addAsNewVertexId();
     }
 
     public BaseTransformOp(SameDiff sameDiff,
@@ -130,7 +129,6 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
                            DifferentialFunction i_v,
                            Object[] extraArgs) {
         this(sameDiff,i_v,i_v.getResultShape(),false,extraArgs);
-        addAsNewVertexId();
     }
 
 
