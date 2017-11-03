@@ -107,6 +107,7 @@ public class If extends DifferentialFunction implements CustomOp {
         parent.putSubFunction("predicate-eval-body-" + UUID.randomUUID().toString(),sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
+        parent.putFunction(vertexId,this);
 
         OpState opState = OpState.builder()
                 .opName(opName())

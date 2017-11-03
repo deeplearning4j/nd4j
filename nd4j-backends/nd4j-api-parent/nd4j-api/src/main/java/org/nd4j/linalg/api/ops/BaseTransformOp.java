@@ -57,10 +57,6 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             this.inPlace = inPlace;
             this.shape = i_v1.getShape();
             addAsNewVertexId();
-
-            /**
-             * Race condition between addFunctionEdges and addNewVertexId
-             */
             f().addFunctionEdges(this);
 
         } else {
@@ -87,14 +83,12 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             this.shape = i_v1.getShape();
             this.sameDiff = sameDiff;
             addAsNewVertexId();
-
             f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
 
-        addAsNewVertexId();
     }
 
 

@@ -192,8 +192,15 @@ public class SameDiff {
         }
 
 
-        for(DifferentialFunction function : sameDiff.functionInstances.values())  {
-            function.setSameDiff(sameDiff);
+        for(DifferentialFunction function : functionInstances.values())  {
+            int[] newVertexId = {thisVertexIdToNew.get(function.getVertexId()[0])};
+            DifferentialFunction clone = cloner.deepCloneDontCloneInstances(
+                    function,
+                    function.getSameDiff(),
+                    function.getVertexId());
+            clone.setSameDiff(sameDiff);
+            clone.setVertexId(newVertexId);
+            sameDiff.putFunction(newVertexId,clone);
         }
 
         sameDiff.reverseArrayLookup.putAll(reverseArrayLookup);
@@ -2858,7 +2865,6 @@ public class SameDiff {
     public DifferentialFunction createOp(OpExecAction opExecAction) {
         DifferentialFunction differentialFunction = getFunctionForVertexId(opExecAction.getOutputId());
         if(differentialFunction instanceof Op) {
-
             if (differentialFunction instanceof ScalarOp) {
                 ScalarOp scalarOp = (ScalarOp) differentialFunction;
                 scalarOp.setScalar(differentialFunction.getScalarValue());
@@ -2876,7 +2882,7 @@ public class SameDiff {
             return differentialFunction;
         }
 
-
+        Preconditions.checkNotNull(differentialFunction,"Unable to return null function");
 
         return differentialFunction;
     }

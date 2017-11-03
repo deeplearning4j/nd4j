@@ -75,6 +75,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
         this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),vertexId);
         this.vertexId = vertexId;
+        parent.putFunction(vertexId,this);
         int[] inputEdges = new int[inputVars.length];
         String[] opEdgeIds = new String[inputVars.length];
         for(int i = 0; i < inputVars.length; i++) {

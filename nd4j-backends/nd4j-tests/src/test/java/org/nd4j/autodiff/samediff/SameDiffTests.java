@@ -566,17 +566,8 @@ public class SameDiffTests {
         SameDiff sameDiff = SameDiff.create();
         String testFunctionName = "testfunction";
         SDVariable[] inputVars = new SDVariable[] {
-                sameDiff.setupFunction(SDVariable.builder().varName("one")
-                        .arr(Nd4j.ones(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build()),
-                sameDiff.setupFunction(SDVariable.builder()
-                        .varName("two")
-                        .arr(Nd4j.zeros(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build()),
+                sameDiff.var("one",new int[]{1,1}),
+                sameDiff.var("two",new int[]{1,1}),
 
         };
 
@@ -589,7 +580,7 @@ public class SameDiffTests {
 
 
         //1 input plus 2 outputs
-        assertEquals(3,functionDef.variables().size());
+        assertEquals(4,functionDef.variables().size());
 
 
 
@@ -612,17 +603,8 @@ public class SameDiffTests {
                 return new SDVariable[]{variableInputs[0],ret};
             }
         },new SDVariable[] {
-                sameDiff.setupFunction(SDVariable.builder().varName("one")
-                        .arr(Nd4j.ones(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build()),
-                sameDiff.setupFunction(SDVariable.builder()
-                        .varName("two")
-                        .arr(Nd4j.zeros(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build()),
+                sameDiff.var("one",new int[]{1,1}),
+               sameDiff.var("two",new int[]{1,1}),
 
         });
 
@@ -712,11 +694,7 @@ public class SameDiffTests {
 
         //false body trigger
         SDVariable[] secondInputs = new SDVariable[] {
-                sameDiff.setupFunction(SDVariable.builder().varName("two")
-                        .arr(Nd4j.zeros(new int[]{1,1}))
-                        .sameDiff(sameDiff)
-                        .vertexId(new int[]{sameDiff.graph().nextVertexId()})
-                        .build())
+                sameDiff.setupFunction(sameDiff.var("two",new int[]{1,1}))
 
         };
 
