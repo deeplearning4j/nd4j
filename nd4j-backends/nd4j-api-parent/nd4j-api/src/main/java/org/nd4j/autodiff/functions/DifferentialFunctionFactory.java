@@ -966,7 +966,10 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     /**
      * Adds function edges to the same diff graph
      * based on inputs and the current target op.
-     * @param op the
+     * Note that the op *must* have a vertex id defined.
+     * If not, an {@link ND4JIllegalStateException}
+     * is thrown
+     * @param op the operation to add edges to
      */
     public void addFunctionEdges(DifferentialFunction op) {
         DifferentialFunction[] inputs = op.args();
@@ -974,6 +977,11 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
             validateFunctionReference(input);
             validateDifferentialFunctionGraph(input);
         }
+
+        if(op.vertexId == null) {
+            throw new ND4JIllegalStateException("Op must have a vertex id defined!");
+        }
+
 
         /**
          * Note here that we need to ensure the vertex is properly added.
