@@ -16,6 +16,7 @@ import org.nd4j.autodiff.graph.exception.NoEdgesException;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.linalg.collection.IntArrayKeyMap;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
 
@@ -64,8 +65,8 @@ public class Graph<V, E> extends BaseGraph<V, E> {
     public Graph(boolean allowMultipleEdges) {
         this.allowMultipleEdges = allowMultipleEdges;
         vertices = new TreeMap<>();
-        edges = new TreeMap<>(Ints.lexicographicalComparator());
-        this.incomingEdges = new TreeMap<>(Ints.lexicographicalComparator());
+        edges = new IntArrayKeyMap<>();
+        this.incomingEdges = new IntArrayKeyMap<>();
         nextVertexId = 0;
     }
 

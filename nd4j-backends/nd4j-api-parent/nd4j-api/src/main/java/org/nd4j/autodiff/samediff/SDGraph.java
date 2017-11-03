@@ -5,6 +5,7 @@ import com.google.common.primitives.Ints;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.val;
 import org.nd4j.autodiff.graph.Graph;
 import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.graph.api.Vertex;
@@ -105,9 +106,10 @@ public class SDGraph extends Graph<SDVariable,OpState> {
      */
     public List<SDVariable> getOutputs() {
         List<SDVariable> ret = new ArrayList<>();
-        for (int i : getVertices().keySet()) {
-            if (getEdgesOut(new int[]{i}).size() < 1)
-                ret.add(getVertex(i).getValue());
+        List<SDVariable> outVars = sameDiff.variables();
+        for (SDVariable entry : outVars) {
+           if(getEdgesOut(entry.getVertexId()).size() < 1)
+               ret.add(entry);
         }
 
         return ret;
@@ -237,7 +239,7 @@ public class SDGraph extends Graph<SDVariable,OpState> {
                     }
                 }
 
-               // Preconditions.checkState(inputsCount == numInputs, "Not all inputs were filled.");
+                // Preconditions.checkState(inputsCount == numInputs, "Not all inputs were filled.");
                 //add edges
                 Edge<OpState> opStateEdge = inputOpStates.get(0);
                 if(!seenStates.contains(opStateEdge.getValue())) {

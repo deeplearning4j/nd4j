@@ -1,6 +1,7 @@
 package org.nd4j.autodiff.graph.api;
 
 import lombok.Data;
+import org.nd4j.linalg.collection.IntArrayKeyMap;
 
 import java.util.Arrays;
 
@@ -20,8 +21,8 @@ public class Edge<T> {
 
 
     public Edge(int[] from, int[] to, T value, boolean directed) {
-        this.from = from;
-        this.to = to;
+        this.from = new IntArrayKeyMap.IntArray(from).getBackingArray();
+        this.to = new IntArrayKeyMap.IntArray(to).getBackingArray();
         this.value = value;
         this.directed = directed;
     }
