@@ -103,7 +103,8 @@ public class SameDiffTests {
         assertEquals(2, sameDiff.graph().numVertices());
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(arr.shape(), result.getShape());
-        assertArrayEquals(new int[][]{{1, 2}}, sameDiff.graph().topologicalSort());
+        int[][] topoSortResult = sameDiff.graph().topologicalSort();
+        assertArrayEquals(new int[][]{{1},{2}}, topoSortResult);
     }
 
     @Test
@@ -125,7 +126,7 @@ public class SameDiffTests {
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.transpose(x);
         sameDiff.exec();
-        assertEquals(3, sameDiff.graph().numVertices());
+        assertEquals(2, sameDiff.graph().numVertices());
         assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{4, 1}, result.getArr().shape());
 
@@ -159,7 +160,7 @@ public class SameDiffTests {
         SDVariable result = sameDiff.cosineSimilarity(x, y, 1);
         SDVariable addResult = result.add(result);
 
-        assertEquals(5, sameDiff.graph().numVertices());
+        assertEquals(4, sameDiff.graph().numVertices());
         assertArrayEquals(new int[]{1, 2}, result.getShape());
     }
 
