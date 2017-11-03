@@ -603,7 +603,7 @@ public class SameDiffTests {
                 return new SDVariable[]{variableInputs[0],ret};
             }
         },new SDVariable[] {
-                sameDiff.var("one",new int[]{1,1}),
+                sameDiff.one("one",new int[]{1,1}),
                sameDiff.var("two",new int[]{1,1}),
 
         });
