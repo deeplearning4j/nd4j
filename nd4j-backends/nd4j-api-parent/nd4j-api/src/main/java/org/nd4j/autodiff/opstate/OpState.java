@@ -79,15 +79,9 @@ public class OpState implements Serializable {
         if (opType != opState.opType) return false;
         if (opName != null ? !opName.equals(opState.opName) : opState.opName != null) return false;
         if (scalarValue != null ? !scalarValue.equals(opState.scalarValue) : opState.scalarValue != null) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if (!Arrays.equals(vertexIds, opState.vertexIds)) return false;
-        if (id != null ? !id.equals(opState.id) : opState.id != null) return false;
+           if (id != null ? !id.equals(opState.id) : opState.id != null) return false;
         if (!Arrays.equals(axes, opState.axes)) return false;
-        // Probably incorrect - comparing Object[] arrays with Arrays.equals
-        if(extraArgs != null && opState.extraArgs != null)
-            if(extraArgs.length != opState.extraArgs.length)
-                return false;
-        return true;
+          return true;
     }
 
     @Override

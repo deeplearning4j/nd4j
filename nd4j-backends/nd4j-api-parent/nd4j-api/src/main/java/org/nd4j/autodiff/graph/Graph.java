@@ -399,6 +399,22 @@ public class Graph<V, E> extends BaseGraph<V, E> {
         return sb.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Graph<?, ?> graph = (Graph<?, ?>) o;
+        return toString().equals(graph.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (edges != null ? edges.hashCode() : 0);
+        result = 31 * result + (vertices != null ? vertices.hashCode() : 0);
+        return result;
+    }
 
     /**
      * Save the graph to a file with graphviz

@@ -248,7 +248,7 @@ public class SameDiff {
      * @param nameSpace the namespace
      */
     public void putSubFunction(String name,SameDiff nameSpace) {
-        if(functionInstances.containsKey(name) && sameDiffFunctionInstances.get(name) != nameSpace) {
+        if(sameDiffFunctionInstances.containsKey(name) && sameDiffFunctionInstances.get(name) != nameSpace) {
             throw new ND4JIllegalStateException("Unable to replace samediff namespace. Please choose another name");
         }
 

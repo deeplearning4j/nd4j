@@ -104,7 +104,7 @@ public class If extends DifferentialFunction implements CustomOp {
         this.loopBodyExecution = parent.defineFunction(trueBodyName,trueBody,inputVars);
         this.falseBodyExecution = parent.defineFunction(falseBodyName,falseBody,inputVars);
         parent.defineFunction(blockName,conditionBody,inputVars);
-        parent.putSubFunction("predicate-eval-body",sameDiff);
+        parent.putSubFunction("predicate-eval-body-" + UUID.randomUUID().toString(),sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
 

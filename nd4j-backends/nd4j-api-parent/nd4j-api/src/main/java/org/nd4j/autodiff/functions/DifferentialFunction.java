@@ -285,7 +285,7 @@ public abstract class DifferentialFunction implements Differential {
 
 
     private INDArray getX() {
-        INDArray ret =  sameDiff.getVariable(args()[0].getResult().getVarName()).getArr();
+        INDArray ret =  args()[0].getResult().getArr();
         return ret;
     }
 
