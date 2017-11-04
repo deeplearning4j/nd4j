@@ -201,6 +201,9 @@ public class SameDiff {
             clone.setSameDiff(sameDiff);
             clone.setVertexId(newVertexId);
             sameDiff.putFunction(newVertexId,clone);
+            for(DifferentialFunction clonedArgs : clone.args()) {
+                clonedArgs.setSameDiff(sameDiff);
+            }
         }
 
         sameDiff.reverseArrayLookup.putAll(reverseArrayLookup);
@@ -3174,7 +3177,7 @@ public class SameDiff {
 
                     //start with scalar backprop
                     SDVariable initialGrad = sameDiff.one("one-var",new int[]{1,1});
-                    SDVariable firstBackward = sameDiff.getVariableForVertexId(opOrder.get(opOrder.size() - 1).getOutputId());
+                    SDVariable firstBackward = sameDiff.getVariableForVertexId(opOrder.get(0).getOutputId());
                     firstBackward.setGradient(initialGrad);
 
 
@@ -3187,10 +3190,12 @@ public class SameDiff {
                             continue;
                         }
 
-                        DifferentialFunction currFunction = getFunctionForVertexId(action.getOutputId());
+                        DifferentialFunction currFunction = sameDiff.getFunctionForVertexId(action.getOutputId());
+                        Preconditions.checkState(currFunction.getSameDiff() == sameDiff,"Wrong samediff instance found!");
                         Preconditions.checkNotNull("Gradient for " + currFunction.opName() + " was null ! " + sameDiff.getVariableForVertexId(currFunction.getVertexId()).getGradient());
                         SDVariable currVar = sameDiff.getVariableForVertexId(currFunction.getVertexId());
                         SDVariable inputGrad = currVar.gradient();
+                        Preconditions.checkState(inputGrad.getSameDiff() == sameDiff);
                         List<DifferentialFunction> backwardResult = currFunction.diff(Arrays.<DifferentialFunction>asList(inputGrad));
                         //clear out all the variables
                         List<SDVariable> functionVars = debugMode ? new ArrayList<SDVariable>(2) : null;
@@ -3250,10 +3255,7 @@ public class SameDiff {
                     }
 
 
-                    return new   SDVariable[] {SDVariable.builder()
-                            .sameDiff(sameDiff)
-                            .varName("grad").shape(new int[]{1,1})
-                            .build()};
+                    return new   SDVariable[] {sameDiff.var("grad",new int[] {1,1})};
                 }
             });
 

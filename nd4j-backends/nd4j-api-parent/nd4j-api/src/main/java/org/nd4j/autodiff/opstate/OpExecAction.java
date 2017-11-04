@@ -44,7 +44,7 @@ public class OpExecAction implements Serializable {
         return "OpExecAction{" +
                 "opState=" + opState +
                 ", inputsIds=" + Arrays.toString(inputsIds) +
-                ", outputId=" + outputId +
+                ", outputId=" + Arrays.toString(outputId) +
                 '}';
     }
 

@@ -1,5 +1,6 @@
 package org.nd4j.autodiff.functions;
 
+import com.google.common.base.Preconditions;
 import com.rits.cloning.Cloner;
 import lombok.Data;
 import lombok.Getter;
@@ -121,11 +122,12 @@ public abstract class DifferentialFunction implements Differential {
 
 
     protected void addAsNewVertexId(int[] vertexId) {
-        SDVariable var = sameDiff.var(opName() + "-" + UUID.randomUUID().toString(),shape,new ZeroInitScheme('f'),vertexId,0);
+        SDVariable var = sameDiff.var(opName() + "-" + UUID.randomUUID().toString(),shape,new ZeroInitScheme('f'),vertexId,maxDepthForArgs() + 1);
         if(sameDiff.graph().getVertex(vertexId[0]) == null) {
             NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff, var.vertexId[0], depth(), var);
             var.setVertexId(new int[]{ndArrayVertex.vertexID()});
         }
+
 
         this.vertexId = var.getVertexId();
         var.setOpState(opState);
@@ -202,14 +204,7 @@ public abstract class DifferentialFunction implements Differential {
 
 
     public int depth() {
-        if(args == null || args.length == 0)
-            return 0;
-
-        int maxDepth = 0;
-        for(int i = 0; i < args.length; i++) {
-            maxDepth = Math.min(args[i].depth(),maxDepth);
-        }
-        return maxDepth;
+        return sameDiff.getGraph().getVertex(vertexId[0]).depth();
     }
 
 
@@ -251,6 +246,7 @@ public abstract class DifferentialFunction implements Differential {
 
     @Override
     public  List<DifferentialFunction> diff(List<DifferentialFunction> i_v1) {
+
         List<DifferentialFunction> vals = doDiff(i_v1);
         for(int i = 0; i < vals.size(); i++) {
             DifferentialFunction differentialFunction = sameDiff.setupFunction(vals.get(i));
@@ -387,6 +383,15 @@ public abstract class DifferentialFunction implements Differential {
         throw new UnsupportedOperationException();
     }
 
+
+    public int maxDepthForArgs() {
+        int depth = -1;
+        for(DifferentialFunction arg : args()) {
+            depth = Math.max(arg.depth(),depth);
+        }
+
+        return depth;
+    }
 
     @Override
     public boolean equals(Object o) {

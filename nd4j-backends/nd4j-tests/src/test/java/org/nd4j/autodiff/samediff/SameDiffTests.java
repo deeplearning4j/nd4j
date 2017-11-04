@@ -1139,6 +1139,16 @@ public class SameDiffTests {
 
 
     @Test
+    public void testDepth() {
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable x = sameDiff.one("one",new int[]{2,2});
+        assertEquals(0,x.depth());
+        SDVariable sigmoid = sameDiff.sigmoid("sigmoid",x);
+        assertEquals(1,sigmoid.depth());
+    }
+
+
+    @Test
     public void testTanhGradient() {
         SameDiff sameDiff = SameDiff.create();
         INDArray sumInput = Nd4j.linspace(1,4,4).reshape(2,2);
