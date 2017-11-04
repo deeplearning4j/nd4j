@@ -3305,6 +3305,9 @@ public class SameDiff {
                 onBackward = true;
             }
 
+            if(opExecAction.getOpState().getOpName().equals(new GradientBackwardsMarker().name()))
+                continue;
+
             DifferentialFunction differentialFunction = createOp(
                     opExecAction);
             if(differentialFunction instanceof If) {
