@@ -965,7 +965,9 @@ public class SameDiff {
             throw new IllegalStateException("Unable to obtain gradient. Please run execBackwards() first.");
         }
 
-        return getFunction("grad").getVariable(varName).gradient();
+        SameDiff grad = getFunction("grad");
+        SDVariable var = grad.getVariable(varName);
+        return getFunction("grad").getGradForVertexId(var.getVertexId());
     }
 
 
@@ -3266,8 +3268,8 @@ public class SameDiff {
                                         .build() : sameDiff.getVariable(forwardVar.getVarName() + "-grad");
 
                                 sameDiff.addVariable(add);
-                                gradients.put(forwardVar.getVertexId(),add);
-                                forwardVarForGrad.put(add.getVertexId(),forwardVar);
+                                sameDiff.gradients.put(forwardVar.getVertexId(),add);
+                                sameDiff.forwardVarForGrad.put(add.getVertexId(),forwardVar);
 
                                 if (isDebugMode()) {
                                     if (add.gradient() != null)

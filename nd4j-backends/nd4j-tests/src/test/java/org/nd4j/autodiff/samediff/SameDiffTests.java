@@ -1031,6 +1031,18 @@ public class SameDiffTests {
 
 
     @Test
+    public void testSumGradient() {
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable twoByTwo = sameDiff.var("initial",Nd4j.linspace(1,4,4).reshape(2,2));
+        SDVariable sum = sameDiff.sum(twoByTwo,Integer.MAX_VALUE);
+        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> execBackwards = sameDiff.execBackwards();
+        SameDiff grad = sameDiff.getFunction("grad");
+        SDVariable gradArr = sameDiff.grad(twoByTwo.getVarName());
+        assertEquals(Nd4j.ones(2,2),gradArr.getArr());
+    }
+
+
+    @Test
     public void testMmulGradientLogistic() {
         SameDiff sameDiff = SameDiff.create();
         Map<String,INDArray> inputs = variablesForInput();
@@ -1361,6 +1373,17 @@ public class SameDiffTests {
             }
 
         }
+    }
+
+
+    @Test
+    public void testScalarAdd() {
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable twoByTwo = sameDiff.var("first",Nd4j.linspace(1,4,4).reshape(2,2));
+        SDVariable add = twoByTwo.add(1.0);
+        INDArray test = sameDiff.execAndEndResult();
+        INDArray assertion = Nd4j.linspace(1,4,4).reshape('f',2,2).add(1.0);
+        assertEquals(assertion,test);
     }
 
 
