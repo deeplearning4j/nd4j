@@ -36,8 +36,11 @@ import org.bytedeco.javacpp.tools.Logger;
                                               "memory/Workspace.h",
                                               "indexing/NDIndex.h",
                                               "indexing/IndicesList.h",
+                                              "array/DataType.h",
+                                              "array/InputType.h",
                                               "NDArray.h",
-                                              "graph/ArrayList.h",
+                                              "array/NDArrayList.h",
+                                              "array/ResultSet.h",
                                               "NDArrayFactory.h",
                                               "graph/Variable.h",
                                               "graph/Intervals.h",
@@ -102,7 +105,8 @@ public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
 
         String classTemplates[] = {
                 "nd4j::NDArray",
-                "nd4j::ArrayList",
+                "nd4j::NDArrayList",
+                "nd4j::ResultSet",
                 "nd4j::NDArrayFactory",
                 "nd4j::graph::Variable",
                 "nd4j::graph::Stash",
