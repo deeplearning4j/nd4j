@@ -66,6 +66,10 @@ public class SameDiff {
     private DifferentialFunctionFactory functionFactory;
     private Map<String,SDVariable> variableMap;
     private Map<int[],SDVariable> vertexIdToVariable;
+    //gradient information
+    private Map<int[],SDVariable> gradients;
+    private Map<int[],SDVariable> forwardVarForGrad;
+
     private IdentityHashMap<INDArray,SDVariable> reverseArrayLookup;
     private MemoryWorkspace workspace;
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
@@ -409,6 +413,8 @@ public class SameDiff {
         sameDiffFunctionInstances = new HashMap<>();
         functionInstances = new IntArrayKeyMap<>();
         vertexIdToVariable = new IntArrayKeyMap<>();
+        gradients = new IntArrayKeyMap<>();
+        forwardVarForGrad = new IntArrayKeyMap<>();
         forwardBackwardStates = new HashMap<>();
         opsForResult = new IntArrayKeyMap<>();
         reverseArrayLookup = new IdentityHashMap<>();
@@ -902,6 +908,48 @@ public class SameDiff {
         return variableMap.get(name);
     }
 
+
+    /**
+     * Get the gradient for the given vertex id
+     * @param vertexId the vertex id
+     * @return the gradient for this variable or null
+     */
+    public SDVariable getGradForVertexId(int...vertexId) {
+        return gradients.get(vertexId);
+    }
+
+
+    /**
+     * Assign a vertex id
+     * to a gradient
+     * @param vertexId the vertex id
+     *                 to assign
+     * @param variable the variable
+     */
+    public void setVertexForId(int[] vertexId,SDVariable variable) {
+        gradients.put(vertexId,variable);
+    }
+
+
+    /**
+     * Get the forward variable for gradient
+     * based on the gradient's vertex id
+     * @param vertexId the vertex id
+     * @return the gradient for the variable or null
+     */
+    public SDVariable getForwardVariableForVertexId(int...vertexId) {
+        return forwardVarForGrad.get(vertexId);
+    }
+
+
+    /**
+     *
+     * @param vertexId
+     * @param forwardVariable
+     */
+    public void setForwardVariableForVertexId(int[] vertexId,SDVariable forwardVariable) {
+        forwardVarForGrad.put(vertexId,forwardVariable);
+    }
 
     /**
      * Gradient with respect
@@ -3178,7 +3226,8 @@ public class SameDiff {
                     //start with scalar backprop
                     SDVariable initialGrad = sameDiff.one("one-var",new int[]{1,1});
                     SDVariable firstBackward = sameDiff.getVariableForVertexId(opOrder.get(0).getOutputId());
-                    firstBackward.setGradient(initialGrad);
+                    sameDiff.forwardVarForGrad.put(firstBackward.getVertexId(),initialGrad);
+                    sameDiff.gradients.put(firstBackward.getVertexId(),initialGrad);
 
 
 
@@ -3208,18 +3257,17 @@ public class SameDiff {
 
 
                                 SDVariable forwardVar = sameDiff.getVariableForVertexId(x.resultVertexId());
-                                SDVariable add = SDVariable.builder()
+                                SDVariable add = sameDiff.getVariable(forwardVar.getVarName() + "-grad") == null ? SDVariable.builder()
                                         .arr(null)
                                         .vertexId(differentialFunction.resultVertexId())
                                         .shape(differentialFunction.getResultShape())
                                         .sameDiff(sameDiff)
                                         .varName(forwardVar.getVarName() + "-grad")
-                                        .build();
+                                        .build() : sameDiff.getVariable(forwardVar.getVarName() + "-grad");
 
                                 sameDiff.addVariable(add);
-                                forwardVar.setGradient(add);
-                                add.setForwardVariable(forwardVar);
-
+                                gradients.put(forwardVar.getVertexId(),add);
+                                forwardVarForGrad.put(add.getVertexId(),forwardVar);
 
                                 if (isDebugMode()) {
                                     if (add.gradient() != null)
@@ -3305,7 +3353,7 @@ public class SameDiff {
                 onBackward = true;
             }
 
-            if(opExecAction.getOpState().getOpName().equals(new GradientBackwardsMarker().name()))
+             if(opExecAction.getOpState().getOpName().equals(new GradientBackwardsMarker().name()))
                 continue;
 
             DifferentialFunction differentialFunction = createOp(

@@ -995,8 +995,8 @@ public class SameDiffTests {
             }
         }, inputs);
 
-        INDArray assertions = Transforms.softmax(sumInput);
         INDArray executions = sameDiff.execAndEndResult("softmax");
+        INDArray assertions = Transforms.softmax(sumInput.dup());
         assertArrayEquals(sumInput.shape(), executions.shape());
         System.out.println(executions);
         assertEquals(assertions, executions);

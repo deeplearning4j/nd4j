@@ -255,11 +255,12 @@ public abstract class DifferentialFunction implements Differential {
             DifferentialFunction grad = var.getGradient();
             if(grad != null) {
                 DifferentialFunction ret = f().addi(differentialFunction, grad);
-                var.setGradient(sameDiff.getVariableForVertexId(ret.vertexId));
+                sameDiff.setVertexForId(ret.vertexId,sameDiff.getVariableForVertexId(ret.vertexId));
             }
-            else
-                var.setGradient(sameDiff.getVariableForVertexId(differentialFunction.vertexId));
-            differentialFunction.setGradFunction(true);
+            else {
+                SDVariable gradVar = sameDiff.getVariableForVertexId(differentialFunction.getVertexId());
+                sameDiff.setVertexForId(var.vertexId, gradVar);
+            }
         }
 
         return vals;

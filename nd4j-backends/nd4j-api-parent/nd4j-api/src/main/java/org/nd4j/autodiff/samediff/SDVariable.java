@@ -39,8 +39,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     @Getter
     @Setter
     private String varName;
-    private SDVariable gradient;
-    private SDVariable forwardVariable;
     @Getter
     @Setter
     protected WeightInitScheme weightInitScheme;
@@ -188,26 +186,12 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @return
      */
     public SDVariable getGradient() {
-        if(this.gradient != null) {
-            this.gradient.setForwardVariable(this);
-        }
-
-
-        return gradient;
+     return sameDiff.getGradForVertexId(vertexId);
     }
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
         throw new ND4JIllegalStateException("Unable to differentiate a variable! Must be a function.");
-    }
-
-    /**
-     *
-     * @param gradient
-     */
-    public void setGradient(SDVariable gradient) {
-        this.gradient = gradient;
-        this.gradient.setForwardVariable(this);
     }
 
 

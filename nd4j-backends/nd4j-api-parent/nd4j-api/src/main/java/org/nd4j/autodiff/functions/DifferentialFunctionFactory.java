@@ -422,7 +422,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
     @Override
     public DifferentialFunction sigmoidDerivative(DifferentialFunction iX, DifferentialFunction wrt) {
-        return sameDiff().setupFunction(new SigmoidDerivative(sameDiff(),sameDiff().setupFunction(iX),sameDiff().setupFunction(wrt)));
+        return sameDiff().setupFunction(new SigmoidDerivative(sameDiff(),iX,wrt));
     }
 
     @Override
@@ -433,7 +433,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
     @Override
     public DifferentialFunction swishDerivative(DifferentialFunction iX, DifferentialFunction wrt) {
-        return sameDiff().setupFunction(new SwishDerivative(sameDiff(),sameDiff().setupFunction(iX),sameDiff().setupFunction(wrt)));
+        return sameDiff().setupFunction(new SwishDerivative(sameDiff(),iX,wrt));
     }
 
 
