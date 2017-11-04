@@ -11,6 +11,10 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.FlatGraph;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.autodiff.opstate.OpState;
+import org.nd4j.graph.intermediate.TIndex;
+import org.nd4j.imports.converters.TensorFlowMapper;
+import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
@@ -129,6 +133,28 @@ public class TensorFlowImportTest {
         assertEquals(6.0, res.meanNumber().doubleValue(), 1e-5);
     }
 
+    @Test
+    public void testRandomMLP() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/frozen_model.pb").getFile());
+        assertTrue(tg.getVariableSpace().hasVariable("input"));
+        assertTrue(tg.getVariableSpace().getVariable("input").isPlaceholder());
+
+        val input = Nd4j.linspace(0,4*784,4*784).reshape(4,784);
+        tg.provideArrayForVariable("input",input);
+
+        val buffer = tg.asFlatBuffers();
+        assertNotNull(buffer);
+
+        val offset = buffer.position();
+
+        log.info("Length: {}; Offset: {};", buffer.capacity(), offset);
+        val array = buffer.array();
+
+        try (val fos = new FileOutputStream("/Users/susaneraly/SKYMIND/libnd4j/tests_cpu/resources/frozen_model.fb"); val dos = new DataOutputStream(fos)) {
+            dos.write(array, offset, array.length - offset);
+        }
+    }
 
 
     @Test
