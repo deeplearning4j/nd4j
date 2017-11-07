@@ -53,6 +53,7 @@ public class TFGraphTests {
         this.modelDir = new File(new ClassPathResource("tf_graphs/examples").getFile(),modelName).getAbsolutePath();
     }
 
+    //Missing bias add fix currently
     @Test
     public void test() throws Exception {
         Nd4j.create(1);
@@ -67,10 +68,10 @@ public class TFGraphTests {
         log.info("\n\tRUNNING TEST " + modelName + "...");
 
         for (int i = 0; i < res.length; i++) {
-            if (i > 0) throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED");
+            if (i > 0) throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED BY WORKFLOW"); //figure out how to support multiple outputs with freezing in TF
             INDArray nd4jPred = res[i];
             INDArray tfPred = predictions.get("output");
-            assertEquals("Predictions donot match on " + modelName, nd4jPred, tfPred.reshape(nd4jPred.shape()));
+            assertEquals("Predictions do not match on " + modelName, nd4jPred, tfPred.reshape(nd4jPred.shape()));
         }
         log.info("\n\tTEST " + modelName + " PASSED...");
         log.info("\n========================================================\n");
