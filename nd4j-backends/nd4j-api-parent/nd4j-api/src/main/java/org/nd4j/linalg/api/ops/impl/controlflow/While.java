@@ -59,6 +59,51 @@ public class While extends DifferentialFunction implements CustomOp {
     @Getter
     protected int numLooped = 0;
 
+    public While(While whileStatement) {
+        this.sameDiff = whileStatement.sameDiff;
+        this.outputVars = whileStatement.outputVars;
+        this.loopBodyExecution = whileStatement.loopBodyExecution;
+        this.numLooped = whileStatement.numLooped;
+        this.args = whileStatement.args;
+        this.dummyResult = whileStatement.dummyResult;
+        this.predicate = whileStatement.predicate;
+        this.predicateExecution = whileStatement.predicateExecution;
+        this.shape = new int[] {1,1};
+        addAsNewVertexId();
+        f().addFunctionEdges(this);
+        this.inputVars = whileStatement.inputVars;
+        this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),vertexId,0);
+        int[] inputEdges = new int[inputVars.length];
+        String[] opEdgeIds = new String[inputVars.length * 2];
+
+        for(int i = 0; i < inputEdges.length; i++) {
+            inputEdges[i] = inputVars[i].getVertexId()[0];
+        }
+
+        /**
+         * Setup the opstate ids
+         */
+        int opEdgeIdIdx = 0;
+        for(int i = 0; i < inputEdges.length; i++) {
+            opEdgeIds[opEdgeIdIdx++] = String.valueOf(inputEdges[i]);
+        }
+
+
+        OpState opState = OpState.builder()
+                .opName(opName())
+                .opType(opType())
+                .inPlace(false)
+                .id(UUID.randomUUID().toString())
+                .vertexIds(opEdgeIds)
+                .build();
+
+        this.sameDiff.graph().addEdge(inputEdges,vertexId,opState,true);
+
+
+    }
+
+
+
     @Builder
     public While(String blockName,
                  SameDiff parent,

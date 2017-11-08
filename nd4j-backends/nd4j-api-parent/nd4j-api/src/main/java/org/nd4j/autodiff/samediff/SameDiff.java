@@ -3483,11 +3483,19 @@ public class SameDiff {
                 else {
                     /**
                      * Note: Need to accumulate gradients.
-                     * Maybe a multiply?
+                     * Multiply each value by the number of times looped.
+                     * This approximates accumulating the gradient
+                     * across a number of loop cycles.
+                     * We only compute the gradient for the internal loop once
+                     * and from that we multiply the gradient by 5.
+                     *
                      */
-                    for(int j = 0; j < whileOp.getNumLooped(); j++) {
-                        whileOp.getLoopBodyExecution().execBackwards();
+                    Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> mapListPair = whileOp.getLoopBodyExecution().execBackwards();
+                    for(SDVariable variable : mapListPair.getFirst().keySet()) {
+                        variable.getArr().muli(whileOp.getNumLooped());
                     }
+
+
                 }
 
 

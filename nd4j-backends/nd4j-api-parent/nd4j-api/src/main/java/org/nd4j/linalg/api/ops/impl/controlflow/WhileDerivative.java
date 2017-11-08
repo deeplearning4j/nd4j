@@ -12,7 +12,7 @@ public class WhileDerivative extends While {
     private While delegate;
 
     public WhileDerivative(While delegate) {
-        super(delegate.getBlockName(), delegate.getSameDiff(), delegate.getInputVars(), delegate.getPredicate(), null, delegate.getTrueBody());
+        super(delegate);
         this.delegate = delegate;
     }
 

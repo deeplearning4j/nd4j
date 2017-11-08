@@ -13,6 +13,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.transforms.Sigmoid;
@@ -631,7 +632,6 @@ public class SameDiffTests {
     @Test
     public void testIfStatementTrueBodyBackwards() {
         SameDiff sameDiff = SameDiff.create();
-
         SameDiff.SameDiffFunctionDefinition conditionBody = new SameDiff.SameDiffFunctionDefinition() {
             @Override
             public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
@@ -668,7 +668,43 @@ public class SameDiffTests {
 
         sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), conditionBody, trueBody, falseBody,firstInputs);
         sameDiff.execBackwards();
+        SameDiff grad = sameDiff.getFunction("grad");
+        If ifBlock = (If) grad.getFunctionForVertexId(new int[]{2});
+        SameDiff assertComparision = SameDiff.create();
+        SDVariable initialInput = assertComparision.zero("zero",new int[]{1,1});
+        initialInput.addi(1.0);
+        assumeNotNull(ifBlock.getTrueBodyExecuted());
+        assertTrue(ifBlock.getTrueBodyExecuted());
+        assertEquals(Nd4j.scalar(1.00),initialInput.getArr());
+        assertEquals(Nd4j.scalar(1.0),ifBlock.getLoopBodyExecution().getArrForVertexId(2));
 
+    }
+
+
+    @Test
+    public void testWhileBackwards() {
+        SameDiff sameDiff = SameDiff.create();
+        sameDiff.whileStatement(new SameDiff.DefaultSameDiffConditional(), new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable eqResult = sameDiff.neq(variableInputs[0],variableInputs[1]);
+                return new SDVariable[]{eqResult};
+            }
+        }, new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable ret = variableInputs[1].addi(1.0);
+                return new SDVariable[]{variableInputs[0],ret};
+            }
+        },new SDVariable[] {
+                sameDiff.one("one",new int[]{1,1}),
+                sameDiff.var("two",new int[]{1,1}),
+
+        });
+
+        sameDiff.execBackwards();
+        SameDiff exec = sameDiff.getFunction("grad");
+        System.out.println(exec);
     }
 
 
