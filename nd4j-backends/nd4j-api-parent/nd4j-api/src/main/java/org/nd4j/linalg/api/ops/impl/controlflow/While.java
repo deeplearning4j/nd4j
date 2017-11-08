@@ -71,6 +71,8 @@ public class While extends DifferentialFunction implements CustomOp {
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
+        //need to add the op to the list of ops to be executed when running backwards
+        this.args = new DifferentialFunction[] {this};
         int[] vertexId = {parent.graph().nextVertexId()};
 
         this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),vertexId);

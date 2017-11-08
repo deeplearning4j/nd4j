@@ -614,7 +614,7 @@ public class SameDiffTests {
             }
         },new SDVariable[] {
                 sameDiff.one("one",new int[]{1,1}),
-               sameDiff.var("two",new int[]{1,1}),
+                sameDiff.var("two",new int[]{1,1}),
 
         });
 
@@ -624,6 +624,51 @@ public class SameDiffTests {
         assumeNotNull(function.getOutputVars());
         assertEquals(1,function.getNumLooped());
         sameDiff.toString();
+    }
+
+
+
+    @Test
+    public void testIfStatementTrueBodyBackwards() {
+        SameDiff sameDiff = SameDiff.create();
+
+        SameDiff.SameDiffFunctionDefinition conditionBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sum = sameDiff.sum(variableInputs[0],Integer.MAX_VALUE);
+                SDVariable result = sameDiff.gt(sum,1.0);
+                return new SDVariable[] {result};
+            }
+        };
+
+
+        SameDiff.SameDiffFunctionDefinition trueBody = new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable add = variableInputs[0].add(1.0);
+                return new SDVariable[] {add};
+            }
+        };
+
+        SameDiff.SameDiffFunctionDefinition falseBody =  new SameDiff.SameDiffFunctionDefinition() {
+            @Override
+            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                SDVariable sub = variableInputs[0].sub(1.0);
+                return new SDVariable[] {sub};
+            }
+        };
+
+        //true body trigger
+        SDVariable[] firstInputs = new SDVariable[] {
+                sameDiff.var("one",new int[]{1,1})
+
+        };
+
+
+
+        sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), conditionBody, trueBody, falseBody,firstInputs);
+        sameDiff.execBackwards();
+
     }
 
 
@@ -1052,7 +1097,7 @@ public class SameDiffTests {
     }
 
 
- 
+
 
 
 
