@@ -32,32 +32,32 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
     @Getter
-    private SameDiff loopBodyExecution,predicateExecution;
+    protected SameDiff loopBodyExecution,predicateExecution;
 
 
     @Getter
-    private SameDiff.SameDiffConditional predicate;
+    protected SameDiff.SameDiffConditional predicate;
     @Getter
-    private SameDiff.SameDiffFunctionDefinition trueBody;
-
-    @Getter
-    private String blockName,trueBodyName;
+    protected SameDiff.SameDiffFunctionDefinition trueBody;
 
     @Getter
-    private SDVariable[] inputVars;
+    protected String blockName,trueBodyName;
+
+    @Getter
+    protected SDVariable[] inputVars;
 
 
     @Getter
-    private SDVariable targetBoolean;
+    protected SDVariable targetBoolean;
 
-    private SDVariable dummyResult;
+    protected SDVariable dummyResult;
 
     @Getter
     @Setter
-    private SDVariable[] outputVars;
+    protected SDVariable[] outputVars;
 
     @Getter
-    private int numLooped = 0;
+    protected int numLooped = 0;
 
     @Builder
     public While(String blockName,
@@ -124,6 +124,15 @@ public class While extends DifferentialFunction implements CustomOp {
     }
 
 
+    @Override
+    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+        List<DifferentialFunction> ret = new ArrayList<>();
+        ret.add(new WhileDerivative(this));
+        return ret;
+    }
+
+
+
     /**
      * Increments the loop counter.
      * This should be called when the loop
@@ -145,13 +154,6 @@ public class While extends DifferentialFunction implements CustomOp {
         return dummyResult;
     }
 
-    @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        for(int i = 0; i < numLooped; i++) {
-            loopBodyExecution.execBackwards();
-        }
-        return null;
-    }
 
     @Override
     public String toString() {

@@ -3451,31 +3451,45 @@ public class SameDiff {
             }
             else if(differentialFunction instanceof While) {
                 While whileOp = (While) differentialFunction;
-                SameDiff execBody = whileOp.getLoopBodyExecution();
-                //depending on the block add the proper graph body to this for persistence
-                //and possible later processing.
-                //note that we need to update the graph predicate by running the execution
-                whileOp.getPredicateExecution().exec();
-                while(whileOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
-                    //run the body
-                    execBody.exec();
-                    //update the predicate
+
+                if(!onBackward) {
+                    SameDiff execBody = whileOp.getLoopBodyExecution();
+                    //depending on the block add the proper graph body to this for persistence
+                    //and possible later processing.
+                    //note that we need to update the graph predicate by running the execution
                     whileOp.getPredicateExecution().exec();
-                    whileOp.incrementLoopCounter();
+                    while(whileOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
+                        //run the body
+                        execBody.exec();
+                        //update the predicate
+                        whileOp.getPredicateExecution().exec();
+                        whileOp.incrementLoopCounter();
 
+                    }
+
+                    List<int[]> list = execBody.graph().getOutputIds();
+                    List<SDVariable> outputs = new ArrayList<>();
+                    /**
+                     * Find why this is null.
+                     */
+                    for(int[] output : list) {
+                        outputs.add(execBody.getVariableForVertexId(output));
+                    }
+
+                    whileOp.setOutputVars(outputs.toArray(new SDVariable[outputs.size()]));
+                    ops.add(differentialFunction);
                 }
 
-                List<int[]> list = execBody.graph().getOutputIds();
-                List<SDVariable> outputs = new ArrayList<>();
-                /**
-                 * Find why this is null.
-                 */
-                for(int[] output : list) {
-                    outputs.add(execBody.getVariableForVertexId(output));
+                else {
+                    /**
+                     * Note: Need to accumulate gradients.
+                     * Maybe a multiply?
+                     */
+                    for(int j = 0; j < whileOp.getNumLooped(); j++) {
+                        whileOp.getLoopBodyExecution().execBackwards();
+                    }
                 }
 
-                whileOp.setOutputVars(outputs.toArray(new SDVariable[outputs.size()]));
-                ops.add(differentialFunction);
 
 
             }
