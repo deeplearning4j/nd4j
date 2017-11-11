@@ -5848,6 +5848,19 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public FloatNDArray(char order, @StdVector int[] shape) { super((Pointer)null); allocate(order, shape); }
         private native void allocate(char order, @StdVector int[] shape);
 
+        public FloatNDArray(char order, @StdVector IntPointer shape, @StdVector FloatPointer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntPointer shape, @StdVector FloatPointer data, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(char order, @StdVector IntPointer shape, @StdVector FloatPointer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntPointer shape, @StdVector FloatPointer data);
+        public FloatNDArray(char order, @StdVector IntBuffer shape, @StdVector FloatBuffer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @StdVector FloatBuffer data, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(char order, @StdVector IntBuffer shape, @StdVector FloatBuffer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @StdVector FloatBuffer data);
+        public FloatNDArray(char order, @StdVector int[] shape, @StdVector float[] data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector int[] shape, @StdVector float[] data, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(char order, @StdVector int[] shape, @StdVector float[] data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector int[] shape, @StdVector float[] data);
+
         // This method replaces existing buffer/shapeinfo, AND releases original pointers (if releaseExisting TRUE)
         public native void replacePointers(FloatPointer buffer, IntPointer shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
         public native void replacePointers(FloatPointer buffer, IntPointer shapeInfo);
@@ -6098,6 +6111,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @StdVector FloatPointer getBufferAsVector();
 
         public native @StdVector IntPointer getShapeAsVector();
+        public native @StdVector IntPointer getShapeInfoAsVector();
 		
 		// set new order and shape in case of suitable array length 
 	
@@ -6283,6 +6297,19 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(char order, @StdVector int[] shape, Workspace workspace/*=nullptr*/);
         public HalfNDArray(char order, @StdVector int[] shape) { super((Pointer)null); allocate(order, shape); }
         private native void allocate(char order, @StdVector int[] shape);
+
+        public HalfNDArray(char order, @StdVector IntPointer shape, @Cast("float16*") @StdVector ShortPointer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntPointer shape, @Cast("float16*") @StdVector ShortPointer data, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(char order, @StdVector IntPointer shape, @Cast("float16*") @StdVector ShortPointer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntPointer shape, @Cast("float16*") @StdVector ShortPointer data);
+        public HalfNDArray(char order, @StdVector IntBuffer shape, @Cast("float16*") @StdVector ShortBuffer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @Cast("float16*") @StdVector ShortBuffer data, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(char order, @StdVector IntBuffer shape, @Cast("float16*") @StdVector ShortBuffer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @Cast("float16*") @StdVector ShortBuffer data);
+        public HalfNDArray(char order, @StdVector int[] shape, @Cast("float16*") @StdVector short[] data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector int[] shape, @Cast("float16*") @StdVector short[] data, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(char order, @StdVector int[] shape, @Cast("float16*") @StdVector short[] data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector int[] shape, @Cast("float16*") @StdVector short[] data);
 
         // This method replaces existing buffer/shapeinfo, AND releases original pointers (if releaseExisting TRUE)
         public native void replacePointers(@Cast("float16*") ShortPointer buffer, IntPointer shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
@@ -6534,6 +6561,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("float16*") @StdVector ShortPointer getBufferAsVector();
 
         public native @StdVector IntPointer getShapeAsVector();
+        public native @StdVector IntPointer getShapeInfoAsVector();
 		
 		// set new order and shape in case of suitable array length 
 	
@@ -6719,6 +6747,19 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(char order, @StdVector int[] shape, Workspace workspace/*=nullptr*/);
         public DoubleNDArray(char order, @StdVector int[] shape) { super((Pointer)null); allocate(order, shape); }
         private native void allocate(char order, @StdVector int[] shape);
+
+        public DoubleNDArray(char order, @StdVector IntPointer shape, @StdVector DoublePointer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntPointer shape, @StdVector DoublePointer data, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(char order, @StdVector IntPointer shape, @StdVector DoublePointer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntPointer shape, @StdVector DoublePointer data);
+        public DoubleNDArray(char order, @StdVector IntBuffer shape, @StdVector DoubleBuffer data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @StdVector DoubleBuffer data, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(char order, @StdVector IntBuffer shape, @StdVector DoubleBuffer data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector IntBuffer shape, @StdVector DoubleBuffer data);
+        public DoubleNDArray(char order, @StdVector int[] shape, @StdVector double[] data, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(order, shape, data, workspace); }
+        private native void allocate(char order, @StdVector int[] shape, @StdVector double[] data, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(char order, @StdVector int[] shape, @StdVector double[] data) { super((Pointer)null); allocate(order, shape, data); }
+        private native void allocate(char order, @StdVector int[] shape, @StdVector double[] data);
 
         // This method replaces existing buffer/shapeinfo, AND releases original pointers (if releaseExisting TRUE)
         public native void replacePointers(DoublePointer buffer, IntPointer shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
@@ -6970,6 +7011,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @StdVector DoublePointer getBufferAsVector();
 
         public native @StdVector IntPointer getShapeAsVector();
+        public native @StdVector IntPointer getShapeInfoAsVector();
 		
 		// set new order and shape in case of suitable array length 
 	

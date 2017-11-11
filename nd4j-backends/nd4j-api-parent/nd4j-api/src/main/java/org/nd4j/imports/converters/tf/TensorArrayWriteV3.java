@@ -11,12 +11,16 @@ public class TensorArrayWriteV3 extends BaseTensorFlowNode {
     public TNode asIntermediateRepresentation(NodeDef node, TGraph graph) {
         val tNode = buildBasicNode(node, graph);
 
-        val idxArg = tNode.getInputs().remove(1);
-        val variable = graph.getVariableSpace().getVariable(idxArg);
+        val idd = tNode.getInputs().get(1);
 
-        int idx = variable.getArray().getInt(0);
+        if (idd.getNode() < 0) {
+            val idxArg = tNode.getInputs().remove(1);
+            val variable = graph.getVariableSpace().getVariable(idxArg);
 
-        tNode.getOpState().setExtraBits(new int[]{idx});
+            int idx = variable.getArray().getInt(0);
+
+            tNode.getOpState().setExtraBits(new int[]{idx});
+        }
 
         return tNode;
     }

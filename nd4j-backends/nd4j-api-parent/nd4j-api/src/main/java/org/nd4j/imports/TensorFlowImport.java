@@ -270,6 +270,7 @@ public class TensorFlowImport {
 
         // parsing declarations first. they all come as Enter ops
         val whileInputs = new ArrayList<TIndex>();
+        int enterCnt = 0;
         for (; startPosition < nodes.size(); startPosition++) {
             val tfNode = nodes.get(startPosition);
 
@@ -286,11 +287,13 @@ public class TensorFlowImport {
             for (int e = 0; e < tfNode.getInputCount(); e++) {
                 val input = tfNode.getInput(e);
                 val idx = intermediateGraph.getReverseMap().get(input);
-                log.info("Mapping [{}] to [{}]", input, idx);
+                log.info("Enter mapping [{}] to [{}]", input, idx);
 
                 // mapping this
                 whileInputs.add(idx);
             }
+
+            intermediateGraph.getReverseMap().put(tfNode.getName(), TIndex.makeOf(whileNode.getId(), enterCnt++));
         }
         whileInputs.add(TIndex.makeOf(scopeCondition.getId()));
         whileInputs.add(TIndex.makeOf(scopeLoop.getId()));
