@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author raver119@gmail.com
  */
 @Slf4j
-public class TensorFlowImport {
+public class TensorFlowImport implements SameDiffProtoConverter {
 
     /**
      *
@@ -858,4 +858,8 @@ public class TensorFlowImport {
         throw new RuntimeException("Wtf?");
     }
 
+    @Override
+    public SameDiff importProto(File file) {
+        return importGraph(file);
+    }
 }
