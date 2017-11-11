@@ -6,6 +6,12 @@ import java.io.File;
 
 public interface SameDiffProtoConverter {
 
+    /**
+     * Converts a proto file
+     * to a samediff instance.
+     * @param file
+     * @return
+     */
     SameDiff importProto(File file);
 
 }
