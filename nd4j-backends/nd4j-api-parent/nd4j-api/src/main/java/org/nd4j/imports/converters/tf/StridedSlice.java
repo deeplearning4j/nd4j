@@ -29,6 +29,20 @@ public class StridedSlice extends BaseTensorFlowNode {
 
         val iArgs = new ArrayList<Integer>();
 
+        val nm = node.getAttrOrThrow("new_axis_mask");
+        val sm = node.getAttrOrThrow("shrink_axis_mask");
+        val bm = node.getAttrOrThrow("begin_mask");
+        val em = node.getAttrOrThrow("end_mask");
+        val xm = node.getAttrOrThrow("ellipsis_mask");
+
+
+        iArgs.add((int) bm.getI());
+        iArgs.add((int) xm.getI());
+        iArgs.add((int) em.getI());
+
+        iArgs.add((int) nm.getI());
+        iArgs.add((int) sm.getI());
+
         for (int e = 0; e < begin.getArray().length(); e++)
             iArgs.add((int) begin.getArray().getInt(e));
 
