@@ -345,7 +345,6 @@ public class TensorFlowImportTest {
         val firstSlice = tg.getNode("strided_slice");
 
 
-
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
 
