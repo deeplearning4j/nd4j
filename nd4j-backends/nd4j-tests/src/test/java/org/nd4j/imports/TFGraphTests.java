@@ -58,6 +58,7 @@ public class TFGraphTests {
     public void test() throws Exception {
         Nd4j.create(1);
 
+        log.info("\n\tRUNNING TEST " + modelName + "...");
         val tg = TensorFlowImport.importIntermediate(new File(modelDir,"frozen_model.pb"));
 
         for (String input: inputs.keySet()) {
@@ -65,7 +66,6 @@ public class TFGraphTests {
         }
         val executioner = new NativeGraphExecutioner();
         INDArray[] res = executioner.executeGraph(tg);
-        log.info("\n\tRUNNING TEST " + modelName + "...");
 
         for (int i = 0; i < res.length; i++) {
             if (i > 0) throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED BY WORKFLOW"); //figure out how to support multiple outputs with freezing in TF
