@@ -237,6 +237,19 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
+    protected static TIndex indexByName(@NonNull TGraph graph, @NonNull String value) {
+        if (value.contains(":")) {
+            val split = value.split(":");
+            Integer lnode = graph.getReverseMap().get(split[0]).getNode();
+            Integer idx = Integer.valueOf(split[1]);
+
+            return TIndex.makeOf(lnode, idx);
+        } else {
+            Integer lnode = graph.getReverseMap().get(value).getNode();
+            return TIndex.makeOf(lnode);
+        }
+    }
+
     protected static TNode importWhileLoop(TGraph intermediateGraph, int startPosition, List<NodeDef> nodes) {
         val uniqueId = java.util.UUID.randomUUID().toString();
 
@@ -253,6 +266,7 @@ public class TensorFlowImport {
                 .opState(OpState.builder().opName("while").opNum(0).opType(Op.Type.LOOP).build())
                 .build();
 
+        log.info("WHILE id: {}", uniqueId);
         log.info("Adding 2 new scopes for WHILE {}", whileNode.getId());
 
 
@@ -279,14 +293,13 @@ public class TensorFlowImport {
                 break;
             }
 
-//            if (intermediateGraph.getSkipSet().contains(tfNode.getName()))
-//                continue;
-
             intermediateGraph.getSkipSet().add(tfNode.getName());
 
+            // enter should have only 1 input, but let's keep loop here.
             for (int e = 0; e < tfNode.getInputCount(); e++) {
                 val input = tfNode.getInput(e);
-                val idx = intermediateGraph.getReverseMap().get(input);
+                //val idx = intermediateGraph.getReverseMap().get(input);
+                val idx = indexByName(intermediateGraph, input);
                 log.info("Enter mapping [{}] to [{}]", input, idx);
 
                 // mapping this
@@ -652,6 +665,7 @@ public class TensorFlowImport {
                 }
 
                 if (isNewLoop) {
+                    log.info("NEW LOOP --------------------");
                     /*
                         on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
                     */
