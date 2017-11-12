@@ -23,10 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
-import org.nd4j.linalg.api.ops.impl.accum.Mmul;
-import org.nd4j.linalg.api.ops.impl.accum.StandardDeviation;
-import org.nd4j.linalg.api.ops.impl.accum.TensorMmul;
-import org.nd4j.linalg.api.ops.impl.accum.Variance;
+import org.nd4j.linalg.api.ops.impl.accum.*;
 import org.nd4j.linalg.api.ops.impl.shape.Broadcast;
 import org.nd4j.linalg.api.ops.impl.shape.Permute;
 import org.nd4j.linalg.api.ops.impl.shape.Reshape;
@@ -78,6 +75,8 @@ public class DefaultOpFactory implements OpFactory {
             try {
                 String name = clazz.newInstance().name();
                 if (opClazzes.containsKey(name)) {
+                    Any any = new Any();
+                    String name2 = any.name();
                     throw new ND4JIllegalStateException("OpName duplicate found: " + name);
                 } else
                     opClazzes.put(name, clazz);

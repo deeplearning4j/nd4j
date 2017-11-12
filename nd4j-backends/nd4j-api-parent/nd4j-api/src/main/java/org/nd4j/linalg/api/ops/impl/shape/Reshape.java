@@ -104,7 +104,7 @@ public class Reshape extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "reshape";
     }
 

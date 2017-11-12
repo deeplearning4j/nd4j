@@ -22,7 +22,6 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import com.google.common.primitives.Ints;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.util.FastMath;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -36,7 +35,6 @@ import org.nd4j.linalg.util.ComplexUtil;
 import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -107,7 +105,7 @@ public class StridedSlice extends ShapeOp {
 
     @Override
     public String name() {
-        return "reshape";
+        return "stridedslice";
     }
 
     @Override

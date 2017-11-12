@@ -508,10 +508,6 @@ public class TensorFlowImport implements SameDiffProtoConverter {
     }
 
     protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, TIndex> reverseVertexMap, int varId) {
-        if (tfNode.getName().equalsIgnoreCase("while/Less/y"))
-        //if (tfNode.getName().equalsIgnoreCase("while/Sum"))
-            log.debug("wow");
-
         val variable = new TVariable();
         val attributes = tfNode.getAttrMap();
         List<Integer> dimensions = new ArrayList<>();

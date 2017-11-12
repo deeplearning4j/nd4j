@@ -107,6 +107,11 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
     @Override
+    public String name() {
+        return opName();
+    }
+
+    @Override
     protected void addAsNewVertexId() {
         super.addAsNewVertexId();
     }
@@ -337,7 +342,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
 
     @Override
     public String toString() {
-        return name();
+        return opName();
     }
 
 
