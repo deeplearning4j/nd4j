@@ -39,6 +39,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_maximum.class,
         float_minimum.class,
         float_square.class,
+        float_expose.class,
         float_Switch.class,
         float_While.class,
         float_Scope.class,
@@ -154,6 +155,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_maximum.class,
         half_minimum.class,
         half_square.class,
+        half_expose.class,
         half_Switch.class,
         half_While.class,
         half_Scope.class,
@@ -269,6 +271,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_maximum.class,
         double_minimum.class,
         double_square.class,
+        double_expose.class,
         double_Switch.class,
         double_While.class,
         double_Scope.class,
@@ -14692,6 +14695,48 @@ private native void allocate();
                 return (double_square)super.position(position);
             }
         public double_square() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
+                                                }
+        @Name("nd4j::ops::expose<float>") public static class float_expose extends FloatDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_expose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_expose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_expose position(long position) {
+                return (float_expose)super.position(position);
+            }
+        public float_expose() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatBlock block);
+                                                }
+        @Name("nd4j::ops::expose<float16>") public static class half_expose extends HalfDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_expose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_expose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_expose position(long position) {
+                return (half_expose)super.position(position);
+            }
+        public half_expose() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfBlock block);
+                                                }
+        @Name("nd4j::ops::expose<double>") public static class double_expose extends DoubleDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_expose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_expose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_expose position(long position) {
+                return (double_expose)super.position(position);
+            }
+        public double_expose() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleBlock block);
                                                 }

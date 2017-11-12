@@ -422,7 +422,18 @@ public class TensorFlowImport {
             } else {
                 log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
 
+                boolean isNewLoop = false;
                 if (tfNode.getOp().equalsIgnoreCase("enter")) {
+                    val frame_name = tfNode.getAttrOrThrow("frame_name");
+
+                    val str = frame_name.getS().toStringUtf8();
+                    if (!intermediateGraph.getKnownScopes().contains(str)) {
+                        intermediateGraph.getKnownScopes().add(str);
+                        isNewLoop = true;
+                    }
+                }
+
+                if (isNewLoop) {
                     log.info("NEW LOOP ----------------------------------------");
                     val scopedWhile = importWhileLoop(intermediateGraph, startPosition, nodes);
                     scopedWhile.setScoped(true);
@@ -629,7 +640,18 @@ public class TensorFlowImport {
                 if (tfNode.getOp().equalsIgnoreCase("merge"))
                     continue;
 
+                boolean isNewLoop = false;
                 if (tfNode.getOp().equalsIgnoreCase("enter")) {
+                    val frame_name = tfNode.getAttrOrThrow("frame_name");
+
+                    val str = frame_name.getS().toStringUtf8();
+                    if (!intermediateGraph.getKnownScopes().contains(str)) {
+                        intermediateGraph.getKnownScopes().add(str);
+                        isNewLoop = true;
+                    }
+                }
+
+                if (isNewLoop) {
                     /*
                         on while/enter we'll open 2 scopes: 1st scope for condition, 2nd scope for loop body
                     */

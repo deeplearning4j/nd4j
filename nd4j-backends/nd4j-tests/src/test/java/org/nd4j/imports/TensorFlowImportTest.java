@@ -362,8 +362,20 @@ public class TensorFlowImportTest {
     public void testIntermediateTensorArrayLoop1() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/tensor_array_loop.pb.txt").getFile());
-
+        tg.provideArrayForVariable("input_matrix", Nd4j.ones(3, 5));
         assertNotNull(tg);
+
+        val fb = tg.asFlatBuffers();
+        assertNotNull(fb);
+
+        val offset = fb.position();
+
+        log.info("Length: {}; Offset: {};", fb.capacity(), offset);
+        val array = fb.array();
+
+        try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_array_loop.fb"); val dos = new DataOutputStream(fos)) {
+            dos.write(array, offset, array.length - offset);
+        }
     }
 
     @Test
