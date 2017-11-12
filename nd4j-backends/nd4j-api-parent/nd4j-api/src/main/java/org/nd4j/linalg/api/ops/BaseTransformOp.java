@@ -191,10 +191,10 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
          */
 
         log.debug("TOp inputs: {}", tNode.getInputs());
-        val shapeIndex = tNode.getInputs().remove(1);
-
-        val variable = graph.getVariableSpace().getVariable(shapeIndex);
-
+        if( tNode.getInputs().size() > 1) {
+            val shapeIndex = tNode.getInputs().remove(1);
+            val variable = graph.getVariableSpace().getVariable(shapeIndex);
+        }
 
         return tNode;
     }

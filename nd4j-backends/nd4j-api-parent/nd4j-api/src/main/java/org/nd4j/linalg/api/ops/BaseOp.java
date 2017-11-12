@@ -20,10 +20,11 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Data;
+import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -125,13 +126,6 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public void initFromOnnx(OnnxProto3.NodeProto node) {
 
     }
-
-    @Override
-    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
-        return null;
-    }
-
-
 
     @Override
     public DataBuffer extraArgsDataBuff() {
@@ -488,6 +482,16 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public void exec(int... dimensions) {
         //no-op
     }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
+        tNode.setOpState(getOpStateFromNodeDef(node, node.getInputCount(), tNode, graph.getVariableSpace()));
+
+        return tNode;
+    }
+
 
     @Override
     public boolean equals(Object o) {

@@ -5,6 +5,7 @@ import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
+import org.nd4j.linalg.api.ops.DefaultOpConverter;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -60,14 +61,11 @@ public class TensorFlowMapper implements NodeMapper<NodeDef> {
     @Override
     public TOp asIntermediate(NodeDef node, TGraph graph) {
         // first we try to use special converters
-        val converter = nodeConverters.get(node.getOp().toLowerCase());
-        if (converter != null)
-            return converter.asIntermediateRepresentation(node, graph);
-        else {
-            val defaultConverter = nodeConverters.get("GenericOpConverter");
+        DifferentialFunction converter = nodeConverters.get(node.getOp().toLowerCase());
+        if(converter == null)
+            converter = nodeConverters.get(DefaultOpConverter.getInstance().opName());
+        return converter.asIntermediateRepresentation(node, graph);
 
-            return defaultConverter.asIntermediateRepresentation(node, graph);
-        }
     }
 
     public Set<String> knownOps() {
