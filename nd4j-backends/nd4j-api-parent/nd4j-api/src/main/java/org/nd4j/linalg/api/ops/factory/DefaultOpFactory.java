@@ -75,8 +75,6 @@ public class DefaultOpFactory implements OpFactory {
             try {
                 String name = clazz.newInstance().name();
                 if (opClazzes.containsKey(name)) {
-                    Any any = new Any();
-                    String name2 = any.name();
                     throw new ND4JIllegalStateException("OpName duplicate found: " + name);
                 } else
                     opClazzes.put(name, clazz);

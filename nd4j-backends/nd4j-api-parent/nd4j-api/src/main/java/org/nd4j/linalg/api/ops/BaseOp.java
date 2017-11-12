@@ -131,10 +131,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
         return null;
     }
 
-    @Override
-    public Op asExecutableOperation(NodeDef node, TGraph graph) {
-        return super.asExecutableOperation(node, graph);
-    }
+
 
     @Override
     public DataBuffer extraArgsDataBuff() {

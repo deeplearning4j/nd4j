@@ -368,14 +368,6 @@ public abstract class DifferentialFunction implements Differential {
      */
     public abstract TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph);
 
-    /**
-     * This method returns given TF node as ND4j Op
-     *
-     * @return
-     */
-    public Op asExecutableOperation(@NonNull NodeDef node, @NonNull TGraph graph) {
-        return null;
-    }
 
     protected TOp buildBasicNode(@NonNull NodeDef tfNode, @NonNull TGraph intermediateGraph) {
         val nodeId = intermediateGraph.getCurrentNodeId();
