@@ -1,6 +1,7 @@
 package org.nd4j.linalg.api.ops.impl.layers;
 
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -26,6 +27,7 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
+@NoArgsConstructor
 public class Linear extends BaseModule {
     private DifferentialFunction forward;
     private int nIn,nOut;

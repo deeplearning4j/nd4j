@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops.impl.controlflow;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -26,6 +27,7 @@ import java.util.*;
  *
  * @author Adam Gibson
  */
+@NoArgsConstructor
 public class If extends DifferentialFunction implements CustomOp {
 
     @Getter

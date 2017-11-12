@@ -1,10 +1,7 @@
 package org.nd4j.autodiff.samediff;
 
 import com.google.common.base.Preconditions;
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.OpState;
@@ -37,6 +34,7 @@ import java.util.Map;
  *
  */
 @Data
+@NoArgsConstructor
 public class SDVariable extends DifferentialFunction implements Serializable {
     @Getter
     @Setter
@@ -77,6 +75,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         }
 
 
+    }
+
+    @Override
+    public String opName() {
+        return "var";
     }
 
     @Override

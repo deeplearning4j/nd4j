@@ -448,7 +448,6 @@ public abstract class DifferentialFunction implements Differential {
             int opNum = Nd4j.getOpFactory().getOpNumIfExists(lc);
 
             if (opNum >= 0) {
-
                 val type = BaseOp.getOpType(Nd4j.getOpFactory().getOpByName(lc));
 
                 if (type != Op.Type.SHAPE && type != Op.Type.CUSTOM) {

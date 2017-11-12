@@ -26,8 +26,8 @@ public class TensorFlowMapper implements NodeMapper<NodeDef> {
     protected TensorFlowMapper() {
 
         Reflections f = new Reflections(new ConfigurationBuilder().filterInputsBy(
-                new FilterBuilder().include(FilterBuilder.prefix("org.nd4j")).exclude("^(?!.*\\.class$).*$") //Consider only .class files (to avoid debug messages etc. on .dlls, etc
-                        .exclude("^(?!org\\.nd4j\\.imports\\.converters\\.tf).*") //Exclude any not in the ops directory
+                new FilterBuilder().include(FilterBuilder.prefix("org.nd4j.*")).exclude("^(?!.*\\.class$).*$") //Consider only .class files (to avoid debug messages etc. on .dlls, etc
+                //Exclude any not in the ops directory
         )
 
                 .setUrls(ClasspathHelper.forPackage("org.nd4j")).setScanners(new SubTypesScanner()));
@@ -48,7 +48,7 @@ public class TensorFlowMapper implements NodeMapper<NodeDef> {
                     nodeConverters.put(name, node);
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.trace("Skipping function  " + clazz);
             }
         }
     }

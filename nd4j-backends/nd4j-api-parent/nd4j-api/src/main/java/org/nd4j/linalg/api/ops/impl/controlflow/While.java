@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops.impl.controlflow;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -31,6 +32,7 @@ import java.util.UUID;
  * runs loop till condition is false.
  * @author Adam Gibson
  */
+@NoArgsConstructor
 public class While extends DifferentialFunction implements CustomOp {
 
 

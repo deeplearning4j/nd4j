@@ -28,7 +28,10 @@ public class Conv2D extends DynamicCustomOp {
    protected  Conv2DConfig conv2DConfig;
 
     @Builder(builderMethodName = "builder")
-    public Conv2D(SameDiff sameDiff, DifferentialFunction[] inputFunctions, INDArray[] inputArrays, INDArray[] outputs, Conv2DConfig conv2DConfig) {
+    public Conv2D(SameDiff sameDiff,
+                  DifferentialFunction[] inputFunctions,
+                  INDArray[] inputArrays, INDArray[] outputs,
+                  Conv2DConfig conv2DConfig) {
         super(null,inputArrays,outputs);
         this.sameDiff = sameDiff;
         this.args = inputFunctions;
