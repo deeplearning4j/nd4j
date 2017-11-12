@@ -5,12 +5,15 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -268,6 +271,21 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public Op.Type opType() {
         return Op.Type.CUSTOM;
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef) {
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        return null;
     }
 
     public static SameDiffBuilder sameDiffBuilder(String opName, SameDiff sameDiff) {

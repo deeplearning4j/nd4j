@@ -9,7 +9,6 @@ import lombok.val;
 import org.nd4j.autodiff.execution.conf.ExecutionMode;
 import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
 import org.nd4j.autodiff.execution.conf.OutputMode;
-import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
@@ -34,13 +33,13 @@ public class TGraph {
     @Getter protected Map<String, TIndex> reverseMap = new HashMap<>();
 
     // this is the layered representation
-    protected Map<Integer, List<TNode>> onionMap = new HashMap<>();
+    protected Map<Integer, List<TOp>> onionMap = new HashMap<>();
 
-    protected Map<Integer, TNode> outputMap = new HashMap<>();
-    protected Map<String, TNode> symbolicMap = new HashMap<>();
+    protected Map<Integer, TOp> outputMap = new HashMap<>();
+    protected Map<String, TOp> symbolicMap = new HashMap<>();
 
     // here we're storing unmapped nodes
-    protected List<TNode> unmapped = new ArrayList<>();
+    protected List<TOp> unmapped = new ArrayList<>();
 
     // storage for Scopes
     protected Map<Integer, TScope> numericScopes = new HashMap<>();
@@ -54,18 +53,18 @@ public class TGraph {
     @Getter protected Collection<String> skipSet = new ArrayList<>();
 
     protected void expandOnion(int layer) {
-        onionMap.put(layer, new ArrayList<TNode>());
+        onionMap.put(layer, new ArrayList<TOp>());
     }
 
-    public TNode getNode(@NonNull Integer index) {
+    public TOp getNode(@NonNull Integer index) {
         return outputMap.get(index);
     }
 
-    public TNode getNode(@NonNull String name) {
+    public TOp getNode(@NonNull String name) {
         return symbolicMap.get(name);
     }
 
-    public void addNode(@NonNull TNode node) {
+    public void addNode(@NonNull TOp node) {
         unmapped.add(node);
         outputMap.put(node.getId(), node);
 
@@ -183,7 +182,7 @@ public class TGraph {
         return flatNode;
     }
 
-    protected int asFlatNode(@NonNull TNode node, @NonNull FlatBufferBuilder bufferBuilder) {
+    protected int asFlatNode(@NonNull TOp node, @NonNull FlatBufferBuilder bufferBuilder) {
         log.info("Exporting node: [{}:<{}>]", node.getOpName(), node.getName());
 
         float[] extras = node.getOpState().getExtraArgs() != null ? new float[node.getOpState().getExtraArgs().length] : new float[0];

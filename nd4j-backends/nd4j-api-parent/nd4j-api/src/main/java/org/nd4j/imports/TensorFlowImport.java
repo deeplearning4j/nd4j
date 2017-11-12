@@ -237,7 +237,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
         return importIntermediate(def);
     }
 
-    protected static TNode importWhileLoop(TGraph intermediateGraph, int startPosition, List<NodeDef> nodes) {
+    protected static TOp importWhileLoop(TGraph intermediateGraph, int startPosition, List<NodeDef> nodes) {
         val uniqueId = java.util.UUID.randomUUID().toString();
 
         val scopeCondition = new TScope(intermediateGraph.getNewNodeId(), "scopeCondition_" + uniqueId);
@@ -246,7 +246,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
         intermediateGraph.addScope(scopeCondition);
         intermediateGraph.addScope(scopeLoop);
 
-        val whileNode = TNode.builder().id(intermediateGraph.getNewNodeId())
+        val whileNode = TOp.builder().id(intermediateGraph.getNewNodeId())
                 .opName("while")
                 .name("whileLoop_" + uniqueId)
                 .opNum(0)
@@ -442,7 +442,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
             intermediateGraph.getSkipSet().add(tfNode.getName());
         }
 
-        val returnOp = TNode.builder()
+        val returnOp = TOp.builder()
                 .opState(OpState.builder()
                         .opType(Op.Type.RETURN)
                         .opNum(40)
@@ -500,7 +500,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
 
 
 
-    protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, int nodeId) {
+    protected static TOp importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, int nodeId) {
 
         val tNode = TensorFlowMapper.getInstance().asIntermediate(tfNode, intermediateGraph);
 
@@ -722,6 +722,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
                 dimensions.add(dim);
             }
         }
+
         arrayShape = Ints.toArray(dimensions);
 
         if (tfTensor.getDtype() == DataType.DT_INT32 || tfTensor.getDtype() == DataType.DT_INT16 || tfTensor.getDtype() == DataType.DT_INT8) {

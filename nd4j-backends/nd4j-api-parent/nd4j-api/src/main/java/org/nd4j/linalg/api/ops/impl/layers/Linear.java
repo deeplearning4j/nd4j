@@ -1,9 +1,12 @@
 package org.nd4j.linalg.api.ops.impl.layers;
 
 import lombok.Builder;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseModule;
@@ -12,6 +15,7 @@ import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.weightinit.WeightInitScheme;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
+import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +65,21 @@ public class Linear extends BaseModule {
     @Override
     public String opName() {
         return "linear";
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef) {
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        return null;
     }
 
     @Override

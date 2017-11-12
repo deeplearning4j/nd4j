@@ -3,15 +3,19 @@ package org.nd4j.linalg.api.ops.impl.controlflow;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
+import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -197,6 +201,21 @@ public class While extends DifferentialFunction implements CustomOp {
     @Override
     public SDVariable getResult() {
         return dummyResult;
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef) {
+        
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        return null;
     }
 
 

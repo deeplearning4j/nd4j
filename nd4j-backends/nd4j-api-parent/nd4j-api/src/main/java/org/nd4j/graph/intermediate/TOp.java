@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TNode {
+public class TOp {
     @Builder.Default private List<TIndex> inputs = new ArrayList<>();
 
     // we can use the same TIndex here, but we don't really need it. Only input nodes should care about indices
@@ -49,7 +49,7 @@ public class TNode {
     // parameters for opd
     private OpState opState;
 
-    public TNode(int id) {
+    public TOp(int id) {
         this.id = id;
     }
 
@@ -67,7 +67,7 @@ public class TNode {
 
     @Override
     public String toString() {
-        return "TNode{" +
+        return "TOp{" +
                 "inputs=" + inputs +
                 ", name='" + name + '\'' +
                 ", id=" + id +

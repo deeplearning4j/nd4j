@@ -2,10 +2,9 @@ package org.nd4j.imports.converters;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.nd4j.autodiff.execution.Node;
+import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TNode;
-import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -22,7 +21,7 @@ import java.util.Set;
 @Slf4j
 public class TensorFlowMapper implements NodeMapper<NodeDef> {
     private static final TensorFlowMapper INSTANCE = new TensorFlowMapper();
-    private Map<String, ExternalNode<NodeDef>> nodeConverters = new HashMap<>();
+    private Map<String, DifferentialFunction> nodeConverters = new HashMap<>();
 
     protected TensorFlowMapper() {
 
@@ -33,14 +32,14 @@ public class TensorFlowMapper implements NodeMapper<NodeDef> {
 
                 .setUrls(ClasspathHelper.forPackage("org.nd4j")).setScanners(new SubTypesScanner()));
 
-        Set<Class<? extends ExternalNode>> clazzes = f.getSubTypesOf(ExternalNode.class);
+        Set<Class<? extends DifferentialFunction>> clazzes = f.getSubTypesOf(DifferentialFunction.class);
 
-        for (Class<? extends ExternalNode> clazz : clazzes) {
+        for (Class<? extends DifferentialFunction> clazz : clazzes) {
             if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isInterface())
                 continue;
 
             try {
-                ExternalNode<NodeDef> node = clazz.newInstance();
+                DifferentialFunction node = clazz.newInstance();
                 val name = node.opName();
                 if (nodeConverters.containsKey(name)) {
                     throw new ND4JIllegalStateException("OpName duplicate found: " + name);
@@ -59,7 +58,7 @@ public class TensorFlowMapper implements NodeMapper<NodeDef> {
     }
 
     @Override
-    public TNode asIntermediate(NodeDef node, TGraph graph) {
+    public TOp asIntermediate(NodeDef node, TGraph graph) {
         // first we try to use special converters
         val converter = nodeConverters.get(node.getOp().toLowerCase());
         if (converter != null)

@@ -20,14 +20,18 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Data;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.tensorflow.framework.NodeDef;
 
 import java.nio.Buffer;
 import java.util.Arrays;
@@ -102,6 +106,30 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
         return type;
     }
 
+    @Override
+    protected void addAsNewVertexId() {
+        super.addAsNewVertexId();
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef) {
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        return null;
+    }
+
+    @Override
+    public Op asExecutableOperation(NodeDef node, TGraph graph) {
+        return super.asExecutableOperation(node, graph);
+    }
 
     @Override
     public DataBuffer extraArgsDataBuff() {

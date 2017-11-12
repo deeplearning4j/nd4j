@@ -19,6 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.shape;
 
+import com.google.common.primitives.Ints;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,6 +35,7 @@ import org.nd4j.linalg.api.ops.ShapeOp;
 import org.nd4j.linalg.util.ComplexUtil;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,35 +46,35 @@ import java.util.List;
  * @author Adam Gibson
  */
 @Slf4j
-public class Reshape extends ShapeOp {
+public class StridedSlice extends ShapeOp {
 
     private int[] shape;
 
-    public Reshape(SameDiff sameDiff, DifferentialFunction i_v,int[] shape) {
+    public StridedSlice(SameDiff sameDiff, DifferentialFunction i_v, int[] shape) {
         super(sameDiff, i_v, false);
         this.shape = shape;
     }
 
-    public Reshape(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, Object[] extraArgs, int[] shape1) {
+    public StridedSlice(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, Object[] extraArgs, int[] shape1) {
         super(sameDiff, i_v, shape, false, extraArgs);
         this.shape = shape1;
     }
 
-    public Reshape() {}
+    public StridedSlice() {}
 
-    public Reshape(INDArray x, INDArray z) {
+    public StridedSlice(INDArray x, INDArray z) {
         super(x, z);
     }
 
-    public Reshape(INDArray x, INDArray z, long n) {
+    public StridedSlice(INDArray x, INDArray z, long n) {
         super(x, z, n);
     }
 
-    public Reshape(INDArray x, INDArray y, INDArray z, long n) {
+    public StridedSlice(INDArray x, INDArray y, INDArray z, long n) {
         super(x, y, z, n);
     }
 
-    public Reshape(INDArray x) {
+    public StridedSlice(INDArray x) {
         super(x);
     }
 
@@ -153,10 +155,10 @@ public class Reshape extends ShapeOp {
         INDArray xAlongDimension = x.vectorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new Reshape(xAlongDimension, y.vectorAlongDimension(index, dimension),
+            return new StridedSlice(xAlongDimension, y.vectorAlongDimension(index, dimension),
                             z.vectorAlongDimension(index, dimension), xAlongDimension.length());
         else
-            return new Reshape(xAlongDimension, z.vectorAlongDimension(index, dimension), xAlongDimension.length());
+            return new StridedSlice(xAlongDimension, z.vectorAlongDimension(index, dimension), xAlongDimension.length());
 
     }
 
@@ -166,36 +168,45 @@ public class Reshape extends ShapeOp {
         INDArray xAlongDimension = x.tensorAlongDimension(index, dimension);
 
         if (y() != null)
-            return new Reshape(xAlongDimension, y.tensorAlongDimension(index, dimension),
+            return new StridedSlice(xAlongDimension, y.tensorAlongDimension(index, dimension),
                             z.tensorAlongDimension(index, dimension), xAlongDimension.length());
         else
-            return new Reshape(xAlongDimension, z.tensorAlongDimension(index, dimension), xAlongDimension.length());
+            return new StridedSlice(xAlongDimension, z.tensorAlongDimension(index, dimension), xAlongDimension.length());
 
     }
-
     @Override
     public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
         val tNode = buildBasicNode(node, graph);
+        /*
+            strided slice typically takes 4 tensor arguments:
+            0) input, it's shape determines number of elements in other arguments
+            1) begin indices
+            2) end indices
+            3) strides
+         */
 
-        // in reshape operation we replace second input, and replace it with extra args
-        log.debug("TOp inputs: {}", tNode.getInputs());
-        val shapeIndex = tNode.getInputs().remove(1);
-        val variable = graph.getVariableSpace().getVariable(shapeIndex);
+        val strides = graph.getVariableSpace().getVariable(tNode.getInputs().remove(3));
+        val end = graph.getVariableSpace().getVariable(tNode.getInputs().remove(2));
+        val begin = graph.getVariableSpace().getVariable(tNode.getInputs().remove(1));
 
-        assert variable != null;
-        assert variable.getShape() != null;
+        val iArgs = new ArrayList<Integer>();
 
-        // we know that TF is always C order
-        int[] args = ArrayUtils.add(variable.getShape(),  0, (int)'c');
+        for (int e = 0; e < begin.getArray().length(); e++)
+            iArgs.add((int) begin.getArray().getInt(e));
+
+        for (int e = 0; e < end.getArray().length(); e++)
+            iArgs.add((int) end.getArray().getInt(e));
+
+        for (int e = 0; e < strides.getArray().length(); e++)
+            iArgs.add((int) strides.getArray().getInt(e));
 
 
-        log.debug("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
-
-        // new shape goes here
-        tNode.getOpState().setExtraBits(args);
+        val bits = Ints.toArray(iArgs);
+        tNode.getOpState().setExtraBits(bits);
 
         return tNode;
     }
+
 
 
     @Override
