@@ -147,7 +147,7 @@ node {
   }
 }
 node {
-  name: "filterW1"
+  name: "filterW"
   op: "VariableV2"
   attr {
     key: "container"
@@ -188,9 +188,9 @@ node {
   }
 }
 node {
-  name: "filterW1/Assign"
+  name: "filterW/Assign"
   op: "Assign"
-  input: "filterW1"
+  input: "filterW"
   input: "random_normal"
   attr {
     key: "T"
@@ -202,7 +202,7 @@ node {
     key: "_class"
     value {
       list {
-        s: "loc:@filterW1"
+        s: "loc:@filterW"
       }
     }
   }
@@ -220,9 +220,9 @@ node {
   }
 }
 node {
-  name: "filterW1/read"
+  name: "filterW/read"
   op: "Identity"
-  input: "filterW1"
+  input: "filterW"
   attr {
     key: "T"
     value {
@@ -233,658 +233,16 @@ node {
     key: "_class"
     value {
       list {
-        s: "loc:@filterW1"
-      }
-    }
-  }
-}
-node {
-  name: "conv2d1"
-  op: "Conv2D"
-  input: "input_0"
-  input: "filterW1/read"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "data_format"
-    value {
-      s: "NHWC"
-    }
-  }
-  attr {
-    key: "padding"
-    value {
-      s: "SAME"
-    }
-  }
-  attr {
-    key: "strides"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-  attr {
-    key: "use_cudnn_on_gpu"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "avg_pool2"
-  op: "AvgPool"
-  input: "conv2d1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "data_format"
-    value {
-      s: "NHWC"
-    }
-  }
-  attr {
-    key: "ksize"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-  attr {
-    key: "padding"
-    value {
-      s: "SAME"
-    }
-  }
-  attr {
-    key: "strides"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-}
-node {
-  name: "random_normal_1/shape"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 4
-          }
-        }
-        tensor_content: "\005\000\000\000\005\000\000\000\003\000\000\000\003\000\000\000"
-      }
-    }
-  }
-}
-node {
-  name: "random_normal_1/mean"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 0.0
-      }
-    }
-  }
-}
-node {
-  name: "random_normal_1/stddev"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 1.0
-      }
-    }
-  }
-}
-node {
-  name: "random_normal_1/RandomStandardNormal"
-  op: "RandomStandardNormal"
-  input: "random_normal_1/shape"
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "seed"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "seed2"
-    value {
-      i: 0
-    }
-  }
-}
-node {
-  name: "random_normal_1/mul"
-  op: "Mul"
-  input: "random_normal_1/RandomStandardNormal"
-  input: "random_normal_1/stddev"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "random_normal_1"
-  op: "Add"
-  input: "random_normal_1/mul"
-  input: "random_normal_1/mean"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "filterW3"
-  op: "VariableV2"
-  attr {
-    key: "container"
-    value {
-      s: ""
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "shape"
-    value {
-      shape {
-        dim {
-          size: 5
-        }
-        dim {
-          size: 5
-        }
-        dim {
-          size: 3
-        }
-        dim {
-          size: 3
-        }
-      }
-    }
-  }
-  attr {
-    key: "shared_name"
-    value {
-      s: ""
-    }
-  }
-}
-node {
-  name: "filterW3/Assign"
-  op: "Assign"
-  input: "filterW3"
-  input: "random_normal_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@filterW3"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "filterW3/read"
-  op: "Identity"
-  input: "filterW3"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@filterW3"
-      }
-    }
-  }
-}
-node {
-  name: "conv2d3"
-  op: "Conv2D"
-  input: "avg_pool2"
-  input: "filterW3/read"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "data_format"
-    value {
-      s: "NHWC"
-    }
-  }
-  attr {
-    key: "padding"
-    value {
-      s: "SAME"
-    }
-  }
-  attr {
-    key: "strides"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-  attr {
-    key: "use_cudnn_on_gpu"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "max_pool4"
-  op: "MaxPool"
-  input: "conv2d3"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "data_format"
-    value {
-      s: "NHWC"
-    }
-  }
-  attr {
-    key: "ksize"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-  attr {
-    key: "padding"
-    value {
-      s: "SAME"
-    }
-  }
-  attr {
-    key: "strides"
-    value {
-      list {
-        i: 1
-        i: 3
-        i: 3
-        i: 1
-      }
-    }
-  }
-}
-node {
-  name: "Reshape/shape"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 2
-          }
-        }
-        tensor_content: "\004\000\000\000\003\000\000\000"
-      }
-    }
-  }
-}
-node {
-  name: "Reshape"
-  op: "Reshape"
-  input: "max_pool4"
-  input: "Reshape/shape"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "Tshape"
-    value {
-      type: DT_INT32
-    }
-  }
-}
-node {
-  name: "random_uniform/shape"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-          dim {
-            size: 2
-          }
-        }
-        tensor_content: "\003\000\000\000\002\000\000\000"
-      }
-    }
-  }
-}
-node {
-  name: "random_uniform/min"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 0.0
-      }
-    }
-  }
-}
-node {
-  name: "random_uniform/max"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 1.0
-      }
-    }
-  }
-}
-node {
-  name: "random_uniform/RandomUniform"
-  op: "RandomUniform"
-  input: "random_uniform/shape"
-  attr {
-    key: "T"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "seed"
-    value {
-      i: 0
-    }
-  }
-  attr {
-    key: "seed2"
-    value {
-      i: 0
-    }
-  }
-}
-node {
-  name: "random_uniform/sub"
-  op: "Sub"
-  input: "random_uniform/max"
-  input: "random_uniform/min"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "random_uniform/mul"
-  op: "Mul"
-  input: "random_uniform/RandomUniform"
-  input: "random_uniform/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "random_uniform"
-  op: "Add"
-  input: "random_uniform/mul"
-  input: "random_uniform/min"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "Variable"
-  op: "VariableV2"
-  attr {
-    key: "container"
-    value {
-      s: ""
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "shape"
-    value {
-      shape {
-        dim {
-          size: 3
-        }
-        dim {
-          size: 2
-        }
-      }
-    }
-  }
-  attr {
-    key: "shared_name"
-    value {
-      s: ""
-    }
-  }
-}
-node {
-  name: "Variable/Assign"
-  op: "Assign"
-  input: "Variable"
-  input: "random_uniform"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "Variable/read"
-  op: "Identity"
-  input: "Variable"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable"
+        s: "loc:@filterW"
       }
     }
   }
 }
 node {
   name: "output"
-  op: "MatMul"
-  input: "Reshape"
-  input: "Variable/read"
+  op: "Conv2D"
+  input: "input_0"
+  input: "filterW/read"
   attr {
     key: "T"
     value {
@@ -892,24 +250,39 @@ node {
     }
   }
   attr {
-    key: "transpose_a"
+    key: "data_format"
     value {
-      b: false
+      s: "NHWC"
     }
   }
   attr {
-    key: "transpose_b"
+    key: "padding"
     value {
-      b: false
+      s: "SAME"
+    }
+  }
+  attr {
+    key: "strides"
+    value {
+      list {
+        i: 1
+        i: 3
+        i: 3
+        i: 1
+      }
+    }
+  }
+  attr {
+    key: "use_cudnn_on_gpu"
+    value {
+      b: true
     }
   }
 }
 node {
   name: "init"
   op: "NoOp"
-  input: "^filterW1/Assign"
-  input: "^filterW3/Assign"
-  input: "^Variable/Assign"
+  input: "^filterW/Assign"
 }
 node {
   name: "save/Const"
@@ -948,12 +321,10 @@ node {
         dtype: DT_STRING
         tensor_shape {
           dim {
-            size: 3
+            size: 1
           }
         }
-        string_val: "Variable"
-        string_val: "filterW1"
-        string_val: "filterW3"
+        string_val: "filterW"
       }
     }
   }
@@ -974,11 +345,9 @@ node {
         dtype: DT_STRING
         tensor_shape {
           dim {
-            size: 3
+            size: 1
           }
         }
-        string_val: ""
-        string_val: ""
         string_val: ""
       }
     }
@@ -990,15 +359,11 @@ node {
   input: "save/Const"
   input: "save/SaveV2/tensor_names"
   input: "save/SaveV2/shape_and_slices"
-  input: "Variable"
-  input: "filterW1"
-  input: "filterW3"
+  input: "filterW"
   attr {
     key: "dtypes"
     value {
       list {
-        type: DT_FLOAT
-        type: DT_FLOAT
         type: DT_FLOAT
       }
     }
@@ -1043,7 +408,7 @@ node {
             size: 1
           }
         }
-        string_val: "Variable"
+        string_val: "filterW"
       }
     }
   }
@@ -1090,7 +455,7 @@ node {
 node {
   name: "save/Assign"
   op: "Assign"
-  input: "Variable"
+  input: "filterW"
   input: "save/RestoreV2"
   attr {
     key: "T"
@@ -1102,197 +467,7 @@ node {
     key: "_class"
     value {
       list {
-        s: "loc:@Variable"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_1/tensor_names"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: "filterW1"
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_1/shape_and_slices"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: ""
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_1"
-  op: "RestoreV2"
-  input: "save/Const"
-  input: "save/RestoreV2_1/tensor_names"
-  input: "save/RestoreV2_1/shape_and_slices"
-  attr {
-    key: "dtypes"
-    value {
-      list {
-        type: DT_FLOAT
-      }
-    }
-  }
-}
-node {
-  name: "save/Assign_1"
-  op: "Assign"
-  input: "filterW1"
-  input: "save/RestoreV2_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@filterW1"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_2/tensor_names"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: "filterW3"
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_2/shape_and_slices"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: ""
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_2"
-  op: "RestoreV2"
-  input: "save/Const"
-  input: "save/RestoreV2_2/tensor_names"
-  input: "save/RestoreV2_2/shape_and_slices"
-  attr {
-    key: "dtypes"
-    value {
-      list {
-        type: DT_FLOAT
-      }
-    }
-  }
-}
-node {
-  name: "save/Assign_2"
-  op: "Assign"
-  input: "filterW3"
-  input: "save/RestoreV2_2"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@filterW3"
+        s: "loc:@filterW"
       }
     }
   }
@@ -1313,8 +488,6 @@ node {
   name: "save/restore_all"
   op: "NoOp"
   input: "^save/Assign"
-  input: "^save/Assign_1"
-  input: "^save/Assign_2"
 }
 versions {
   producer: 24
