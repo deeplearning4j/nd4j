@@ -220,6 +220,11 @@ public class While extends DifferentialFunction implements CustomOp {
         return null;
     }
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        return null;
+    }
+
 
     @Override
     public String toString() {

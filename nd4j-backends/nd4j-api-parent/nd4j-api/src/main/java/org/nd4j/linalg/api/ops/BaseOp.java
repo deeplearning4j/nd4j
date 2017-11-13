@@ -54,7 +54,8 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     // cached instance, for dataType checks
     protected DataBuffer extraArgz;
 
-    public BaseOp() {}
+    public BaseOp() {
+    }
 
 
     public BaseOp(SameDiff sameDiff, boolean inPlace, Object[] extraArgs) {
@@ -75,7 +76,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
 
         if (op instanceof CustomOp) {
             return Type.CUSTOM;
-        } else if (op  instanceof ShapeOp) {
+        } else if (op instanceof ShapeOp) {
             return Type.SHAPE;
         } else if (op instanceof TransformOp) {
             if (op.y() == null) {
@@ -144,10 +145,10 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
             } else if (dtype == DataBuffer.Type.DOUBLE) {
                 double extraz[] = new double[extraArgs.length];
                 for (int i = 0; i < extraArgs.length; i++) {
-                    if(!(extraArgs[i] instanceof Number))
+                    if (!(extraArgs[i] instanceof Number))
                         continue;
                     Number arg = (Number) extraArgs[i];
-                    if(arg == null)
+                    if (arg == null)
                         arg = 0.0;
                     double val = arg.doubleValue();
                     extraz[i] = val;
@@ -192,18 +193,16 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     @Override
     public void setX(INDArray x) {
         if (x == null) {
-            if(args != null && args.length >= 1) {
+            if (args != null && args.length >= 1) {
                 DifferentialFunction firstArg = args()[0];
-                if(firstArg instanceof SDVariable) {
+                if (firstArg instanceof SDVariable) {
                     SDVariable sdVariable = (SDVariable) firstArg;
-                    if(sdVariable.getArr() != null)
+                    if (sdVariable.getArr() != null)
                         this.x = sdVariable.getArr();
                 }
-            }
-            else
+            } else
                 throw new ND4JIllegalStateException("Unable to set null array for x. Also unable to infer from differential function arguments");
-        }
-        else
+        } else
             this.x = x;
         numProcessed = 0;
     }
@@ -212,17 +211,15 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public void setZ(INDArray z) {
         if (z == null) {
             SDVariable getResult = sameDiff.getVariableForVertexId(vertexId);
-            if(getResult != null) {
-                if(getResult.getArr() != null)
+            if (getResult != null) {
+                if (getResult.getArr() != null)
                     this.z = getResult.getArr();
                 else
                     throw new ND4JIllegalStateException("Unable to set null array for z. Also unable to infer from differential function arguments");
 
-            }
-            else
+            } else
                 throw new ND4JIllegalStateException("Unable to set null array for z. Also unable to infer from differential function arguments");
-        }
-        else
+        } else
             this.z = z;
         numProcessed = 0;
     }
@@ -230,18 +227,16 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     @Override
     public void setY(INDArray y) {
         if (y == null) {
-            if(args != null && args.length > 1) {
+            if (args != null && args.length > 1) {
                 DifferentialFunction firstArg = args()[1];
-                if(firstArg instanceof SDVariable) {
+                if (firstArg instanceof SDVariable) {
                     SDVariable sdVariable = (SDVariable) firstArg;
-                    if(sdVariable.getArr() != null)
+                    if (sdVariable.getArr() != null)
                         this.y = sdVariable.getArr();
                 }
-            }
-            else
+            } else
                 throw new ND4JIllegalStateException("Unable to set null array for y. Also unable to infer from differential function arguments");
-        }
-        else
+        } else
             this.y = y;
         numProcessed = 0;
     }
@@ -271,7 +266,6 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public BaseOp(INDArray x, INDArray y, INDArray z, long n) {
         init(x, y, z, n);
     }
-
 
 
     /**
@@ -335,24 +329,22 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
 
-
     @Override
     public CustomOp toCustomOp() {
         DynamicCustomOp.DynamicCustomOpsBuilder customOpBuilder = DynamicCustomOp.builder(name());
         customOpBuilder.callInplace(x() == z());
 
-        if(y() != null)
-            customOpBuilder.addInputs(x(),y());
+        if (y() != null)
+            customOpBuilder.addInputs(x(), y());
         else
             customOpBuilder.addInputs(x());
 
         customOpBuilder.addOutputs(z());
-        if(extraArgs != null) {
-            for(int i = 0; i < extraArgs.length; i++) {
-                if(extraArgs[i] instanceof Integer) {
+        if (extraArgs != null) {
+            for (int i = 0; i < extraArgs.length; i++) {
+                if (extraArgs[i] instanceof Integer) {
                     customOpBuilder.addIntegerArguments((Integer) extraArgs[i]);
-                }
-                else if(extraArgs[i] instanceof Double || extraArgs[i] instanceof Float) {
+                } else if (extraArgs[i] instanceof Double || extraArgs[i] instanceof Float) {
                     Double num = (Double) extraArgs[i];
                     customOpBuilder.addFloatingPointArguments(num);
                 }
@@ -372,6 +364,16 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public void exec(int... dimensions) {
         //no-op
     }
+
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
+        tNode.setOpState(getOpStateFromNodeDef(node, node.getInputCount(), tNode, graph.getVariableSpace()));
+
+        return tNode;
+    }
+
 
     @Override
     public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {

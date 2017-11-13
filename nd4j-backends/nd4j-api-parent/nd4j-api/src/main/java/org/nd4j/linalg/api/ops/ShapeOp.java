@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -37,10 +38,10 @@ public abstract class ShapeOp extends BaseOp {
     }
 
     public ShapeOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
-                           int[] shape,
-                           boolean inPlace,
-                           Object[] extraArgs) {
+                   DifferentialFunction i_v,
+                   int[] shape,
+                   boolean inPlace,
+                   Object[] extraArgs) {
         super(sameDiff,inPlace,extraArgs);
         this.shape = shape;
 
@@ -109,7 +110,17 @@ public abstract class ShapeOp extends BaseOp {
     @Override
     public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
         val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRepresentation(tNode,graph);
+    }
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRepresentation(tNode,graph);
+    }
+
+
+    private TOp returnIntermediateRepresentation(TOp tNode,TGraph graph) {
         /**
          * 2 options here. We either have specific dimension, or not.
          * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension
@@ -123,5 +134,4 @@ public abstract class ShapeOp extends BaseOp {
 
         return tNode;
     }
-
 }

@@ -193,6 +193,15 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
     }
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRepresentation(tNode,graph);
+
+    }
+
+
+
     /**
      * This method returns given TF node as TOp
      *
@@ -201,7 +210,10 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
     @Override
     public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
         val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRepresentation(tNode,graph);
+    }
 
+    private TOp returnIntermediateRepresentation(TOp tNode,TGraph graph) {
         /**
          * 2 options here. We either have specific dimension, or not.
          * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension

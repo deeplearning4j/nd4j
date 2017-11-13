@@ -110,6 +110,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     }
 
     @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        return null;
+    }
+
+    @Override
     public int[] getResultShape() {
         return getShape();
     }

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -176,6 +177,11 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     }
 
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRpresentation(tNode,graph);
+    }
 
     /**
      * This method returns given TF node as TOp
@@ -185,7 +191,11 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     @Override
     public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
         val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRpresentation(tNode,graph);
+    }
 
+
+    private TOp returnIntermediateRpresentation(TOp tNode,TGraph graph) {
         /**
          * 2 options here. We either have specific dimension, or not.
          * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension

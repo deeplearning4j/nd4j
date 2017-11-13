@@ -300,6 +300,11 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return null;
     }
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        return null;
+    }
+
     public static SameDiffBuilder sameDiffBuilder(String opName, SameDiff sameDiff) {
         return new SameDiffBuilder(opName,sameDiff);
     }

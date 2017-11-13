@@ -243,6 +243,11 @@ public class If extends DifferentialFunction implements CustomOp {
     }
 
     @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        return null;
+    }
+
+    @Override
     public List<Integer> getIArguments() {
         return Collections.emptyList();
     }

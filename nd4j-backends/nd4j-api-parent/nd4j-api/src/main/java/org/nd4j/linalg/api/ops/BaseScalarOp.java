@@ -24,6 +24,7 @@ import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -172,7 +173,11 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     }
 
 
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+        return returnIntermediateRepresentation(buildBasicNode(node,graph),graph);
 
+    }
 
     /**
      * This method returns given TF node as TOp
@@ -181,7 +186,12 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
      */
     @Override
     public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
-        val tNode = buildBasicNode(node, graph);
+        return returnIntermediateRepresentation(buildBasicNode(node,graph),graph);
+
+    }
+
+
+    private TOp returnIntermediateRepresentation(TOp tNode,TGraph graph) {
 
         /**
          * 2 options here. We either have specific dimension, or not.

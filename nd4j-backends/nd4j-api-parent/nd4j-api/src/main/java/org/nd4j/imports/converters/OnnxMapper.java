@@ -5,26 +5,26 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.ops.DefaultOpConverter;
-import org.tensorflow.framework.NodeDef;
+import onnx.OnnxProto3.NodeProto;
 
 import java.util.Set;
 
 @Slf4j
-public class TensorFlowMapper implements NodeMapper<NodeDef> {
-    private static final TensorFlowMapper INSTANCE = new TensorFlowMapper();
+public class OnnxMapper implements NodeMapper<NodeProto> {
+    private static final OnnxMapper INSTANCE = new OnnxMapper();
 
-    protected TensorFlowMapper() {
+    protected OnnxMapper() {
 
     }
 
-    public static TensorFlowMapper getInstance() {
+    public static OnnxMapper getInstance() {
         return INSTANCE;
     }
 
     @Override
-    public TOp asIntermediate(NodeDef node, TGraph graph) {
+    public TOp asIntermediate(NodeProto node, TGraph graph) {
         // first we try to use special converters
-        DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(node.getOp().toLowerCase());
+        DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(node.getName().toLowerCase());
         if(converter == null)
             converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
         return converter.asIntermediateRepresentation(node, graph);
