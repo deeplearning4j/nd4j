@@ -360,9 +360,9 @@ public class TensorFlowImportTest {
 
     @Test
     public void testIntermediateTensorArrayLoop1() throws Exception {
-        Nd4j.create(1);
+        val input = Nd4j.linspace(1, 10, 10).reshape(5, 2);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/tensor_array_loop.pb.txt").getFile());
-        tg.provideArrayForVariable("input_matrix", Nd4j.ones(3, 5));
+        tg.provideArrayForVariable("input_matrix", input);
         assertNotNull(tg);
 
         val fb = tg.asFlatBuffers();

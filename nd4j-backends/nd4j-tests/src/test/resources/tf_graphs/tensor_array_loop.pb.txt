@@ -12,10 +12,10 @@ node {
     value {
       shape {
         dim {
-          size: 3
+          size: 5
         }
         dim {
-          size: 5
+          size: 2
         }
       }
     }
@@ -40,7 +40,7 @@ node {
             size: 2
           }
         }
-        tensor_content: "\003\000\000\000\005\000\000\000"
+        tensor_content: "\005\000\000\000\002\000\000\000"
       }
     }
   }
@@ -238,7 +238,7 @@ node {
   attr {
     key: "frame_name"
     value {
-      s: "while/while/"
+      s: "while/while_context"
     }
   }
   attr {
@@ -267,7 +267,7 @@ node {
   attr {
     key: "frame_name"
     value {
-      s: "while/while/"
+      s: "while/while_context"
     }
   }
   attr {
@@ -332,7 +332,7 @@ node {
   attr {
     key: "frame_name"
     value {
-      s: "while/while/"
+      s: "while/while_context"
     }
   }
   attr {
@@ -496,28 +496,6 @@ node {
   }
 }
 node {
-  name: "while/Const_1"
-  op: "Const"
-  input: "^while/Identity"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_INT32
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_INT32
-        tensor_shape {
-        }
-        int_val: 1
-      }
-    }
-  }
-}
-node {
   name: "while/strided_slice/stack"
   op: "Pack"
   input: "while/Identity"
@@ -565,24 +543,26 @@ node {
 }
 node {
   name: "while/strided_slice/stack_2"
-  op: "Pack"
-  input: "while/Const_1"
+  op: "Const"
+  input: "^while/Identity"
   attr {
-    key: "N"
-    value {
-      i: 1
-    }
-  }
-  attr {
-    key: "T"
+    key: "dtype"
     value {
       type: DT_INT32
     }
   }
   attr {
-    key: "axis"
+    key: "value"
     value {
-      i: 0
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+          dim {
+            size: 1
+          }
+        }
+        int_val: 1
+      }
     }
   }
 }
@@ -599,7 +579,7 @@ node {
   attr {
     key: "frame_name"
     value {
-      s: "while/while/"
+      s: "while/while_context"
     }
   }
   attr {
@@ -682,7 +662,7 @@ node {
         dtype: DT_FLOAT
         tensor_shape {
         }
-        float_val: 2.0
+        float_val: 3.0
       }
     }
   }
@@ -720,7 +700,7 @@ node {
   attr {
     key: "frame_name"
     value {
-      s: "while/while/"
+      s: "while/while_context"
     }
   }
   attr {
@@ -920,7 +900,7 @@ node {
     value {
       shape {
         dim {
-          size: 5
+          size: 2
         }
       }
     }
