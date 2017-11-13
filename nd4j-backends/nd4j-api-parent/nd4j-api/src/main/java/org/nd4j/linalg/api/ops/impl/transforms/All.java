@@ -97,4 +97,14 @@ public class All extends BaseTransformOp {
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
         return null;
     }
+
+    @Override
+    public String onnxName() {
+        return "All";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "all";
+    }
 }
