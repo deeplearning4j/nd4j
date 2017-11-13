@@ -308,9 +308,294 @@ node {
   }
 }
 node {
+  name: "add6"
+  op: "Add"
+  input: "acos5"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "maximum7"
+  op: "Maximum"
+  input: "add6"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "minimum8"
+  op: "Minimum"
+  input: "maximum7"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "abs9"
+  op: "Abs"
+  input: "minimum8"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "acos10"
+  op: "Acos"
+  input: "abs9"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "ceil11"
+  op: "Ceil"
+  input: "acos10"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "cos12"
+  op: "Cos"
+  input: "ceil11"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "cosh13"
+  op: "Cosh"
+  input: "cos12"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "cross14"
+  op: "Cross"
+  input: "cosh13"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "exp15"
+  op: "Exp"
+  input: "cross14"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "log16"
+  op: "Log"
+  input: "exp15"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "log1p17"
+  op: "Log1p"
+  input: "log16"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "mode18"
+  op: "FloorMod"
+  input: "log1p17"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "matmul19"
+  op: "MatMul"
+  input: "mode18"
+  input: "input_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "transpose_a"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "transpose_b"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "cumprod20/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "cumprod20"
+  op: "Cumprod"
+  input: "matmul19"
+  input: "cumprod20/axis"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "exclusive"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "reverse"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "cumsum21/axis"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "cumsum21"
+  op: "Cumsum"
+  input: "cumprod20"
+  input: "cumsum21/axis"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "exclusive"
+    value {
+      b: false
+    }
+  }
+  attr {
+    key: "reverse"
+    value {
+      b: false
+    }
+  }
+}
+node {
+  name: "erf22"
+  op: "Erf"
+  input: "cumsum21"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
   name: "output"
   op: "Rsqrt"
-  input: "acos5"
+  input: "erf22"
   attr {
     key: "T"
     value {
