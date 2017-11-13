@@ -24,10 +24,8 @@ import lombok.NoArgsConstructor;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -259,122 +257,6 @@ public class TensorMmul extends BaseAccumulation {
     }
 
     @Override
-    public Op opForDimension(int index, int dimension) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Op opForDimension(int index, int... dimension) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin, double other) {
-        numProcessed++;
-        return origin.mul(other);
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin, float other) {
-        numProcessed++;
-        return origin.mul(other);
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin, IComplexNumber other) {
-        numProcessed++;
-        return origin.mul(other);
-    }
-
-    @Override
-    public float op(float origin, float other) {
-        numProcessed++;
-        return origin * other;
-    }
-
-    @Override
-    public double op(double origin, double other) {
-        numProcessed++;
-        return origin * other;
-    }
-
-    @Override
-    public double op(double origin) {
-        numProcessed++;
-        return origin;
-    }
-
-    @Override
-    public float op(float origin) {
-        return origin;
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin) {
-        return origin;
-    }
-
-    @Override
-    public double update(double accum, double x) {
-        return accum + x;
-    }
-
-    @Override
-    public double update(double accum, double x, double y) {
-        return accum + x * y;
-    }
-
-    @Override
-    public float update(float accum, float x) {
-        return accum + x;
-    }
-
-    @Override
-    public float update(float accum, float x, float y) {
-        return accum + x * y;
-    }
-
-    @Override
-    public IComplexNumber update(IComplexNumber accum, double x) {
-        return accum.add(x);
-    }
-
-    @Override
-    public IComplexNumber update(IComplexNumber accum, double x, double y) {
-        return accum.add(x * y);
-    }
-
-    @Override
-    public IComplexNumber update(IComplexNumber accum, IComplexNumber x) {
-        return accum.add(x);
-    }
-
-    @Override
-    public IComplexNumber update(IComplexNumber accum, IComplexNumber x, IComplexNumber y) {
-        return accum.add(x.mul(y));
-    }
-
-    @Override
-    public IComplexNumber update(IComplexNumber accum, IComplexNumber x, double y) {
-        return accum.add(x.mul(y));
-    }
-
-    @Override
-    public double combineSubResults(double first, double second) {
-        return first + second;
-    }
-
-    @Override
-    public float combineSubResults(float first, float second) {
-        return first + second;
-    }
-
-    @Override
-    public IComplexNumber combineSubResults(IComplexNumber first, IComplexNumber second) {
-        return first.add(second);
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -393,5 +275,15 @@ public class TensorMmul extends BaseAccumulation {
         result = 31 * result + (addedEdges ? 1 : 0);
         result = 31 * result + (mMulTranspose != null ? mMulTranspose.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String onnxName() {
+        return "MatMul";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "matmul";
     }
 }

@@ -73,6 +73,16 @@ public class Exp extends BaseTransformOp {
         return "exp";
     }
 
+    @Override
+    public String onnxName() {
+      return "Exp";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "exp";
+    }
+
       @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
         DifferentialFunction ret = f().mul(f().exp(arg()),i_v.get(0));

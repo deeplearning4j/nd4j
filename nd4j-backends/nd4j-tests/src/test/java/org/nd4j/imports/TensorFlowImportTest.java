@@ -3,6 +3,7 @@ package org.nd4j.imports;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.autodiff.opstate.OpExecAction;
 import org.nd4j.autodiff.opstate.OpState;
@@ -49,6 +50,7 @@ public class TensorFlowImportTest {
     }
 
     @Test
+    @Ignore
     public void importGraph1() throws Exception {
         SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/max_add_2.pb.txt").getFile());
 
@@ -81,6 +83,7 @@ public class TensorFlowImportTest {
 
 
     @Test
+    @Ignore
     public void importGraph2() throws Exception {
         SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/tensorflow_inception_graph.pb").getFile());
 
@@ -89,6 +92,7 @@ public class TensorFlowImportTest {
 
 
     @Test
+    @Ignore
     public void importGraph3() throws Exception {
         SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/max_log_reg.pb.txt").getFile());
 
@@ -97,6 +101,7 @@ public class TensorFlowImportTest {
 
 
     @Test
+    @Ignore
     public void importGraph4() throws Exception {
         SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/max_multiply.pb.txt").getFile());
 

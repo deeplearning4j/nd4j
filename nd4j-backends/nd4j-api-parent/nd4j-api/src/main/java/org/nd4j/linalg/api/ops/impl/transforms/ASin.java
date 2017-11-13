@@ -21,6 +21,7 @@ package org.nd4j.linalg.api.ops.impl.transforms;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
 
@@ -73,6 +74,15 @@ public class ASin extends BaseTransformOp {
         return "asin";
     }
 
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "asin";
+    }
 
 
     @Override

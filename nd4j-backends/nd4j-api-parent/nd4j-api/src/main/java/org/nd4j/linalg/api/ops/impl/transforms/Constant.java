@@ -3,11 +3,11 @@ package org.nd4j.linalg.api.ops.impl.transforms;
 import lombok.Data;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
-import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
-import org.nd4j.linalg.api.ops.Op;
 
 import java.util.Collections;
 import java.util.List;
@@ -142,12 +142,13 @@ public class Constant extends BaseTransformOp {
     }
 
     @Override
-    public Op opForDimension(int index, int dimension) {
-        return null;
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
     }
 
     @Override
-    public Op opForDimension(int index, int... dimension) {
-        return null;
+    public String tensorflowName() {
+      throw new NoOpNameFoundException("No tensorflow name found for " + calculateOutputShape());
     }
+
 }

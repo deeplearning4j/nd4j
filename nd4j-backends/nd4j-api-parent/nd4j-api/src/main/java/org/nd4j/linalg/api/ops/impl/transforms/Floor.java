@@ -74,6 +74,16 @@ public class Floor extends BaseTransformOp {
 
 
     @Override
+    public String onnxName() {
+        return "Floor";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "floor";
+    }
+
+    @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
         throw new RuntimeException("not allowed");
     }

@@ -72,6 +72,17 @@ public class Ceil extends BaseTransformOp {
         return "ceil";
     }
 
+    @Override
+    public String onnxName() {
+        return "Ceil";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "ceil";
+    }
+
+
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {

@@ -2,7 +2,6 @@ package org.nd4j.linalg.api.ops.impl.broadcast;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseBroadcastOp;
 
@@ -55,45 +54,14 @@ public class BroadcastRSubOp extends BaseBroadcastOp {
     }
 
     @Override
-    public IComplexNumber op(IComplexNumber origin, double other) {
-        return origin.rsub(other);
+    public String onnxName() {
+        return "Sub";
     }
 
     @Override
-    public IComplexNumber op(IComplexNumber origin, float other) {
-        return origin.rsub(other);
+    public String tensorflowName() {
+        return "sub";
     }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin, IComplexNumber other) {
-        return origin.rsub(other);
-    }
-
-    @Override
-    public float op(float origin, float other) {
-        return other - origin;
-    }
-
-    @Override
-    public double op(double origin, double other) {
-        return other - origin;
-    }
-
-    @Override
-    public double op(double origin) {
-        return origin;
-    }
-
-    @Override
-    public float op(float origin) {
-        return origin;
-    }
-
-    @Override
-    public IComplexNumber op(IComplexNumber origin) {
-        return origin;
-    }
-
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
         return null;

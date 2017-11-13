@@ -75,6 +75,16 @@ public class HardTanh extends BaseTransformOp {
 
 
     @Override
+    public String onnxName() {
+        return "HardTanh";
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "hard_tanh";
+    }
+
+    @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
         DifferentialFunction ret = f().hardTanhDerivative(f().val(this.sameDiff.getVariableForVertexId(resultVertexId())));
 

@@ -291,47 +291,6 @@ public class DefaultOpExecutioner implements OpExecutioner {
 
     @Override
     public INDArray exec(Accumulation op, int... dimension) {
-        //do op along all dimensions
-        if (dimension.length == op.x().rank())
-            dimension = new int[] {Integer.MAX_VALUE};
-
-        if (op.isPassThrough()) {
-            op.exec(dimension);
-            return op.z();
-        }
-
-
-        if (dimension[0] == Integer.MAX_VALUE) {
-            if (op.x() instanceof IComplexNDArray)
-                return Nd4j.scalar(execAndReturn(op).getFinalResultComplex());
-            return Nd4j.scalar(execAndReturn(op).getFinalResult().doubleValue());
-        }
-
-        if (op instanceof IComplexNDArray) {
-            int[] retShape = ArrayUtil.removeIndex(op.x().shape(), dimension);
-            //ensure vector is proper shape
-            if (retShape.length == 1) {
-                if (dimension[0] == 0)
-                    retShape = new int[] {1, retShape[0]};
-                else
-                    retShape = new int[] {retShape[0], 1};
-            } else if (retShape.length == 0) {
-                retShape = new int[] {1, 1};
-            }
-
-            IComplexNDArray ret = Nd4j.createComplex(retShape);
-            for (int i = 0; i < op.x().tensorssAlongDimension(dimension); i++) {
-                Op op2 = op.opForDimension(i, dimension);
-                IComplexNumber result = execAndReturn((Accumulation) op2).getFinalResultComplex();
-                ret.putScalar(i, result);
-            }
-
-            // FIXME: this is wrong, it breaks shapeInfo immutability
-            if (ret.ordering() == 'c')
-                ret.setStride(ArrayUtil.reverseCopy(ret.stride()));
-
-            return ret;
-        }
 
         throw new UnsupportedOperationException("Java computation no longer supported");
     }

@@ -20,14 +20,18 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Data;
+import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.tensorflow.framework.NodeDef;
 
 import java.nio.Buffer;
 import java.util.Arrays;
@@ -102,6 +106,24 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
         return type;
     }
 
+    @Override
+    public String name() {
+        return opName();
+    }
+
+    @Override
+    protected void addAsNewVertexId() {
+        super.addAsNewVertexId();
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef) {
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    }
 
     @Override
     public DataBuffer extraArgsDataBuff() {
@@ -309,18 +331,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
 
     @Override
     public String toString() {
-        return name();
-    }
-
-
-    @Override
-    public Op opForDimension(int index, int dimension) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Op opForDimension(int index, int... dimension) {
-        throw new UnsupportedOperationException();
+        return opName();
     }
 
 
@@ -352,103 +363,6 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
 
     }
 
-    /**
-     * Pairwise op (applicable with an individual element in y)
-     *
-     * @param origin the origin number
-     * @param other  the other number
-     * @return the transformed output
-     */
-    @Override
-    public IComplexNumber op(IComplexNumber origin, double other) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Pairwise op (applicable with an individual element in y)
-     *
-     * @param origin the origin number
-     * @param other  the other number
-     * @return the transformed output
-     */
-    @Override
-    public IComplexNumber op(IComplexNumber origin, float other) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Pairwise op (applicable with an individual element in y)
-     *
-     * @param origin the origin number
-     * @param other  the other number
-     * @return the transformed output
-     */
-    @Override
-    public IComplexNumber op(IComplexNumber origin, IComplexNumber other) {
-        throw new UnsupportedOperationException();
-
-    }
-
-    /**
-     * Pairwise op (applicable with an individual element in y)
-     *
-     * @param origin the origin number
-     * @param other  the other number
-     * @return the transformed output
-     */
-    @Override
-    public float op(float origin, float other) {
-        throw new UnsupportedOperationException();
-
-    }
-
-    /**
-     * Pairwise op (applicable with an individual element in y)
-     *
-     * @param origin the origin number
-     * @param other  the other number
-     * @return the transformed output
-     */
-    @Override
-    public double op(double origin, double other) {
-        throw new UnsupportedOperationException();
-
-    }
-
-    /**
-     * Transform an individual element
-     *
-     * @param origin the origin element
-     * @return the new element
-     */
-    @Override
-    public double op(double origin) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Transform an individual element
-     *
-     * @param origin the origin element
-     * @return the new element
-     */
-    @Override
-    public float op(float origin) {
-        throw new UnsupportedOperationException();
-
-    }
-
-    /**
-     * Transform an individual element
-     *
-     * @param origin the origin element
-     * @return the new element
-     */
-    @Override
-    public IComplexNumber op(IComplexNumber origin) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public void exec() {
         //no-op
@@ -458,6 +372,16 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public void exec(int... dimensions) {
         //no-op
     }
+
+    @Override
+    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
+        tNode.setOpState(getOpStateFromNodeDef(node, node.getInputCount(), tNode, graph.getVariableSpace()));
+
+        return tNode;
+    }
+
 
     @Override
     public boolean equals(Object o) {

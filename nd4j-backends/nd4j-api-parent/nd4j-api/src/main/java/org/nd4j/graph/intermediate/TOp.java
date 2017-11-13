@@ -1,4 +1,4 @@
-package org.nd4j.imports.intermediate;
+package org.nd4j.graph.intermediate;
 
 import lombok.*;
 import org.nd4j.autodiff.opstate.OpState;
@@ -18,14 +18,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class TNode {
+public class TOp {
     @Builder.Default private List<TIndex> inputs = new ArrayList<>();
 
     // we can use the same TIndex here, but we don't really need it. Only input nodes should care about indices
     @Builder.Default private List<Integer> outputs = new ArrayList<>();
 
     // may be set externally, i.e. in TF graph
-    private String name;
+    @Builder.Default private String name = "";
 
     // exists only after mapping
     private int id;
@@ -39,10 +39,17 @@ public class TNode {
     // op group basically
     private OpClass opClass;
 
-    // parameters for op
+    // this value defines, if this Node belongs to some scope
+    @Builder.Default private boolean scoped = false;
+
+
+    @Builder.Default private int scopeId = 0;
+    @Builder.Default private String scopeName = "";
+
+    // parameters for opd
     private OpState opState;
 
-    public TNode(int id) {
+    public TOp(int id) {
         this.id = id;
     }
 
@@ -60,7 +67,7 @@ public class TNode {
 
     @Override
     public String toString() {
-        return "TNode{" +
+        return "TOp{" +
                 "inputs=" + inputs +
                 ", name='" + name + '\'' +
                 ", id=" + id +

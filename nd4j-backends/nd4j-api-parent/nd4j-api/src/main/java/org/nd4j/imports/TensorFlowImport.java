@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author raver119@gmail.com
  */
 @Slf4j
-public class TensorFlowImport {
+public class TensorFlowImport implements SameDiffProtoConverter {
 
     /**
      *
@@ -237,7 +237,7 @@ public class TensorFlowImport {
         return importIntermediate(def);
     }
 
-    protected static TNode importWhileLoop(TGraph intermediateGraph, int startPosition, List<NodeDef> nodes) {
+    protected static TOp importWhileLoop(TGraph intermediateGraph, int startPosition, List<NodeDef> nodes) {
         val uniqueId = java.util.UUID.randomUUID().toString();
 
         val scopeCondition = new TScope(intermediateGraph.getNewNodeId(), "scopeCondition_" + uniqueId);
@@ -246,7 +246,7 @@ public class TensorFlowImport {
         intermediateGraph.addScope(scopeCondition);
         intermediateGraph.addScope(scopeLoop);
 
-        val whileNode = TNode.builder().id(intermediateGraph.getNewNodeId())
+        val whileNode = TOp.builder().id(intermediateGraph.getNewNodeId())
                 .opName("while")
                 .name("whileLoop_" + uniqueId)
                 .opNum(0)
@@ -442,7 +442,7 @@ public class TensorFlowImport {
             intermediateGraph.getSkipSet().add(tfNode.getName());
         }
 
-        val returnOp = TNode.builder()
+        val returnOp = TOp.builder()
                 .opState(OpState.builder()
                         .opType(Op.Type.RETURN)
                         .opNum(40)
@@ -500,7 +500,7 @@ public class TensorFlowImport {
 
 
 
-    protected static TNode importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, int nodeId) {
+    protected static TOp importNode(@NonNull TGraph intermediateGraph, @NonNull NodeDef tfNode, int nodeId) {
 
         val tNode = TensorFlowMapper.getInstance().asIntermediate(tfNode, intermediateGraph);
 
@@ -508,10 +508,6 @@ public class TensorFlowImport {
     }
 
     protected static TVariable importVariable(@NonNull NodeDef tfNode, @NonNull Map<String, TIndex> reverseVertexMap, int varId) {
-        if (tfNode.getName().equalsIgnoreCase("while/Less/y"))
-        //if (tfNode.getName().equalsIgnoreCase("while/Sum"))
-            log.debug("wow");
-
         val variable = new TVariable();
         val attributes = tfNode.getAttrMap();
         List<Integer> dimensions = new ArrayList<>();
@@ -722,6 +718,7 @@ public class TensorFlowImport {
                 dimensions.add(dim);
             }
         }
+
         arrayShape = Ints.toArray(dimensions);
 
         if (tfTensor.getDtype() == DataType.DT_INT32 || tfTensor.getDtype() == DataType.DT_INT16 || tfTensor.getDtype() == DataType.DT_INT8) {
@@ -858,4 +855,8 @@ public class TensorFlowImport {
         throw new RuntimeException("Wtf?");
     }
 
+    @Override
+    public SameDiff importProto(File file) {
+        return importGraph(file);
+    }
 }

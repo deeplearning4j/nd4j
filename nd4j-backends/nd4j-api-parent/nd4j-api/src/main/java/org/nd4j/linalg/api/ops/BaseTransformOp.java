@@ -19,11 +19,18 @@
 
 package org.nd4j.linalg.api.ops;
 
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.LinAlgExceptions;
+import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +40,7 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
+@Slf4j
 public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
 
@@ -168,9 +176,43 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         return ret;
     }
 
+    @Override
+    protected void addAsNewVertexId() {
+        super.addAsNewVertexId();
+    }
 
     @Override
-    public TransformOp derivative() {
-        throw new UnsupportedOperationException();
+    public void initFromTensorFlow(NodeDef nodeDef) {
+        super.initFromTensorFlow(nodeDef);
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node) {
+        super.initFromOnnx(node);
+
+    }
+
+    /**
+     * This method returns given TF node as TOp
+     *
+     * @return
+     */
+    @Override
+    public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
+        val tNode = buildBasicNode(node, graph);
+
+        /**
+         * 2 options here. We either have specific dimension, or not.
+         * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension
+         */
+
+        log.debug("TOp inputs: {}", tNode.getInputs());
+        if( tNode.getInputs().size() > 1) {
+            val shapeIndex = tNode.getInputs().remove(1);
+            val variable = graph.getVariableSpace().getVariable(shapeIndex);
+        }
+
+        return tNode;
     }
 }

@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops.random.impl;
 
 import lombok.NonNull;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.random.BaseRandomOp;
 
@@ -36,6 +37,17 @@ public class ProbablisticMerge extends BaseRandomOp {
     public String name() {
         return "probablistic_merge";
     }
+
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+    }
+
+    @Override
+    public String tensorflowName() {
+        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+    }
+
 
 
     @Override

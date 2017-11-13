@@ -21,6 +21,7 @@ package org.nd4j.linalg.api.ops.impl.transforms;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
 
@@ -76,6 +77,16 @@ public class Cube extends BaseTransformOp {
         return "cube";
     }
 
+
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+    }
+
+    @Override
+    public String tensorflowName() {
+        throw new NoOpNameFoundException("No tensorflow name found for " + calculateOutputShape());
+    }
 
 
     @Override

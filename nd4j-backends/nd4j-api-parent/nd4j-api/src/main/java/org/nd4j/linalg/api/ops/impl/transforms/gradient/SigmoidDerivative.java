@@ -3,9 +3,9 @@ package org.nd4j.linalg.api.ops.impl.transforms.gradient;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseGradientOp;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.transforms.Sigmoid;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -62,46 +62,14 @@ public class SigmoidDerivative extends BaseGradientOp  {
         return "sigmoidderivative";
     }
 
-
-
-    /**
-     * A copy of this operation for a particular dimension of the input
-     *
-     * @param index     the index of the op to iterate over
-     * @param dimension the dimension to ge the input for
-     * @return the operation for that dimension
-     */
     @Override
-    public Op opForDimension(int index, int dimension) {
-        INDArray xAlongDimension = x.vectorAlongDimension(index, dimension);
-
-        if (y() != null)
-            return new org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative(x.vectorAlongDimension(index, dimension),
-                    y.vectorAlongDimension(index, dimension), z.vectorAlongDimension(index, dimension),
-                    xAlongDimension.length());
-        else
-            return new org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative(x.vectorAlongDimension(index, dimension),
-                    z.vectorAlongDimension(index, dimension), xAlongDimension.length());
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
     }
 
-    /**
-     * A copy of this operation for a particular dimension of the input
-     *
-     * @param index     the index of the op to iterate over
-     * @param dimension the dimension to ge the input for
-     * @return the operation for that dimension
-     */
     @Override
-    public Op opForDimension(int index, int... dimension) {
-        INDArray xAlongDimension = x.tensorAlongDimension(index, dimension);
-
-        if (y() != null)
-            return new org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative(x.tensorAlongDimension(index, dimension),
-                    y.tensorAlongDimension(index, dimension), z.tensorAlongDimension(index, dimension),
-                    xAlongDimension.length());
-        else
-            return new org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative(x.tensorAlongDimension(index, dimension),
-                    z.tensorAlongDimension(index, dimension), xAlongDimension.length());
+    public String tensorflowName() {
+        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
     }
 
     @Override
