@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
  */
 @Slf4j
 @RunWith(Parameterized.class)
-public class TFGraphTests {
+public class TFGraphTestAll {
 
     private Map<String,INDArray> inputs;
     private Map<String,INDArray> predictions;
@@ -46,7 +46,7 @@ public class TFGraphTests {
         return modelParams;
     }
 
-    public TFGraphTests(Map<String,INDArray> inputs, Map<String,INDArray> predictions, String modelName) throws IOException {
+    public TFGraphTestAll(Map<String,INDArray> inputs, Map<String,INDArray> predictions, String modelName) throws IOException {
         this.inputs = inputs;
         this.predictions = predictions;
         this.modelName = modelName;
@@ -57,7 +57,10 @@ public class TFGraphTests {
     @Test
     public void test() throws Exception {
         Nd4j.create(1);
+        testSingle(inputs,predictions,modelName,modelDir);
+    }
 
+    protected static void testSingle(Map<String,INDArray> inputs, Map<String,INDArray> predictions, String modelName, String modelDir) {
         log.info("\n\tRUNNING TEST " + modelName + "...");
         val tg = TensorFlowImport.importIntermediate(new File(modelDir,"frozen_model.pb"));
 
@@ -71,13 +74,14 @@ public class TFGraphTests {
             if (i > 0) throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED BY WORKFLOW"); //figure out how to support multiple outputs with freezing in TF
             INDArray nd4jPred = res[i];
             INDArray tfPred = predictions.get("output");
-            assertEquals("Predictions do not match on " + modelName, nd4jPred, tfPred.reshape(nd4jPred.shape()));
+            assertEquals("Predictions do not match on " + modelName, tfPred.reshape(nd4jPred.shape()), nd4jPred);
         }
         log.info("\n\tTEST " + modelName + " PASSED...");
         log.info("\n========================================================\n");
+
     }
 
-    private static String[] modelDirNames(String dir) {
+    protected static String[] modelDirNames(String dir) {
         return new File(dir).list(new FilenameFilter() {
             @Override
             public boolean accept(File current, String name) {
@@ -87,7 +91,7 @@ public class TFGraphTests {
 
     }
 
-    private static Map<String,INDArray> inputVars(String dir) throws IOException {
+    protected static Map<String,INDArray> inputVars(String dir) throws IOException {
         Map<String,INDArray> inputVarMap = new HashMap<>();
         File[] listOfFiles = new File(dir).listFiles(new FileFilter() {
             @Override
@@ -107,7 +111,7 @@ public class TFGraphTests {
 
 
     //TODO: I don't check shapes
-    private static Map<String,INDArray> outputVars(String dir) throws IOException {
+    protected static Map<String,INDArray> outputVars(String dir) throws IOException {
         Map<String,INDArray> outputVarMap = new HashMap<>();
         File[] listOfFiles = new File(dir).listFiles(new FileFilter() {
             @Override
