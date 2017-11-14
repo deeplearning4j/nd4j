@@ -69,7 +69,7 @@ public class Exp extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "exp";
     }
 

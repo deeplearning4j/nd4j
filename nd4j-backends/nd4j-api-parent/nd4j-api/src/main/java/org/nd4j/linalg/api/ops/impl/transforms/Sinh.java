@@ -70,7 +70,7 @@ public class Sinh extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "sinh";
     }
 

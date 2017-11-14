@@ -73,7 +73,7 @@ public class Tanh extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "tanh";
     }
 

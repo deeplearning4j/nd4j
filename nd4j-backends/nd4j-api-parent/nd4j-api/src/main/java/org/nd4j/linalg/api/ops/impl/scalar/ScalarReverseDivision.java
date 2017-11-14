@@ -75,7 +75,7 @@ public class ScalarReverseDivision extends BaseScalarOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "rdiv_scalar";
     }
 

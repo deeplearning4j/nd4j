@@ -74,7 +74,7 @@ public class ScalarDivision extends BaseScalarOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "div_scalar";
     }
 

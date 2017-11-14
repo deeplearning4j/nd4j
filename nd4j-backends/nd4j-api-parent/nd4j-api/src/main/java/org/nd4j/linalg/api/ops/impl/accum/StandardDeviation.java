@@ -68,7 +68,7 @@ public class StandardDeviation extends Variance {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "std";
     }
 

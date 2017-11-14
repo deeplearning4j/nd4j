@@ -64,7 +64,7 @@ public class IAMax extends BaseIndexAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "iamax";
     }
 

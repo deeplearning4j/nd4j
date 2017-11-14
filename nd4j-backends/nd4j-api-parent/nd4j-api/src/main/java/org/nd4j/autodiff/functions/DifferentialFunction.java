@@ -289,10 +289,6 @@ public abstract class DifferentialFunction implements Differential {
 
 
     public String opName() {
-        if(this instanceof  Op) {
-            Op op = (Op) this;
-            return op.name();
-        }
         throw new UnsupportedOperationException();
     }
 
@@ -683,13 +679,13 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     /**
-     * The name of this function in onnx
+     * The opName of this function in onnx
      * @return
      */
     public abstract String onnxName();
 
     /**
-     * The name of this function tensorflow
+     * The opName of this function tensorflow
      *
      * @return
      */

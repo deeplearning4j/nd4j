@@ -69,7 +69,7 @@ public class RSubOp extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "rsub";
     }
 

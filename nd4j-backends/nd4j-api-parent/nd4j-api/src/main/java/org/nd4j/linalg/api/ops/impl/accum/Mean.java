@@ -68,7 +68,7 @@ public class Mean extends Sum {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "mean";
     }
 

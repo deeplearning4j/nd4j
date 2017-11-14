@@ -101,7 +101,7 @@ public class HammingDistance extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "hammingdistance";
     }
 
@@ -114,13 +114,13 @@ public class HammingDistance extends BaseAccumulation {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
 
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+        throw new NoOpNameFoundException("No tensorflow op opName found for " +  opName());
     }
 
 

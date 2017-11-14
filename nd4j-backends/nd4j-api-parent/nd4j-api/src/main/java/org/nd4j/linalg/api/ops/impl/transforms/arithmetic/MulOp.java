@@ -69,7 +69,7 @@ public class MulOp extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "mul";
     }
 

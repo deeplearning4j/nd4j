@@ -107,10 +107,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
         return type;
     }
 
-    @Override
-    public String name() {
-        return opName();
-    }
+
 
     @Override
     protected void addAsNewVertexId() {
@@ -331,7 +328,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
 
     @Override
     public CustomOp toCustomOp() {
-        DynamicCustomOp.DynamicCustomOpsBuilder customOpBuilder = DynamicCustomOp.builder(name());
+        DynamicCustomOp.DynamicCustomOpsBuilder customOpBuilder = DynamicCustomOp.builder(opName());
         customOpBuilder.callInplace(x() == z());
 
         if (y() != null)

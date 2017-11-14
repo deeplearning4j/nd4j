@@ -86,7 +86,7 @@ public class Repeat extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "repeat";
     }
 

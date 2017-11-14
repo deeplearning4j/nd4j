@@ -105,7 +105,7 @@ public class Mmul extends TensorMmul {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "mmul";
     }
 

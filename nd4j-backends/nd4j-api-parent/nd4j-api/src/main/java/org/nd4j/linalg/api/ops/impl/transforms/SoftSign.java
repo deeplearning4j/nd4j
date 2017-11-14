@@ -72,7 +72,7 @@ public class SoftSign extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "softsign";
     }
 

@@ -26,7 +26,7 @@ import java.nio.Buffer;
 
 /**
  * An op is defined as follows:
- * name: name of the operation
+ * opName: opName of the operation
  * x: the origin ndarray
  * y: the ndarray to parse in parallel
  * z: the resulting buffer
@@ -95,11 +95,11 @@ public interface Op {
     int opNum();
 
     /**
-     * The name of this operation
+     * The opName of this operation
      *
-     * @return the name of this operation
+     * @return the opName of this operation
      */
-    String name();
+    String opName();
 
     /**
      * The origin ndarray
@@ -212,7 +212,7 @@ public interface Op {
      * meant for multiple inputs and outputs.
      * The default implementation in {@link BaseOp}
      * converts a simple op to a multi input/output operation
-     * by mapping the x and y on to inputs , the op name
+     * by mapping the x and y on to inputs , the op opName
      * and the z on to outputs.
      * @return the equivalent {@link CustomOp}
      */

@@ -71,7 +71,7 @@ public class TGraph {
         outputMap.put(node.getId(), node);
 
         if (node.getName() != null && !node.getName().isEmpty()) {
-            log.info("Adding node by name: [{}]", node.getName());
+            log.info("Adding node by opName: [{}]", node.getName());
             symbolicMap.put(node.getName(), node);
         }
     }
@@ -128,14 +128,14 @@ public class TGraph {
     }
 
     /**
-     * This method returns Scope by symbolic name
+     * This method returns Scope by symbolic opName
      *
      * @param name
      * @return
      */
     public TScope getScope(@NonNull String name) {
         if (!symbolicScopes.containsKey(name))
-            throw new ND4JIllegalStateException("No scope with given name found: [" + name + "]");
+            throw new ND4JIllegalStateException("No scope with given opName found: [" + name + "]");
 
         return symbolicScopes.get(name);
     }
@@ -148,7 +148,7 @@ public class TGraph {
      */
     public TScope getScope(int id) {
         if (!numericScopes.containsKey(id))
-            throw new ND4JIllegalStateException("No scope with given name found: [" + id + "]");
+            throw new ND4JIllegalStateException("No scope with given opName found: [" + id + "]");
 
         return numericScopes.get(id);
     }

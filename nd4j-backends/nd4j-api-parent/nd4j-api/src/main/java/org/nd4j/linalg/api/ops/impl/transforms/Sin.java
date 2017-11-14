@@ -70,7 +70,7 @@ public class Sin extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "sin";
     }
 

@@ -68,7 +68,7 @@ public class LogSumExp extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "logexpsum";
     }
 

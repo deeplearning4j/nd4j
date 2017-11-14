@@ -63,7 +63,7 @@ public class Dot extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "dot";
     }
 

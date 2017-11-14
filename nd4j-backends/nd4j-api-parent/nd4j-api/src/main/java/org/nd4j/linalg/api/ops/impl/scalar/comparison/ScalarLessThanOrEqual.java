@@ -76,7 +76,7 @@ public class ScalarLessThanOrEqual extends BaseScalarOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "lessthanorequal_scalar";
     }
 

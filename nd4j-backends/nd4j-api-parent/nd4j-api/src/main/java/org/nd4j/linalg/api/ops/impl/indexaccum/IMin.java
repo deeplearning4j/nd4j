@@ -62,7 +62,7 @@ public class IMin extends BaseIndexAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "imin";
     }
 

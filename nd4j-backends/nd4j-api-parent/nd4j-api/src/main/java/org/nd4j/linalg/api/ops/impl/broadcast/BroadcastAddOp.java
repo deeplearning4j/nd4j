@@ -34,7 +34,7 @@ public class BroadcastAddOp extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcastadd";
     }
 

@@ -59,7 +59,7 @@ public class HardSigmoid extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "hard_sigmoid";
     }
 

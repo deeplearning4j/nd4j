@@ -76,7 +76,7 @@ public class Max extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "max";
     }
 

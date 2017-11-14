@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * DropOut implementation as Op
  *
- * PLEASE NOTE: This is legacy DropOut implementation, please consider using op with the same name from randomOps
+ * PLEASE NOTE: This is legacy DropOut implementation, please consider using op with the same opName from randomOps
  * @author raver119@gmail.com
  */
 public class LegacyDropOut extends BaseTransformOp {
@@ -61,18 +61,18 @@ public class LegacyDropOut extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "legacy_dropout";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+        throw new NoOpNameFoundException("No tensorflow op opName found for " +  opName());
     }
 
 

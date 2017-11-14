@@ -35,7 +35,7 @@ public class Stack  extends DifferentialFunction {
 
     @Override
     public String onnxName() {
-       throw new NoOpNameFoundException("No onnx name found for " + opName());
+       throw new NoOpNameFoundException("No onnx opName found for " + opName());
     }
 
     @Override

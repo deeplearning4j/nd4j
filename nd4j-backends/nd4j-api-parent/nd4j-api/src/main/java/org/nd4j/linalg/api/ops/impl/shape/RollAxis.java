@@ -97,7 +97,7 @@ public class RollAxis extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "rollaxis";
     }
 
@@ -105,12 +105,12 @@ public class RollAxis extends ShapeOp {
 
     @Override
     public String onnxName() {
-       throw new NoOpNameFoundException("No onnx name found for " + opName());
+       throw new NoOpNameFoundException("No onnx opName found for " + opName());
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow name found for " + opName());
+        throw new NoOpNameFoundException("No tensorflow opName found for " + opName());
     }
 
 

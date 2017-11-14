@@ -69,7 +69,7 @@ public class Log extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "log";
     }
 

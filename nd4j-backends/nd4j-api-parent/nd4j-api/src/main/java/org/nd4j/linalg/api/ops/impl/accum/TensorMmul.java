@@ -252,7 +252,7 @@ public class TensorMmul extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "tensormmul";
     }
 

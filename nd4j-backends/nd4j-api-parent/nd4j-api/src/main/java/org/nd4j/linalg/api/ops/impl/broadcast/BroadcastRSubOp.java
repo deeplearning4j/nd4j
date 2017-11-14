@@ -49,7 +49,7 @@ public class BroadcastRSubOp extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcastrsub";
     }
 

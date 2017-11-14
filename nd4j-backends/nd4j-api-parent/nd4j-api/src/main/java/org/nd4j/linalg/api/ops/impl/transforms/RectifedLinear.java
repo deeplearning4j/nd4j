@@ -105,7 +105,7 @@ public class RectifedLinear extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "relu";
     }
 

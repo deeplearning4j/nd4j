@@ -60,7 +60,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
      * Initialize this custom op with all of the
      * inputs, outputs, and respective
      * argumentts for execution
-     * @param opName the name of the op to execute
+     * @param opName the opName of the op to execute
      * @param inputs the inputs to the op
      * @param outputs the outputs of the op
      * @param tArguments the input float arguments
@@ -77,7 +77,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     /**
      * Initialize this operation for execution (pre created ndarrays)
-     * @param opName the operation name to use
+     * @param opName the operation opName to use
      *               for invocation
      * @param inputs the inputs
      * @param outputs the outputs of the op
@@ -91,7 +91,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
      * Any extra int or float arguments for operations
      * must be added to the respective {@link #getTArguments()}
      *  or {@link #getIArguments()} lists upon construction
-     * @param opName the operation name
+     * @param opName the operation opName
      * @param sameDiff the samediff instance to use
      * @param args the arguments to use
      * @param inPlace whether the operation is in place or not
@@ -113,7 +113,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
 
     /**
-     * This method returns op name as string
+     * This method returns op opName as string
      *
      * @return
      */
@@ -271,12 +271,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+        throw new NoOpNameFoundException("No tensorflow op opName found for " +  opName());
     }
 
 

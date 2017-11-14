@@ -84,7 +84,7 @@ public class Transpose extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "transpose";
     }
 

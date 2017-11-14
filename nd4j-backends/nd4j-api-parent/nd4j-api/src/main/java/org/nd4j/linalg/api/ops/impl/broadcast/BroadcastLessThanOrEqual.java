@@ -50,7 +50,7 @@ public class BroadcastLessThanOrEqual extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcast_lessthanorequal";
     }
 

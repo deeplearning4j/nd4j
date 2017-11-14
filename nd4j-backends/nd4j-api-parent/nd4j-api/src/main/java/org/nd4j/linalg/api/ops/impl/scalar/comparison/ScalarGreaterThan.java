@@ -76,7 +76,7 @@ public class ScalarGreaterThan extends BaseScalarOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "greaterthan_scalar";
     }
 

@@ -69,7 +69,7 @@ public class DivOp extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "div";
     }
 

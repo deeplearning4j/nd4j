@@ -68,7 +68,7 @@ public class Ceil extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "ceil";
     }
 

@@ -94,7 +94,7 @@ public class Tile extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "tile";
     }
 

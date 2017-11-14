@@ -87,7 +87,7 @@ public class All extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "boolean_all";
     }
 

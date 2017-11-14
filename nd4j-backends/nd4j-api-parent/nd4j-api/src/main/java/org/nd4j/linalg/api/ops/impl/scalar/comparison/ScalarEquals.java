@@ -78,7 +78,7 @@ public class ScalarEquals extends BaseScalarOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "equals_scalar";
     }
 

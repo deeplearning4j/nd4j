@@ -48,7 +48,7 @@ public class SConv2D extends Conv2D {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for op " + opName());
+        throw new NoOpNameFoundException("No onnx op opName found for op " + opName());
     }
 
     @Override

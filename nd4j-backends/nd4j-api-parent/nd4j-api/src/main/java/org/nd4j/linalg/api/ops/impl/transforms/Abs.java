@@ -70,7 +70,7 @@ public class Abs extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "abs";
     }
 

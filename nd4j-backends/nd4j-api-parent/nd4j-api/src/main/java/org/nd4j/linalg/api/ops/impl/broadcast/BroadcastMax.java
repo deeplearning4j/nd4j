@@ -54,7 +54,7 @@ public class BroadcastMax extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcast_max";
     }
 

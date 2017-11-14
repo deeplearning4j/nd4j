@@ -69,7 +69,7 @@ public class TOp {
     public String toString() {
         return "TOp{" +
                 "inputs=" + inputs +
-                ", name='" + name + '\'' +
+                ", opName='" + name + '\'' +
                 ", id=" + id +
                 ", opName='" + opName + '\'' +
                 '}';

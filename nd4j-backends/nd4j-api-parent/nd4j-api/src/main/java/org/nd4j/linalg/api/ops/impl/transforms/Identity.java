@@ -70,7 +70,7 @@ public class Identity extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "identity";
     }
 

@@ -195,18 +195,18 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * The name field MUST be present for this version of the IR.
+     * The opName field MUST be present for this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     java.lang.String getName();
     /**
      * <pre>
-     * The name field MUST be present for this version of the IR.
+     * The opName field MUST be present for this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
@@ -500,7 +500,7 @@ public final class OnnxMlProto3 {
    * <pre>
    * A named attribute containing either singular float, integer, string
    * and tensor values, or repeated float, integer, string and tensor values.
-   * An AttributeProto MUST contain the name field, and *only one* of the
+   * An AttributeProto MUST contain the opName field, and *only one* of the
    * following content fields, effectively enforcing a C/C++ union equivalent.
    * </pre>
    *
@@ -907,10 +907,10 @@ public final class OnnxMlProto3 {
     private volatile java.lang.Object name_;
     /**
      * <pre>
-     * The name field MUST be present for this version of the IR.
+     * The opName field MUST be present for this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -926,10 +926,10 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * The name field MUST be present for this version of the IR.
+     * The opName field MUST be present for this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -1666,7 +1666,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A named attribute containing either singular float, integer, string
      * and tensor values, or repeated float, integer, string and tensor values.
-     * An AttributeProto MUST contain the name field, and *only one* of the
+     * An AttributeProto MUST contain the opName field, and *only one* of the
      * following content fields, effectively enforcing a C/C++ union equivalent.
      * </pre>
      *
@@ -2002,10 +2002,10 @@ public final class OnnxMlProto3 {
       private java.lang.Object name_ = "";
       /**
        * <pre>
-       * The name field MUST be present for this version of the IR.
+       * The opName field MUST be present for this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -2021,10 +2021,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name field MUST be present for this version of the IR.
+       * The opName field MUST be present for this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -2041,10 +2041,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name field MUST be present for this version of the IR.
+       * The opName field MUST be present for this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -2058,10 +2058,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name field MUST be present for this version of the IR.
+       * The opName field MUST be present for this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder clearName() {
         
@@ -2071,10 +2071,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name field MUST be present for this version of the IR.
+       * The opName field MUST be present for this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -3658,7 +3658,7 @@ public final class OnnxMlProto3 {
      * This field MUST be present in this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     java.lang.String getName();
     /**
@@ -3666,7 +3666,7 @@ public final class OnnxMlProto3 {
      * This field MUST be present in this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
@@ -3716,7 +3716,7 @@ public final class OnnxMlProto3 {
   }
   /**
    * <pre>
-   * Defines information on value, including the name, the type, and
+   * Defines information on value, including the opName, the type, and
    * the shape of the value.
    * </pre>
    *
@@ -3815,7 +3815,7 @@ public final class OnnxMlProto3 {
      * This field MUST be present in this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -3834,7 +3834,7 @@ public final class OnnxMlProto3 {
      * This field MUST be present in this version of the IR.
      * </pre>
      *
-     * <code>string name = 1;</code>
+     * <code>string opName = 1;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -4090,7 +4090,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Defines information on value, including the name, the type, and
+     * Defines information on value, including the opName, the type, and
      * the shape of the value.
      * </pre>
      *
@@ -4252,7 +4252,7 @@ public final class OnnxMlProto3 {
        * This field MUST be present in this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -4271,7 +4271,7 @@ public final class OnnxMlProto3 {
        * This field MUST be present in this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -4291,7 +4291,7 @@ public final class OnnxMlProto3 {
        * This field MUST be present in this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -4308,7 +4308,7 @@ public final class OnnxMlProto3 {
        * This field MUST be present in this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder clearName() {
         
@@ -4321,7 +4321,7 @@ public final class OnnxMlProto3 {
        * This field MUST be present in this version of the IR.
        * </pre>
        *
-       * <code>string name = 1;</code>
+       * <code>string opName = 1;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -4705,7 +4705,7 @@ public final class OnnxMlProto3 {
      * This field MAY be absent in ths version of the IR.
      * </pre>
      *
-     * <code>string name = 3;</code>
+     * <code>string opName = 3;</code>
      */
     java.lang.String getName();
     /**
@@ -4714,7 +4714,7 @@ public final class OnnxMlProto3 {
      * This field MAY be absent in ths version of the IR.
      * </pre>
      *
-     * <code>string name = 3;</code>
+     * <code>string opName = 3;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
@@ -5062,7 +5062,7 @@ public final class OnnxMlProto3 {
      * This field MAY be absent in ths version of the IR.
      * </pre>
      *
-     * <code>string name = 3;</code>
+     * <code>string opName = 3;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -5082,7 +5082,7 @@ public final class OnnxMlProto3 {
      * This field MAY be absent in ths version of the IR.
      * </pre>
      *
-     * <code>string name = 3;</code>
+     * <code>string opName = 3;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -6010,7 +6010,7 @@ public final class OnnxMlProto3 {
        * This field MAY be absent in ths version of the IR.
        * </pre>
        *
-       * <code>string name = 3;</code>
+       * <code>string opName = 3;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -6030,7 +6030,7 @@ public final class OnnxMlProto3 {
        * This field MAY be absent in ths version of the IR.
        * </pre>
        *
-       * <code>string name = 3;</code>
+       * <code>string opName = 3;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -6051,7 +6051,7 @@ public final class OnnxMlProto3 {
        * This field MAY be absent in ths version of the IR.
        * </pre>
        *
-       * <code>string name = 3;</code>
+       * <code>string opName = 3;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -6069,7 +6069,7 @@ public final class OnnxMlProto3 {
        * This field MAY be absent in ths version of the IR.
        * </pre>
        *
-       * <code>string name = 3;</code>
+       * <code>string opName = 3;</code>
        */
       public Builder clearName() {
         
@@ -6083,7 +6083,7 @@ public final class OnnxMlProto3 {
        * This field MAY be absent in ths version of the IR.
        * </pre>
        *
-       * <code>string name = 3;</code>
+       * <code>string opName = 3;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -6850,7 +6850,7 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * The name of the framework or tool used to generate this model.
+     * The opName of the framework or tool used to generate this model.
      * This field SHOULD be present to indicate which implementation/tool/framework
      * emitted the model.
      * </pre>
@@ -6860,7 +6860,7 @@ public final class OnnxMlProto3 {
     java.lang.String getProducerName();
     /**
      * <pre>
-     * The name of the framework or tool used to generate this model.
+     * The opName of the framework or tool used to generate this model.
      * This field SHOULD be present to indicate which implementation/tool/framework
      * emitted the model.
      * </pre>
@@ -6894,10 +6894,10 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * Domain name of the model.
-     * We use reverse domain names as name space indicators. For example:
+     * Domain opName of the model.
+     * We use reverse domain names as opName space indicators. For example:
      * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-     * Together with `model_version` and GraphProto.name, this forms the unique identity of
+     * Together with `model_version` and GraphProto.opName, this forms the unique identity of
      * the graph.
      * </pre>
      *
@@ -6906,10 +6906,10 @@ public final class OnnxMlProto3 {
     java.lang.String getDomain();
     /**
      * <pre>
-     * Domain name of the model.
-     * We use reverse domain names as name space indicators. For example:
+     * Domain opName of the model.
+     * We use reverse domain names as opName space indicators. For example:
      * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-     * Together with `model_version` and GraphProto.name, this forms the unique identity of
+     * Together with `model_version` and GraphProto.opName, this forms the unique identity of
      * the graph.
      * </pre>
      *
@@ -7266,7 +7266,7 @@ public final class OnnxMlProto3 {
     private volatile java.lang.Object producerName_;
     /**
      * <pre>
-     * The name of the framework or tool used to generate this model.
+     * The opName of the framework or tool used to generate this model.
      * This field SHOULD be present to indicate which implementation/tool/framework
      * emitted the model.
      * </pre>
@@ -7287,7 +7287,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * The name of the framework or tool used to generate this model.
+     * The opName of the framework or tool used to generate this model.
      * This field SHOULD be present to indicate which implementation/tool/framework
      * emitted the model.
      * </pre>
@@ -7358,10 +7358,10 @@ public final class OnnxMlProto3 {
     private volatile java.lang.Object domain_;
     /**
      * <pre>
-     * Domain name of the model.
-     * We use reverse domain names as name space indicators. For example:
+     * Domain opName of the model.
+     * We use reverse domain names as opName space indicators. For example:
      * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-     * Together with `model_version` and GraphProto.name, this forms the unique identity of
+     * Together with `model_version` and GraphProto.opName, this forms the unique identity of
      * the graph.
      * </pre>
      *
@@ -7381,10 +7381,10 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Domain name of the model.
-     * We use reverse domain names as name space indicators. For example:
+     * Domain opName of the model.
+     * We use reverse domain names as opName space indicators. For example:
      * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-     * Together with `model_version` and GraphProto.name, this forms the unique identity of
+     * Together with `model_version` and GraphProto.opName, this forms the unique identity of
      * the graph.
      * </pre>
      *
@@ -8518,7 +8518,7 @@ public final class OnnxMlProto3 {
       private java.lang.Object producerName_ = "";
       /**
        * <pre>
-       * The name of the framework or tool used to generate this model.
+       * The opName of the framework or tool used to generate this model.
        * This field SHOULD be present to indicate which implementation/tool/framework
        * emitted the model.
        * </pre>
@@ -8539,7 +8539,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the framework or tool used to generate this model.
+       * The opName of the framework or tool used to generate this model.
        * This field SHOULD be present to indicate which implementation/tool/framework
        * emitted the model.
        * </pre>
@@ -8561,7 +8561,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the framework or tool used to generate this model.
+       * The opName of the framework or tool used to generate this model.
        * This field SHOULD be present to indicate which implementation/tool/framework
        * emitted the model.
        * </pre>
@@ -8580,7 +8580,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the framework or tool used to generate this model.
+       * The opName of the framework or tool used to generate this model.
        * This field SHOULD be present to indicate which implementation/tool/framework
        * emitted the model.
        * </pre>
@@ -8595,7 +8595,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the framework or tool used to generate this model.
+       * The opName of the framework or tool used to generate this model.
        * This field SHOULD be present to indicate which implementation/tool/framework
        * emitted the model.
        * </pre>
@@ -8716,10 +8716,10 @@ public final class OnnxMlProto3 {
       private java.lang.Object domain_ = "";
       /**
        * <pre>
-       * Domain name of the model.
-       * We use reverse domain names as name space indicators. For example:
+       * Domain opName of the model.
+       * We use reverse domain names as opName space indicators. For example:
        * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-       * Together with `model_version` and GraphProto.name, this forms the unique identity of
+       * Together with `model_version` and GraphProto.opName, this forms the unique identity of
        * the graph.
        * </pre>
        *
@@ -8739,10 +8739,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Domain name of the model.
-       * We use reverse domain names as name space indicators. For example:
+       * Domain opName of the model.
+       * We use reverse domain names as opName space indicators. For example:
        * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-       * Together with `model_version` and GraphProto.name, this forms the unique identity of
+       * Together with `model_version` and GraphProto.opName, this forms the unique identity of
        * the graph.
        * </pre>
        *
@@ -8763,10 +8763,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Domain name of the model.
-       * We use reverse domain names as name space indicators. For example:
+       * Domain opName of the model.
+       * We use reverse domain names as opName space indicators. For example:
        * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-       * Together with `model_version` and GraphProto.name, this forms the unique identity of
+       * Together with `model_version` and GraphProto.opName, this forms the unique identity of
        * the graph.
        * </pre>
        *
@@ -8784,10 +8784,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Domain name of the model.
-       * We use reverse domain names as name space indicators. For example:
+       * Domain opName of the model.
+       * We use reverse domain names as opName space indicators. For example:
        * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-       * Together with `model_version` and GraphProto.name, this forms the unique identity of
+       * Together with `model_version` and GraphProto.opName, this forms the unique identity of
        * the graph.
        * </pre>
        *
@@ -8801,10 +8801,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Domain name of the model.
-       * We use reverse domain names as name space indicators. For example:
+       * Domain opName of the model.
+       * We use reverse domain names as opName space indicators. For example:
        * `com.facebook.fair` or `com.microsoft.cognitiveservices`
-       * Together with `model_version` and GraphProto.name, this forms the unique identity of
+       * Together with `model_version` and GraphProto.opName, this forms the unique identity of
        * the graph.
        * </pre>
        *
@@ -10162,18 +10162,18 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * The name of the graph.
+     * The opName of the graph.
      * </pre>
      *
-     * <code>string name = 2;</code>
+     * <code>string opName = 2;</code>
      */
     java.lang.String getName();
     /**
      * <pre>
-     * The name of the graph.
+     * The opName of the graph.
      * </pre>
      *
-     * <code>string name = 2;</code>
+     * <code>string opName = 2;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
@@ -10182,7 +10182,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10197,7 +10197,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10211,7 +10211,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10225,7 +10225,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10240,7 +10240,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10340,7 +10340,7 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10350,7 +10350,7 @@ public final class OnnxMlProto3 {
         getValueInfoList();
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10359,7 +10359,7 @@ public final class OnnxMlProto3 {
     onnx.OnnxMlProto3.ValueInfoProto getValueInfo(int index);
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10368,7 +10368,7 @@ public final class OnnxMlProto3 {
     int getValueInfoCount();
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10378,7 +10378,7 @@ public final class OnnxMlProto3 {
         getValueInfoOrBuilderList();
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10594,10 +10594,10 @@ public final class OnnxMlProto3 {
     private volatile java.lang.Object name_;
     /**
      * <pre>
-     * The name of the graph.
+     * The opName of the graph.
      * </pre>
      *
-     * <code>string name = 2;</code>
+     * <code>string opName = 2;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -10613,10 +10613,10 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * The name of the graph.
+     * The opName of the graph.
      * </pre>
      *
-     * <code>string name = 2;</code>
+     * <code>string opName = 2;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -10638,7 +10638,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10654,7 +10654,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10671,7 +10671,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10687,7 +10687,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10703,7 +10703,7 @@ public final class OnnxMlProto3 {
      * <pre>
      * A list of named tensor values (constants), used to specify default
      * values for some of the inputs of the graph.
-     * Each TensorProto entry must have a distinct name (within the list) that
+     * Each TensorProto entry must have a distinct opName (within the list) that
      * also appears in the input list.
      * In an evaluation, the default value specified here is used if and only if
      * user specifies no value for the corresponding input parameter.
@@ -10853,7 +10853,7 @@ public final class OnnxMlProto3 {
     private java.util.List<onnx.OnnxMlProto3.ValueInfoProto> valueInfo_;
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10864,7 +10864,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10876,7 +10876,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10887,7 +10887,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -10898,7 +10898,7 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Information for the values in the graph. The ValueInfoProto.name's
+     * Information for the values in the graph. The ValueInfoProto.opName's
      * must be distinct. It is optional for a value to appear in value_info list.
      * </pre>
      *
@@ -11795,10 +11795,10 @@ public final class OnnxMlProto3 {
       private java.lang.Object name_ = "";
       /**
        * <pre>
-       * The name of the graph.
+       * The opName of the graph.
        * </pre>
        *
-       * <code>string name = 2;</code>
+       * <code>string opName = 2;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -11814,10 +11814,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the graph.
+       * The opName of the graph.
        * </pre>
        *
-       * <code>string name = 2;</code>
+       * <code>string opName = 2;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -11834,10 +11834,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the graph.
+       * The opName of the graph.
        * </pre>
        *
-       * <code>string name = 2;</code>
+       * <code>string opName = 2;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -11851,10 +11851,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the graph.
+       * The opName of the graph.
        * </pre>
        *
-       * <code>string name = 2;</code>
+       * <code>string opName = 2;</code>
        */
       public Builder clearName() {
         
@@ -11864,10 +11864,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * The name of the graph.
+       * The opName of the graph.
        * </pre>
        *
-       * <code>string name = 2;</code>
+       * <code>string opName = 2;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -11897,7 +11897,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -11917,7 +11917,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -11937,7 +11937,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -11957,7 +11957,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -11984,7 +11984,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12008,7 +12008,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12034,7 +12034,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12061,7 +12061,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12085,7 +12085,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12109,7 +12109,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12134,7 +12134,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12157,7 +12157,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12180,7 +12180,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12197,7 +12197,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12217,7 +12217,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12238,7 +12238,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12255,7 +12255,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12273,7 +12273,7 @@ public final class OnnxMlProto3 {
        * <pre>
        * A list of named tensor values (constants), used to specify default
        * values for some of the inputs of the graph.
-       * Each TensorProto entry must have a distinct name (within the list) that
+       * Each TensorProto entry must have a distinct opName (within the list) that
        * also appears in the input list.
        * In an evaluation, the default value specified here is used if and only if
        * user specifies no value for the corresponding input parameter.
@@ -12956,7 +12956,7 @@ public final class OnnxMlProto3 {
 
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -12971,7 +12971,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -12986,7 +12986,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13001,7 +13001,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13023,7 +13023,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13042,7 +13042,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13063,7 +13063,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13085,7 +13085,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13104,7 +13104,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13123,7 +13123,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13143,7 +13143,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13161,7 +13161,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13179,7 +13179,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13191,7 +13191,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13206,7 +13206,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13222,7 +13222,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13234,7 +13234,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13247,7 +13247,7 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Information for the values in the graph. The ValueInfoProto.name's
+       * Information for the values in the graph. The ValueInfoProto.opName's
        * must be distinct. It is optional for a value to appear in value_info list.
        * </pre>
        *
@@ -13526,18 +13526,18 @@ public final class OnnxMlProto3 {
 
     /**
      * <pre>
-     * Optionally, a name for the tensor.
+     * Optionally, a opName for the tensor.
      * </pre>
      *
-     * <code>string name = 8;</code>
+     * <code>string opName = 8;</code>
      */
     java.lang.String getName();
     /**
      * <pre>
-     * Optionally, a name for the tensor.
+     * Optionally, a opName for the tensor.
      * </pre>
      *
-     * <code>string name = 8;</code>
+     * <code>string opName = 8;</code>
      */
     com.google.protobuf.ByteString
         getNameBytes();
@@ -15018,10 +15018,10 @@ public final class OnnxMlProto3 {
     private volatile java.lang.Object name_;
     /**
      * <pre>
-     * Optionally, a name for the tensor.
+     * Optionally, a opName for the tensor.
      * </pre>
      *
-     * <code>string name = 8;</code>
+     * <code>string opName = 8;</code>
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
@@ -15037,10 +15037,10 @@ public final class OnnxMlProto3 {
     }
     /**
      * <pre>
-     * Optionally, a name for the tensor.
+     * Optionally, a opName for the tensor.
      * </pre>
      *
-     * <code>string name = 8;</code>
+     * <code>string opName = 8;</code>
      */
     public com.google.protobuf.ByteString
         getNameBytes() {
@@ -16633,10 +16633,10 @@ public final class OnnxMlProto3 {
       private java.lang.Object name_ = "";
       /**
        * <pre>
-       * Optionally, a name for the tensor.
+       * Optionally, a opName for the tensor.
        * </pre>
        *
-       * <code>string name = 8;</code>
+       * <code>string opName = 8;</code>
        */
       public java.lang.String getName() {
         java.lang.Object ref = name_;
@@ -16652,10 +16652,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Optionally, a name for the tensor.
+       * Optionally, a opName for the tensor.
        * </pre>
        *
-       * <code>string name = 8;</code>
+       * <code>string opName = 8;</code>
        */
       public com.google.protobuf.ByteString
           getNameBytes() {
@@ -16672,10 +16672,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Optionally, a name for the tensor.
+       * Optionally, a opName for the tensor.
        * </pre>
        *
-       * <code>string name = 8;</code>
+       * <code>string opName = 8;</code>
        */
       public Builder setName(
           java.lang.String value) {
@@ -16689,10 +16689,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Optionally, a name for the tensor.
+       * Optionally, a opName for the tensor.
        * </pre>
        *
-       * <code>string name = 8;</code>
+       * <code>string opName = 8;</code>
        */
       public Builder clearName() {
         
@@ -16702,10 +16702,10 @@ public final class OnnxMlProto3 {
       }
       /**
        * <pre>
-       * Optionally, a name for the tensor.
+       * Optionally, a opName for the tensor.
        * </pre>
        *
-       * <code>string name = 8;</code>
+       * <code>string opName = 8;</code>
        */
       public Builder setNameBytes(
           com.google.protobuf.ByteString value) {
@@ -19926,7 +19926,7 @@ public final class OnnxMlProto3 {
     /**
      * <pre>
      * Defines a union value  in its serialized format.
-     * The name is the discriminator from the union type.
+     * The opName is the discriminator from the union type.
      * </pre>
      *
      * Protobuf type {@code onnx.ValueProto.UnionProto}
@@ -20170,7 +20170,7 @@ public final class OnnxMlProto3 {
       /**
        * <pre>
        * Defines a union value  in its serialized format.
-       * The name is the discriminator from the union type.
+       * The opName is the discriminator from the union type.
        * </pre>
        *
        * Protobuf type {@code onnx.ValueProto.UnionProto}

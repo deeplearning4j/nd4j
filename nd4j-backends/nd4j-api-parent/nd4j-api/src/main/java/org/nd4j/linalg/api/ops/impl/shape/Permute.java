@@ -85,7 +85,7 @@ public class Permute extends ShapeOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "permute";
     }
 

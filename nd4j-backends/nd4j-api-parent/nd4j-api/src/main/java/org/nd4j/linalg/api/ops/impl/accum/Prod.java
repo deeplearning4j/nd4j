@@ -66,7 +66,7 @@ public class Prod extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "prod";
     }
 

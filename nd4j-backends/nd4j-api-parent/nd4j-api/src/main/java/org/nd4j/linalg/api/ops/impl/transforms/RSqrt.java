@@ -69,13 +69,13 @@ public class RSqrt extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "rsqrt";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
     }
 
     @Override

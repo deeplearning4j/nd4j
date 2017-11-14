@@ -109,7 +109,7 @@ public class Variance extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "var";
     }
 
@@ -162,7 +162,7 @@ public class Variance extends BaseAccumulation {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx name found for " + opName());
+        throw new NoOpNameFoundException("No onnx opName found for " + opName());
     }
 
     @Override

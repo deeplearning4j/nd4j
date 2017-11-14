@@ -81,13 +81,13 @@ public class Atan2Op extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "atan2";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No  onnx name found for " + opName());
+        throw new NoOpNameFoundException("No  onnx opName found for " + opName());
     }
 
     @Override

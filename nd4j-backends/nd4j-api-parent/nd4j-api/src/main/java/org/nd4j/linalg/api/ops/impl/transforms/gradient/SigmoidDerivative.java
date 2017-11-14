@@ -53,23 +53,23 @@ public class SigmoidDerivative extends BaseGradientOp  {
     }
 
     /**
-     * The name of this operation
+     * The opName of this operation
      *
-     * @return the name of this operation
+     * @return the opName of this operation
      */
     @Override
-    public String name() {
+    public String opName() {
         return "sigmoidderivative";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+        throw new NoOpNameFoundException("No tensorflow op opName found for " +  opName());
     }
 
     @Override

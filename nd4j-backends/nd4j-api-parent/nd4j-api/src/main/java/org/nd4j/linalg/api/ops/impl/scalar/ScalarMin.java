@@ -68,6 +68,12 @@ public class ScalarMin extends BaseScalarOp {
     }
 
 
+    @Override
+    public String opName() {
+        return "scalar_min";
+    }
+
+
 
     @Override
     public void init(INDArray x, INDArray y, INDArray z, long n) {

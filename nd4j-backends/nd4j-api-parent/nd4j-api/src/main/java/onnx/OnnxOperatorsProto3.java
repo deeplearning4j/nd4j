@@ -20,7 +20,7 @@ public final class OnnxOperatorsProto3 {
 
     /**
      * <pre>
-     * The name of the operator within a domain.
+     * The opName of the operator within a domain.
      * This field MUST be present in this version of the IR.
      * </pre>
      *
@@ -29,7 +29,7 @@ public final class OnnxOperatorsProto3 {
     java.lang.String getOpType();
     /**
      * <pre>
-     * The name of the operator within a domain.
+     * The opName of the operator within a domain.
      * This field MUST be present in this version of the IR.
      * </pre>
      *
@@ -106,13 +106,13 @@ public final class OnnxOperatorsProto3 {
    * An OperatorProto represents the immutable specification of the signature
    * and semantics of an operator.
    * Operators are declared as part of an OperatorSet, which also defines the
-   * domain name for the set.
+   * domain opName for the set.
    * Operators are uniquely identified by a three part identifier
    *   (domain, op_type, since_version)
    * where
    *   *domain* is the domain of an operator set that
    *      contains this operator specification.
-   *   *op_type* is the name of the operator as referenced by a
+   *   *op_type* is the opName of the operator as referenced by a
    *      NodeProto.op_type
    *   *since_version* is the version of the operator set that
    *      this operator was initially declared in.
@@ -308,7 +308,7 @@ public final class OnnxOperatorsProto3 {
     private volatile java.lang.Object opType_;
     /**
      * <pre>
-     * The name of the operator within a domain.
+     * The opName of the operator within a domain.
      * This field MUST be present in this version of the IR.
      * </pre>
      *
@@ -328,7 +328,7 @@ public final class OnnxOperatorsProto3 {
     }
     /**
      * <pre>
-     * The name of the operator within a domain.
+     * The opName of the operator within a domain.
      * This field MUST be present in this version of the IR.
      * </pre>
      *
@@ -620,13 +620,13 @@ public final class OnnxOperatorsProto3 {
      * An OperatorProto represents the immutable specification of the signature
      * and semantics of an operator.
      * Operators are declared as part of an OperatorSet, which also defines the
-     * domain name for the set.
+     * domain opName for the set.
      * Operators are uniquely identified by a three part identifier
      *   (domain, op_type, since_version)
      * where
      *   *domain* is the domain of an operator set that
      *      contains this operator specification.
-     *   *op_type* is the name of the operator as referenced by a
+     *   *op_type* is the opName of the operator as referenced by a
      *      NodeProto.op_type
      *   *since_version* is the version of the operator set that
      *      this operator was initially declared in.
@@ -785,7 +785,7 @@ public final class OnnxOperatorsProto3 {
       private java.lang.Object opType_ = "";
       /**
        * <pre>
-       * The name of the operator within a domain.
+       * The opName of the operator within a domain.
        * This field MUST be present in this version of the IR.
        * </pre>
        *
@@ -805,7 +805,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * The name of the operator within a domain.
+       * The opName of the operator within a domain.
        * This field MUST be present in this version of the IR.
        * </pre>
        *
@@ -826,7 +826,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * The name of the operator within a domain.
+       * The opName of the operator within a domain.
        * This field MUST be present in this version of the IR.
        * </pre>
        *
@@ -844,7 +844,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * The name of the operator within a domain.
+       * The opName of the operator within a domain.
        * This field MUST be present in this version of the IR.
        * </pre>
        *
@@ -858,7 +858,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * The name of the operator within a domain.
+       * The opName of the operator within a domain.
        * This field MUST be present in this version of the IR.
        * </pre>
        *
@@ -1246,7 +1246,7 @@ public final class OnnxOperatorsProto3 {
 
     /**
      * <pre>
-     * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+     * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
      * </pre>
      *
      * <code>string domain = 4;</code>
@@ -1254,7 +1254,7 @@ public final class OnnxOperatorsProto3 {
     java.lang.String getDomain();
     /**
      * <pre>
-     * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+     * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
      * </pre>
      *
      * <code>string domain = 4;</code>
@@ -1295,7 +1295,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1305,7 +1305,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1314,7 +1314,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1323,7 +1323,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1333,7 +1333,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1345,7 +1345,7 @@ public final class OnnxOperatorsProto3 {
    * <pre>
    * An OperatorSetProto represents an immutable set of immutable operator
    * specifications.
-   * The domain of the set (OperatorSetProto.domain) is a reverse-DNS name
+   * The domain of the set (OperatorSetProto.domain) is a reverse-DNS opName
    * that disambiguates operator sets defined by independent entities.
    * The version of the set (opset_version) is a monotonically increasing
    * integer that indicates changes to the membership of the operator set.
@@ -1631,7 +1631,7 @@ public final class OnnxOperatorsProto3 {
     private volatile java.lang.Object domain_;
     /**
      * <pre>
-     * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+     * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
      * </pre>
      *
      * <code>string domain = 4;</code>
@@ -1650,7 +1650,7 @@ public final class OnnxOperatorsProto3 {
     }
     /**
      * <pre>
-     * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+     * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
      * </pre>
      *
      * <code>string domain = 4;</code>
@@ -1732,7 +1732,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1743,7 +1743,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1755,7 +1755,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1766,7 +1766,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -1777,7 +1777,7 @@ public final class OnnxOperatorsProto3 {
     /**
      * <pre>
      * The operators specified by this operator set.
-     * The (name, version) MUST be unique across all OperatorProtos in operator
+     * The (opName, version) MUST be unique across all OperatorProtos in operator
      * </pre>
      *
      * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2004,7 +2004,7 @@ public final class OnnxOperatorsProto3 {
      * <pre>
      * An OperatorSetProto represents an immutable set of immutable operator
      * specifications.
-     * The domain of the set (OperatorSetProto.domain) is a reverse-DNS name
+     * The domain of the set (OperatorSetProto.domain) is a reverse-DNS opName
      * that disambiguates operator sets defined by independent entities.
      * The version of the set (opset_version) is a monotonically increasing
      * integer that indicates changes to the membership of the operator set.
@@ -2569,7 +2569,7 @@ public final class OnnxOperatorsProto3 {
       private java.lang.Object domain_ = "";
       /**
        * <pre>
-       * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+       * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
        * </pre>
        *
        * <code>string domain = 4;</code>
@@ -2588,7 +2588,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+       * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
        * </pre>
        *
        * <code>string domain = 4;</code>
@@ -2608,7 +2608,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+       * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
        * </pre>
        *
        * <code>string domain = 4;</code>
@@ -2625,7 +2625,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+       * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
        * </pre>
        *
        * <code>string domain = 4;</code>
@@ -2638,7 +2638,7 @@ public final class OnnxOperatorsProto3 {
       }
       /**
        * <pre>
-       * Domain name of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
+       * Domain opName of the operator set, in reverse DNS form (e.g., com.acme.dnnops).
        * </pre>
        *
        * <code>string domain = 4;</code>
@@ -2806,7 +2806,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2821,7 +2821,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2836,7 +2836,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2851,7 +2851,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2873,7 +2873,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2892,7 +2892,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2913,7 +2913,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2935,7 +2935,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2954,7 +2954,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2973,7 +2973,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -2993,7 +2993,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3011,7 +3011,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3029,7 +3029,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3041,7 +3041,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3056,7 +3056,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3072,7 +3072,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3084,7 +3084,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>
@@ -3097,7 +3097,7 @@ public final class OnnxOperatorsProto3 {
       /**
        * <pre>
        * The operators specified by this operator set.
-       * The (name, version) MUST be unique across all OperatorProtos in operator
+       * The (opName, version) MUST be unique across all OperatorProtos in operator
        * </pre>
        *
        * <code>repeated .onnx.OperatorProto operator = 8;</code>

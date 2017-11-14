@@ -93,12 +93,12 @@ public class Pooling3D extends DynamicCustomOp {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for op " + opName());
+        throw new NoOpNameFoundException("No onnx op opName found for op " + opName());
     }
 
     @Override
     public String tensorflowName() {
-      throw new NoOpNameFoundException("No op name found for op " + opName());
+      throw new NoOpNameFoundException("No op opName found for op " + opName());
     }
 
 }

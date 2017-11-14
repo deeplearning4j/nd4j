@@ -49,7 +49,7 @@ public class BroadcastGreaterThan extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcast_greaterthan";
     }
 

@@ -49,7 +49,7 @@ public class BroadcastNotEqual extends BaseBroadcastOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "broadcast_notequal";
     }
 

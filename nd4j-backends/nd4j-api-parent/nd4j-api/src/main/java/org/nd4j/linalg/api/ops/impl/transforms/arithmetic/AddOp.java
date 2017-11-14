@@ -69,7 +69,7 @@ public class AddOp extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "add";
     }
 

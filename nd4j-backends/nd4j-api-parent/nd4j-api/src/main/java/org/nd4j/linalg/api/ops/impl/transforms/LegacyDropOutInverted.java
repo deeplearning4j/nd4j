@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Inverted DropOut implementation as Op
  *
- * PLEASE NOTE: This is legacy DropOutInverted implementation, please consider using op with the same name from randomOps
+ * PLEASE NOTE: This is legacy DropOutInverted implementation, please consider using op with the same opName from randomOps
  * @author raver119@gmail.com
  */
 public class LegacyDropOutInverted extends BaseTransformOp {
@@ -61,18 +61,18 @@ public class LegacyDropOutInverted extends BaseTransformOp {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "legacy_dropout_inverted";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op name found for " +  opName());
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
     }
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " +  opName());
+        throw new NoOpNameFoundException("No tensorflow op opName found for " +  opName());
     }
 
     @Override

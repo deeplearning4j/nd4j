@@ -73,7 +73,7 @@ public class Sum extends BaseAccumulation {
     }
 
     @Override
-    public String name() {
+    public String opName() {
         return "sum";
     }
 

@@ -80,7 +80,7 @@ public class LogSoftMax extends BaseTransformOp {
 
 
     @Override
-    public String name() {
+    public String opName() {
         return "logsoftmax";
     }
 

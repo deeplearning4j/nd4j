@@ -90,7 +90,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
         Set<String> skipList = new HashSet<>();
         val tfNodesList = tfGraph.getNodeList();
         for (NodeDef tfNode : tfNodesList) {
-            log.debug("Node name: {}; Op: {};", tfNode.getName(), tfNode.getOp());
+            log.debug("Node opName: {}; Op: {};", tfNode.getName(), tfNode.getOp());
 
             if (tfNode.getOp().equalsIgnoreCase("enter")) {
                 continue;
@@ -613,7 +613,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
         }
 
         if (!variable.isPlaceholder())
-            log.debug("Variable: id: {}; name: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
+            log.debug("Variable: id: {}; opName: {}; shape: {}", variable.getId(), variable.getName(), Arrays.toString(variable.getShape()));
         else
             log.debug("Placeholder shape: {}", Arrays.toString(variable.getShape()));
 
