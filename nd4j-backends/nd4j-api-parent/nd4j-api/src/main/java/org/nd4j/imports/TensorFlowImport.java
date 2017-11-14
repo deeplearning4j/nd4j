@@ -125,11 +125,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
 
                 int[] arrayShape = null;
 
-                if (attributes.containsKey("dtype")) {
-                    AttrValue dtype = attributes.get("dtype");
 
-                    dtype.getList();
-                }
 
                 if (attributes.containsKey("shape")) {
                     AttrValue shape = attributes.get("shape");
@@ -167,37 +163,6 @@ public class TensorFlowImport implements SameDiffProtoConverter {
 
                 diff.addVariable(variable);
                 graph.addVertex(vertex);
-            } else {
-                // operation node
-
-                /*
-
-                   SDVariable varInformation = SDVariable.builder()
-                        .varName(tfNode.getName())
-                NDArrayInformation varInformation = NDArrayInformation.builder()
-                        .id(tfNode.getName())
-                        .build();
-
-                NDArrayVertex vertex = new NDArrayVertex(diff,++nodesCnt, 0,varInformation);
-                graph.addVertex(vertex);
-
-                OpState opState = getOpStateFromNodeDef(tfNode, tfNode.getInputCount());
-                opState.setResults(new SDVariable[]{varInformation});
-
-                reverseVertexMap.put(tfNode.getName(), nodesCnt);
-
-
-                for (int e = 0; e < tfNode.getInputCount(); e++) {
-                    String input = tfNode.getInput(e);
-
-                    Integer id = reverseVertexMap.get(input);
-
-                    if (id == null)
-                        throw new ND4JIllegalStateException("Unknown input: [" + input + "]");
-
-                    graph.addEdge(new int[]{id}, new int[]{nodesCnt}, opState, true);
-                }
-                */
             }
         }
         return diff;
@@ -891,7 +856,7 @@ public class TensorFlowImport implements SameDiffProtoConverter {
             throw new UnsupportedOperationException("Unknown dataType found: [" + tfTensor.getDtype() + "]");
         }
 
-        throw new RuntimeException("Wtf?");
+        throw new ND4JIllegalStateException("Invalid method state");
     }
 
     @Override
