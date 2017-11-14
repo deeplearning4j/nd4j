@@ -192,6 +192,11 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
     }
 
     @Override
+    public void setFinalResult(double value) {
+        this.finalResult = value;
+    }
+
+    @Override
     public Number getFinalResult() {
         return finalResult;
     }

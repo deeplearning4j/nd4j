@@ -68,6 +68,10 @@ public interface Accumulation extends Op {
      */
     Number getFinalResult();
 
+    /** Get the final result (may return null if getAndSetFinalResult has not
+     * been called, or for accumulation ops on complex arrays)
+     */
+    void setFinalResult(double value);
 
 
     /**Initial value (used to initialize the accumulation op)
