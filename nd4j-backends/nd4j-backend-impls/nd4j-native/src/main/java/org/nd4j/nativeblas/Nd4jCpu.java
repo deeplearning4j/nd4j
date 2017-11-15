@@ -7876,15 +7876,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public FloatStash() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            //void storeArray(nd4j::graph::Block<T>& block, const char *opName, nd4j::NDArray<T> *array);
+            //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
             public native void storeArray(int nodeId, @Cast("char*") String name, FloatNDArray array);
             public native void storeArray(int nodeId, @Cast("char*") BytePointer name, FloatNDArray array);
 
-            //bool checkStash(nd4j::graph::Block<T>& block, const char *opName);
+            //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
-            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *opName);
+            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
             public native FloatNDArray extractArray(int nodeId, @Cast("char*") String name);
             public native FloatNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
@@ -7905,15 +7905,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public HalfStash() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            //void storeArray(nd4j::graph::Block<T>& block, const char *opName, nd4j::NDArray<T> *array);
+            //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
             public native void storeArray(int nodeId, @Cast("char*") String name, HalfNDArray array);
             public native void storeArray(int nodeId, @Cast("char*") BytePointer name, HalfNDArray array);
 
-            //bool checkStash(nd4j::graph::Block<T>& block, const char *opName);
+            //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
-            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *opName);
+            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
             public native HalfNDArray extractArray(int nodeId, @Cast("char*") String name);
             public native HalfNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
@@ -7934,15 +7934,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             public DoubleStash() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            //void storeArray(nd4j::graph::Block<T>& block, const char *opName, nd4j::NDArray<T> *array);
+            //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
             public native void storeArray(int nodeId, @Cast("char*") String name, DoubleNDArray array);
             public native void storeArray(int nodeId, @Cast("char*") BytePointer name, DoubleNDArray array);
 
-            //bool checkStash(nd4j::graph::Block<T>& block, const char *opName);
+            //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
             public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
-            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *opName);
+            //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
             public native DoubleNDArray extractArray(int nodeId, @Cast("char*") String name);
             public native DoubleNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
@@ -11387,7 +11387,7 @@ public static final int PREALLOC_SIZE = 33554432;
 /*
  * This set of macros is used to generate kernel calls/method calls/cuda kernels on the fly, during precompile phase.
  *
- * Entry macros start with DISPATCH_* opName.
+ * Entry macros start with DISPATCH_* name.
  * Basically they are rolling through *_OPS list, building list of kernels.
  * And DISPATCH_KERNEL_META rolls through any two *_OPS list, building meta kernels and their host counterparts
  *
@@ -12506,41 +12506,41 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 // #define DECLARE_SYN(NAME, ORIGINAL)
 // template <typename OpName>
 // struct __registratorSynonymFloat_##NAME {
-//     __registratorSynonymFloat_##NAME(const char *opName, const char *oname) {
+//     __registratorSynonymFloat_##NAME(const char *name, const char *oname) {
 //         OpName *ptr = (OpName *) OpRegistrator::getInstance()->getOperationFloat(oname);
 //         if (ptr == nullptr) {
-//             std::string newName(opName);
+//             std::string newName(name);
 //             std::string oldName(oname);
 //             OpRegistrator::getInstance()->updateMSVC(nd4j::ops::HashHelper::getInstance()->getLongHash(newName), oldName);
 //             return;
 //         }
-//         OpRegistrator::getInstance()->registerOperationFloat(opName, ptr);
+//         OpRegistrator::getInstance()->registerOperationFloat(name, ptr);
 //     }
 // };
 // template <typename OpName>
 // struct __registratorSynonymHalf_##NAME {
-//     __registratorSynonymHalf_##NAME(const char *opName, const char *oname) {
+//     __registratorSynonymHalf_##NAME(const char *name, const char *oname) {
 //         OpName *ptr = (OpName *) OpRegistrator::getInstance()->getOperationHalf(oname);
 //         if (ptr == nullptr) {
-//             std::string newName(opName);
+//             std::string newName(name);
 //             std::string oldName(oname);
 //             OpRegistrator::getInstance()->updateMSVC(nd4j::ops::HashHelper::getInstance()->getLongHash(newName), oldName);
 //             return;
 //         }
-//         OpRegistrator::getInstance()->registerOperationHalf(opName, ptr);
+//         OpRegistrator::getInstance()->registerOperationHalf(name, ptr);
 //     }
 // };
 // template <typename OpName>
 // struct __registratorSynonymDouble_##NAME {
-//     __registratorSynonymDouble_##NAME(const char *opName, const char *oname) {
+//     __registratorSynonymDouble_##NAME(const char *name, const char *oname) {
 //         OpName *ptr = (OpName *) OpRegistrator::getInstance()->getOperationDouble(oname);
 //         if (ptr == nullptr) {
-//             std::string newName(opName);
+//             std::string newName(name);
 //             std::string oldName(oname);
 //             OpRegistrator::getInstance()->updateMSVC(nd4j::ops::HashHelper::getInstance()->getLongHash(newName), oldName);
 //             return;
 //         }
-//         OpRegistrator::getInstance()->registerOperationDouble(opName, ptr);
+//         OpRegistrator::getInstance()->registerOperationDouble(name, ptr);
 //     }
 // };
 //                                         static nd4j::ops::__registratorSynonymFloat_##NAME<ORIGINAL<float>> zzz_register_opf_##NAME(#NAME, #ORIGINAL);
@@ -13502,7 +13502,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 
 
             /**
-            * This method returns registered Op by opName
+            * This method returns registered Op by name
             *
             * @param name
             * @return

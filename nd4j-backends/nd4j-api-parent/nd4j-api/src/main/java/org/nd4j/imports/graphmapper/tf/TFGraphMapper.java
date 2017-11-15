@@ -1,21 +1,32 @@
 package org.nd4j.imports.graphmapper.tf;
 
 import com.google.common.primitives.Ints;
+import com.google.protobuf.Message;
 import lombok.val;
+import org.nd4j.graph.intermediate.TGraph;
+import org.nd4j.graph.intermediate.TOp;
+import org.nd4j.imports.converters.TensorFlowMapper;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.*;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.util.*;
 
 /**
- * 
+ * Map tensorflow graph protos
+ * to the intermediate representation
+ * for samediff.
+ *
+ * @author Adam Gibson
  */
-public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue> {
+public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,TensorProto> {
     private Set<String> seenNodes = new HashSet<>();
     public final static String VALUE_ATTR_KEY = "value";
     public final static String DATA_TYPE_KEY = "dtype";
@@ -39,11 +50,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue> {
 
     @Override
     public int[] getShapeFromAttr(AttrValue attr) {
-        int[] shape = new int[attr.getShape().getDimList().size()];
-        for(int i = 0; i < shape.length; i++) {
-            shape[i] = (int) attr.getShape().getDim(i).getSize();
-        }
-        return shape;
+        return shapeFromShapeProto(attr.getShape());
     }
 
     @Override
@@ -77,12 +84,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue> {
 
     @Override
     public boolean hasShape(NodeDef nodeDef) {
-        return false;
+        return nodeDef.containsAttr(shapeKey());
     }
 
     @Override
     public int[] getShape(NodeDef nodeDef) {
-        return new int[0];
+        return getShapeFromAttr(nodeDef.getAttrOrThrow(shapeKey()));
     }
 
     @Override
@@ -91,12 +98,65 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue> {
     }
 
     @Override
+    public String getOpType(NodeDef nodeDef) {
+        return nodeDef.getOp();
+    }
+
+    @Override
     public List<NodeDef> getNodeList(GraphDef graphDef) {
         return graphDef.getNodeList();
     }
 
 
-    protected  INDArray getNDArrayFromTensor(TensorProto tfTensor) {
+    @Override
+    public Message.Builder getNewGraphBuilder() {
+        return GraphDef.newBuilder();
+    }
+
+    @Override
+    public GraphDef parseGraphFrom(InputStream inputStream) throws IOException {
+        return GraphDef.parseFrom(inputStream);
+    }
+
+    @Override
+    public DataBuffer.Type dataTypeForTensor(TensorProto tensorProto) {
+        switch(tensorProto.getDtype()) {
+            case DT_DOUBLE: return DataBuffer.Type.DOUBLE;
+            case DT_INT32:
+            case DT_INT64: return DataBuffer.Type.INT;
+            case DT_FLOAT: return DataBuffer.Type.FLOAT;
+            case DT_BFLOAT16: return DataBuffer.Type.HALF;
+            default: throw new ND4JIllegalStateException("Unknown type " + tensorProto.getDtype());
+        }
+    }
+
+    @Override
+    public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph) {
+        return TensorFlowMapper.getInstance().asIntermediate(nodeDef, intermediateGraph);
+    }
+
+    @Override
+    public String getAttrValueFromNode(NodeDef nodeDef, String key) {
+        return nodeDef.getAttrOrThrow(key).getS().toStringUtf8();
+    }
+
+    @Override
+    public int[] getShapeFromAttribute(AttrValue attrValue) {
+        TensorShapeProto shape = attrValue.getShape();
+        int[] ret = new int[shape.getDimCount()];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = (int) shape.getDim(i).getSize();
+        }
+        return ret;
+    }
+
+    @Override
+    public boolean isPlaceHolder(NodeDef nodeDef) {
+        return nodeDef.getOp().startsWith("Placeholder");
+    }
+
+    @Override
+    public  INDArray getNDArrayFromTensor(TensorProto tfTensor) {
         int[] arrayShape = null;
         List<Integer> dimensions = new ArrayList<>();
 
@@ -249,6 +309,36 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue> {
         }
 
         throw new ND4JIllegalStateException("Invalid method state");
+    }
+
+    @Override
+    public int[] getShapeFromTensor(TensorProto tensorProto) {
+        return shapeFromShapeProto(tensorProto.getTensorShape());
+    }
+
+    @Override
+    public TensorProto getTensorFrom(AttrValue attrValue) {
+        TensorProto tensor = attrValue.getTensor();
+        return tensor;
+    }
+
+    @Override
+    public String getInputFromNode(NodeDef node, int index) {
+        return node.getInput(index);
+    }
+
+    @Override
+    public int numInputsFor(NodeDef nodeDef) {
+        return nodeDef.getInputCount();
+    }
+
+    private int[] shapeFromShapeProto(TensorShapeProto tensorShapeProto) {
+        int[] shape = new int[tensorShapeProto.getDimList().size()];
+        for(int i = 0; i < shape.length; i++) {
+            shape[i] = (int) tensorShapeProto.getDim(i).getSize();
+        }
+
+        return shape;
     }
 
 }
