@@ -35,6 +35,8 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      GRAPH_TYPE parseGraphFrom(InputStream inputStream) throws IOException;
 
 
+    void mapNodeType(NODE_TYPE tfNode, ImportState<GRAPH_TYPE> importState);
+
     /**
      * Map the graph type to an intermediate graph representation
      * {@link TGraph}

@@ -3,10 +3,12 @@ package org.nd4j.imports.graphmapper.tf;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.val;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.imports.converters.TensorFlowMapper;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
+import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
@@ -116,6 +118,43 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
     @Override
     public GraphDef parseGraphFrom(InputStream inputStream) throws IOException {
         return GraphDef.parseFrom(inputStream);
+    }
+
+    @Override
+    public void mapNodeType(NodeDef tfNode, ImportState<GraphDef> importState) {
+        //log.debug("Node opName: {}; Op: {};", getName(tfNode), getOpType(tfNode));
+
+        if (shouldSkip(tfNode) || alreadySeen(tfNode)) {
+            return;
+        }
+
+
+        SameDiff diff = importState.getSameDiff();
+
+        if (isVariableNode(tfNode)) {
+            List<Integer> dimensions = new ArrayList<>();
+            Map<String, AttrValue> attributes = getAttrMap(tfNode);
+            if (attributes.containsKey(valueKey())) {
+                diff.var(getName(tfNode),getArrayFrom(tfNode));
+            }
+            else if (attributes.containsKey(shapeKey())) {
+                AttrValue shape = attributes.get(shapeKey());
+                int[] shapeArr = getShapeFromAttr(shape);
+                int dims = shapeArr.length;
+                if (dims > 0) {
+                    // even vector is 2d in nd4j
+                    if (dims == 1)
+                        dimensions.add(1);
+
+                    for (int e = 0; e < dims; e++) {
+                        // TODO: eventually we want long shapes :(
+                        dimensions.add(getShapeFromAttr(shape)[e]);
+                    }
+                }
+
+
+            }
+        }
     }
 
     @Override
