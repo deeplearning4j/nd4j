@@ -16,7 +16,7 @@ import java.io.*;
  * @author raver119@gmail.com
  */
 @Slf4j
-public class TensorFlowImport implements SameDiffProtoConverter {
+public class TensorFlowImport {
 
     /**
      *
@@ -70,9 +70,4 @@ public class TensorFlowImport implements SameDiffProtoConverter {
         return new TFGraphMapper().importIntermediate(def);
     }
 
-
-    @Override
-    public SameDiff importProto(File file) {
-        return importGraph(file);
-    }
 }

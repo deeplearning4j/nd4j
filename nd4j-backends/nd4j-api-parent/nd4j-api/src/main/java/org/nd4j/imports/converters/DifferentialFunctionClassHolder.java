@@ -3,6 +3,7 @@ package org.nd4j.imports.converters;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -19,7 +20,21 @@ import java.util.Set;
 public class DifferentialFunctionClassHolder {
     private Map<String, DifferentialFunction> nodeConverters = new HashMap<>();
     private static DifferentialFunctionClassHolder INSTANCE = new DifferentialFunctionClassHolder();
+    private Map<String,DifferentialFunction> tensorFlowNames = new HashMap<>();
+    private Map<String,DifferentialFunction> onnxNames = new HashMap<>();
 
+    /**
+     * Get the
+     * @param tensorflowName
+     * @return
+     */
+    public DifferentialFunction getOpWithTensorflowName(String tensorflowName) {
+        return onnxNames.get(tensorflowName);
+    }
+
+    public DifferentialFunction getOpWithOnnxName(String onnxName) {
+        return onnxNames.get(onnxName);
+    }
 
     private DifferentialFunctionClassHolder() {
         Reflections f = new Reflections(new ConfigurationBuilder().filterInputsBy(
@@ -43,6 +58,17 @@ public class DifferentialFunctionClassHolder {
                 } else {
                     log.info("Adding converter for [" + name + "]");
                     nodeConverters.put(name, node);
+                    try {
+                        tensorFlowNames.put(node.tensorflowName(),node);
+                    }catch (NoOpNameFoundException e) {
+                        log.trace("Skipping op " + name + " for tensorflow.");
+                    }
+
+                    try {
+                        onnxNames.put(node.onnxName(),node);
+                    }catch (NoOpNameFoundException e) {
+                        log.trace("Skipping op " + name + " for onnx.");
+                    }
                 }
             } catch (Exception e) {
                 log.trace("Skipping function  " + clazz);

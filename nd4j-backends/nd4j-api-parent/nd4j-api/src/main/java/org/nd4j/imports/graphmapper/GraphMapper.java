@@ -6,6 +6,7 @@ import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.Op;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,18 @@ import java.util.Map;
  */
 public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
 
+
+    /**
+     * Returns an op type for the given input node
+     * @param nodeType the node to use
+     * @return the optype for the given node
+     */
+    Op.Type opTypeForNode(NODE_TYPE nodeType);
+
+    /**
+     * Returns a graph builder for initial definition and parsing.
+     * @return
+     */
     Message.Builder getNewGraphBuilder();
 
     /**

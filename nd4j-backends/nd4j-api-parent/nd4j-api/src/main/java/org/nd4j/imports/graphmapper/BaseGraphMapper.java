@@ -26,9 +26,6 @@ import java.util.*;
  */
 @Slf4j
 public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> implements GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
-
-
-
     /**
      *
      * @param graphFile

@@ -3,14 +3,17 @@ package org.nd4j.imports.graphmapper.tf;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.val;
+import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
-import org.nd4j.imports.converters.TensorFlowMapper;
+import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.DefaultOpConverter;
+import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -111,6 +114,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
 
 
     @Override
+    public Op.Type opTypeForNode(NodeDef nodeDef) {
+        return DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(nodeDef.getOp()).opType();
+
+    }
+
+    @Override
     public Message.Builder getNewGraphBuilder() {
         return GraphDef.newBuilder();
     }
@@ -171,7 +180,11 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
 
     @Override
     public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph) {
-        return TensorFlowMapper.getInstance().asIntermediate(nodeDef, intermediateGraph);
+        // first we try to use special converters
+        DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(nodeDef.getOp().toLowerCase());
+        if(converter == null)
+            converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
+        return converter.asIntermediateRepresentation(nodeDef, intermediateGraph);
     }
 
     @Override
