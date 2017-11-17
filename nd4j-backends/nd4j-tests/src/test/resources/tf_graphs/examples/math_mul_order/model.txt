@@ -250,21 +250,9 @@ node {
   }
 }
 node {
-  name: "add1"
-  op: "Add"
-  input: "input_0"
-  input: "input_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "matmul2"
+  name: "output"
   op: "MatMul"
-  input: "add1"
+  input: "input_0"
   input: "input_1"
   attr {
     key: "T"
@@ -282,17 +270,6 @@ node {
     key: "transpose_b"
     value {
       b: false
-    }
-  }
-}
-node {
-  name: "output"
-  op: "Rsqrt"
-  input: "matmul2"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
     }
   }
 }
