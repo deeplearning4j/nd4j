@@ -35,7 +35,7 @@ import org.tensorflow.framework.NodeDef;
  ]
 
 
- 
+
  */
 public class Gather extends DynamicCustomOp {
     @Override
