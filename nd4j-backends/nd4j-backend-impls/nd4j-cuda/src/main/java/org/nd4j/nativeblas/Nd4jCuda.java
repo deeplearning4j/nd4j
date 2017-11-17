@@ -61,7 +61,7 @@ bool verbose = false;
 */
 
 // #include <array/ShapeList.h>
-
+// #include <cblas.h>
 
 public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
     static { Loader.load(); }
@@ -2948,6 +2948,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
      */
     public native void initializeDevicesAndFunctions();
 
+    public native void initializeDevicesAndFunctions(Pointer cblasSgemm, Pointer cblasDgemm, Pointer cblasSgemmBatch, Pointer cblasDgemmBatch);
 
     /**
      * This method acquires memory chunk of requested size on host side

@@ -29,7 +29,8 @@ public class NativeOpsHolder {
             Class<? extends NativeOps> nativeOpsClazz = Class.forName(name).asSubclass(NativeOps.class);
             deviceNativeOps = nativeOpsClazz.newInstance();
 
-            deviceNativeOps.initializeDevicesAndFunctions();
+            deviceNativeOps.initializeDevicesAndFunctions(Loader.addressof("cblas_sgemm"),
+                            Loader.addressof("cblas_dgemm"), Loader.addressof("cblas_sgemm_batch"), Loader.addressof("cblas_dgemm_batch"));
             int numThreads;
             String numThreadsString = System.getenv("OMP_NUM_THREADS");
             if (numThreadsString != null && !numThreadsString.isEmpty()) {
