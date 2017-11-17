@@ -161,7 +161,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
     @Override
     public Type opType() {
-        if(args().length == 1)
+        if(args() == null || args().length == 1)
             return Type.TRANSFORM;
         else if(args().length == 2)
             return Type.PAIRWISE;

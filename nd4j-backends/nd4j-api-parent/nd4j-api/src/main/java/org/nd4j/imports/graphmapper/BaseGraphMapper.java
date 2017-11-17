@@ -71,10 +71,17 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
     @Override
     public SameDiff importGraph(GRAPH_TYPE tfGraph) {
         SameDiff diff = SameDiff.create();
-        ImportState<GRAPH_TYPE> importState = new ImportState<>();
+        ImportState<GRAPH_TYPE,TENSOR_TYPE> importState = new ImportState<>();
         importState.setNodeCount(0);
         importState.setSameDiff(diff);
         importState.setGraph(tfGraph);
+        Map<String, TENSOR_TYPE> variablesForGraph = variablesForGraph(tfGraph);
+        importState.setVariables(variablesForGraph);
+        for(Map.Entry<String,TENSOR_TYPE> entry : variablesForGraph.entrySet()) {
+            importState.getSameDiff().var(entry.getKey(),getNDArrayFromTensor(entry.getValue()));
+
+        }
+
         val tfNodesList = getNodeList(tfGraph);
         for (NODE_TYPE tfNode : tfNodesList) {
             mapNodeType(tfNode,importState);
@@ -423,7 +430,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
                     diff.var(getName(tfNode),array);
                 }
 
-              else  if (attributes.containsKey(shapeKey())) {
+                else  if (attributes.containsKey(shapeKey())) {
                     ATTR_TYPE shape = attributes.get(shapeKey());
                     int[] shapeArr = getShapeFromAttr(shape);
                     diff.var(getName(tfNode),shapeArr);

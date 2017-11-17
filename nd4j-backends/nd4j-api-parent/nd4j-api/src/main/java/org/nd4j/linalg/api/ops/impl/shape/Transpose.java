@@ -90,7 +90,7 @@ public class Transpose extends ShapeOp {
 
     @Override
     public String onnxName() {
-        return "transpose";
+        return "Transpose";
     }
 
     @Override

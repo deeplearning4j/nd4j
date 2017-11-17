@@ -26,6 +26,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -277,9 +278,15 @@ public class TensorMmul extends BaseAccumulation {
         return result;
     }
 
+
+    @Override
+    public Op.Type opType() {
+        return Type.REDUCE;
+    }
+
     @Override
     public String onnxName() {
-        return "MatMul";
+        return "Gemm";
     }
 
     @Override

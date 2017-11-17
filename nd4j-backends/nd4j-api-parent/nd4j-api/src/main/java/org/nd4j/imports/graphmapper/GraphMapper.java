@@ -28,6 +28,13 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
 
 
     /**
+     * Get the variables for the given graph
+     * @param graphType the graph to get the variables for
+     * @return a map of variable name to tensor
+     */
+    Map<String,TENSOR_TYPE> variablesForGraph(GRAPH_TYPE graphType);
+
+    /**
      * Returns an op type for the given input node
      * @param nodeType the node to use
      * @return the optype for the given node
@@ -48,7 +55,13 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      GRAPH_TYPE parseGraphFrom(InputStream inputStream) throws IOException;
 
 
-    void mapNodeType(NODE_TYPE tfNode, ImportState<GRAPH_TYPE> importState);
+    /**
+     * Map a node in to the import state covering
+     * the {@link SameDiff} instance
+     * @param tfNode the node to map
+     * @param importState the current import state
+     */
+    void mapNodeType(NODE_TYPE tfNode, ImportState<GRAPH_TYPE,TENSOR_TYPE> importState);
 
     /**
      * Map the graph type to an intermediate graph representation

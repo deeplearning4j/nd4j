@@ -7,6 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
@@ -114,8 +115,23 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
 
 
     @Override
+    public Map<String, TensorProto> variablesForGraph(GraphDef graphDef) {
+        Map<String,TensorProto> ret = new HashMap<>();
+        for(NodeDef nodeDef : graphDef.getNodeList()) {
+            if(isVariableNode(nodeDef)) {
+               ret.put(nodeDef.getName(),getAttrMap(nodeDef).get(VALUE_ATTR_KEY).getTensor());
+            }
+        }
+        return ret;
+    }
+
+    @Override
     public Op.Type opTypeForNode(NodeDef nodeDef) {
-        return DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(nodeDef.getOp()).opType();
+        DifferentialFunction opWithTensorflowName = DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(nodeDef.getOp());
+        if(opWithTensorflowName == null)
+            throw new NoOpNameFoundException("No op found with name " + nodeDef.getOp());
+        Op.Type type = opWithTensorflowName.opType();
+        return type;
 
     }
 
@@ -129,8 +145,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         return GraphDef.parseFrom(inputStream);
     }
 
+
+
     @Override
-    public void mapNodeType(NodeDef tfNode, ImportState<GraphDef> importState) {
+    public void mapNodeType(NodeDef tfNode, ImportState<GraphDef,TensorProto> importState) {
         //log.debug("Node opName: {}; Op: {};", getName(tfNode), getOpType(tfNode));
 
         if (shouldSkip(tfNode) || alreadySeen(tfNode)) {
@@ -280,11 +298,9 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
                 }
 
                 // FIXME: we're missing float[] signature
-                INDArray array = Nd4j.create(ArrayUtil.toDoubles(jArray), arrayShape, 0, 'c');
+                INDArray array = Nd4j.create(Nd4j.createBuffer(jArray), arrayShape,  'c');
                 return array;
             } else if (tfTensor.getTensorContent().size() > 0){
-
-                long length = ArrayUtil.prodLong(arrayShape);
                 // binary representation
                 val bb = tfTensor.getTensorContent().asReadOnlyByteBuffer();
                 val fb = bb.order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -293,18 +309,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
                     fa[e] = fb.get(e);
 
                 val array = Nd4j.create(fa, arrayShape, 'c', 0);
-                //log.debug("SUM1: {}", array.sumNumber());
-                //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
                 return array;
             }
         } else if (tfTensor.getDtype() == DataType.DT_DOUBLE) {
             if (tfTensor.getDoubleValCount() == 1) {
                 double val = tfTensor.getDoubleVal(0);
-
-                if (arrayShape == null || arrayShape.length == 0)
-                    arrayShape = new int[]{1, 1};
-
-                INDArray array = Nd4j.valueArrayOf(arrayShape, val);
+                INDArray array = Nd4j.scalar(val);
                 return array;
             } else if (tfTensor.getDoubleValCount() > 0) {
                 double[] jArray = new double[tfTensor.getDoubleValCount()];
@@ -316,7 +326,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
                 INDArray array = Nd4j.create(jArray, arrayShape, 0, 'c');
                 return array;
             } else if (tfTensor.getTensorContent().size() > 0) {
-                long length = ArrayUtil.prodLong(arrayShape);
                 // binary representation
                 //DataBuffer buffer = Nd4j.createBuffer(tfTensor.getTensorContent().asReadOnlyByteBuffer(), DataBuffer.Type.FLOAT, (int) length);
                 //INDArray array = Nd4j.createArrayFromShapeBuffer(buffer, Nd4j.getShapeInfoProvider().createShapeInformation(arrayShape, 'c'));
@@ -329,19 +338,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
                     da[e] = fb.get(e);
 
                 val array = Nd4j.create(da, arrayShape, 0, 'c');
-                //log.debug("SUM1: {}", array.sumNumber());
-                //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
-
                 return array;
             }
         } else if (tfTensor.getDtype() == DataType.DT_INT64) {
             if (tfTensor.getInt64ValCount() == 1) {
                 double val = (double) tfTensor.getInt64Val(0);
-
-                if (arrayShape == null || arrayShape.length == 0)
-                    arrayShape = new int[]{1, 1};
-
-                INDArray array = Nd4j.valueArrayOf(arrayShape, val);
+                INDArray array = Nd4j.scalar(val);
                 return array;
             } else if (tfTensor.getInt64ValCount() > 0)  {
                 double[] jArray = new double[tfTensor.getInt64ValCount()];

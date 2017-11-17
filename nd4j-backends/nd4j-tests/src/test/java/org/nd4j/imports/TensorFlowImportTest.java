@@ -10,7 +10,6 @@ import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.graph.intermediate.TIndex;
-import org.nd4j.imports.converters.TensorFlowMapper;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
@@ -382,11 +381,6 @@ public class TensorFlowImportTest {
         }
     }
 
-    @Test
-    public void testIntermediateHelper() throws Exception {
-        assertTrue(TensorFlowMapper.getInstance().knownOps().size() > 0);
-        assertTrue(TensorFlowMapper.getInstance().knownOps().contains("lrn"));
-    }
 
     @Test
     public void testIntermediateReduction() throws Exception {
