@@ -1188,7 +1188,7 @@ public abstract class NativeOps extends Pointer {
      */
     public abstract void initializeDevicesAndFunctions();
 
-    public native void initializeDevicesAndFunctions(Pointer cblasSgemm, Pointer cblasDgemm, Pointer cblasSgemmBatch, Pointer cblasDgemmBatch);
+    public native void initializeDevicesAndFunctions(PointerPointer functions);
 
     public abstract Pointer mallocHost(long memorySize, int flags);
 
