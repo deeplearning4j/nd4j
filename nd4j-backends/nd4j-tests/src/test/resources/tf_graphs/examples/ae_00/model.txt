@@ -399,7 +399,18 @@ node {
   }
 }
 node {
-  name: "random_uniform_1/shape"
+  name: "transpose/Rank"
+  op: "Rank"
+  input: "Variable/read"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "transpose/sub/y"
   op: "Const"
   attr {
     key: "dtype"
@@ -413,67 +424,112 @@ node {
       tensor {
         dtype: DT_INT32
         tensor_shape {
-          dim {
-            size: 2
-          }
         }
-        tensor_content: "\002\000\000\000\004\000\000\000"
+        int_val: 1
       }
     }
   }
 }
 node {
-  name: "random_uniform_1/min"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 0.0
-      }
-    }
-  }
-}
-node {
-  name: "random_uniform_1/max"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-        }
-        float_val: 1.0
-      }
-    }
-  }
-}
-node {
-  name: "random_uniform_1/RandomUniform"
-  op: "RandomUniform"
-  input: "random_uniform_1/shape"
+  name: "transpose/sub"
+  op: "Sub"
+  input: "transpose/Rank"
+  input: "transpose/sub/y"
   attr {
     key: "T"
     value {
       type: DT_INT32
     }
   }
+}
+node {
+  name: "transpose/Range/start"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 0
+      }
+    }
+  }
+}
+node {
+  name: "transpose/Range/delta"
+  op: "Const"
+  attr {
+    key: "dtype"
+    value {
+      type: DT_INT32
+    }
+  }
+  attr {
+    key: "value"
+    value {
+      tensor {
+        dtype: DT_INT32
+        tensor_shape {
+        }
+        int_val: 1
+      }
+    }
+  }
+}
+node {
+  name: "transpose/Range"
+  op: "Range"
+  input: "transpose/Range/start"
+  input: "transpose/Rank"
+  input: "transpose/Range/delta"
+  attr {
+    key: "Tidx"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "transpose/sub_1"
+  op: "Sub"
+  input: "transpose/sub"
+  input: "transpose/Range"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "transpose"
+  op: "Transpose"
+  input: "Variable/read"
+  input: "transpose/sub_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tperm"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "zeros_1"
+  op: "Const"
   attr {
     key: "dtype"
     value {
@@ -481,51 +537,17 @@ node {
     }
   }
   attr {
-    key: "seed"
+    key: "value"
     value {
-      i: 0
-    }
-  }
-  attr {
-    key: "seed2"
-    value {
-      i: 0
-    }
-  }
-}
-node {
-  name: "random_uniform_1/sub"
-  op: "Sub"
-  input: "random_uniform_1/max"
-  input: "random_uniform_1/min"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "random_uniform_1/mul"
-  op: "Mul"
-  input: "random_uniform_1/RandomUniform"
-  input: "random_uniform_1/sub"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-}
-node {
-  name: "random_uniform_1"
-  op: "Add"
-  input: "random_uniform_1/mul"
-  input: "random_uniform_1/min"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
+      tensor {
+        dtype: DT_FLOAT
+        tensor_shape {
+          dim {
+            size: 4
+          }
+        }
+        float_val: 0.0
+      }
     }
   }
 }
@@ -549,9 +571,6 @@ node {
     value {
       shape {
         dim {
-          size: 2
-        }
-        dim {
           size: 4
         }
       }
@@ -568,7 +587,7 @@ node {
   name: "Variable_2/Assign"
   op: "Assign"
   input: "Variable_2"
-  input: "random_uniform_1"
+  input: "zeros_1"
   attr {
     key: "T"
     value {
@@ -616,117 +635,10 @@ node {
   }
 }
 node {
-  name: "zeros_1"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_FLOAT
-        tensor_shape {
-          dim {
-            size: 4
-          }
-        }
-        float_val: 0.0
-      }
-    }
-  }
-}
-node {
-  name: "Variable_3"
-  op: "VariableV2"
-  attr {
-    key: "container"
-    value {
-      s: ""
-    }
-  }
-  attr {
-    key: "dtype"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "shape"
-    value {
-      shape {
-        dim {
-          size: 4
-        }
-      }
-    }
-  }
-  attr {
-    key: "shared_name"
-    value {
-      s: ""
-    }
-  }
-}
-node {
-  name: "Variable_3/Assign"
-  op: "Assign"
-  input: "Variable_3"
-  input: "zeros_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable_3"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
-  name: "Variable_3/read"
-  op: "Identity"
-  input: "Variable_3"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable_3"
-      }
-    }
-  }
-}
-node {
   name: "MatMul_1"
   op: "MatMul"
   input: "Tanh"
-  input: "Variable_2/read"
+  input: "transpose"
   attr {
     key: "T"
     value {
@@ -750,7 +662,7 @@ node {
   name: "BiasAdd_1"
   op: "BiasAdd"
   input: "MatMul_1"
-  input: "Variable_3/read"
+  input: "Variable_2/read"
   attr {
     key: "T"
     value {
@@ -1522,7 +1434,7 @@ node {
   name: "gradients/MatMul_1_grad/MatMul"
   op: "MatMul"
   input: "gradients/BiasAdd_1_grad/tuple/control_dependency"
-  input: "Variable_2/read"
+  input: "transpose"
   attr {
     key: "T"
     value {
@@ -1621,6 +1533,35 @@ node {
     key: "T"
     value {
       type: DT_FLOAT
+    }
+  }
+}
+node {
+  name: "gradients/transpose_grad/InvertPermutation"
+  op: "InvertPermutation"
+  input: "transpose/sub_1"
+  attr {
+    key: "T"
+    value {
+      type: DT_INT32
+    }
+  }
+}
+node {
+  name: "gradients/transpose_grad/transpose"
+  op: "Transpose"
+  input: "gradients/MatMul_1_grad/tuple/control_dependency_1"
+  input: "gradients/transpose_grad/InvertPermutation"
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "Tperm"
+    value {
+      type: DT_INT32
     }
   }
 }
@@ -1782,6 +1723,32 @@ node {
   }
 }
 node {
+  name: "gradients/AddN"
+  op: "AddN"
+  input: "gradients/transpose_grad/transpose"
+  input: "gradients/MatMul_grad/tuple/control_dependency_1"
+  attr {
+    key: "N"
+    value {
+      i: 2
+    }
+  }
+  attr {
+    key: "T"
+    value {
+      type: DT_FLOAT
+    }
+  }
+  attr {
+    key: "_class"
+    value {
+      list {
+        s: "loc:@gradients/transpose_grad/transpose"
+      }
+    }
+  }
+}
+node {
   name: "GradientDescent/learning_rate"
   op: "Const"
   attr {
@@ -1807,7 +1774,7 @@ node {
   op: "ApplyGradientDescent"
   input: "Variable"
   input: "GradientDescent/learning_rate"
-  input: "gradients/MatMul_grad/tuple/control_dependency_1"
+  input: "gradients/AddN"
   attr {
     key: "T"
     value {
@@ -1861,7 +1828,7 @@ node {
   op: "ApplyGradientDescent"
   input: "Variable_2"
   input: "GradientDescent/learning_rate"
-  input: "gradients/MatMul_1_grad/tuple/control_dependency_1"
+  input: "gradients/BiasAdd_1_grad/tuple/control_dependency_1"
   attr {
     key: "T"
     value {
@@ -1884,39 +1851,11 @@ node {
   }
 }
 node {
-  name: "GradientDescent/update_Variable_3/ApplyGradientDescent"
-  op: "ApplyGradientDescent"
-  input: "Variable_3"
-  input: "GradientDescent/learning_rate"
-  input: "gradients/BiasAdd_1_grad/tuple/control_dependency_1"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable_3"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: false
-    }
-  }
-}
-node {
   name: "GradientDescent"
   op: "NoOp"
   input: "^GradientDescent/update_Variable/ApplyGradientDescent"
   input: "^GradientDescent/update_Variable_1/ApplyGradientDescent"
   input: "^GradientDescent/update_Variable_2/ApplyGradientDescent"
-  input: "^GradientDescent/update_Variable_3/ApplyGradientDescent"
 }
 node {
   name: "init"
@@ -1924,7 +1863,6 @@ node {
   input: "^Variable/Assign"
   input: "^Variable_1/Assign"
   input: "^Variable_2/Assign"
-  input: "^Variable_3/Assign"
 }
 node {
   name: "save/Const"
@@ -1963,13 +1901,12 @@ node {
         dtype: DT_STRING
         tensor_shape {
           dim {
-            size: 4
+            size: 3
           }
         }
         string_val: "Variable"
         string_val: "Variable_1"
         string_val: "Variable_2"
-        string_val: "Variable_3"
       }
     }
   }
@@ -1990,10 +1927,9 @@ node {
         dtype: DT_STRING
         tensor_shape {
           dim {
-            size: 4
+            size: 3
           }
         }
-        string_val: ""
         string_val: ""
         string_val: ""
         string_val: ""
@@ -2010,12 +1946,10 @@ node {
   input: "Variable"
   input: "Variable_1"
   input: "Variable_2"
-  input: "Variable_3"
   attr {
     key: "dtypes"
     value {
       list {
-        type: DT_FLOAT
         type: DT_FLOAT
         type: DT_FLOAT
         type: DT_FLOAT
@@ -2329,107 +2263,11 @@ node {
   }
 }
 node {
-  name: "save/RestoreV2_3/tensor_names"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: "Variable_3"
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_3/shape_and_slices"
-  op: "Const"
-  attr {
-    key: "dtype"
-    value {
-      type: DT_STRING
-    }
-  }
-  attr {
-    key: "value"
-    value {
-      tensor {
-        dtype: DT_STRING
-        tensor_shape {
-          dim {
-            size: 1
-          }
-        }
-        string_val: ""
-      }
-    }
-  }
-}
-node {
-  name: "save/RestoreV2_3"
-  op: "RestoreV2"
-  input: "save/Const"
-  input: "save/RestoreV2_3/tensor_names"
-  input: "save/RestoreV2_3/shape_and_slices"
-  attr {
-    key: "dtypes"
-    value {
-      list {
-        type: DT_FLOAT
-      }
-    }
-  }
-}
-node {
-  name: "save/Assign_3"
-  op: "Assign"
-  input: "Variable_3"
-  input: "save/RestoreV2_3"
-  attr {
-    key: "T"
-    value {
-      type: DT_FLOAT
-    }
-  }
-  attr {
-    key: "_class"
-    value {
-      list {
-        s: "loc:@Variable_3"
-      }
-    }
-  }
-  attr {
-    key: "use_locking"
-    value {
-      b: true
-    }
-  }
-  attr {
-    key: "validate_shape"
-    value {
-      b: true
-    }
-  }
-}
-node {
   name: "save/restore_all"
   op: "NoOp"
   input: "^save/Assign"
   input: "^save/Assign_1"
   input: "^save/Assign_2"
-  input: "^save/Assign_3"
 }
 versions {
   producer: 24
