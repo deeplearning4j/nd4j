@@ -16,6 +16,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @Slf4j
@@ -178,7 +179,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         val tNode = buildBasicNode(node, graph);
         return returnIntermediateRpresentation(tNode,graph);
     }

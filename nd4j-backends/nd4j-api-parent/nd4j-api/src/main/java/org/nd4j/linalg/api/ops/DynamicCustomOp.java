@@ -16,10 +16,7 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.tensorflow.framework.NodeDef;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Basic implementation for CustomOp
@@ -286,12 +283,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
 
     }
 
@@ -301,7 +298,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return null;
     }
 

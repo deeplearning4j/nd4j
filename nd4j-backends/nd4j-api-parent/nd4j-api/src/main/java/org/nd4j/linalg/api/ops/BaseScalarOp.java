@@ -37,6 +37,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Base scalar operation
@@ -174,7 +175,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
 
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return returnIntermediateRepresentation(buildBasicNode(node,graph),graph);
 
     }

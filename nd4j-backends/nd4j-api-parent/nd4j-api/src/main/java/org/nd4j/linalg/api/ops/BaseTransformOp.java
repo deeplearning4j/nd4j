@@ -34,6 +34,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A base op for basic getters and setters
@@ -182,19 +183,19 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
-        super.initFromTensorFlow(nodeDef);
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
+        super.initFromTensorFlow(nodeDef, initWith);
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
-        super.initFromOnnx(node);
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
+        super.initFromOnnx(node, initWith);
 
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         val tNode = buildBasicNode(node, graph);
         return returnIntermediateRepresentation(tNode,graph);
 

@@ -32,6 +32,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.shape.Shape;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.Map;
+
 /**
  * Base class for accumulation, initiates the initial entry
  * with respect to the child class. Also contains baseline fields
@@ -151,7 +153,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
 
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return returnIntermediateRpresentation(buildBasicNode(node,graph),graph);
     }
 

@@ -178,9 +178,11 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
                         dimensions.add(getShapeFromAttr(shape)[e]);
                     }
                 }
-
-
             }
+        }
+
+        else {
+
         }
     }
 
@@ -197,7 +199,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
     }
 
     @Override
-    public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph) {
+    public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph, Map<String, AttrValue> attributes) {
         // first we try to use special converters
         DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(nodeDef.getOp().toLowerCase());
         if(converter == null)

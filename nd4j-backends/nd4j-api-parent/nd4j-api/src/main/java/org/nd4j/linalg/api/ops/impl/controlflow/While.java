@@ -18,10 +18,7 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.NodeDef;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Equivalent to tensorflow's while loop
@@ -206,12 +203,12 @@ public class While extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
 
     }
 
@@ -221,7 +218,7 @@ public class While extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return null;
     }
 

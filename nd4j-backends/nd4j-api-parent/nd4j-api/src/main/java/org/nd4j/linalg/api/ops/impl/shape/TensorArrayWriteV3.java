@@ -3,11 +3,13 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.tensorflow.framework.NodeDef;
 
 import java.util.List;
+import java.util.Map;
 
 public class TensorArrayWriteV3 extends DifferentialFunction {
 
@@ -30,7 +32,7 @@ public class TensorArrayWriteV3 extends DifferentialFunction {
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         val tNode = buildBasicNode(node, graph);
 
         val idd = tNode.getInputs().get(1);
@@ -74,12 +76,12 @@ public class TensorArrayWriteV3 extends DifferentialFunction {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
 
     }
 }

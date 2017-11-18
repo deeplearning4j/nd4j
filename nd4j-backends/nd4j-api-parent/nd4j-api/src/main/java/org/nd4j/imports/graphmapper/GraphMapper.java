@@ -88,7 +88,7 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
     DataBuffer.Type dataTypeForTensor(TENSOR_TYPE tensorType);
 
 
-    TOp asIntermediate(NODE_TYPE nodeType, TGraph intermediateGraph);
+    TOp asIntermediate(NODE_TYPE nodeType, TGraph intermediateGraph, Map<String, ATTR_TYPE> attributes);
 
     /**
      *

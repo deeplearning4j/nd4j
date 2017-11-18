@@ -71,12 +71,12 @@ public class Linear extends BaseModule {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
 
     }
 

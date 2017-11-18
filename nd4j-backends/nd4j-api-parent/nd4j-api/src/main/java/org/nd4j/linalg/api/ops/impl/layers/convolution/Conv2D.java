@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -16,6 +17,7 @@ import org.tensorflow.framework.NodeDef;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -36,7 +38,6 @@ public class Conv2D extends DynamicCustomOp {
         this.sameDiff = sameDiff;
         this.args = inputFunctions;
         this.conv2DConfig = conv2DConfig;
-
         addArgs();
     }
 
@@ -59,6 +60,11 @@ public class Conv2D extends DynamicCustomOp {
     @Override
     public String opName() {
         return "conv2d";
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
+        return super.asIntermediateRepresentation(node, graph, attributesForNode);
     }
 
     @Override
@@ -119,6 +125,6 @@ public class Conv2D extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        return "conv3d";
+        return "conv2d";
     }
 }

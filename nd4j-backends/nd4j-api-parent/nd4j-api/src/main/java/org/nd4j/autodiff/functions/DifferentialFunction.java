@@ -22,6 +22,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -72,7 +73,7 @@ public abstract class DifferentialFunction implements Differential {
      */
     public DifferentialFunction(SameDiff sameDiff,NodeDef nodeDef) {
         this.sameDiff = sameDiff;
-        initFromTensorFlow(nodeDef);
+        initFromTensorFlow(nodeDef, );
     }
 
     /**
@@ -82,7 +83,7 @@ public abstract class DifferentialFunction implements Differential {
      */
     public DifferentialFunction(SameDiff sameDiff,onnx.OnnxProto3.NodeProto node) {
         this.sameDiff = sameDiff;
-        initFromOnnx(node);
+        initFromOnnx(node, );
     }
 
 
@@ -264,7 +265,6 @@ public abstract class DifferentialFunction implements Differential {
 
     @Override
     public  List<DifferentialFunction> diff(List<DifferentialFunction> i_v1) {
-
         List<DifferentialFunction> vals = doDiff(i_v1);
         for(int i = 0; i < args().length; i++) {
             DifferentialFunction differentialFunction = sameDiff.setupFunction(vals.get(i));
@@ -347,15 +347,17 @@ public abstract class DifferentialFunction implements Differential {
      * Initialize the function from the given
      * {@link NodeDef}
      * @param nodeDef
+     * @param initWith
      */
-    public abstract void initFromTensorFlow(NodeDef nodeDef);
+    public abstract void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith);
 
     /**
      * Iniitialize the function from the given
      * {@link onnx.OnnxProto3.NodeProto}
      * @param node
+     * @param initWith
      */
-    public abstract void initFromOnnx(onnx.OnnxProto3.NodeProto node);
+    public abstract void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith);
 
 
     /**
@@ -370,7 +372,7 @@ public abstract class DifferentialFunction implements Differential {
      *
      * @return
      */
-    public abstract TOp asIntermediateRepresentation(@NonNull OnnxProto3.NodeProto node, @NonNull TGraph graph);
+    public abstract TOp asIntermediateRepresentation(@NonNull OnnxProto3.NodeProto node, @NonNull TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode);
 
 
 
@@ -512,8 +514,6 @@ public abstract class DifferentialFunction implements Differential {
 
     protected OpState getOpStateFromNodeDef(OnnxProto3.NodeProto tfNode, int numInputs, TOp tOp, TVariableSpace variableSpace) {
         String lc = tfNode.getOpType().toLowerCase();
-        if (lc.equalsIgnoreCase("while"))
-            log.info("While found");
 
         log.debug("Looking for [{}] op...", lc);
         if (numInputs > 0 && numInputs <= 2) {

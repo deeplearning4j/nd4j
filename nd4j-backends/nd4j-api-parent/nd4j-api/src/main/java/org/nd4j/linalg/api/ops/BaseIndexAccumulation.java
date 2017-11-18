@@ -18,6 +18,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Index based reduction algo
@@ -151,7 +152,7 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
 
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return returnIntermediateRpresentation(buildBasicNode(node,graph),graph);
 
     }

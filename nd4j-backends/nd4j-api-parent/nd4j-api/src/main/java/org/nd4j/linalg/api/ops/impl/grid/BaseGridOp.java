@@ -14,6 +14,7 @@ import org.nd4j.linalg.api.ops.grid.OpDescriptor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author raver119@gmail.com
@@ -65,7 +66,7 @@ public abstract class BaseGridOp extends BaseOp implements GridOp {
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         return null;
     }
 

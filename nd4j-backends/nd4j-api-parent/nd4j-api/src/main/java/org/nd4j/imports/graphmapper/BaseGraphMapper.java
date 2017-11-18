@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.opstate.OpState;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -176,6 +177,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
             intermediateGraph.getReverseMap().put(getName(tfNode), TIndex.makeOf(whileNode.getId(), enterCnt++));
         }
+
         whileInputs.add(TIndex.makeOf(scopeCondition.getId()));
         whileInputs.add(TIndex.makeOf(scopeLoop.getId()));
         whileNode.setInputs(whileInputs);
@@ -381,7 +383,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
             }
 
             intermediateGraph.getSkipSet().add(getName(tfNode));
-
             intermediateGraph.getReverseMap().put(getName(tfNode), TIndex.makeOf(whileNode.getId(), exitCnt++));
         }
 
@@ -399,7 +400,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
      */
     @Override
     public  SameDiff mapGraph(GRAPH_TYPE tfGraph) {
-
         SameDiff diff = SameDiff.create();
 
         Set<String> skipList = new HashSet<>();
@@ -427,13 +427,16 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
                     log.debug("Dtype: {}", dataTypeForTensor(tensor));
 
                     INDArray array = getNDArrayFromTensor(tensor);
-                    diff.var(getName(tfNode),array);
+                    SDVariable var = diff.var(getName(tfNode), array);
+
+
                 }
 
                 else  if (attributes.containsKey(shapeKey())) {
                     ATTR_TYPE shape = attributes.get(shapeKey());
                     int[] shapeArr = getShapeFromAttr(shape);
-                    diff.var(getName(tfNode),shapeArr);
+                    SDVariable sdVariable = diff.var(getName(tfNode), shapeArr);
+
                 }
             }
         }
@@ -443,7 +446,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
 
     protected  TOp importNode(@NonNull TGraph intermediateGraph, @NonNull NODE_TYPE tfNode, int nodeId) {
-        val tNode = asIntermediate(tfNode, intermediateGraph);
+        val tNode = asIntermediate(tfNode, intermediateGraph, getAttrMap(tfNode));
         return tNode;
     }
 
@@ -527,7 +530,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
         return dataTypeForTensor(tensorType) != DataBuffer.Type.UNKNOWN;
     }
 
-    protected  void traverseList(@NonNull TGraph intermediateGraph, @NonNull List<NODE_TYPE> tfNodesList, int offset) {
+    protected void traverseList(@NonNull TGraph intermediateGraph, @NonNull List<NODE_TYPE> tfNodesList, int offset) {
         for (int e = offset; e < tfNodesList.size(); e++) {
             val tfNode = tfNodesList.get(e);
 

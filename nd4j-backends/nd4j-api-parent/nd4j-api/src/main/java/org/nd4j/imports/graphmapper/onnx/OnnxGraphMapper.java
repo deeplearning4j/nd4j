@@ -17,6 +17,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DefaultOpConverter;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 
@@ -35,14 +36,13 @@ import java.util.Map;
  * @author Adam Gibson
  */
 public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, OnnxProto3.NodeProto, OnnxProto3.AttributeProto, OnnxProto3.TensorProto> {
+
     @Override
     public Map<String, OnnxProto3.TensorProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
         Map<String, OnnxProto3.TensorProto> ret = new HashMap<>();
         for(int i = 0; i < graphProto.getInitializerCount(); i++) {
             ret.put(graphProto.getInitializer(i).getName(),graphProto.getInitializer(i));
         }
-
-
 
         return ret;
     }
@@ -90,6 +90,14 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
         }
 
 
+        /**
+         * Need to setup actual op here.
+         * This includes mapping op attributes
+         * from the protobuf to their DifferentialFunction counter parts in samediff.
+         *
+         * Note that this currently happens in tointermediaRepresentation
+         */
+
         OpState opState = OpState.builder()
                 .opType(opTypeForNode(tfNode))
                 .vertexIds(vertexIdsForOpState)
@@ -127,18 +135,24 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public TOp asIntermediate(OnnxProto3.NodeProto nodeProto, TGraph intermediateGraph) {
+    public TOp asIntermediate(OnnxProto3.NodeProto nodeProto, TGraph intermediateGraph, Map<String, OnnxProto3.AttributeProto> attributes) {
         // first we try to use special converters
         DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(nodeProto.getName().toLowerCase());
         if(converter == null)
             converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
-        return converter.asIntermediateRepresentation(nodeProto, intermediateGraph);
+        return converter.asIntermediateRepresentation(nodeProto, intermediateGraph, attributes);
 
     }
 
     @Override
     public String getAttrValueFromNode(OnnxProto3.NodeProto nodeProto, String key) {
-        return null;
+        for(OnnxProto3.AttributeProto attributeProto : nodeProto.getAttributeList()) {
+            if(attributeProto.getName().equals(key)) {
+                return attributeProto.getS().toString();
+            }
+        }
+
+        throw new ND4JIllegalStateException("No key found for " + key);
     }
 
     @Override
@@ -247,6 +261,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
     @Override
     public INDArray getArrayFrom(OnnxProto3.NodeProto nodeProto) {
+
         return null;
     }
 

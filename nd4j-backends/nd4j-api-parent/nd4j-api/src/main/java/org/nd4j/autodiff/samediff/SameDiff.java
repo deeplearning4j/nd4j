@@ -23,7 +23,6 @@ import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
-import org.nd4j.linalg.api.ops.impl.transforms.Constant;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.collection.IntArrayKeyMap;
@@ -339,7 +338,6 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Unable to replace samediff namespace. Please choose another opName");
         }
 
-
         sameDiffFunctionInstances.put(name,nameSpace);
     }
 
@@ -352,33 +350,6 @@ public class SameDiff {
         return variableMap;
     }
 
-
-    private void ensureSameDiffInstance(SameDiff sameDiff,DifferentialFunction val) {
-        val.setSameDiff(sameDiff);
-        if(val instanceof SDVariable) {
-            SDVariable variable1 = (SDVariable) val;
-            variable1.setSameDiff(sameDiff);
-            variable1.setVertexId(val.getVertexId());
-            sameDiff.setupFunction(variable1);
-
-
-        }
-        else if(val instanceof Constant) {
-            Constant constant = (Constant) val;
-            constant.setSameDiff(sameDiff);
-            sameDiff.setupFunction(constant);
-        }
-
-        //recursive case
-        else if(val.args() != null) {
-            for(DifferentialFunction equation  : val.args()) {
-                sameDiff.setupFunction(equation);
-                ensureSameDiffInstance(sameDiff,equation);
-
-            }
-        }
-
-    }
 
     /**
      * Returns the {@link SDGraph}
@@ -2952,7 +2923,7 @@ public class SameDiff {
             this.vertexIdToVariable.put(vertexId,sdVariable);
         }
         else {
-            this.functionInstances.put(vertexId,function);
+            this. functionInstances.put(vertexId,function);
         }
     }
 

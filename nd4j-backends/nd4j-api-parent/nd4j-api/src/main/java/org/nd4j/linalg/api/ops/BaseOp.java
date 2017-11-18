@@ -35,6 +35,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.nio.Buffer;
 import java.util.Arrays;
+import java.util.Map;
 
 /**
  * Base op. An op involves iterating over 2 buffers (x,y)  up to n elements
@@ -115,12 +116,12 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
     }
 
     @Override
@@ -363,7 +364,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
     @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph) {
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
         val tNode = buildBasicNode(node, graph);
 
         tNode.setOpState(getOpStateFromNodeDef(node, node.getInputCount(), tNode, graph.getVariableSpace()));
