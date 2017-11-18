@@ -43,13 +43,15 @@ import org.bytedeco.javacpp.tools.Logger;
                                               "array/ResultSet.h",
                                               "NDArrayFactory.h",
                                               "graph/Variable.h",
+                                              "graph/FlowPath.h",
                                               "graph/Intervals.h",
                                               "graph/Stash.h",
                                               "graph/VariableSpace.h",
                                               "helpers/helper_generator.h",
-                                              "graph/Block.h",
+                                              "graph/Context.h",
+                                              "graph/ContextPrototype.h",
                                               "helpers/shape.h",
-                                              "graph/ShapeList.h",
+                                              "array/ShapeList.h",
                                               "op_boilerplate.h",
                                               "ops/InputType.h",
                                               "ops/declarable/OpDescriptor.h",
@@ -81,7 +83,7 @@ public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
 
     @Override
     public void map(InfoMap infoMap) {
-        infoMap.put(new Info("thread_local", "ND4J_EXPORT", "INLINEDEF").cppTypes().annotations())
+        infoMap.put(new Info("thread_local", "ND4J_EXPORT", "INLINEDEF", "CUBLASWINAPI", "FORCEINLINE").cppTypes().annotations())
                         .put(new Info("NativeOps").base("org.nd4j.nativeblas.NativeOps"))
                         .put(new Info("char").valueTypes("char").pointerTypes("@Cast(\"char*\") String",
                                         "@Cast(\"char*\") BytePointer"))
@@ -113,7 +115,8 @@ public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
                 "nd4j::graph::Variable",
                 "nd4j::graph::Stash",
                 "nd4j::graph::VariableSpace",
-                "nd4j::graph::Block",
+                "nd4j::graph::Context",
+                "nd4j::graph::ContextPrototype",
                 "nd4j::ops::DeclarableOp",
                 "nd4j::ops::DeclarableListOp",
                 "nd4j::ops::DeclarableReductionOp",
