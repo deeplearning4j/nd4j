@@ -9,7 +9,6 @@ import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.opstate.OpStateEdge;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -141,20 +140,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
     }
 
 
-    /**
-     * This method returns intermediate representation from TF GraphDef instance
-     *
-     * @return
-     */
-    public  TGraph importIntermediate(GRAPH_TYPE tfGraph) {
-        TGraph intermediateGraph = new TGraph();
-        val tfNodesList = getNodeList(tfGraph);
 
-        // we're just starting our recursive fn here
-        //traverseList(intermediateGraph, tfNodesList, 0);
-
-        return intermediateGraph;
-    }
 /*
     protected  TIndex indexByName(@NonNull TGraph graph, @NonNull String value) {
         if (value.contains(":")) {

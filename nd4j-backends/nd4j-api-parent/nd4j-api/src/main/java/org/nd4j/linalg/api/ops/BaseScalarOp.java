@@ -22,11 +22,8 @@ package org.nd4j.linalg.api.ops;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -170,33 +167,5 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     }
 
 
-
-
-
-    private TOp returnIntermediateRepresentation(TOp tNode,TGraph graph) {
-
-        /**
-         * 2 options here. We either have specific dimension, or not.
-         * If not - that'll be reduceScalar, if yes - there will be reduceAlongDimension
-         */
-
-        log.debug("TOp inputs: {}", tNode.getInputs());
-        val shapeIndex = tNode.getInputs().remove(1);
-
-        val variable = graph.getVariableSpace().getVariable(shapeIndex);
-
-        // reduce to scalar
-        if (variable.getArray() == null && variable.getShape().length == 2 && variable.getShape()[0] == 1 && variable.getShape()[1] == 1)
-            tNode.getOpState().setAxes(new int[]{Integer.MAX_VALUE});// we're going for scalar
-        else {
-            if (variable.getArray() != null) {
-                val axes = variable.getArray().data().asInt();
-                tNode.getOpState().setAxes(axes);
-            } else
-                tNode.getOpState().setAxes(variable.getShape());
-        }
-
-        return tNode;
-    }
 
 }

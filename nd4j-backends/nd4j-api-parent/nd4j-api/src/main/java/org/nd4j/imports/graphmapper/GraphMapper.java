@@ -4,7 +4,6 @@ import com.google.protobuf.Message;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.OpStateEdge;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
@@ -97,15 +96,6 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      * @param importState the current import state
      */
     void mapNodeType(NODE_TYPE tfNode, ImportState<GRAPH_TYPE,TENSOR_TYPE> importState);
-
-    /**
-     * Map the graph type to an intermediate graph representation
-     * {@link TGraph}
-     * @param tfGraph the graph to map
-     * @return the mapped intermediate graph
-     */
-    TGraph importIntermediate(GRAPH_TYPE tfGraph);
-
 
     /**
      * Map a graph to a {@link SameDiff}
