@@ -4,16 +4,11 @@ import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
-import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DefaultOpConverter;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -265,14 +260,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         }
     }
 
-    @Override
-    public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph, Map<String, AttrValue> attributes) {
-        // first we try to use special converters
-        DifferentialFunction converter = getMappedOp(nodeDef.getOp().toLowerCase());
-        if(converter == null)
-            converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
-        return converter.asIntermediateRepresentation(nodeDef, intermediateGraph);
-    }
+
 
     @Override
     public String getAttrValueFromNode(NodeDef nodeDef, String key) {

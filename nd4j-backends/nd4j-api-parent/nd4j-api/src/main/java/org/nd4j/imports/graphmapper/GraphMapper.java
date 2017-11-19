@@ -5,7 +5,6 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.OpStateEdge;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
@@ -123,8 +122,6 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      */
     DataBuffer.Type dataTypeForTensor(TENSOR_TYPE tensorType);
 
-
-    TOp asIntermediate(NODE_TYPE nodeType, TGraph intermediateGraph, Map<String, ATTR_TYPE> attributes);
 
     /**
      *
@@ -290,6 +287,13 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      */
     List<NODE_TYPE> getNodeList(GRAPH_TYPE graphType);
 
+
+    /**
+     * Import a graph as same diff
+     * from the given file
+     * @param graphFile
+     * @return
+     */
     SameDiff importGraph(File graphFile);
 
     /**

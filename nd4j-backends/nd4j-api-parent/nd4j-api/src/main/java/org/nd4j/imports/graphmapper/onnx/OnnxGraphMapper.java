@@ -6,14 +6,11 @@ import com.google.protobuf.Message;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DefaultOpConverter;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -122,15 +119,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
         }
     }
 
-    @Override
-    public TOp asIntermediate(OnnxProto3.NodeProto nodeProto, TGraph intermediateGraph, Map<String, OnnxProto3.AttributeProto> attributes) {
-        // first we try to use special converters
-        DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(nodeProto.getName().toLowerCase());
-        if(converter == null)
-            converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
-        return converter.asIntermediateRepresentation(nodeProto, intermediateGraph, attributes);
 
-    }
 
     @Override
     public String getAttrValueFromNode(OnnxProto3.NodeProto nodeProto, String key) {

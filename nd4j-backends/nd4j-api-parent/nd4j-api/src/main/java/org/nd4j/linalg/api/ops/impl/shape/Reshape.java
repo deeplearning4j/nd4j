@@ -21,18 +21,20 @@ package org.nd4j.linalg.api.ops.impl.shape;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.commons.lang3.ArrayUtils;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
+import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.ShapeOp;
+import org.tensorflow.framework.AttrValue;
+import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Reshape function
@@ -93,6 +95,19 @@ public class Reshape extends ShapeOp {
 
     }
 
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
+        val shape = new TFGraphMapper().getShape(nodeDef);
+        this.shape = shape;
+
+    }
+
+    @Override
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
+        val shape = new OnnxGraphMapper().getShape(node);
+        this.shape = shape;
+
+    }
 
     @Override
     public int opNum() {
@@ -115,29 +130,7 @@ public class Reshape extends ShapeOp {
     }
 
 
-    @Override
-    public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
-        val tNode = buildBasicNode(node, graph);
 
-        // in reshape operation we replace second input, and replace it with extra args
-        log.debug("TOp inputs: {}", tNode.getInputs());
-        val shapeIndex = tNode.getInputs().remove(1);
-        val variable = graph.getVariableSpace().getVariable(shapeIndex);
-
-        assert variable != null;
-        assert variable.getShape() != null;
-
-        // we know that TF is always C order
-        int[] args = ArrayUtils.add(variable.getShape(),  0, (int)'c');
-
-
-        log.debug("Reshape node_{}, new shape: {}", tNode.getId(), Arrays.toString(args));
-
-        // new shape goes here
-        tNode.getOpState().setExtraBits(args);
-
-        return tNode;
-    }
 
 
     @Override

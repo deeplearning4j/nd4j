@@ -20,11 +20,9 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -33,11 +31,9 @@ import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
-import org.tensorflow.framework.NodeDef;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Base scalar operation
@@ -174,22 +170,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     }
 
 
-    @Override
-    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
-        return returnIntermediateRepresentation(buildBasicNode(node,graph),graph);
 
-    }
-
-    /**
-     * This method returns given TF node as TOp
-     *
-     * @return
-     */
-    @Override
-    public TOp asIntermediateRepresentation(@NonNull NodeDef node, @NonNull TGraph graph) {
-        return returnIntermediateRepresentation(buildBasicNode(node,graph),graph);
-
-    }
 
 
     private TOp returnIntermediateRepresentation(TOp tNode,TGraph graph) {

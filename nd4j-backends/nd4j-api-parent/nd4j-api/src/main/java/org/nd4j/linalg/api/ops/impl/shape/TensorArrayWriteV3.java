@@ -1,11 +1,8 @@
 package org.nd4j.linalg.api.ops.impl.shape;
 
-import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -15,7 +12,7 @@ import java.util.Map;
 
 public class TensorArrayWriteV3 extends DifferentialFunction {
 
-    @Override
+ /*   @Override
     public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
         val tNode = buildBasicNode(node, graph);
 
@@ -51,7 +48,7 @@ public class TensorArrayWriteV3 extends DifferentialFunction {
         return tNode;
     }
 
-    @Override
+    */@Override
     public String onnxName() {
         return null;
     }

@@ -1,9 +1,7 @@
 package org.nd4j.imports.graphmapper;
 
-import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -12,9 +10,6 @@ import org.nd4j.autodiff.opstate.OpStateEdge;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
-import org.nd4j.graph.intermediate.TIndex;
-import org.nd4j.graph.intermediate.TOp;
-import org.nd4j.graph.intermediate.TVariable;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -22,7 +17,10 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Base implementation for importing a graph
@@ -495,7 +493,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
     }
 
 
-
+/*
     protected  TOp importNode(@NonNull TGraph intermediateGraph, @NonNull NODE_TYPE tfNode, int nodeId) {
         val tNode = asIntermediate(tfNode, intermediateGraph, getAttrMap(tfNode));
         return tNode;
@@ -574,7 +572,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
 
         return variable;
-    }
+    }*/
 
     @Override
     public boolean validTensorDataType(TENSOR_TYPE tensorType) {
