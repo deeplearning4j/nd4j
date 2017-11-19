@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
@@ -15,6 +16,7 @@ import org.tensorflow.framework.NodeDef;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -87,6 +89,11 @@ public class Conv3D extends DynamicCustomOp {
     @Override
     public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
         return super.asIntermediateRepresentation(node, graph);
+    }
+
+    @Override
+    public TOp asIntermediateRepresentation(OnnxProto3.NodeProto node, TGraph graph, Map<String, OnnxProto3.AttributeProto> attributesForNode) {
+        return super.asIntermediateRepresentation(node, graph, attributesForNode);
     }
 
     @Override

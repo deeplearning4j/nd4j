@@ -150,7 +150,6 @@ public class SameDiff {
                         new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
                         new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
-                newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
 
                 sameDiff.graph().addEdge(newEdge);
             }
@@ -163,7 +162,6 @@ public class SameDiff {
                         new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
                         new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
-                newEdge.getValue().setVertexIds(sameDiff.generateVertexIds(newEdge.getFrom()[0],newEdge.getTo()[0]));
                 sameDiff.graph().addEdge(newEdge);
 
             }
@@ -2845,8 +2843,6 @@ public class SameDiff {
                 sb.append("-");
 
 
-                if (variable.getOpState() != null)
-                    sb.append(Arrays.toString(variable.getOpState().getVertexIds()));
                 sb.append(",");
             }
         }
@@ -2879,8 +2875,6 @@ public class SameDiff {
                     sb.append("-");
                 }
 
-                if (getFunctionInput(variable).getOpState() != null)
-                    sb.append(Arrays.toString(getFunctionInput(variable).getOpState().getVertexIds()));
                 sb.append(",");
             }
         }

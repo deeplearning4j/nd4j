@@ -1,12 +1,15 @@
 package org.nd4j.imports.graphmapper;
 
 import com.google.protobuf.Message;
+import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.opstate.OpStateEdge;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.primitives.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +29,39 @@ import java.util.Map;
  */
 public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
 
+
+    /**
+     * Get the mapped op name
+     * for a given op
+     * relative to the type of node being mapped.
+     * The input name should be based on a tensorflow
+     * type or onnx type, not the nd4j name
+     * @param name the tensorflow or onnx name
+     * @return  the function based on the values in
+     * {@link org.nd4j.imports.converters.DifferentialFunctionClassHolder}
+     */
+    DifferentialFunction getMappedOp(String name);
+
+    /**
+     * Create an {@link OpStateEdge}
+     * from the given input ids,
+     * output ids, and the node
+     * @param inputIds the input ids for the node
+     *                  (based on the vertex ids in a {@link org.nd4j.autodiff.graph.Graph}
+     * @param outputIds the output ids for the node
+     *                  {based on the vertex ids in a {@link org.nd4j.autodiff.graph.Graph}}
+     * @param node the node to create the edge from
+     * @return
+     */
+    OpStateEdge getOpStateEdge(int[] inputIds,int[] outputIds,NODE_TYPE node);
+
+    /**
+     *
+     * @param graph
+     * @param nodeNameToVertexId
+     * @return
+     */
+    Map<String,Pair<int[],int[]>> inputsAndOutputsForGraph(GRAPH_TYPE graph, Map<String, Integer> nodeNameToVertexId);
 
     /**
      * Get the variables for the given graph

@@ -18,6 +18,8 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
+import org.tensorflow.framework.AttrValue;
+import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
 import java.util.Arrays;
@@ -71,9 +73,9 @@ public abstract class DifferentialFunction implements Differential {
      * {@link NodeDef}
      * @param nodeDef
      */
-    public DifferentialFunction(SameDiff sameDiff,NodeDef nodeDef) {
+    public DifferentialFunction(SameDiff sameDiff,NodeDef nodeDef, Map<String, AttrValue> attributesForNode, GraphDef graph) {
         this.sameDiff = sameDiff;
-        initFromTensorFlow(nodeDef, sameDiff);
+        initFromTensorFlow(nodeDef, sameDiff,attributesForNode ,graph);
     }
 
     /**
@@ -81,9 +83,9 @@ public abstract class DifferentialFunction implements Differential {
      * {@link onnx.OnnxProto3.NodeProto}
      * @param node
      */
-    public DifferentialFunction(SameDiff sameDiff,onnx.OnnxProto3.NodeProto node) {
+    public DifferentialFunction(SameDiff sameDiff,onnx.OnnxProto3.NodeProto node,Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
         this.sameDiff = sameDiff;
-        initFromOnnx(node, sameDiff);
+        initFromOnnx(node, sameDiff, attributesForNode, graph);
     }
 
 
@@ -348,16 +350,20 @@ public abstract class DifferentialFunction implements Differential {
      * {@link NodeDef}
      * @param nodeDef
      * @param initWith
+     * @param attributesForNode
+     * @param graph
      */
-    public abstract void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith);
+    public abstract void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph);
 
     /**
      * Iniitialize the function from the given
      * {@link onnx.OnnxProto3.NodeProto}
      * @param node
      * @param initWith
+     * @param attributesForNode
+     * @param graph
      */
-    public abstract void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith);
+    public abstract void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph);
 
 
     /**

@@ -16,6 +16,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.weightinit.WeightInitScheme;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
+import org.tensorflow.framework.AttrValue;
+import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
 import java.io.Serializable;
@@ -59,7 +61,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
             this.opState = OpState.builder()
                     .opType(Op.Type.RETURN)
                     .inPlace(true)
-                    .vertexIds(ArrayUtil.convertToString(vertexId))
                     .opName(varName)
                     .build();
         }
@@ -95,12 +96,12 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     }
 
     @Override
-    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith) {
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
 
     }
 
     @Override
-    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith) {
+    public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
 
     }
 

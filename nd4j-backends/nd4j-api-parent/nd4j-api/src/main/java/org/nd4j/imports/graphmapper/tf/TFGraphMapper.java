@@ -4,7 +4,6 @@ import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.intermediate.TGraph;
 import org.nd4j.graph.intermediate.TOp;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -17,6 +16,7 @@ import org.nd4j.linalg.api.ops.DefaultOpConverter;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.*;
 
@@ -108,11 +108,74 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         return nodeDef.getOp();
     }
 
+    /**
+     *
+     * @param graphDef
+     * @return
+     */
     @Override
     public List<NodeDef> getNodeList(GraphDef graphDef) {
         return graphDef.getNodeList();
     }
 
+
+    /**
+     *
+     * @param name the tensorflow or onnx name
+     * @return
+     */
+    @Override
+    public DifferentialFunction getMappedOp(String name) {
+        return DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(name);
+    }
+
+
+    @Override
+    public Map<String, Pair<int[], int[]>> inputsAndOutputsForGraph(GraphDef graph, Map<String, Integer> nodeNameToVertexId) {
+        val ret = new HashMap<String, Pair<int[], int[]>>(graph.getNodeCount());
+        val nodes = getNodeList(graph);
+        Map<String,List<Integer>> outputs = new HashMap<>();
+        Map<String,List<Integer>> inputs = new HashMap<>();
+        //map each node's outputs and inputs
+        for(val node : graph.getNodeList()) {
+            //simultaneously collect the ids for inputs and outputs
+            //incrementally building the list
+            for(int i = 0; i < node.getInputCount(); i++) {
+              val nodeInput = node.getInput(i);
+              if(!outputs.containsKey(nodeInput)) {
+                  List<Integer> newInputs = new ArrayList<>();
+                  newInputs.add(nodeNameToVertexId.get(nodeInput));
+                  outputs.put(nodeInput,newInputs);
+              }
+              else {
+                  List<Integer> outputIds = outputs.get(nodeInput);
+                  outputIds.add(nodeNameToVertexId.get(nodeInput));
+
+              }
+
+              if(!inputs.containsKey(node.getName())) {
+                  List<Integer> put = new ArrayList<>();
+                  put.add(nodeNameToVertexId.get(nodeInput));
+                  inputs.put(node.getName(),put);
+              }
+              else {
+                  val put = inputs.get(node.getName());
+                  put.add(nodeNameToVertexId.get(nodeInput));
+              }
+            }
+        }
+
+
+        //collect the final result
+        for(NodeDef nodeDef : nodes) {
+            int[] inputIds = Ints.toArray(inputs.get(nodeDef.getName()));
+            int[] outputIds = Ints.toArray(outputs.get(nodeDef.getName()));
+            ret.put(nodeDef.getName(),Pair.of(inputIds,outputIds));
+
+        }
+
+        return ret;
+    }
 
     @Override
     public Map<String, TensorProto> variablesForGraph(GraphDef graphDef) {
@@ -125,15 +188,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         return ret;
     }
 
-    @Override
-    public Op.Type opTypeForNode(NodeDef nodeDef) {
-        DifferentialFunction opWithTensorflowName = DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(nodeDef.getOp());
-        if(opWithTensorflowName == null)
-            throw new NoOpNameFoundException("No op found with name " + nodeDef.getOp());
-        Op.Type type = opWithTensorflowName.opType();
-        return type;
 
-    }
 
     @Override
     public Message.Builder getNewGraphBuilder() {
@@ -156,7 +211,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         }
 
 
-        SameDiff diff = importState.getSameDiff();
+        val diff = importState.getSameDiff();
 
         if (isVariableNode(tfNode)) {
             List<Integer> dimensions = new ArrayList<>();
@@ -182,6 +237,18 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
         }
 
         else {
+            val differentialFunction = DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(tfNode.getName());
+            try {
+                val newInstance = differentialFunction.getClass().newInstance();
+                newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
+                val indices = importState.getVertexIdMap().get(tfNode.getName());
+                val opStateEdge = getOpStateEdge(indices.getFirst(),indices.getSecond(),tfNode);
+                diff.graph().addEdge(opStateEdge);
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
 
         }
     }
@@ -201,7 +268,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,Te
     @Override
     public TOp asIntermediate(NodeDef nodeDef, TGraph intermediateGraph, Map<String, AttrValue> attributes) {
         // first we try to use special converters
-        DifferentialFunction converter = DifferentialFunctionClassHolder.getInstance().getInstance(nodeDef.getOp().toLowerCase());
+        DifferentialFunction converter = getMappedOp(nodeDef.getOp().toLowerCase());
         if(converter == null)
             converter = DifferentialFunctionClassHolder.getInstance().getInstance(DefaultOpConverter.getInstance().opName());
         return converter.asIntermediateRepresentation(nodeDef, intermediateGraph);
