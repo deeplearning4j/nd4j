@@ -10,7 +10,6 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseModule;
-import org.nd4j.linalg.api.ops.Module;
 import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.weightinit.WeightInitScheme;
@@ -43,7 +42,7 @@ public class Linear extends BaseModule {
         super(null,
                 getParams(nIn,nOut,weightInitScheme,biasWeightInitScheme),
                 new INDArray[]{},
-                new ArrayList<Double>(), new ArrayList<Integer>(),new ArrayList<Module>());
+                new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         this.weightInitScheme = weightInitScheme;
         this.biasWeightInitScheme = biasWeightInitScheme;
         this.nIn = nIn;
@@ -56,7 +55,7 @@ public class Linear extends BaseModule {
                   int nOut,
                   WeightInitScheme weightInitScheme,
                   WeightInitScheme biasWeightInitScheme) {
-        super(null, sameDiff, null, false, new ArrayList<Module>());
+        super(null, sameDiff, null, false, new ArrayList<>());
         this.weightInitScheme = weightInitScheme;
         this.biasWeightInitScheme = biasWeightInitScheme;
 
