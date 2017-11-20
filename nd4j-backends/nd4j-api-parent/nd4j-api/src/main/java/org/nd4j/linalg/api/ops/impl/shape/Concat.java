@@ -66,7 +66,7 @@ public class Concat extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        return "concat";
+        return "ConcatV2";
     }
 
 

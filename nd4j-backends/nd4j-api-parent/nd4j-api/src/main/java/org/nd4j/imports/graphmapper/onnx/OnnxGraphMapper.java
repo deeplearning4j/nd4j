@@ -6,6 +6,8 @@ import com.google.protobuf.Message;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
@@ -30,7 +32,21 @@ import java.util.Map;
  *
  * @author Adam Gibson
  */
-public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, OnnxProto3.NodeProto, OnnxProto3.AttributeProto, OnnxProto3.TensorProto> {
+public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, OnnxProto3.NodeProto, OnnxProto3.AttributeProto,  onnx.OnnxProto3.TypeProto.TensorTypeProto> {
+
+    @Override
+    public Map<String, Integer> verticesForGraph(OnnxProto3.GraphProto graph, SameDiff sameDiff) {
+        //map the names of the ndoes while accumulating the vertex ids
+        //for each variable
+        val variablesForGraph = variablesForGraph(graph);
+        val indexMap = new HashMap<String,Integer>();
+        for(val entry : variablesForGraph.entrySet()) {
+            val var = sameDiff.var(entry.getKey(),getNDArrayFromTensor(entry.getKey(), entry.getValue(), graph));
+            indexMap.put(entry.getKey(),var.getVertexId()[0]);
+        }
+
+        return indexMap;
+    }
 
     /**
      *
@@ -64,11 +80,18 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public Map<String, OnnxProto3.TensorProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
-        Map<String, OnnxProto3.TensorProto> ret = new HashMap<>();
-        for(int i = 0; i < graphProto.getInitializerCount(); i++) {
-            ret.put(graphProto.getInitializer(i).getName(),graphProto.getInitializer(i));
+    public Map<String,  onnx.OnnxProto3.TypeProto.TensorTypeProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
+        Map<String,  onnx.OnnxProto3.TypeProto.TensorTypeProto> ret = new HashMap<>();
+
+        for(int i = 0; i < graphProto.getInputCount(); i++) {
+            ret.put(graphProto.getInput(i).getName(),graphProto.getInput(i).getType().getTensorType());
         }
+
+        for(int i = 0; i < graphProto.getOutputCount(); i++) {
+            ret.put(graphProto.getOutput(i).getName(),graphProto.getOutput(i).getType().getTensorType());
+
+        }
+
 
         return ret;
     }
@@ -85,8 +108,11 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public void mapNodeType(OnnxProto3.NodeProto tfNode, ImportState<OnnxProto3.GraphProto, OnnxProto3.TensorProto> importState) {
-        val differentialFunction = DifferentialFunctionClassHolder.getInstance().getOpWithOnnxName(tfNode.getName());
+    public void mapNodeType(OnnxProto3.NodeProto tfNode, ImportState<OnnxProto3.GraphProto,  onnx.OnnxProto3.TypeProto.TensorTypeProto> importState) {
+        val differentialFunction = DifferentialFunctionClassHolder.getInstance().getOpWithOnnxName(tfNode.getOpType());
+        if(differentialFunction == null) {
+            throw new NoOpNameFoundException("No op name found " + tfNode.getName());
+        }
         val diff = importState.getSameDiff();
 
         try {
@@ -108,8 +134,8 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
 
     @Override
-    public DataBuffer.Type dataTypeForTensor(OnnxProto3.TensorProto tensorProto) {
-        switch (tensorProto.getDataType()) {
+    public DataBuffer.Type dataTypeForTensor( onnx.OnnxProto3.TypeProto.TensorTypeProto tensorProto) {
+        switch (tensorProto.getElemType()) {
             case DOUBLE: return DataBuffer.Type.DOUBLE;
             case FLOAT: return DataBuffer.Type.FLOAT;
             case FLOAT16: return DataBuffer.Type.HALF;
@@ -143,28 +169,54 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public INDArray getNDArrayFromTensor(OnnxProto3.TensorProto tensorProto) {
+    public INDArray getNDArrayFromTensor(String tensorName, OnnxProto3.TypeProto.TensorTypeProto tensorProto, OnnxProto3.GraphProto graph) {
         DataBuffer.Type type = dataTypeForTensor(tensorProto);
-        ByteString bytes = tensorProto.getRawData();
-        ByteBuffer byteBuffer = bytes.asReadOnlyByteBuffer();
+        if(!tensorProto.isInitialized()) {
+            throw new ND4JIllegalStateException("Unable to retrieve ndarray. Tensor was not initialized");
+        }
+
+        OnnxProto3.TensorProto tensor = null;
+        for(int i = 0; i < graph.getInitializerCount(); i++) {
+            val initializer = graph.getInitializer(i);
+            if(initializer.getName().equals(tensorName)) {
+                tensor = initializer;
+                break;
+            }
+        }
+
+        if(tensor == null)
+            return null;
+
+        ByteString bytes = tensor.getRawData();
+        ByteBuffer byteBuffer = bytes.asReadOnlyByteBuffer().order(ByteOrder.nativeOrder());
         ByteBuffer directAlloc = ByteBuffer.allocateDirect(byteBuffer.capacity()).order(ByteOrder.nativeOrder());
         directAlloc.put(byteBuffer);
         directAlloc.rewind();
         int[] shape = getShapeFromTensor(tensorProto);
         DataBuffer buffer = Nd4j.createBuffer(directAlloc,type, ArrayUtil.prod(shape));
-        INDArray arr = Nd4j.create(buffer);
+        INDArray arr = Nd4j.create(buffer).reshape(shape);
         return arr;
     }
 
     @Override
-    public int[] getShapeFromTensor(OnnxProto3.TensorProto tensorProto) {
-        return Ints.toArray(tensorProto.getDimsList());
+    public int[] getShapeFromTensor(onnx.OnnxProto3.TypeProto.TensorTypeProto tensorProto) {
+        val ret = new int[Math.max(2,tensorProto.getShape().getDimCount())];
+        int dimCount = tensorProto.getShape().getDimCount();
+        if(dimCount >= 2)
+            for(int i = 0; i < ret.length; i++) {
+                ret[i] = (int) tensorProto.getShape().getDim(i).getDimValue();
+            }
+        else {
+            ret[0] = 1;
+            for(int i = 1; i < ret.length; i++) {
+                ret[i] = (int) tensorProto.getShape().getDim(i - 1).getDimValue();
+            }
+        }
+
+
+        return ret;
     }
 
-    @Override
-    public OnnxProto3.TensorProto getTensorFrom(OnnxProto3.AttributeProto attributeProto) {
-        return attributeProto.getT();
-    }
 
     @Override
     public String getInputFromNode(OnnxProto3.NodeProto node, int index) {
@@ -176,20 +228,6 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
         return nodeProto.getInputCount();
     }
 
-    @Override
-    public String valueKey() {
-        return null;
-    }
-
-    @Override
-    public String shapeKey() {
-        return null;
-    }
-
-    @Override
-    public String dTypeKey() {
-        return null;
-    }
 
     @Override
     public int[] getShapeFromAttr(OnnxProto3.AttributeProto attr) {
@@ -237,7 +275,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public INDArray getArrayFrom(OnnxProto3.NodeProto nodeProto) {
+    public INDArray getArrayFrom(OnnxProto3.NodeProto nodeProto, OnnxProto3.GraphProto graph) {
 
         return null;
     }

@@ -25,7 +25,6 @@ import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
-import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.ShapeOp;
 import org.tensorflow.framework.AttrValue;
@@ -97,8 +96,28 @@ public class Reshape extends ShapeOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        val shape = new TFGraphMapper().getShape(nodeDef);
-        this.shape = shape;
+        val shape = nodeDef.getAttrOrThrow("Tshape");
+        if(!shape.hasShape()) {
+            val shapeRet = new int[2];
+            shapeRet[0] = 1;
+            shapeRet[1] = shape.getValueCase().getNumber();
+            this.shape = shapeRet;
+        }
+        else {
+            val shapeVals = shape.getShape().getDimList();
+            if(shapeVals.size() > 1) {
+                this.shape = new int[shapeVals.size()];
+                for(int i = 0; i < shapeVals.size(); i++) {
+                    this.shape[i] = (int) shapeVals.get(i).getSize();
+                }
+            }
+            else {
+                this.shape = new int[2];
+                this.shape[0] = 1;
+                this.shape[1] = (int) shapeVals.get(0).getSize();
+            }
+
+        }
 
     }
 
@@ -126,7 +145,7 @@ public class Reshape extends ShapeOp {
 
     @Override
     public String tensorflowName() {
-        return "reshape";
+        return "Reshape";
     }
 
 

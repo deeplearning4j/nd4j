@@ -68,9 +68,14 @@ public class AtrousConv2D extends Conv2D {
 
         // we know that second input to conv2d is weights array
         TFGraphMapper mapper = new TFGraphMapper();
-        val tensorProto = mapper.getTensorFrom(attributesForNode.get("input"));
-        val kY =tensorProto.getTensorShape().getDim(0).getSize();
-        val kX = tensorProto.getTensorShape().getDim(1).getSize();
+        //val tensorProto = mapper.getTensorFrom(attributesForNode.get("input"),graph);
+       // val kY =tensorProto.getTensorShape().getDim(0).getSize();
+       // val kX = tensorProto.getTensorShape().getDim(1).getSize();
+        // val kY =tensorProto.getTensorShape().getDim(0).getSize();
+        //val kX = tensorProto.getTensorShape().getDim(1).getSize();
+        val kY = nodeDef.getAttrOrThrow("shape").getShape().getDim(0).getSize();
+        val kX = nodeDef.getAttrOrThrow("shape").getShape().getDim(1).getSize();
+
 
         val rate = attributesForNode.get("rate").getI();
 

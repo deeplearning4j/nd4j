@@ -71,10 +71,11 @@ public class Conv2D extends DynamicCustomOp {
 
         // we know that second input to conv2d is weights array
         TFGraphMapper mapper = new TFGraphMapper();
-        val tensorProto = mapper.getTensorFrom(attributesForNode.get("input"));
-        val kY =tensorProto.getTensorShape().getDim(0).getSize();
-        val kX = tensorProto.getTensorShape().getDim(1).getSize();
-
+        //val tensorProto = mapper.getTensorFrom(attributesForNode.get("input"),graph);
+        // val kY =tensorProto.getTensorShape().getDim(0).getSize();
+        //val kX = tensorProto.getTensorShape().getDim(1).getSize();
+        val kY = nodeDef.getAttrOrThrow("shape").getShape().getDim(0).getSize();
+        val kX = nodeDef.getAttrOrThrow("shape").getShape().getDim(1).getSize();
         //   variable.setArray(variable.getArray().permute(3, 2, 0, 1).dup('c'));
 
         boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");

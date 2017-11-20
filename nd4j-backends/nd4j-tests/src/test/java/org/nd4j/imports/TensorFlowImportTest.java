@@ -7,18 +7,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.autodiff.opstate.OpExecAction;
 import org.nd4j.autodiff.opstate.OpState;
-import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.autodiff.samediff.SDVariable;
-import org.nd4j.graph.intermediate.TIndex;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -100,6 +95,12 @@ public class TensorFlowImportTest {
         assertNotNull(graph);
     }
 
+    @Test
+    public void testImportIris() throws Exception  {
+        SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/train_iris.pb").getFile());
+        assertNotNull(graph);
+
+    }
 
     @Test
     @Ignore
@@ -126,7 +127,7 @@ public class TensorFlowImportTest {
     }
 
 
-    @Test
+   /* @Test
     public void testIntermediate1() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importIntermediate(new ClassPathResource("tf_graphs/tensorflow_inception_graph.pb").getFile());
@@ -140,7 +141,7 @@ public class TensorFlowImportTest {
 
         val buffer = tg.asFlatBuffers();
         assertNotNull(buffer);
-/*
+*//*
         val offset = buffer.position();
 
         log.info("Length: {}; Offset: {};", buffer.capacity(), offset);
@@ -149,7 +150,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../libnd4j/tests/resources/inception.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-        */
+        *//*
     }
 
     @Test
@@ -274,7 +275,7 @@ public class TensorFlowImportTest {
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-/*
+*//*
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -283,7 +284,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/three_args_while.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-*/
+*//*
     }
 
     @Test
@@ -296,7 +297,7 @@ public class TensorFlowImportTest {
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-/*
+*//*
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -305,7 +306,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/nested_while.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-        */
+        *//*
     }
 
     @Test
@@ -324,7 +325,7 @@ public class TensorFlowImportTest {
         // now converting to FlatBuffer
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-/*
+*//*
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -333,7 +334,7 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_slice.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-        */
+        *//*
     }
 
     @Test
@@ -395,7 +396,7 @@ public class TensorFlowImportTest {
 
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
-/*
+*//*
         val offset = fb.position();
 
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
@@ -404,8 +405,8 @@ public class TensorFlowImportTest {
         try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/reduce_dim.fb"); val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
-        */
-    }
+        *//*
+    }*/
 
     @Test
     public void testDefaultArgs() {

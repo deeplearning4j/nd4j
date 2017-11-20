@@ -7,19 +7,15 @@ import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.opstate.OpStateEdge;
-import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 
 import java.io.*;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Base implementation for importing a graph
@@ -117,14 +113,22 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
         importState.setNodeCount(0);
         importState.setSameDiff(diff);
         importState.setGraph(tfGraph);
-        Map<String, TENSOR_TYPE> variablesForGraph = variablesForGraph(tfGraph);
+        val variablesForGraph = variablesForGraph(tfGraph);
         importState.setVariables(variablesForGraph);
         //map the names of the ndoes while accumulating the vertex ids
         //for each variable
         val indexMap = new HashMap<String,Integer>();
         for(Map.Entry<String,TENSOR_TYPE> entry : variablesForGraph.entrySet()) {
-            val var = importState.getSameDiff().var(entry.getKey(),getNDArrayFromTensor(entry.getValue()));
-            indexMap.put(entry.getKey(),var.getVertexId()[0]);
+            val arr = getNDArrayFromTensor(entry.getKey(), entry.getValue(), tfGraph);
+            if(arr != null) {
+                val var = importState.getSameDiff().var(entry.getKey(),arr);
+                indexMap.put(entry.getKey(),var.getVertexId()[0]);
+            }
+            else {
+                val var = importState.getSameDiff().var(entry.getKey(),getShapeFromTensor(entry.getValue()));
+                indexMap.put(entry.getKey(),var.getVertexId()[0]);
+            }
+
         }
 
         //handle mapping vertex ids properly
@@ -176,13 +180,13 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
 
         *//**
-         * Plan is simple:
-         * 1) we read all declarations of variables used within loop
-         * 2) we set up conditional scope
-         * 3) we set up body scope
-         * 4) ???
-         * 5) PROFIT!
-         *//*
+     * Plan is simple:
+     * 1) we read all declarations of variables used within loop
+     * 2) we set up conditional scope
+     * 3) we set up body scope
+     * 4) ???
+     * 5) PROFIT!
+     *//*
 
 
 
@@ -428,55 +432,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
     }*/
 
 
-    /**
-     * This method converts given TF
-     * @param tfGraph
-     * @return
-     */
-    @Override
-    public  SameDiff mapGraph(GRAPH_TYPE tfGraph) {
-        SameDiff diff = SameDiff.create();
-
-        Set<String> skipList = new HashSet<>();
-        val tfNodesList = getNodeList(tfGraph);
-        for (NODE_TYPE tfNode : tfNodesList) {
-            log.debug("Node opName: {}; Op: {};", getName(tfNode), getOpType(tfNode));
-
-            if (getOpType(tfNode).equalsIgnoreCase("enter") || (skipList.contains(getName(tfNode)))) {
-                continue;
-            }
-
-
-            boolean isConst = getOpType(tfNode).equalsIgnoreCase("const");
-            boolean isVar = getOpType(tfNode).startsWith("VariableV");
-            boolean isPlaceholder = getOpType(tfNode).startsWith("Placeholder");
-
-            Map<String, ATTR_TYPE> attributes = getAttrMap(tfNode);
-            if (isConst || isVar || isPlaceholder) {
-                if (attributes.containsKey(valueKey())) {
-                    // value of?
-                    ATTR_TYPE value = attributes.get(valueKey());
-
-                    //DataType opType = value.
-                    TENSOR_TYPE tensor = getTensorFrom(value);
-                    log.debug("Dtype: {}", dataTypeForTensor(tensor));
-
-                    INDArray array = getNDArrayFromTensor(tensor);
-                    SDVariable var = diff.var(getName(tfNode), array);
-
-
-                }
-
-                else  if (attributes.containsKey(shapeKey())) {
-                    ATTR_TYPE shape = attributes.get(shapeKey());
-                    int[] shapeArr = getShapeFromAttr(shape);
-                    SDVariable sdVariable = diff.var(getName(tfNode), shapeArr);
-
-                }
-            }
-        }
-        return diff;
-    }
 
 
 /*
