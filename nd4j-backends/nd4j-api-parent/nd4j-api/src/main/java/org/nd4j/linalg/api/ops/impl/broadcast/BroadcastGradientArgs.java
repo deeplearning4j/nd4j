@@ -2,27 +2,28 @@ package org.nd4j.linalg.api.ops.impl.broadcast;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseBroadcastOp;
 
 import java.util.List;
 
-public class BroadcastAddOp extends BaseBroadcastOp {
-    public BroadcastAddOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, int[] dimension) {
+public class BroadcastGradientArgs extends BaseBroadcastOp {
+    public BroadcastGradientArgs(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, int[] dimension) {
         super(sameDiff, i_v1, i_v2, dimension);
     }
 
-    public BroadcastAddOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace, int[] dimension) {
+    public BroadcastGradientArgs(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace, int[] dimension) {
         super(sameDiff, i_v1, i_v2, inPlace, dimension);
     }
 
-    public BroadcastAddOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, int[] dimension, Object[] extraArgs) {
+    public BroadcastGradientArgs(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, int[] dimension, Object[] extraArgs) {
         super(sameDiff, i_v1, i_v2, dimension, extraArgs);
     }
 
-    public BroadcastAddOp() {}
+    public BroadcastGradientArgs() {}
 
-    public BroadcastAddOp(INDArray x, INDArray y, INDArray z, int... dimension) {
+    public BroadcastGradientArgs(INDArray x, INDArray y, INDArray z, int... dimension) {
         super(x, y, z, dimension);
     }
 
@@ -35,7 +36,7 @@ public class BroadcastAddOp extends BaseBroadcastOp {
 
     @Override
     public String opName() {
-        return "broadcastadd";
+        return "BroadcastGradientArgs".toLowerCase();
     }
 
 
@@ -47,11 +48,11 @@ public class BroadcastAddOp extends BaseBroadcastOp {
 
     @Override
     public String onnxName() {
-        return "Add";
+       throw new NoOpNameFoundException("No op name found for " + opName());
     }
 
     @Override
     public String tensorflowName() {
-        return "BroadcastAdd";
+        return "BroadcastGradientArgs";
     }
 }

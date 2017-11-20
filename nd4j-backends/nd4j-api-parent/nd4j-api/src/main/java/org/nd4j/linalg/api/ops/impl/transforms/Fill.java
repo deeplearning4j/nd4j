@@ -10,7 +10,7 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.Map;
 
-public class Assign extends DynamicCustomOp {
+public class Fill extends DynamicCustomOp {
 
 
     @Override
@@ -25,17 +25,17 @@ public class Assign extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "assign";
+        return "fill";
     }
 
     @Override
     public String onnxName() {
-        return "GivenTensorFill";
+        return "ConstantFill";
     }
 
     @Override
     public String tensorflowName() {
-        return "Assign";
+        return "Fill";
     }
 
     @Override
