@@ -1,5 +1,6 @@
 package org.nd4j.imports.graphmapper.tf;
 
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -155,14 +156,14 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
                 if(!inputs.containsKey(node.getName())) {
                     List<Integer> put = new ArrayList<>();
-                    val result = nodeNameToVertexId.get(nodeInput);
+                    val result = nodeNameToVertexId.get(node.getName());
                     if(result != null)
                         put.add(result);
                     inputs.put(node.getName(),put);
                 }
                 else {
                     val put = inputs.get(node.getName());
-                    val result = nodeNameToVertexId.get(nodeInput);
+                    val result = nodeNameToVertexId.get(node.getName());
                     if(result != null)
                         put.add(result);
                 }
@@ -170,20 +171,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         }
 
 
+        val keys = Sets.intersection(inputs.keySet(),outputs.keySet());
         //collect the final result
-        for(NodeDef nodeDef : nodes) {
-            if(!inputs.containsKey(nodeDef.getName()) || !outputs.containsKey(nodeDef.getName())) {
-                //throw new ND4JIllegalStateException("No inputs/outputs found for " + nodeDef.getName());
-                log.debug("No inputs/outputs found for " + nodeDef.getName());
-                continue;
-            }
-
-            val inputList = inputs.get(nodeDef.getName());
-            val outputList = outputs.get(nodeDef.getName());
+        for(val name : keys)  {
+            val inputList = inputs.get(name);
+            val outputList = outputs.get(name);
             if(!inputList.isEmpty() && !outputList.isEmpty() && outputList.get(0) != null && inputList.get(0) != null) {
-                int[] inputIds = Ints.toArray(inputs.get(nodeDef.getName()));
-                int[] outputIds = Ints.toArray(outputs.get(nodeDef.getName()));
-                ret.put(nodeDef.getName(),Pair.of(inputIds,outputIds));
+                int[] inputIds = Ints.toArray(inputs.get(name));
+                int[] outputIds = Ints.toArray(outputs.get(name));
+                ret.put(name,Pair.of(inputIds,outputIds));
             }
 
 

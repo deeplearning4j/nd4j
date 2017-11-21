@@ -98,6 +98,7 @@ public class TensorFlowImportTest {
     @Test
     public void testImportIris() throws Exception  {
         SameDiff graph = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/train_iris.pb").getFile());
+        assertTrue(graph.graph().numVertices() > 0);
         assertNotNull(graph);
 
     }
