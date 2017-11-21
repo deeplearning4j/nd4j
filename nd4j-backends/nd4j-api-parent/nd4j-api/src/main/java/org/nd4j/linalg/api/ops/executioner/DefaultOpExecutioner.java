@@ -430,7 +430,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
         }
 
         val y = op.y();
-        if (y != null && x.isAttached()) {
+        if (y != null && y.isAttached()) {
             val ws = y.data().getParentWorkspace();
 
             if (!ws.isScopeActive())
