@@ -7,7 +7,6 @@ import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
@@ -69,8 +68,6 @@ public class Conv2D extends DynamicCustomOp {
 
         val paddingMode = aPadding.getS().toStringUtf8();
 
-        // we know that second input to conv2d is weights array
-        TFGraphMapper mapper = new TFGraphMapper();
         //val tensorProto = mapper.getTensorFrom(attributesForNode.get("input"),graph);
         // val kY =tensorProto.getTensorShape().getDim(0).getSize();
         //val kX = tensorProto.getTensorShape().getDim(1).getSize();

@@ -14,6 +14,8 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
 
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -341,18 +343,16 @@ public class TensorFlowImportTest {
         }
     }
 */
-/*
 
     @Test
     public void testIntermediateTensorArraySimple1() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/tensor_array.pb.txt").getFile());
-
-        tg.provideArrayForVariable("input_matrix", Nd4j.ones(3, 2));
+        tg.updateVariable("input_matrix",Nd4j.ones(3,2));
 
         assertNotNull(tg);
 
-        val firstSlice = tg.getNode("strided_slice");
+        val firstSlice = tg.getVariable("strided_slice");
 
 
         val fb = tg.asFlatBuffers();
@@ -363,11 +363,11 @@ public class TensorFlowImportTest {
         log.info("Length: {}; Offset: {};", fb.capacity(), offset);
         val array = fb.array();
 
-        try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_array.fb"); val dos = new DataOutputStream(fos)) {
+        try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_array.fb");
+             val dos = new DataOutputStream(fos)) {
             dos.write(array, offset, array.length - offset);
         }
     }
-*/
 
 /*    @Test
     public void testIntermediateTensorArrayLoop1() throws Exception {
