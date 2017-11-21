@@ -11,7 +11,7 @@ import org.tensorflow.framework.NodeDef;
 import java.util.List;
 import java.util.Map;
 
-public class TensorArrayWriteV3 extends DifferentialFunction {
+public class TensorArrayScatterV3 extends DifferentialFunction {
 
  /*   @Override
     public TOp asIntermediateRepresentation(NodeDef node, TGraph graph) {
@@ -56,7 +56,7 @@ public class TensorArrayWriteV3 extends DifferentialFunction {
 
     @Override
     public String tensorflowName() {
-        return "TensorArrayWriteV3";
+        return "TensorArrayScatterV3";
     }
 
     @Override
@@ -72,7 +72,7 @@ public class TensorArrayWriteV3 extends DifferentialFunction {
 
     @Override
     public String opName() {
-        return "tensorarraywritev3";
+        return "tensorarrayscatterv3";
     }
 
     @Override

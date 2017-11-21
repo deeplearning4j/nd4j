@@ -57,7 +57,7 @@ public class StridedSlice extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-       return "strided_slice";
+       return "StridedSlice";
     }
 
 

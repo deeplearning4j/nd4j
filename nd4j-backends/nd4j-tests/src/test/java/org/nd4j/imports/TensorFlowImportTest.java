@@ -128,6 +128,12 @@ public class TensorFlowImportTest {
     }
 
 
+    @Test
+    public void testIntermediate2() throws Exception {
+        Nd4j.create(1);
+        val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/max_lstm.pb").getFile());
+    }
+
    /* @Test
     public void testIntermediate1() throws Exception {
         Nd4j.create(1);
