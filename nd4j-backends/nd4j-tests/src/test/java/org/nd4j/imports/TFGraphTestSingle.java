@@ -26,10 +26,17 @@ public class TFGraphTestSingle {
 
     @Test
     public void testOne() throws  Exception {
+        //String modelName = "add_n";
+        //String modelName = "ae_00";
         //String modelName = "bias_add";
         //String modelName = "conv_0";
+        //String modelName = "g_00";
+        //String modelName = "g_01";
+        //String modelName = "math_mul_order";
+        //String modelName = "mlp_00";
+        //String modelName = "mlp_00_test";
         //String modelName = "transform_0";
-        String modelName = "ae_00";
+        String modelName = "transpose";
         String modelDir = new ClassPathResource("tf_graphs/examples/" + modelName).getFile().getAbsolutePath();
         Map<String, INDArray> inputs = inputVars(modelDir);
         Map<String, INDArray> predictions = outputVars(modelDir);
