@@ -4281,7 +4281,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             }
 
             if(numNonNewAxis > rank()) {
-                throw new IllegalArgumentException("Too many indices for array. Number of indexes must be <= rank()");
+                throw new IllegalArgumentException("Too many indices for array. Number of indexes (" + indexes.length
+                        + ") must be <= rank() (rank=" + rank() + ")");
             }
         }
 

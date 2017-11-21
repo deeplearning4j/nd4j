@@ -8,8 +8,6 @@ import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.activations.impl.ActivationSoftmax;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.LogSoftMax;
-import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
@@ -40,7 +38,7 @@ public class LossMCXENT implements ILossFunction {
     @JsonDeserialize(using = RowVectorDeserializer.class)
     private INDArray weights;
 
-    private double softmaxClipEps;
+    private double clipEps;
 
     public LossMCXENT() {
         this(null);
@@ -64,7 +62,7 @@ public class LossMCXENT implements ILossFunction {
      *
      * @param weights Weights array (row vector). May be null.
      */
-    public LossMCXENT(@JsonProperty("softmaxClipEps") double softmaxClipEps, @JsonProperty("weights") INDArray weights) {
+    public LossMCXENT(@JsonProperty("clipEps") double softmaxClipEps, @JsonProperty("weights") INDArray weights) {
         if (weights != null && !weights.isRowVector()) {
             throw new IllegalArgumentException("Weights array must be a row vector");
         }
@@ -73,21 +71,20 @@ public class LossMCXENT implements ILossFunction {
                     + softmaxClipEps);
         }
         this.weights = weights;
-        this.softmaxClipEps = softmaxClipEps;
+        this.clipEps = softmaxClipEps;
     }
 
     private INDArray scoreArray(INDArray labels, INDArray preOutput, IActivation activationFn, INDArray mask) {
         if (labels.size(1) != preOutput.size(1)) {
-            throw new IllegalArgumentException(
-                            "Labels array numColumns (size(1) = " + labels.size(1) + ") does not match output layer"
-                                            + " number of outputs (nOut = " + preOutput.size(1) + ") ");
+            throw new IllegalArgumentException( "Labels array numColumns (size(1) = " + labels.size(1)
+                    + ") does not match output layer number of outputs (nOut = " + preOutput.size(1) + ") ");
 
         }
 
         INDArray output = activationFn.getActivation(preOutput.dup(), true);
-        if(activationFn instanceof ActivationSoftmax && softmaxClipEps > 0.0){
-            BooleanIndexing.replaceWhere(output, softmaxClipEps, Conditions.lessThan(softmaxClipEps));
-            BooleanIndexing.replaceWhere(output, 1.0-softmaxClipEps, Conditions.greaterThan(1.0-softmaxClipEps));
+        if (clipEps > 0.0) {
+            BooleanIndexing.replaceWhere(output, clipEps, Conditions.lessThan(clipEps));
+            BooleanIndexing.replaceWhere(output, 1.0 - clipEps, Conditions.greaterThan(1.0 - clipEps));
         }
         INDArray scoreArr = Transforms.log(output, false).muli(labels);
 
