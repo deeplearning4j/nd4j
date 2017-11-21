@@ -190,7 +190,7 @@ public abstract class Nd4jWorkspace implements MemoryWorkspace {
     }
 
     @Override
-    public Long getGenerationId() {
+    public long getGenerationId() {
         return generationId.get();
     }
 

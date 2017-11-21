@@ -45,7 +45,7 @@ public interface MemoryWorkspace extends AutoCloseable {
      * This method returns current generation Id
      * @return
      */
-    Long getGenerationId();
+    long getGenerationId();
 
     /**
      * This method does allocation from a given Workspace

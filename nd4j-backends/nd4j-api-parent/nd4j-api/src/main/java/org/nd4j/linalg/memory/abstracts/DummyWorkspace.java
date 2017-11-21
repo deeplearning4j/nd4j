@@ -76,7 +76,7 @@ public class DummyWorkspace implements MemoryWorkspace {
     }
 
     @Override
-    public Long getGenerationId() {
+    public long getGenerationId() {
         return 0L;
     }
 
