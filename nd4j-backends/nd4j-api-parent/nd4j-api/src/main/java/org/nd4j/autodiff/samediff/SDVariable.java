@@ -50,7 +50,8 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                        int[] shape,
                        WeightInitScheme weightInitScheme,
                        int[] vertexId) {
-        this.shape =  shape;
+
+        this.shape =  Shape.resolveNegativeShapeIfNeccessary(new int[shape.length],shape);
         this.varName = varName;
         this.weightInitScheme = weightInitScheme;
         this.vertexId = vertexId;
@@ -127,7 +128,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * its getArr() method is called instead.
      * @return the {@link INDArray} associated with this variable.
      */
-    public INDArray getArr() {
+    public INDArray getgetArr() {
         if(sameDiff.arrayAlreadyExistsForVertexId(vertexId))
             return sameDiff.getArrForVertexId(vertexId);
 
@@ -206,18 +207,6 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 .sameDiff(sameDiff)
                 .build();
     }
-
-    private int[] getTransformOutputShape(SDVariable other) {
-        if(shape == null)
-            return other.getShape();
-        if(ArrayUtil.prod(shape) == 1) {
-            return other.getShape();
-        }
-
-        return getShape();
-    }
-
-
 
 
 
