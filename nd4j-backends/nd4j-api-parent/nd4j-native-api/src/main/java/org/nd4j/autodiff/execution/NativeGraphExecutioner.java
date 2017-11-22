@@ -90,10 +90,13 @@ public class NativeGraphExecutioner implements GraphExecutioner {
             int name = bufferBuilder.createString(sdVar.getVarName());
             int shape = FlatArray.createShapeVector(bufferBuilder, arr.shapeInfoDataBuffer().asInt());
             int buffer = FlatArray.createBufferVector(bufferBuilder, arr.data().asBytes());
+            int id = IntPair.createIntPair(bufferBuilder, sdVar.getVertexId()[0], 0);
 
             int array = FlatArray.createFlatArray(bufferBuilder, shape, buffer, SameDiff.getDataTypeAsByte(arr.data().dataType()), SameDiff.getOrderAsByte());
 
-            int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, sdVar.getVertexId()[0], name, 0, array, -1);
+
+
+            int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
             variables.add(flatVariable);
 
             mappedVariables.put(input.getVarName(), new int[]{varId});

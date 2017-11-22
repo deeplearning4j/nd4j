@@ -3637,6 +3637,7 @@ public class SameDiff {
         val flatNodes = new ArrayList<Integer>();
 
         // first of all we build VariableSpace dump
+
         for (val variable: variables()) {
             log.info("Exporting variable: [{}]", variable.getVarName());
 
@@ -3653,10 +3654,10 @@ public class SameDiff {
             int name = bufferBuilder.createString(variable.getVarName());
             int shape = FlatArray.createShapeVector(bufferBuilder, arr.shapeInfoDataBuffer().asInt());
             int buffer = FlatArray.createBufferVector(bufferBuilder, arr.data().asBytes());
-
             int array = FlatArray.createFlatArray(bufferBuilder, shape, buffer, getDataTypeAsByte(arr.data().dataType()), getOrderAsByte());
+            int id = IntPair.createIntPair(bufferBuilder, variable.getVertexId()[0], 0);
 
-            int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, variable.getVertexId()[0], name, 0, array, -1);
+            int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
             flatVariables.add(flatVariable);
         }
 
