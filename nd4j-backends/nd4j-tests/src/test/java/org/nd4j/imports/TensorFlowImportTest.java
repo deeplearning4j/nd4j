@@ -148,16 +148,6 @@ public class TensorFlowImportTest {
         val buffer = tg.asFlatBuffers();
         assertNotNull(buffer);
 
-        /*
-        val offset = buffer.position();
-
-        log.info("Length: {}; Offset: {};", buffer.capacity(), offset);
-        val array = buffer.array();
-
-        try (val fos = new FileOutputStream("../../libnd4j/tests/resources/inception.fb"); val dos = new DataOutputStream(fos)) {
-            dos.write(array, offset, array.length - offset);
-        }*/
-
     }
 
 
@@ -168,6 +158,12 @@ public class TensorFlowImportTest {
         val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/simple_while.pb.txt").getFile());
 
         assertNotNull(tg);
+
+
+        val graph = FlatGraph.getRootAsFlatGraph(tg.asFlatBuffers());
+
+        assertEquals(6, graph.variablesLength());
+        assertEquals("alpha/Assign", graph.nodes(0).name());
     }
 
     /*@Test
@@ -300,6 +296,11 @@ public class TensorFlowImportTest {
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
 
+        val graph = FlatGraph.getRootAsFlatGraph(fb);
+        assertEquals(15, graph.variablesLength());
+
+        assertEquals("phi/Assign", graph.nodes(0).name());
+        assertEquals("phi/read", graph.nodes(1).name());
     }
 
     @Test
@@ -320,6 +321,11 @@ public class TensorFlowImportTest {
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
 
+        val graph = FlatGraph.getRootAsFlatGraph(fb);
+        assertEquals(5, graph.variablesLength());
+
+        assertEquals("StridedSlice", graph.nodes(0).name());
+        assertEquals("Sum", graph.nodes(1).name());
     }
 
     @Test
@@ -336,19 +342,11 @@ public class TensorFlowImportTest {
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
 
+        val graph = FlatGraph.getRootAsFlatGraph(fb);
+        assertEquals(22, graph.variablesLength());
 
-        /*
-
-        val offset = fb.position();
-
-        log.info("Length: {}; Offset: {};", fb.capacity(), offset);
-        val array = fb.array();
-
-        try (val fos = new FileOutputStream("../../../libnd4j/tests_cpu/resources/tensor_array.fb");
-             val dos = new DataOutputStream(fos)) {
-            dos.write(array, offset, array.length - offset);
-        }
-        */
+        assertEquals("strided_slice", graph.nodes(0).name());
+        assertEquals("TensorArray", graph.nodes(1).name());
     }
 
     @Test
@@ -360,6 +358,12 @@ public class TensorFlowImportTest {
 
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
+
+        val graph = FlatGraph.getRootAsFlatGraph(fb);
+        assertEquals(12, graph.variablesLength());
+
+        assertEquals("strided_slice", graph.nodes(0).name());
+        assertEquals("TensorArray", graph.nodes(1).name());
     }
 
 
@@ -382,6 +386,7 @@ public class TensorFlowImportTest {
 
         val graph = FlatGraph.getRootAsFlatGraph(fb);
         assertEquals(1, graph.nodesLength());
+        assertEquals(2, graph.variablesLength());
 
         assertEquals("Sum", graph.nodes(0).name());
     }
