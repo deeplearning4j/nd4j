@@ -4,10 +4,8 @@ import com.google.common.base.Preconditions;
 import lombok.*;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -45,25 +43,15 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     protected WeightInitScheme weightInitScheme;
     @Builder
     private SDVariable(String varName,
-                       OpState opState,
                        SameDiff sameDiff,
                        int[] shape,
                        WeightInitScheme weightInitScheme,
                        int[] vertexId) {
-
-        this.shape =  Shape.resolveNegativeShapeIfNeccessary(new int[shape.length],shape);
+        if(shape != null)
+            this.shape =  Shape.resolveNegativeShapeIfNeccessary(new int[shape.length],shape);
         this.varName = varName;
         this.weightInitScheme = weightInitScheme;
         this.vertexId = vertexId;
-
-        if(opState == null) {
-            this.opState = OpState.builder()
-                    .opType(Op.Type.RETURN)
-                    .inPlace(true)
-                    .opName(varName)
-                    .build();
-        }
-
 
         if(weightInitScheme == null) {
             this.weightInitScheme = new ZeroInitScheme('f');
@@ -128,7 +116,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * its getArr() method is called instead.
      * @return the {@link INDArray} associated with this variable.
      */
-    public INDArray getgetArr() {
+    public INDArray getArr() {
         if(sameDiff.arrayAlreadyExistsForVertexId(vertexId))
             return sameDiff.getArrForVertexId(vertexId);
 

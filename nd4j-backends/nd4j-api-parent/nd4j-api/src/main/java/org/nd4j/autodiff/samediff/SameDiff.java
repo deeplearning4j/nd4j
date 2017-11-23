@@ -148,9 +148,9 @@ public class SameDiff {
 
         }
 
-        for(List<Edge<OpState>> edgeList : graph().getEdges().values()) {
-            for(Edge<OpState> edge : edgeList) {
-                OpStateEdge newEdge = new OpStateEdge(
+        for(List<Edge<String>> edgeList : graph().getEdges().values()) {
+            for(Edge<String> edge : edgeList) {
+                EdgeId newEdge = new EdgeId(
                         new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
                         new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
@@ -160,9 +160,9 @@ public class SameDiff {
         }
 
 
-        for(List<Edge<OpState>> edgeList : graph().getIncomingEdges().values()) {
-            for(Edge<OpState> edge : edgeList) {
-                OpStateEdge newEdge = new OpStateEdge(
+        for(val edgeList : graph().getIncomingEdges().values()) {
+            for(val edge : edgeList) {
+                EdgeId newEdge = new EdgeId(
                         new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
                         new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
@@ -3267,7 +3267,7 @@ public class SameDiff {
                     Set<DifferentialFunction> seen = new HashSet<>();
 
                     for(OpExecAction action : opOrder) {
-                        if(action == null || action.getOpState() == null) {
+                        if(action == null) {
                             log.warn("Action op state is null");
                             continue;
                         }
@@ -3359,11 +3359,12 @@ public class SameDiff {
         for(int i = 0; i < opExecActions.size(); i++) {
 
             OpExecAction opExecAction = opExecActions.get(i);
-            if(!onBackward && opExecAction.getOpState().getOpName().equals(new GradientBackwardsMarker().opName())) {
+            val opName = getFunctionForVertexId(opExecAction.getOutputId()).opName();
+            if(!onBackward && opName.equals(new GradientBackwardsMarker().opName())) {
                 onBackward = true;
             }
 
-            if(opExecAction.getOpState().getOpName().equals(new GradientBackwardsMarker().opName()))
+            if(opName.equals(new GradientBackwardsMarker().opName()))
                 continue;
 
             DifferentialFunction differentialFunction = createOp(
@@ -3473,11 +3474,11 @@ public class SameDiff {
 
             else if(differentialFunction instanceof Op) {
                 Op op = (Op) differentialFunction;
-                if(opExecAction.getOpState().getAxes() == null)
+                if(differentialFunction.getDimensions() == null)
                     Nd4j.getExecutioner().exec(op);
 
                 else {
-                    int[] axes = opExecAction.getOpState().getAxes();
+                    int[] axes = differentialFunction.getDimensions();
                     if(differentialFunction instanceof Accumulation) {
                         Accumulation accumulation = (Accumulation) differentialFunction;
                         Nd4j.getExecutioner().exec(accumulation,axes);
@@ -3511,8 +3512,8 @@ public class SameDiff {
                     List<SDVariable> functions = new ArrayList<>(opExecAction.getInputsIds().length);
                     SDVariable add = SDVariable.builder()
                             .sameDiff(this)
-                            .varName(!functions.isEmpty() ? generateVariableName(opExecAction.getOpState().getOpName(),true,
-                                    functions.toArray(new SDVariable[functions.size()])) : opExecAction.getOpState().getOpName() + "-" + UUID.randomUUID().toString())
+                            .varName(!functions.isEmpty() ? generateVariableName(opName,true,
+                                    functions.toArray(new SDVariable[functions.size()])) : opName + "-" + UUID.randomUUID().toString())
                             .shape(op.z().shape())
                             .vertexId(opExecAction.getOutputId())
                             .build();
@@ -3587,10 +3588,18 @@ public class SameDiff {
     protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder) {
         log.info("Exporting node: [{}:<{}>]", node.opName(), node.opName());
 
-        float[] extras = node.getOpState().getExtraArgs() != null ? new float[node.getOpState().getExtraArgs().length] : new float[0];
+        float[] extras = node.getExtraArgs() != null ? new float[node.getExtraArgs().length] : new float[0];
         for (int e = 0; e < extras.length; e++) {
-            extras[e] = ((Number) node.getOpState().getExtraArgs()[e]).floatValue();
+            extras[e] = ((Number) node.getExtraArgs()[e]).floatValue();
         }
+
+        int[] extraBits = null;
+        if(node.opType() == Op.Type.CUSTOM) {
+            DynamicCustomOp dynamicCustomOp = (DynamicCustomOp) node;
+            extraBits = Ints.toArray(dynamicCustomOp.getIArguments());
+        }
+        else
+            extraBits = new int[]{};
 
         val inPaired = new ArrayList<Integer>();
         int e = 0;
@@ -3601,19 +3610,19 @@ public class SameDiff {
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
         int nodesOut = FlatNode.createOutputVector(bufferBuilder, node.getVertexId());
         int extraz = FlatNode.createExtraParamsVector(bufferBuilder, extras);
-        int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, node.getOpState().getOpType() == Op.Type.CUSTOM && node.getOpState().getExtraBits() != null ? node.getOpState().getExtraBits() : new int[]{});
-        int dimensions = FlatNode.createDimensionsVector(bufferBuilder, node.getOpState().getAxes() != null ? node.getOpState().getAxes() : new int[]{});
+        int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, extraBits);
+        int dimensions = FlatNode.createDimensionsVector(bufferBuilder, node.getDimensions() != null ? node.getDimensions() : new int[]{});
         int fname = bufferBuilder.createString(node.opName());
         int scopeName = bufferBuilder.createString("");
 
-        if (node.getOpState().getOpType() == null)
+        if (node.opType() == null)
             log.warn("Null-op node: {}", node);
 
         int flatNode = FlatNode.createFlatNode(bufferBuilder,
                 node.getVertexId()[0],
                 fname,
-                getFlatOpType(node.getOpState().getOpType()),
-                getOpNum(node.getOpState().getOpName(), node.getOpState().getOpType()),
+                getFlatOpType(node.opType()),
+                getOpNum(node.opName(), node.opType()),
                 nodesIn,
                 nodesInPaired,
                 (byte) 0,
@@ -3622,7 +3631,7 @@ public class SameDiff {
                 integerArgs,
                 dimensions,
                 -1,
-                node.getOpState().getOpType() == Op.Type.SCALAR ? node.getOpState().getScalarValue().floatValue() : 0.0f, 0, scopeName);
+                node.opType() == Op.Type.SCALAR ? node.getScalarValue().floatValue() : 0.0f, 0, scopeName);
 
         return flatNode;
     }

@@ -6,10 +6,8 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.autodiff.opstate.OpExecAction;
-import org.nd4j.autodiff.opstate.OpState;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
@@ -60,11 +58,6 @@ public class TensorFlowImportTest {
 
         List<OpExecAction> actions = graph.getGraph().getOpOrder().getActions();
         assertEquals(1, actions.size());
-
-        OpState state = actions.get(0).getOpState();
-
-        assertEquals(Op.Type.TRANSFORM, state.getOpType());
-        assertEquals(0, state.getOpNum());
 
         SDVariable var0 = graph.variableMap().get("zeros");
         SDVariable var1 = graph.variableMap().get("ones");
@@ -394,6 +387,10 @@ public class TensorFlowImportTest {
     public void testIntermediateReduction() throws Exception {
         Nd4j.create(1);
         val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getFile());
+        val sumResultVar = tg.getVariable("Sum");
+        assertEquals(3,tg.variables().size());
+        assertNotNull(sumResultVar);
+        assertNotNull(tg.getFunctionForVertexId(sumResultVar.getVertexId()));
         System.out.println(tg.variables());
     /*    val sumNode = tg.getNode("Sum");
         assertNotNull(sumNode);
