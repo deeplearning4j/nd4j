@@ -19,11 +19,13 @@
 
 package org.nd4j.linalg.api.ops;
 
+import com.google.common.primitives.Ints;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -164,7 +166,14 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
 
     @Override
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
-        super.initFromOnnx(node, initWith, attributesForNode, graph);
+        if (!attributesForNode.containsKey("axes")) {
+            this.dimensions = new int[] { Integer.MAX_VALUE };
+        }
+        else {
+            val map = OnnxGraphMapper.getInstance().getAttrMap(node);
+            val dims = Ints.toArray(map.get("axes").getIntsList());
+            this.dimensions = dims;
+        }
     }
 
     @Override

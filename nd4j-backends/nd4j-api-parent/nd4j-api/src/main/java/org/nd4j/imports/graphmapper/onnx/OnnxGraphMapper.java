@@ -33,6 +33,12 @@ import java.util.Map;
  * @author Adam Gibson
  */
 public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, OnnxProto3.NodeProto, OnnxProto3.AttributeProto,  onnx.OnnxProto3.TypeProto.TensorTypeProto> {
+    private static OnnxGraphMapper INSTANCE = new OnnxGraphMapper();
+
+
+    public static OnnxGraphMapper getInstance() {
+        return INSTANCE;
+    }
 
     @Override
     public Map<String, Integer> verticesForGraph(OnnxProto3.GraphProto graph, SameDiff sameDiff) {
