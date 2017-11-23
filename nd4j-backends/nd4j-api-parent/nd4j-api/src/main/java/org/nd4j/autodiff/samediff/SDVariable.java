@@ -126,6 +126,9 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                     getScalarValue().doubleValue());
             sameDiff.associateArrayWithVariable(arr,this);
         }
+        else if(getShape() == null)
+            return null;
+
         else {
             INDArray newAlloc = getWeightInitScheme().create(getShape());
             sameDiff.associateArrayWithVariable(newAlloc,this);
@@ -175,11 +178,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @return
      */
     public int[] getShape() {
-        if(shape != null)
-            return shape;
-
-        return sameDiff.getVariableForVertexId(this.vertexId).getShape();
-
+        return shape;
     }
 
 

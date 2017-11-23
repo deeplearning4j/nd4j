@@ -3371,49 +3371,49 @@ public class SameDiff {
                     opExecAction);
             if(differentialFunction instanceof If) {
                 If ifOp = (If) differentialFunction;
-               if(!onBackward) {
-                   ifOp.getPredicateExecution().exec();
-                   //depending on the block add the proper graph body to this for persistence
-                   //and possible later processing.
-                   if(ifOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
-                       ifOp.getLoopBodyExecution().exec();
-                       ifOp.exectedTrueOrFalse(true);
-                   }
-                   else {
-                       ifOp.getFalseBodyExecution().exec();
-                       ifOp.exectedTrueOrFalse(false);
+                if(!onBackward) {
+                    ifOp.getPredicateExecution().exec();
+                    //depending on the block add the proper graph body to this for persistence
+                    //and possible later processing.
+                    if(ifOp.getTargetBoolean().getArr().sumNumber().doubleValue() > 0) {
+                        ifOp.getLoopBodyExecution().exec();
+                        ifOp.exectedTrueOrFalse(true);
+                    }
+                    else {
+                        ifOp.getFalseBodyExecution().exec();
+                        ifOp.exectedTrueOrFalse(false);
 
-                   }
-               }
-               else {
-                   if(ifOp.getTrueBodyExecuted() != null) {
-                       Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> execBackwards = null;
-                       List<SDVariable> variablesForFunctions =  null;
-                       if(ifOp.getTrueBodyExecuted()) {
-                           execBackwards = ifOp.getLoopBodyExecution().execBackwards();
-                           variablesForFunctions = ifOp.getLoopBodyExecution().getVariablesAssociatedWithFunctions(execBackwards.getRight());
-                       }
-                       else {
-                           execBackwards = ifOp.getFalseBodyExecution().execBackwards();
-                           variablesForFunctions = ifOp.getFalseBodyExecution().getVariablesAssociatedWithFunctions(execBackwards.getRight());
-                       }
+                    }
+                }
+                else {
+                    if(ifOp.getTrueBodyExecuted() != null) {
+                        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> execBackwards = null;
+                        List<SDVariable> variablesForFunctions =  null;
+                        if(ifOp.getTrueBodyExecuted()) {
+                            execBackwards = ifOp.getLoopBodyExecution().execBackwards();
+                            variablesForFunctions = ifOp.getLoopBodyExecution().getVariablesAssociatedWithFunctions(execBackwards.getRight());
+                        }
+                        else {
+                            execBackwards = ifOp.getFalseBodyExecution().execBackwards();
+                            variablesForFunctions = ifOp.getFalseBodyExecution().getVariablesAssociatedWithFunctions(execBackwards.getRight());
+                        }
 
-                       /**
-                        * Maps the variables from the child namespace body to
-                        * the parent. This allows access to the underlying ndarray
-                        * and returning a valid variable reference for autodiff.
-                        */
-                       for(SDVariable variable : variablesForFunctions) {
-                           SDVariable proxyVar = var(variable);
-                       }
+                        /**
+                         * Maps the variables from the child namespace body to
+                         * the parent. This allows access to the underlying ndarray
+                         * and returning a valid variable reference for autodiff.
+                         */
+                        for(SDVariable variable : variablesForFunctions) {
+                            SDVariable proxyVar = var(variable);
+                        }
 
 
-                   }
+                    }
 
-                   else
-                       throw new ND4JIllegalStateException("No body was run.");
+                    else
+                        throw new ND4JIllegalStateException("No body was run.");
 
-               }
+                }
 
 
                 ops.add(differentialFunction);
@@ -3646,14 +3646,10 @@ public class SameDiff {
         // first of all we build VariableSpace dump
         for (val variable: variables()) {
             log.info("Exporting variable: [{}]", variable.getVarName());
-
-
-            if (variable.getArr() == null) {
-                if (variable.getShape() == null)
-                    throw new ND4JIllegalStateException("Both array and shape are NULL");
-                updateVariable(variable.getVarName(),Nd4j.create(variable.getShape()));
-            }
-
+            if(variable.getArr() == null || variable.getShape() == null)
+                continue;
+            if(!vertexIdToVariable.containsKey(variable.getVertexId()))
+                putArrayForVertexId(variable.getVertexId(),Nd4j.create(variable.getShape()));
 
             val arr = variable.getArr();
 

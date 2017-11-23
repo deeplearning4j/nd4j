@@ -27,7 +27,6 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.shape.Shape;
 import org.tensorflow.framework.AttrValue;
@@ -46,9 +45,6 @@ import java.util.Map;
 @Slf4j
 public abstract class BaseAccumulation extends BaseOp implements Accumulation {
     protected Number finalResult;
-    protected IComplexNumber finalResultComplex;
-    protected boolean applyFinalTransform = true;
-    protected boolean isComplex = false;
 
     public BaseAccumulation(SameDiff sameDiff,
                             DifferentialFunction i_v,

@@ -108,6 +108,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
         //for each variable
         val indexMap = new HashMap<String,Integer>();
         for(Map.Entry<String,TENSOR_TYPE> entry : variablesForGraph.entrySet()) {
+
             val arr = getNDArrayFromTensor(entry.getKey(), entry.getValue(), tfGraph);
             if(arr != null) {
                 val var = importState.getSameDiff().var(entry.getKey(),arr);
