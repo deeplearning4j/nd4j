@@ -42,7 +42,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
     @Override
     public Map<String, Integer> verticesForGraph(OnnxProto3.GraphProto graph, SameDiff sameDiff) {
-        //map the names of the ndoes while accumulating the vertex ids
+        //map the names of the nodes while accumulating the vertex ids
         //for each variable
         val variablesForGraph = variablesForGraph(graph);
         val indexMap = new HashMap<String,Integer>();
@@ -72,11 +72,11 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
             val inputs = new int[node.getInputCount()];
             val outputs = new int[node.getOutputCount()];
             for(int i = 0; i < inputs.length; i++) {
-                inputs[i] = nodeNameToVertexId.get(node.getInput(i));
+                inputs[i] = Integer.parseInt(node.getInput(i));
             }
 
             for(int i = 0; i < outputs.length; i++) {
-                outputs[i] = nodeNameToVertexId.get(node.getOutput(i));
+                outputs[i] = Integer.parseInt(node.getOutput(i));
             }
 
             ret.put(node.getName(),Pair.of(inputs,outputs));
@@ -86,17 +86,38 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public Map<String,  onnx.OnnxProto3.TypeProto.TensorTypeProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
-        Map<String,  onnx.OnnxProto3.TypeProto.TensorTypeProto> ret = new HashMap<>();
-
+    public Map<String,onnx.OnnxProto3.TypeProto.TensorTypeProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
+        Map<String,onnx.OnnxProto3.TypeProto.TensorTypeProto> ret = new HashMap<>();
         for(int i = 0; i < graphProto.getInputCount(); i++) {
             ret.put(graphProto.getInput(i).getName(),graphProto.getInput(i).getType().getTensorType());
         }
 
         for(int i = 0; i < graphProto.getOutputCount(); i++) {
             ret.put(graphProto.getOutput(i).getName(),graphProto.getOutput(i).getType().getTensorType());
+        }
+
+        for(int i = 0; i < graphProto.getNodeCount(); i++) {
+            val node = graphProto.getNode(i);
+            if(node.getName().isEmpty())
+                continue;
+
+            val name = node.getName();
+            if(!ret.containsKey(name)) {
+                val dim =  OnnxProto3.TypeProto.TensorShapeProto.Dimension.
+                        newBuilder()
+                        .setDimValue(1)
+                        .build();
+                val typeProto = OnnxProto3.TypeProto.TensorTypeProto.newBuilder()
+                        .setShape(
+                                OnnxProto3.TypeProto.TensorShapeProto.newBuilder()
+                                        .addDim(dim)
+                                        .addDim(dim).build())
+                        .build();
+                ret.put(name,typeProto);
+            }
 
         }
+
 
 
         return ret;
@@ -114,10 +135,10 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
-    public void mapNodeType(OnnxProto3.NodeProto tfNode, ImportState<OnnxProto3.GraphProto,  onnx.OnnxProto3.TypeProto.TensorTypeProto> importState) {
+    public void mapNodeType(OnnxProto3.NodeProto tfNode, ImportState<OnnxProto3.GraphProto,onnx.OnnxProto3.TypeProto.TensorTypeProto> importState) {
         val differentialFunction = DifferentialFunctionClassHolder.getInstance().getOpWithOnnxName(tfNode.getOpType());
         if(differentialFunction == null) {
-            throw new NoOpNameFoundException("No op name found " + tfNode.getName());
+            throw new NoOpNameFoundException("No op name found " + tfNode.getOpType());
         }
         val diff = importState.getSameDiff();
 
@@ -128,6 +149,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
             val opStateEdge = getOpStateEdge(indices.getFirst(),indices.getSecond(),tfNode);
             newInstance.setVertexId(indices.getRight());
             newInstance.setSameDiff(importState.getSameDiff());
+            importState.getSameDiff().putFunction(indices.getRight(),newInstance);
             /**
              * Need to f
              */
