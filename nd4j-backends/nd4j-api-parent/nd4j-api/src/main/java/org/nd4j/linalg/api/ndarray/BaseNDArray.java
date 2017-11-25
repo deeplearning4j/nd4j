@@ -1279,9 +1279,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if (i < 0)
             i += rank();
         if (isScalar()) {
-            if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-                OpProfiler.getInstance().processScalarCall();
-
+            autoProcessScalarCall();            
             data.put(i, value);
             return this;
         }
@@ -1326,9 +1324,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         } else if (indexes.length == 4) {
             return putScalar(indexes[0], indexes[1], indexes[2], indexes[3], value);
         } else {
-            if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-                OpProfiler.getInstance().processScalarCall();
-
+            autoProcessScalarCall();
             long offset = Shape.getOffset(javaShapeInformation, indexes);
             data.put(offset, value);
         }
@@ -1338,9 +1334,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     @Override
     public INDArray putScalar(int row, int col, double value) {
         Nd4j.getCompressor().autoDecompress(this);
-
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
+        autoProcessScalarCall();
 
         if (rank() != 2)
             throw new IllegalStateException("Cannot use putScalar(int,int,double) on a rank " + rank() + " INDArray");
@@ -1352,8 +1346,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     @Override
     public INDArray putScalar(int dim0, int dim1, int dim2, double value) {
         Nd4j.getCompressor().autoDecompress(this);
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
+        autoProcessScalarCall();        
 
         if (rank() != 3)
             throw new IllegalStateException(
@@ -1377,8 +1370,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     @Override
     public INDArray putScalar(int dim0, int dim1, int dim2, int dim3, double value) {
         Nd4j.getCompressor().autoDecompress(this);
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
+        autoProcessScalarCall();
 
         if (rank() != 4)
             throw new IllegalStateException(
@@ -1741,11 +1733,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public double getDouble(int... indices) {
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
-
-        Nd4j.getCompressor().autoDecompress(this);
-
+        autoProcessScalarCall();
+        Nd4j.getCompressor().autoDecompress(this);        
+        
         for (int i = 0; i < indices.length; i++) {
             if (indices[i] < 0)
                 indices[i] += rank();
@@ -3764,8 +3754,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             throw new IllegalArgumentException("Unable to get linear index >= " + length());
         }
 
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
+        autoProcessScalarCall();
 
         Nd4j.getCompressor().autoDecompress(this);
 
@@ -3888,9 +3877,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
     @Override
     public INDArray putScalarUnsafe(long offset, double value) {
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
-
+        autoProcessScalarCall();
         data().put(offset, value);
         return this;
     }
@@ -4932,6 +4919,11 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             }
         }
 
+    }
+    
+    protected void autoProcessScalarCall() {
+        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
+            OpProfiler.getInstance().processScalarCall();
     }
 
     /**
