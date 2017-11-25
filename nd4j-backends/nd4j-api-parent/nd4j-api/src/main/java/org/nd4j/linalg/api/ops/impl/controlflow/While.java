@@ -203,37 +203,13 @@ public class While extends DifferentialFunction implements CustomOp {
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
         //note that we initialize startPosition possibly from a parent context, the default should start from
         //
-        // the passed in node, but we might be efarther along in the import loop.
-
-
+        // the passed in node, but we might be farther along in the import loop.
 
         val startPosition = this.startPosition == null ? new AtomicInteger(graph.getNodeList().indexOf(nodeDef)) : this.startPosition;
         this.startPosition = startPosition;
         this.sameDiff = initWith;
         val uniqueId = java.util.UUID.randomUUID().toString();
-
-        val scopeCondition = SameDiff.create();
-        val scopeLoop = SameDiff.create();
-
-
-
-
-        val whileNode = While.builder()
-                .blockName("whileLoop_" + uniqueId)
-                .parent(initWith)
-                .predicate(new SameDiff.DefaultSameDiffConditional())
-                .condition(new SameDiff.SameDiffFunctionDefinition() {
-                    @Override
-                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        return new SDVariable[0];
-                    }
-                }).trueBody(new SameDiff.SameDiffFunctionDefinition() {
-                    @Override
-                    public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                        return new SDVariable[0];
-                    }
-                })
-                .build();
+        this.blockName = uniqueId;
 
 
         // parsing declarations first. they all come as Expose ops
