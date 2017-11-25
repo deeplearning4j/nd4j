@@ -4,6 +4,8 @@ import lombok.val;
 import org.junit.Test;
 import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
 import org.nd4j.linalg.api.ops.impl.controlflow.Gather;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.MaxPooling2D;
+import org.nd4j.linalg.api.ops.impl.transforms.Tanh;
 import org.nd4j.linalg.io.ClassPathResource;
 
 import static junit.framework.TestCase.assertTrue;
@@ -31,8 +33,17 @@ public class OnnxImportTest {
     @Test
     public void testOnnxImportCnn() throws Exception {
         val importGraph = OnnxGraphMapper.getInstance().importGraph(new ClassPathResource("onnx_graphs/sm_cnn.onnx").getFile());
-        assertEquals(12,importGraph.graph().numVertices());
-        System.out.println(importGraph);
+        assertEquals(20,importGraph.graph().numVertices());
+        val outputTanhOutput = importGraph.getFunctionForVertexId(15);
+        assertNotNull(outputTanhOutput);
+        assertTrue(outputTanhOutput instanceof Tanh);
+
+        val pooling = importGraph.getFunctionForVertexId(16);
+        assertTrue(pooling instanceof MaxPooling2D);
+
+        val poolingCast = (MaxPooling2D) pooling;
+        assertEquals(24,poolingCast.getConfig().getKh());
+        assertEquals(24,poolingCast.getConfig().getKw());
 
     }
 

@@ -68,7 +68,9 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     @Override
     public Map<String, Pair<int[], int[]>> inputsAndOutputsForGraph(OnnxProto3.GraphProto graph, Map<String, Integer> nodeNameToVertexId) {
         val ret = new HashMap<String, Pair<int[], int[]>>(graph.getNodeCount());
-        for(val node : graph.getNodeList()) {
+        for(int nodeIdx = 0; nodeIdx < graph.getNodeCount(); nodeIdx++) {
+            val node = graph.getNode(nodeIdx);
+            val name = node.getName().isEmpty() ? String.valueOf(nodeIdx) : node.getName();
             val inputs = new int[node.getInputCount()];
             val outputs = new int[node.getOutputCount()];
             for(int i = 0; i < inputs.length; i++) {
@@ -79,7 +81,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
                 outputs[i] = Integer.parseInt(node.getOutput(i));
             }
 
-            ret.put(node.getName(),Pair.of(inputs,outputs));
+            ret.put(name,Pair.of(inputs,outputs));
         }
 
         return ret;
@@ -98,10 +100,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
         for(int i = 0; i < graphProto.getNodeCount(); i++) {
             val node = graphProto.getNode(i);
-            if(node.getName().isEmpty())
-                continue;
-
-            val name = node.getName();
+            val name = node.getName().isEmpty() ? String.valueOf(i) : node.getName();
             if(!ret.containsKey(name)) {
                 val dim =  OnnxProto3.TypeProto.TensorShapeProto.Dimension.
                         newBuilder()
@@ -141,11 +140,12 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
             throw new NoOpNameFoundException("No op name found " + tfNode.getOpType());
         }
         val diff = importState.getSameDiff();
-
+        val idx = importState.getGraph().getNodeList().indexOf(tfNode);
+        val name = !tfNode.getName().isEmpty() ? tfNode.getName() : String.valueOf(idx);
         try {
             val newInstance = differentialFunction.getClass().newInstance();
             newInstance.initFromOnnx(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
-            val indices = importState.getVertexIdMap().get(tfNode.getName());
+            val indices = importState.getVertexIdMap().get(name);
             val opStateEdge = getOpStateEdge(indices.getFirst(),indices.getSecond(),tfNode);
             newInstance.setVertexId(indices.getRight());
             newInstance.setSameDiff(importState.getSameDiff());

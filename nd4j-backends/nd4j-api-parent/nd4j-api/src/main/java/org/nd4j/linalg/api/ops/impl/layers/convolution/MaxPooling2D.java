@@ -132,7 +132,7 @@ public class MaxPooling2D extends DynamicCustomOp {
 
     @Override
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
-        val paddingVal = !attributesForNode.containsKey("auto_pad") ? "NONE" : attributesForNode.get("auto_pad").getS().toStringUtf8();
+        val paddingVal = !attributesForNode.containsKey("auto_pad") ? "VALID" : attributesForNode.get("auto_pad").getS().toStringUtf8();
         val isSameNode = paddingVal.equals("SAME");
         val kernelShape = attributesForNode.get("kernel_shape").getIntsList();
         val padding = attributesForNode.get("pads").getIntsList();
