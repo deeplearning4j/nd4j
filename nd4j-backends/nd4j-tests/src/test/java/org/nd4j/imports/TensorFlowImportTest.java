@@ -124,6 +124,22 @@ public class TensorFlowImportTest {
     }
 
 
+
+    @Test
+    public void testLenet() throws Exception {
+        /**
+         * Produced with:
+         * python  ~/anaconda2/lib/python2.7/site-packages/tensorflow/python/tools/freeze_graph.py  --input_graph=graph2.pb.txt  --input_checkpoint=test3.ckpt  --output_graph=graph_frozen2.pb  --output_node_name=output/BiasAdd --input_binary=False
+
+         */
+
+        Nd4j.create(1);
+
+        val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/lenet_cnn.pb").getFile());
+        
+
+    }
+
     @Test
     public void testIntermediate2() throws Exception {
         Nd4j.create(1);
