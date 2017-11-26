@@ -133,6 +133,7 @@ public class TensorFlowImportTest {
     @Test
     public void testIntermediate1() throws Exception {
         Nd4j.create(1);
+
         val tg = TensorFlowImport.importGraph(new ClassPathResource("tf_graphs/tensorflow_inception_graph.pb").getFile());
 
         assertTrue(tg.getVariable("input") != null);
@@ -373,7 +374,6 @@ public class TensorFlowImportTest {
         assertEquals("TensorArray", graph.nodes(1).name());
 
         assertEquals(4, graph.nodes(0).inputPairedLength());
-        assertEquals(1, graph.nodes(0).inputPairedLength());
     }
 
 

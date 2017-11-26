@@ -34,10 +34,10 @@ import org.nd4j.linalg.api.ops.Op;
 
 
  */
-public class Expose extends DynamicCustomOp {
+public class Enter extends DynamicCustomOp {
     @Override
     public String opName() {
-        return "expose";
+        return "enter";
     }
 
     @Override
@@ -47,7 +47,7 @@ public class Expose extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-       return "Expose";
+       return "Enter";
     }
 
     @Override
