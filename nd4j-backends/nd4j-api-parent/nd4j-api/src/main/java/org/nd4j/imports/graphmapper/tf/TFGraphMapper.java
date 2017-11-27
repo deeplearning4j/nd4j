@@ -216,6 +216,11 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     }
 
     @Override
+    public GraphDef parseGraphFrom(byte[] inputStream) throws IOException {
+        return GraphDef.parseFrom(inputStream);
+    }
+
+    @Override
     public GraphDef parseGraphFrom(InputStream inputStream) throws IOException {
         return GraphDef.parseFrom(inputStream);
     }

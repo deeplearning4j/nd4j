@@ -129,6 +129,11 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
     }
 
     @Override
+    public OnnxProto3.GraphProto parseGraphFrom(byte[] inputStream) throws IOException {
+        return OnnxProto3.ModelProto.parseFrom(inputStream).getGraph();
+    }
+
+    @Override
     public OnnxProto3.GraphProto parseGraphFrom(InputStream inputStream) throws IOException {
         return OnnxProto3.ModelProto.parseFrom(inputStream).getGraph();
     }

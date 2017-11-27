@@ -4,6 +4,7 @@ import com.google.protobuf.Message;
 import com.google.protobuf.TextFormat;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.commons.io.IOUtils;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.EdgeId;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -62,11 +63,13 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
      */
     @Override
     public  SameDiff importGraph(InputStream inputStream) {
+        byte[] bytes = null;
         GRAPH_TYPE def = null;
-        try ( BufferedInputStream bis = new BufferedInputStream(inputStream)) {
-            def = parseGraphFrom(bis);
-        } catch (Exception e) {
-            try (BufferedInputStream bis2 = new BufferedInputStream(inputStream); BufferedReader reader = new BufferedReader(new InputStreamReader(bis2))) {
+        try {
+            bytes = IOUtils.toByteArray(inputStream);
+            def = parseGraphFrom(bytes);
+        } catch (IOException e) {
+            try (BufferedInputStream bis2 = new BufferedInputStream(new ByteArrayInputStream(bytes)); BufferedReader reader = new BufferedReader(new InputStreamReader(bis2))) {
                 Message.Builder builder = getNewGraphBuilder();
 
                 StringBuilder str = new StringBuilder();
@@ -81,7 +84,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
                 e2.printStackTrace();
             }
         }
-
 
 
         return importGraph(def);
