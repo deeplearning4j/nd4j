@@ -1,11 +1,10 @@
 package org.nd4j.imports;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.nd4j.autodiff.execution.NativeGraphExecutioner;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
@@ -63,18 +62,18 @@ public class TFGraphTestAll {
     protected static void testSingle(Map<String, INDArray> inputs, Map<String, INDArray> predictions, String modelName, String modelDir) {
         Nd4j.EPS_THRESHOLD = 1e-4;
         log.info("\n\tRUNNING TEST " + modelName + "...");
-        val tg = TensorFlowImport.importIntermediate(new File(modelDir, "frozen_model.pb"));
+        SameDiff graph = TensorFlowImport.importGraph(new File(modelDir, "frozen_model.pb"));
 
         for (String input : inputs.keySet()) {
-            tg.provideArrayForVariable(input, inputs.get(input));
+            graph.associateArrayWithVariable(inputs.get(input),graph.variableMap().get(input));
         }
-        val executioner = new NativeGraphExecutioner();
-        INDArray[] res = executioner.executeGraph(tg);
+        INDArray res = graph.execAndEndResult();
 
-        for (int i = 0; i < res.length; i++) {
-            if (i > 0)
-                throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED BY WORKFLOW"); //figure out how to support multiple outputs with freezing in TF
-            INDArray nd4jPred = res[i];
+        //for (int i = 0; i < res.length; i++) {
+        //    if (i > 0)
+                //throw new IllegalArgumentException("NOT CURRENTLY SUPPORTED BY WORKFLOW"); //figure out how to support multiple outputs with freezing in TF
+            //INDArray nd4jPred = res[i];
+            INDArray nd4jPred = res;
             INDArray tfPred = predictions.get("output");
             assertEquals("Predictions do not match on " + modelName, tfPred.reshape(nd4jPred.shape()), nd4jPred);
             /*
@@ -84,7 +83,7 @@ public class TFGraphTestAll {
                 assertEquals("Predictions do not match on " + modelName, tfPred.reshape(nd4jPred.shape()), nd4jPred);
             }
             */
-        }
+        //}
         log.info("\n\tTEST " + modelName + " PASSED...");
         log.info("\n========================================================\n");
 

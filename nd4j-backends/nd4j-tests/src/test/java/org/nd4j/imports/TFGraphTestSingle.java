@@ -32,11 +32,11 @@ public class TFGraphTestSingle {
         //String modelName = "conv_0";
         //String modelName = "g_00";
         //String modelName = "g_01";
-        //String modelName = "math_mul_order";
+        String modelName = "math_mul_order";
         //String modelName = "mlp_00";
         //String modelName = "mlp_00_test";
         //String modelName = "transform_0";
-        String modelName = "transpose";
+        //String modelName = "transpose";
         String modelDir = new ClassPathResource("tf_graphs/examples/" + modelName).getFile().getAbsolutePath();
         Map<String, INDArray> inputs = inputVars(modelDir);
         Map<String, INDArray> predictions = outputVars(modelDir);
