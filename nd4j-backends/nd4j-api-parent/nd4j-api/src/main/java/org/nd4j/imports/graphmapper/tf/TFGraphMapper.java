@@ -72,7 +72,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         boolean isVar = opType.getOp().startsWith("VariableV");
         boolean isPlaceholder = opType.getOp().startsWith("Placeholder");
         boolean endsWithRead = opType.getName().endsWith("/read");
-        return isConst || isVar || isPlaceholder || endsWithRead;
+        boolean isNoOp = opType.getOp().equalsIgnoreCase("NoOp");
+        return isConst || isVar || isPlaceholder || endsWithRead || isNoOp;
     }
 
     @Override

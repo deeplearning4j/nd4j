@@ -362,9 +362,7 @@ public class SameDiff {
         }
 
 
-        if(vertexIdToShape.containsKey(vertexId)) {
-            throw new ND4JIllegalStateException("Shape for " + Arrays.toString(vertexId) + " already exists!");
-        }
+
         return vertexIdToShape.get(vertexId);
     }
 
@@ -3898,6 +3896,8 @@ public class SameDiff {
                 return OpType.CUSTOM;
             case SHAPE:
                 return OpType.SHAPE;
+            case PAIRWISE:
+                return OpType.TRANSFORM;
             default:
                 throw new UnsupportedOperationException("Unknown op type passed in: " + type);
         }
