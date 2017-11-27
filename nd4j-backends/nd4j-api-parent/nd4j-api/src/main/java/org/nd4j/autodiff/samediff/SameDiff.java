@@ -3631,7 +3631,7 @@ public class SameDiff {
         }
 
 
-        int nodesIn = FlatNode.createInputVector(bufferBuilder, inputs);
+        int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
         int nodesOut = FlatNode.createOutputVector(bufferBuilder, node.getVertexId());
         int extraz = FlatNode.createExtraParamsVector(bufferBuilder, extras);
