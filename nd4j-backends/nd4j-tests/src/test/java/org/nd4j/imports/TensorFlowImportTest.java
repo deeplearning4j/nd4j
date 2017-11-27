@@ -10,12 +10,14 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.FlatGraph;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
 import org.tensorflow.framework.GraphDef;
 
 import java.io.DataInputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -500,5 +502,17 @@ public class TensorFlowImportTest {
         val value = (Double) extras[0];
 
         assertEquals(0.0f, value.floatValue(), 1e-5f);
+    }
+
+    @Test
+    public void testInferShape() throws IOException {
+        SameDiff graph = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/examples/bias_add/frozen_model.pb").getFile());
+        assertNotNull(graph);
+
+        INDArray input = Nd4j.linspace(1,40,40).reshape(10,4);
+        INDArray expectedOutput = Nd4j.linspace(1,40,40).reshape(10,4).addRowVector(Nd4j.linspace(1,4,4));
+        graph.associateArrayWithVariable(input,graph.variableMap().get("input"));
+        INDArray actual = graph.execAndEndResult();
+        assertEquals(expectedOutput,actual);
     }
 }

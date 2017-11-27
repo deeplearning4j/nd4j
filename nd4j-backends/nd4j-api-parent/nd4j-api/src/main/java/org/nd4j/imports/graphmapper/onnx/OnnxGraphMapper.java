@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * A mapper for onnx graphs to
@@ -105,27 +103,42 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
         for(int i = 0; i < graphProto.getNodeCount(); i++) {
             val node = graphProto.getNode(i);
             val name = node.getName().isEmpty() ? String.valueOf(i) : node.getName();
+            //add -1 as place holder value representing the shape needs to be filled in
             if(!ret.containsKey(name)) {
-                val dim =  OnnxProto3.TypeProto.TensorShapeProto.Dimension.
-                        newBuilder()
-                        .setDimValue(1)
-                        .build();
-                val typeProto = OnnxProto3.TypeProto.TensorTypeProto.newBuilder()
-                        .setShape(
-                                OnnxProto3.TypeProto.TensorShapeProto.newBuilder()
-                                        .addDim(dim)
-                                        .addDim(dim).build())
-                        .build();
-                ret.put(name,typeProto);
+                addDummyTensor(name,ret);
             }
 
+            for(int j = 0; j < node.getInputCount(); j++) {
+                if(!ret.containsKey(node.getInput(j))) {
+                    addDummyTensor(node.getInput(j),ret);
+                }
+            }
+
+
+            for(int j = 0; j < node.getOutputCount(); j++) {
+                if(!ret.containsKey(node.getOutput(j))) {
+                    addDummyTensor(node.getOutput(j),ret);
+                }
+            }
         }
-
-
 
         return ret;
     }
 
+
+    protected void addDummyTensor(String name, Map<String, OnnxProto3.TypeProto.TensorTypeProto> to) {
+        val dim =  OnnxProto3.TypeProto.TensorShapeProto.Dimension.
+                newBuilder()
+                .setDimValue(-1)
+                .build();
+        val typeProto = OnnxProto3.TypeProto.TensorTypeProto.newBuilder()
+                .setShape(
+                        OnnxProto3.TypeProto.TensorShapeProto.newBuilder()
+                                .addDim(dim)
+                                .addDim(dim).build())
+                .build();
+        to.put(name,typeProto);
+    }
 
     @Override
     public Message.Builder getNewGraphBuilder() {
@@ -170,7 +183,6 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
                 args[i] = func;
             }
 
-            diff.associateFunctionsAsArgs(args,newInstance);
 
 
             val indices = importState.getVertexIdMap().get(name);
@@ -178,10 +190,15 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
             newInstance.setVertexId(indices.getRight());
             newInstance.setSameDiff(importState.getSameDiff());
             importState.getSameDiff().putFunction(indices.getRight(),newInstance);
+
             /**
              * Need to f
              */
-            diff.graph().addEdge(opStateEdge);
+            if(!Arrays.equals(indices.getLeft(),indices.getRight())) {
+                diff.graph().addEdge(opStateEdge);
+            }
+
+            diff.associateFunctionsAsArgs(args,newInstance);
             newInstance.initFromOnnx(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
 
         }

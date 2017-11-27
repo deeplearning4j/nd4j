@@ -115,8 +115,8 @@ public class Conv2D extends DynamicCustomOp {
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
         val autoPad = !attributesForNode.containsKey("auto_pad") ? "VALID" : attributesForNode.get("auto_pad").getS().toStringUtf8();
         val dilations = attributesForNode.get("dilations");
-        val dilationY = dilations.getIntsList().get(0);
-        val dilationX = dilations.getIntsList().get(1);
+        val dilationY = dilations == null ? 1 : dilations.getIntsList().get(0).intValue();
+        val dilationX = dilations == null ? 1 : dilations.getIntsList().get(1).intValue();
         val group = attributesForNode.get("group");
 
         val kernelShape = attributesForNode.get("kernel_shape");
@@ -137,8 +137,8 @@ public class Conv2D extends DynamicCustomOp {
         boolean isSameMode = autoPad
                 .equalsIgnoreCase("SAME");
         Conv2DConfig conv2DConfig = Conv2DConfig.builder()
-                .dh(dilationY.intValue())
-                .dw(dilationX.intValue())
+                .dh(dilationY)
+                .dw(dilationX)
                 .kh(kY)
                 .kw(kX)
                 .sx(sX.intValue())
