@@ -232,10 +232,10 @@ public class SameDiff {
      * @param output the output to associate with this vertex id
      */
     public void associateFunctionsAsArgs(DifferentialFunction[] args,DifferentialFunction output) {
-       if(args == null) {
-           log.warn("Input functions were null. Returning");
-           return;
-       }
+        if(args == null) {
+            log.warn("Input functions were null. Returning");
+            return;
+        }
 
 
         List<Integer> argVertexIds = new ArrayList<>();
@@ -3734,8 +3734,8 @@ public class SameDiff {
         }
 
 
-        int nodesIn = FlatNode.createInputVector(bufferBuilder, inputs);
-        int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, new int[]{});
+        int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
+        int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
         int nodesOut = FlatNode.createOutputVector(bufferBuilder, node.getVertexId());
         int extraz = FlatNode.createExtraParamsVector(bufferBuilder, extras);
         int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, extraBits);

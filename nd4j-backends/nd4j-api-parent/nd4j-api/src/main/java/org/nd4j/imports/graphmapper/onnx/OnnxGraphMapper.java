@@ -74,11 +74,11 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
             val inputs = new int[node.getInputCount()];
             val outputs = new int[node.getOutputCount()];
             for(int i = 0; i < inputs.length; i++) {
-                inputs[i] = Integer.parseInt(node.getInput(i));
+                inputs[i] = nodeNameToVertexId.get(node.getInput(i));
             }
 
             for(int i = 0; i < outputs.length; i++) {
-                outputs[i] = Integer.parseInt(node.getOutput(i));
+                outputs[i] = nodeNameToVertexId.get(node.getInput(i));
             }
 
             ret.put(name,Pair.of(inputs,outputs));
@@ -89,6 +89,10 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
     @Override
     public Map<String,onnx.OnnxProto3.TypeProto.TensorTypeProto> variablesForGraph(OnnxProto3.GraphProto graphProto) {
+        /**
+         * Need to figure out why
+         * gpu_0/conv1_1 isn't present in VGG
+         */
         Map<String,onnx.OnnxProto3.TypeProto.TensorTypeProto> ret = new HashMap<>();
         for(int i = 0; i < graphProto.getInputCount(); i++) {
             ret.put(graphProto.getInput(i).getName(),graphProto.getInput(i).getType().getTensorType());
