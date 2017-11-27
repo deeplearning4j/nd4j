@@ -6665,25 +6665,26 @@ public class Nd4j {
         val stridesOf = Shape.stridesOf(shape);
 
         val _dtype = SameDiff.getDataTypeFromByte(dtype);
+        val _order = SameDiff.getOrderFromByte(order);
         val prod = ArrayUtil.prod(shapeOf);
         val doubles = new double[prod];
 
         val bb = array.bufferAsByteBuffer();
         switch (_dtype) {
             case DOUBLE: {
-                val db = bb.order(ByteOrder.nativeOrder()).asDoubleBuffer();
+                val db = bb.order(_order).asDoubleBuffer();
                 for (int e = 0; e < prod; e++)
                     doubles[e] = db.get(e);
             }
             break;
             case FLOAT: {
-                val fb = bb.order(ByteOrder.nativeOrder()).asFloatBuffer();
+                val fb = bb.order(_order).asFloatBuffer();
                 for (int e = 0; e < prod; e++)
                     doubles[e] = (double) fb.get(e);
             }
             break;
             case HALF: {
-                val sb = bb.order(ByteOrder.nativeOrder()).asShortBuffer();
+                val sb = bb.order(_order).asShortBuffer();
                 for (int e = 0; e < prod; e++)
                     doubles[e] = (double) HalfIndexer.toFloat((int) sb.get(e));
             }
@@ -6691,7 +6692,6 @@ public class Nd4j {
             default:
                 throw new UnsupportedOperationException("Unknown datatype: [" + _dtype + "]");
         }
-
 
         return Nd4j.create(doubles, shapeOf, stridesOf, 0, ordering);
     }

@@ -1,8 +1,10 @@
 package org.nd4j.imports;
 
+import com.google.flatbuffers.FlatBufferBuilder;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.Test;
+import org.nd4j.graph.FlatArray;
 import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.shape.Shape;
@@ -20,7 +22,7 @@ public class ByteOrderTests  extends BaseNd4jTest {
     }
 
     @Test
-    public void testByteArrayOrder() {
+    public void testByteArrayOrder1() {
         val ndarray = Nd4j.create(2).assign(1);
 
         assertEquals(DataBuffer.Type.FLOAT, ndarray.data().dataType());
@@ -28,10 +30,38 @@ public class ByteOrderTests  extends BaseNd4jTest {
         val array = ndarray.data().asBytes();
 
         assertEquals(8, array.length);
-
-        log.info("Array: {}", array);
     }
 
+    @Test
+    public void testByteArrayOrder2() {
+        val original = Nd4j.linspace(1, 25, 25).reshape(5, 5);
+        val bufferBuilder = new FlatBufferBuilder(0);
+
+        int array = original.toFlatArray(bufferBuilder);
+        bufferBuilder.finish(array);
+
+        val flatArray = FlatArray.getRootAsFlatArray(bufferBuilder.dataBuffer());
+
+        val restored = Nd4j.createFromFlatArray(flatArray);
+
+        assertEquals(original, restored);
+    }
+
+
+    @Test
+    public void testByteArrayOrder3() {
+        val original = Nd4j.linspace(1, 25, 25).reshape('f', 5, 5);
+        val bufferBuilder = new FlatBufferBuilder(0);
+
+        int array = original.toFlatArray(bufferBuilder);
+        bufferBuilder.finish(array);
+
+        val flatArray = FlatArray.getRootAsFlatArray(bufferBuilder.dataBuffer());
+
+        val restored = Nd4j.createFromFlatArray(flatArray);
+
+        assertEquals(original, restored);
+    }
 
     @Test
     public void testShapeStridesOf1() {

@@ -3723,6 +3723,13 @@ public class SameDiff {
         return bufferBuilder.dataBuffer();
     }
 
+    public static ByteOrder getOrderFromByte(byte val) {
+        if (val == org.nd4j.graph.ByteOrder.LE)
+            return ByteOrder.LITTLE_ENDIAN;
+        else
+            return ByteOrder.BIG_ENDIAN;
+    }
+
     public static byte getOrderAsByte() {
         if (ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN))
             return org.nd4j.graph.ByteOrder.BE;

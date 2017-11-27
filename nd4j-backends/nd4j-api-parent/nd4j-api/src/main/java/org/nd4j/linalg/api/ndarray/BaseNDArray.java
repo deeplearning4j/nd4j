@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.ericaro.neoitertools.Generator;
 import org.apache.commons.math3.util.FastMath;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.graph.ByteOrder;
 import org.nd4j.graph.FlatArray;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.primitives.Pair;
@@ -5531,7 +5532,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     public int toFlatArray(FlatBufferBuilder builder) {
         int shape = FlatArray.createShapeVector(builder, this.shapeInfoDataBuffer().asInt());
         int buffer = FlatArray.createBufferVector(builder, this.data().asBytes());
-        int array = FlatArray.createFlatArray(builder, shape, buffer, SameDiff.getDataTypeAsByte(this.data().dataType()), SameDiff.getOrderAsByte());
+        int array = FlatArray.createFlatArray(builder, shape, buffer, SameDiff.getDataTypeAsByte(this.data().dataType()), ByteOrder.BE);
 
         return array;
     }
