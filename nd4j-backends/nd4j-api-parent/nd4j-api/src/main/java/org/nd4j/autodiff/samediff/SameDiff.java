@@ -3447,6 +3447,25 @@ public class SameDiff {
     }
 
 
+    /**
+     * Creates and executes a list of operations
+     * @return
+     */
+    public INDArray execWithPlaceHolderAndEndResult(Map<String,INDArray> inputs) {
+        //resolve the place holders
+        for(DifferentialFunction function : functionInstances.values()) {
+            function.initWithArrays(inputs);
+        }
+
+
+        /*for(val entry : inputs.entrySet()) {
+            associateArrayWithVariable(entry.getValue(),getVariable(entry.getKey()));
+        }
+*/
+        return execAndEndResult();
+    }
+
+
 
     /**
      * Creates and executes a list of operations

@@ -238,7 +238,13 @@ public abstract class DifferentialFunction implements Differential {
 
     //by default no op, used for certain situations like
     //place holder arrays
-    public void initWithArrays(Map<String,INDArray> arrayMap) {}
+    public void initWithArrays(Map<String,INDArray> arrayMap) {
+        for(val entry : arrayMap.entrySet()) {
+            val var = sameDiff.getVariable(entry.getKey());
+            sameDiff.updateVariable(var.getVarName(),entry.getValue());
+
+        }
+    }
 
 
 
@@ -337,6 +343,8 @@ public abstract class DifferentialFunction implements Differential {
         else
             throw new IllegalStateException("Unable to fill in arrays. Type must be an operation.");
     }
+
+
 
     /**
      * Get the result

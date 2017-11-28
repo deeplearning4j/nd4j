@@ -45,7 +45,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             GraphDef graphDef = GraphDef.parseFrom(inputFile);
             BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(outputFile,true));
             for(NodeDef node : graphDef.getNodeList()) {
-              bufferedWriter.write(node.toString());
+                bufferedWriter.write(node.toString());
             }
 
             bufferedWriter.flush();
@@ -325,8 +325,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 diff.associateFunctionsAsArgs(args,newInstance);
                 newInstance.setSameDiff(importState.getSameDiff());
 
-
                 newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
+                diff.putShapeForVertexId(indices.getRight(),newInstance.calculateOutputShape().get(0));
 
 
             } catch (Exception e) {
