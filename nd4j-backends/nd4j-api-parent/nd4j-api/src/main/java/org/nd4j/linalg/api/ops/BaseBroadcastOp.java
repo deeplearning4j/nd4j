@@ -164,6 +164,9 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
     @Override
     public int[] getDimension() {
+        if(dimension == null) {
+            dimension = Shape.getBroadcastDimensions(larg().getResultShape(),rarg().getResultShape());
+        }
         return dimension;
     }
 

@@ -239,14 +239,23 @@ public abstract class DifferentialFunction implements Differential {
     //by default no op, used for certain situations like
     //place holder arrays
     public void initWithArrays(Map<String,INDArray> arrayMap) {
-        for(val entry : arrayMap.entrySet()) {
-            val var = sameDiff.getVariable(entry.getKey());
-            sameDiff.updateVariable(var.getVarName(),entry.getValue());
-
+        if(hasPlaceHolderInputs()) {
+            //update place holder shapes in case the shapes
+            // need to be resolved
+            //post adding the variables to the graph.
+            sameDiff.updateShapeForVertexId(resultVertexId(),calculateOutputShape().get(0));
         }
     }
 
 
+    /**
+     * Returns true if this
+     * function has place holder inputs
+     * @return
+     */
+    public boolean hasPlaceHolderInputs() {
+        return sameDiff.hasPlaceHolderVariables(vertexId);
+    }
 
     @Override
     public abstract String toString();
