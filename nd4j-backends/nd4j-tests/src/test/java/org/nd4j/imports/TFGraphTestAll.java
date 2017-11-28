@@ -5,14 +5,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FilenameFilter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -59,10 +57,10 @@ public class TFGraphTestAll {
         testSingle(inputs, predictions, modelName, modelDir);
     }
 
-    protected static void testSingle(Map<String, INDArray> inputs, Map<String, INDArray> predictions, String modelName, String modelDir) {
+    protected static void testSingle(Map<String, INDArray> inputs, Map<String, INDArray> predictions, String modelName, String modelDir) throws FileNotFoundException {
         Nd4j.EPS_THRESHOLD = 1e-4;
         log.info("\n\tRUNNING TEST " + modelName + "...");
-        SameDiff graph = TensorFlowImport.importGraph(new File(modelDir, "frozen_model.pb"));
+        SameDiff graph = TFGraphMapper.getInstance().importGraph(new FileInputStream(new File(modelDir, "frozen_model.pb")));
 
         for (String input : inputs.keySet()) {
             graph.associateArrayWithVariable(inputs.get(input),graph.variableMap().get(input));
