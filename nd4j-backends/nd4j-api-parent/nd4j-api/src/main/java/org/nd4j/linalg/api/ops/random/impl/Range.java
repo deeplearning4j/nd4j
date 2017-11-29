@@ -117,7 +117,7 @@ public class Range extends BaseRandomOp {
 
     @Override
     public int[] getResultShape() {
-        return new int[] {1, (int) (from - to)};
+        return new int[] {1, Math.max(1,(int) (from - to))};
     }
 
     @Override

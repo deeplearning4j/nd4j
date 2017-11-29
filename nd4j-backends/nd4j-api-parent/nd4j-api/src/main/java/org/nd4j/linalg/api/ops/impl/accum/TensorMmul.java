@@ -88,9 +88,18 @@ public class TensorMmul extends BaseAccumulation {
         List<int[]> ret = new ArrayList<>(1);
         int[] aShape = mMulTranspose.isTransposeA() ? ArrayUtil.reverseCopy(larg().getResultShape()) : larg().getResultShape();
         int[] bShape = mMulTranspose.isTransposeB() ? ArrayUtil.reverseCopy(rarg().getResultShape()) : rarg().getResultShape();
-        if(aShape != null && bShape != null)
-            ret.add(  this instanceof Mmul ? Shape.getMatrixMultiplyShape(aShape,bShape)
-                    : getTensorMmulShape(aShape,bShape, axes));
+        if(aShape != null && bShape != null) {
+            val shape =  this instanceof Mmul ? Shape.getMatrixMultiplyShape(
+                    aShape,bShape)
+                    : getTensorMmulShape(aShape,bShape, axes);
+            ret.add(shape);
+        }
+        if(!ret.isEmpty()) {
+            for(int i = 0; i < ret.get(0).length; i++) {
+                if(ret.get(0)[i] < 1)
+                    throw new ND4JIllegalStateException("Invalid shape computed at index " +  i);
+            }
+        }
         return ret;
     }
 

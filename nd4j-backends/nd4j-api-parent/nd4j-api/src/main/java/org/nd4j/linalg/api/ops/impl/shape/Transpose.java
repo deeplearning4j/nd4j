@@ -149,11 +149,12 @@ public class Transpose extends ShapeOp {
     public List<int[]> calculateOutputShape() {
         if(permuteDims == null && arg() != null && arg().getResultShape() != null) {
             this.permuteDims = ArrayUtil.reverseCopy(ArrayUtil.range(0,arg().getResultShape().length));
-
-            return Arrays.asList(ArrayUtil.permute(arg().getResultShape(),permuteDims));
+            val permutedShape = ArrayUtil.permute(arg().getResultShape(),permuteDims);
+            return Arrays.asList(permutedShape);
         }
         else if(permuteDims != null) {
-            return Arrays.asList(ArrayUtil.permute(arg().getResultShape(),permuteDims));
+            val permutedShape = ArrayUtil.permute(arg().getResultShape(),permuteDims);
+            return Arrays.asList(permutedShape);
         }
 
         return Collections.emptyList();
