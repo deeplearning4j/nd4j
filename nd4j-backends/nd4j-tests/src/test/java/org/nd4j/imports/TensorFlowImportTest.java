@@ -536,10 +536,13 @@ public class TensorFlowImportTest {
         //tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/reduce_dim.fb"));
         val executioner = new NativeGraphExecutioner();
 
+        val exp = Nd4j.create(3, 1).assign(3);
+
         val results = executioner.executeGraph(tg, configuration);
 
         assertNotNull(results);
         assertEquals(1, results.length);
+        assertEquals(exp, results[0]);
     }
 
     @Test
