@@ -5,12 +5,17 @@ import lombok.val;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.nd4j.autodiff.execution.NativeGraphExecutioner;
+import org.nd4j.autodiff.execution.conf.ExecutionMode;
+import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
+import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.opstate.OpExecAction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.FlatGraph;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
@@ -29,6 +34,13 @@ import static org.junit.Assert.*;
 
 @Slf4j
 public class TensorFlowImportTest {
+    private static ExecutorConfiguration configuration = ExecutorConfiguration.builder()
+            .executionMode(ExecutionMode.SEQUENTIAL)
+            .profilingMode(OpExecutioner.ProfilingMode.DISABLED)
+            .gatherTimings(true)
+            .outputMode(OutputMode.IMPLICIT)
+            .build();
+
     @Before
     public void setUp() throws Exception {
     }
@@ -481,14 +493,14 @@ public class TensorFlowImportTest {
         val tg = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getInputStream());
         val sumResultVar = tg.getVariable("Sum");
         val func = tg.getFunctionForVertexId(sumResultVar.getVertexId());
-        assertEquals(1,func.getDimensions()[0]);
+        assertEquals(0,func.getDimensions()[0]);
         assertEquals(3,tg.variables().size());
         assertNotNull(sumResultVar);
         assertNotNull(tg.getFunctionForVertexId(sumResultVar.getVertexId()));
         System.out.println(tg.variables());
 
         assertNotNull(func.getDimensions());
-        assertEquals(1,func.getDimensions()[0]);
+        assertEquals(0,func.getDimensions()[0]);
 
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
@@ -521,7 +533,13 @@ public class TensorFlowImportTest {
 
         //log.info("nodeSum inputs length: {}; inputPaired length: {}",nodeSum.inputLength(), nodeSum.inputPairedLength());
 
-        tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/reduce_dim.fb"));
+        //tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/reduce_dim.fb"));
+        val executioner = new NativeGraphExecutioner();
+
+        val results = executioner.executeGraph(tg, configuration);
+
+        assertNotNull(results);
+        assertEquals(1, results.length);
     }
 
     @Test

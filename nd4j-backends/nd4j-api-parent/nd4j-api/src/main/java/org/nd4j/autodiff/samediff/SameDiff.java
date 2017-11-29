@@ -4017,7 +4017,8 @@ public class SameDiff {
         return flatNode;
     }
 
-    public ByteBuffer asFlatBuffers() {
+
+    public ByteBuffer asFlatBuffers(@NonNull ExecutorConfiguration configuration) {
         FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(1024);
 
         val flatVariables = new ArrayList<Integer>();
@@ -4062,12 +4063,17 @@ public class SameDiff {
             }
         }
 
-
-
         int outputsOffset = FlatGraph.createVariablesVector(bufferBuilder, Ints.toArray(flatOffsets));
         int variablesOffset = FlatGraph.createVariablesVector(bufferBuilder, Ints.toArray(flatVariables));
         int nodesOffset = FlatGraph.createNodesVector(bufferBuilder, Ints.toArray(flatNodes));
 
+        int fg = FlatGraph.createFlatGraph(bufferBuilder, 119, variablesOffset, nodesOffset, outputsOffset, configuration.getFlatConfiguration(bufferBuilder));
+        bufferBuilder.finish(fg);
+
+        return bufferBuilder.dataBuffer();
+    }
+
+    public ByteBuffer asFlatBuffers() {
         val configuration = ExecutorConfiguration.builder()
                 .outputMode(org.nd4j.autodiff.execution.conf.OutputMode.IMPLICIT)
                 .executionMode(org.nd4j.autodiff.execution.conf.ExecutionMode.SEQUENTIAL)
@@ -4075,10 +4081,7 @@ public class SameDiff {
                 .gatherTimings(true)
                 .build();
 
-        int fg = FlatGraph.createFlatGraph(bufferBuilder, 119, variablesOffset, nodesOffset, outputsOffset, configuration.getFlatConfiguration(bufferBuilder));
-        bufferBuilder.finish(fg);
-
-        return bufferBuilder.dataBuffer();
+        return asFlatBuffers(configuration);
     }
 
     public static ByteOrder getOrderFromByte(byte val) {
