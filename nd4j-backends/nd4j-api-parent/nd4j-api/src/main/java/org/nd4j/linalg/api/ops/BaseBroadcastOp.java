@@ -146,7 +146,8 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
      */
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>();
-        ret.add(Shape.broadcastOutputShape(larg().getResultShape(),rarg().getResultShape()));
+        if(larg().getResultShape() != null && rarg().getResultShape() != null)
+            ret.add(Shape.broadcastOutputShape(larg().getResultShape(),rarg().getResultShape()));
         return ret;
     }
 
@@ -175,11 +176,11 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         super.initWithArrays(arrayMap);
         if(args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null) {
             if(Shape.isRowVectorShape(rarg().getResultShape())) {
-                 this.dimension = new int[] {1};
+                this.dimension = new int[] {1};
             }
             else
                 this.dimension = new int[] {0};
-            this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
+            // this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
         }
 
     }
