@@ -139,7 +139,7 @@ public class TensorFlowImportTest {
          * python  ~/anaconda2/lib/python2.7/site-packages/tensorflow/python/tools/freeze_graph.py  --input_graph=graph2.pb.txt  --input_checkpoint=test3.ckpt  --output_graph=graph_frozen2.pb  --output_node_name=output/BiasAdd --input_binary=False
 
          */
-        /*
+
         Nd4j.create(1);
         val rawGraph = GraphDef.parseFrom(new ClassPathResource("tf_graphs/lenet_cnn.pb").getInputStream());
         val nodeNames = rawGraph.getNodeList().stream().map(node -> node.getName()).collect(Collectors.toList());
@@ -153,7 +153,6 @@ public class TensorFlowImportTest {
         System.out.println(Arrays.toString(shape));
         assertArrayEquals(new int[]{32,1,5,5},shape);
         System.out.println(convNode);
-        */
     }
 
     @Test
@@ -363,7 +362,7 @@ public class TensorFlowImportTest {
 
         val nodeSlice = graph.nodes(0);
 
-        assertEquals(5, nodeSlice.extraIntegerLength());
+        assertEquals(14, nodeSlice.extraIntegerLength());
 
         val begin_mask = nodeSlice.extraInteger(0);
         val ellipsis_mask = nodeSlice.extraInteger(1);
@@ -474,21 +473,22 @@ public class TensorFlowImportTest {
     }
 
 
+
+
     @Test
     public void testIntermediateReduction() throws Exception {
         Nd4j.create(1);
         val tg = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getInputStream());
         val sumResultVar = tg.getVariable("Sum");
         val func = tg.getFunctionForVertexId(sumResultVar.getVertexId());
-        assertEquals(0,func.getDimensions()[0]);
-        assertEquals(1,func.getDimensions()[1]);
+        assertEquals(1,func.getDimensions()[0]);
         assertEquals(3,tg.variables().size());
         assertNotNull(sumResultVar);
         assertNotNull(tg.getFunctionForVertexId(sumResultVar.getVertexId()));
         System.out.println(tg.variables());
 
         assertNotNull(func.getDimensions());
-        assertEquals(1,func.getDimensions()[1]);
+        assertEquals(1,func.getDimensions()[0]);
 
         val fb = tg.asFlatBuffers();
         assertNotNull(fb);
