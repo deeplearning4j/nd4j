@@ -348,7 +348,7 @@ public class TensorFlowImportTest {
         assertEquals(2, graph.nodes(0).inputPairedLength());
         assertEquals(2, graph.nodes(1).inputPairedLength());
 
-        tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/nested_while.fb"));
+     //   tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/nested_while.fb"));
     }
 
     @Test
@@ -413,8 +413,17 @@ public class TensorFlowImportTest {
         assertEquals(0, in1.second());
 
 
-        tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/tensor_slice.fb"));
+        // tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/tensor_slice.fb"));
 
+        val executioner = new NativeGraphExecutioner();
+
+        val exp = Nd4j.create(3, 1).assign(3);
+
+        val results = executioner.executeGraph(tg, configuration);
+
+        assertNotNull(results);
+        assertEquals(1, results.length);
+        assertEquals(73.5f, results[0].getFloat(0), 1e-5f);
     }
 
     @Test
