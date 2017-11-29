@@ -3,13 +3,10 @@ package org.nd4j.imports;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.io.ClassPathResource;
 
 import java.util.Map;
 
-import static org.nd4j.imports.TFGraphTestAll.inputVars;
-import static org.nd4j.imports.TFGraphTestAll.outputVars;
-import static org.nd4j.imports.TFGraphTestAll.testSingle;
+import static org.nd4j.imports.TFGraphTestAll.*;
 
 /**
  * TFGraphTestAll will run all the checked in TF graphs and
@@ -37,9 +34,8 @@ public class TFGraphTestSingle {
         //String modelName = "mlp_00_test";
         //String modelName = "transform_0";
         //String modelName = "transpose";
-        String modelDir = new ClassPathResource("tf_graphs/examples/" + modelName).getFile().getAbsolutePath();
-        Map<String, INDArray> inputs = inputVars(modelDir);
-        Map<String, INDArray> predictions = outputVars(modelDir);
-        testSingle(inputs,predictions,modelName,modelDir);
+        Map<String, INDArray> inputs = inputVars(modelName);
+        Map<String, INDArray> predictions = outputVars(modelName);
+        testSingle(inputs,predictions,modelName);
     }
 }
