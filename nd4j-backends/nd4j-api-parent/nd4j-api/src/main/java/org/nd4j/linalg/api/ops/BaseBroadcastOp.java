@@ -179,7 +179,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             }
             else
                 this.dimension = new int[] {0};
-            //this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
+            this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
         }
 
     }

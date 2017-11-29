@@ -61,11 +61,7 @@ public class TFGraphTestAll {
         Nd4j.EPS_THRESHOLD = 1e-4;
         log.info("\n\tRUNNING TEST " + modelName + "...");
         SameDiff graph = TFGraphMapper.getInstance().importGraph(new ClassPathResource(BASE_DIR + "/" + modelName + "/frozen_model.pb").getInputStream());
-
-        for (String input : inputs.keySet()) {
-            graph.associateArrayWithVariable(inputs.get(input), graph.variableMap().get(input));
-        }
-        INDArray res = graph.execAndEndResult();
+        INDArray res = graph.execWithPlaceHolderAndEndResult(inputs);
 
         //for (int i = 0; i < res.length; i++) {
         //    if (i > 0)
