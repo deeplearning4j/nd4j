@@ -28,7 +28,6 @@ public class TFGraphTestAll {
     private Map<String, INDArray> inputs;
     private Map<String, INDArray> predictions;
     private String modelName;
-    private String modelDir;
     private static final String BASE_DIR = "tf_graphs/examples";
 
     @Parameterized.Parameters
