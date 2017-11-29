@@ -171,6 +171,14 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     }
 
     @Override
+    public void initWithArrays(Map<String, INDArray> arrayMap) {
+        super.initWithArrays(arrayMap);
+        if(args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null)
+            this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(),rarg().getResultShape());
+
+    }
+
+    @Override
     public void setDimension(int... dimension) {
         this.dimension = dimension;
     }
@@ -178,13 +186,14 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        if(args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null)
+        if(args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null && !sameDiff.isPlaceHolder(larg().resultVertexId()) && !sameDiff.isPlaceHolder(rarg().resultVertexId()))
             this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(),rarg().getResultShape());
     }
 
     @Override
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
-        this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(),rarg().getResultShape());
+        if(args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null && !sameDiff.isPlaceHolder(larg().resultVertexId()) && !sameDiff.isPlaceHolder(rarg().resultVertexId()))
+            this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(),rarg().getResultShape());
 
     }
 }
