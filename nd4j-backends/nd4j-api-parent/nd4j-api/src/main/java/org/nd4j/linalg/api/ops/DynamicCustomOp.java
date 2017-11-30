@@ -176,6 +176,10 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     public List<int[]> calculateOutputShape() {
         if(outputShapes != null)
             return outputShapes;
+        /**
+         * Note that we are currently getting shape errors
+         * because the input and output arguments are not specified.
+         */
         return Nd4j.getExecutioner().calculateOutputShape(this);
     }
 

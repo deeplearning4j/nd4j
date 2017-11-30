@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.shape;
 
-import com.google.common.primitives.Ints;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -114,23 +113,19 @@ public class StridedSlice extends DynamicCustomOp {
         val endArr = TFGraphMapper.getInstance().getNDArrayFromTensor("value",endNode,graph);
         val stridesArr = TFGraphMapper.getInstance().getNDArrayFromTensor("value",strides,graph);
 
-
         if (beginArr != null && endArr != null && stridesArr != null) {
 
             for (int e = 0; e < beginArr.length(); e++)
-                iArgs.add((int) beginArr.getInt(e));
+                iArgs.add(beginArr.getInt(e));
 
             for (int e = 0; e <  endArr.length(); e++)
-                iArgs.add((int) endArr.getInt(e));
+                iArgs.add(endArr.getInt(e));
 
             for (int e = 0; e < stridesArr.length(); e++)
-                iArgs.add((int)  stridesArr.getInt(e));
+                iArgs.add(stridesArr.getInt(e));
         } else {
             // do nothing
         }
-
-        val bits = Ints.toArray(iArgs);
-
     }
 
 
