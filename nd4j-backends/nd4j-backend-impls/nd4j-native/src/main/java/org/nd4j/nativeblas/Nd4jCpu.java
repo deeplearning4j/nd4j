@@ -6076,6 +6076,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native FloatPointer buffer();
 
 
+        public native FloatPointer specialBuffer();
+        public native IntPointer specialShapeInfo();
+
+
         public native IntPointer shapeInfo();
         public native IntPointer getShapeInfo();
 
@@ -6572,6 +6576,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("float16*") ShortPointer buffer();
 
 
+        public native @Cast("float16*") ShortPointer specialBuffer();
+        public native IntPointer specialShapeInfo();
+
+
         public native IntPointer shapeInfo();
         public native IntPointer getShapeInfo();
 
@@ -7066,6 +7074,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native DoublePointer getBuffer();
         public native DoublePointer buffer();
+
+
+        public native DoublePointer specialBuffer();
+        public native IntPointer specialShapeInfo();
 
 
         public native IntPointer shapeInfo();
@@ -13357,6 +13369,19 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 // #else
 // #define FORCEINLINE inline 
 // #endif
+
+
+// #ifdef __CUDACC__
+
+// #else
+
+// #define _CUDA_H
+// #define _CUDA_D
+// #define _CUDA_G
+// #define _CUDA_HD
+
+// #endif // CUDACC
+
 
 // #define LAMBDA_H(X, ...) [__VA_ARGS__] (float16 X) -> float16
 // #define LAMBDA_HH(X, Y, ...) [__VA_ARGS__] (float16 X, float16 Y) -> float16
@@ -20475,7 +20500,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
 
-        @Name("nd4j::ops::firas_sparse<float>") public static class float_firas_sparse extends FloatDeclarableOp {
+        @Name("nd4j::ops::firas_sparse<float>") public static class float_firas_sparse extends FloatDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public float_firas_sparse(Pointer p) { super(p); }
@@ -20490,7 +20515,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
                                                                                 }
 
-        @Name("nd4j::ops::firas_sparse<float16>") public static class half_firas_sparse extends HalfDeclarableOp {
+        @Name("nd4j::ops::firas_sparse<float16>") public static class half_firas_sparse extends HalfDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public half_firas_sparse(Pointer p) { super(p); }
@@ -20505,7 +20530,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
                                                                                 }
 
-        @Name("nd4j::ops::firas_sparse<double>") public static class double_firas_sparse extends DoubleDeclarableOp {
+        @Name("nd4j::ops::firas_sparse<double>") public static class double_firas_sparse extends DoubleDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public double_firas_sparse(Pointer p) { super(p); }
