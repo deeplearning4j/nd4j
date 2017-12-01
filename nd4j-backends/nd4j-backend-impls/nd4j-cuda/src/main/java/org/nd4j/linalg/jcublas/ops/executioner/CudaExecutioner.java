@@ -2560,11 +2560,11 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
 
             if (dtype == DataBuffer.Type.DOUBLE) {
-                nativeOps.execTransformDouble(xShapeHost, 38, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
+                nativeOps.execTransformDouble(xShapeHost, 36, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
             } else if (dtype == DataBuffer.Type.FLOAT) {
-                nativeOps.execTransformFloat(xShapeHost, 38, (FloatPointer) x, (IntPointer) xShape, (FloatPointer) z, (IntPointer) zShape, (FloatPointer) extraArgs);
+                nativeOps.execTransformFloat(xShapeHost, 36, (FloatPointer) x, (IntPointer) xShape, (FloatPointer) z, (IntPointer) zShape, (FloatPointer) extraArgs);
             } else if (dtype == DataBuffer.Type.HALF) {
-                nativeOps.execTransformHalf(xShapeHost, 38, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
+                nativeOps.execTransformHalf(xShapeHost, 36, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
             }
 
             AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
@@ -2655,11 +2655,6 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
             if (op.isInplaceCall())
                 AtomicAllocator.getInstance().getAllocationPoint(in).tickHostWrite();
-
-
-            log.error("Storing hostBuffer at [{}], deviceBuffer at [{}]", cnt, cnt + op.getInputArguments().size());
-            log.info("HP: {}", hp);
-            log.info("DP: {}", dp);
 
             cnt++;
         }
