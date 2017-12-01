@@ -5,7 +5,6 @@ import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -21,7 +20,7 @@ public class MergeMax extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "merge_max";
+        return "mergemax";
     }
 
 
@@ -85,9 +84,4 @@ public class MergeMax extends DynamicCustomOp {
     }
 
 
-
-    @Override
-    public Op.Type opType() {
-        return Op.Type.CUSTOM;
-    }
 }
