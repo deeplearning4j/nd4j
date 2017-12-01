@@ -81,7 +81,7 @@ public class MergeMax extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        return "MergeMax";
+        return "AddN";
     }
 
 
