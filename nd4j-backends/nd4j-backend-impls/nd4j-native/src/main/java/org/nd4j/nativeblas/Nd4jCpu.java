@@ -6078,6 +6078,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native FloatPointer specialBuffer();
         public native IntPointer specialShapeInfo();
+        public native void setSpecialBuffers(FloatPointer buffer, IntPointer shape);
+        public native void setSpecialBuffers(FloatBuffer buffer, IntBuffer shape);
+        public native void setSpecialBuffers(float[] buffer, int[] shape);
 
 
         public native IntPointer shapeInfo();
@@ -6578,6 +6581,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native @Cast("float16*") ShortPointer specialBuffer();
         public native IntPointer specialShapeInfo();
+        public native void setSpecialBuffers(@Cast("float16*") ShortPointer buffer, IntPointer shape);
+        public native void setSpecialBuffers(@Cast("float16*") ShortBuffer buffer, IntBuffer shape);
+        public native void setSpecialBuffers(@Cast("float16*") short[] buffer, int[] shape);
 
 
         public native IntPointer shapeInfo();
@@ -7078,6 +7084,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native DoublePointer specialBuffer();
         public native IntPointer specialShapeInfo();
+        public native void setSpecialBuffers(DoublePointer buffer, IntPointer shape);
+        public native void setSpecialBuffers(DoubleBuffer buffer, IntBuffer shape);
+        public native void setSpecialBuffers(double[] buffer, int[] shape);
 
 
         public native IntPointer shapeInfo();
