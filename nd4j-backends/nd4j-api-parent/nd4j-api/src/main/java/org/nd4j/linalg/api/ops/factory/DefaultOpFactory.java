@@ -22,12 +22,9 @@ package org.nd4j.linalg.api.ops.factory;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
-import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
-import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.ops.impl.accum.StandardDeviation;
-import org.nd4j.linalg.api.ops.impl.accum.TensorMmul;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
 import org.nd4j.linalg.api.ops.impl.shape.Broadcast;
 import org.nd4j.linalg.api.ops.impl.shape.Permute;
@@ -131,24 +128,11 @@ public class DefaultOpFactory implements OpFactory {
 
         switch (name) {
             case "mmul":
-                //of note here is that it's always the last arg
-                /*
-                 * The case to watch out for here is
-                 * tensor matrix multiply which has an args format of:
-                 * dimensions, mmul transpose
-                 */
-
-                MMulTranspose mMulTranspose = extraArgs != null  && extraArgs.length >= 1 ? (MMulTranspose) extraArgs[extraArgs.length - 1] : MMulTranspose.allFalse();
-                ret = new Mmul(x,y,z,mMulTranspose);
-                break;
             case "std":
                 ret = new StandardDeviation(x, y,z, x.length(),(boolean) extraArgs[0]);
                 break;
             case "var":
                 ret = new Variance(x, y, z, x.length(),(boolean) extraArgs[0]);
-                break;
-            case "tensorMmul":
-                ret = new TensorMmul(x, y,z,(int[][]) extraArgs[0]);
                 break;
             default:
                 try {
