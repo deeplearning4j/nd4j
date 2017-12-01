@@ -344,15 +344,14 @@ public abstract class DifferentialFunction implements Differential {
 
     @JsonIgnore
     private INDArray getX() {
-        INDArray ret =  args()[0].getResult().getArr();
+        INDArray ret =  sameDiff.getArrForVertexId(args()[0].resultVertexId());
         return ret;
     }
 
     @JsonIgnore
     private INDArray getY() {
         if(args().length > 1) {
-            SDVariable opId = args()[1].getResult();
-            INDArray ret = opId.getArr();
+            INDArray ret =  sameDiff.getArrForVertexId(args()[1].resultVertexId());
             return ret;
         }
         return null;

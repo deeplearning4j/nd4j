@@ -178,7 +178,10 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         if(shape.isEmpty() || shape.get(0) == null)  {
             throw new ND4JIllegalStateException("Shape should not be null or empty");
         }
-        sameDiff.updateShapeForVertexId(vertexId,shape.get(0));
+
+
+        sameDiff.putShapeForVertexId(vertexId,shape.get(0));
+
     }
 
 

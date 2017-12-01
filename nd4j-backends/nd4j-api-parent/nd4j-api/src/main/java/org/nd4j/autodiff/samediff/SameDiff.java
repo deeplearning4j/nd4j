@@ -3113,7 +3113,6 @@ public class SameDiff {
 
             }
 
-
             Op op = (Op) differentialFunction;
             differentialFunction.fillInArrays();
             op.setN(op.x().length());

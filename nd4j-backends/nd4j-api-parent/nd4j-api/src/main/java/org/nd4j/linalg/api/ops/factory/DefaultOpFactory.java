@@ -26,7 +26,6 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
 import org.nd4j.linalg.api.ops.impl.accum.StandardDeviation;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
-import org.nd4j.linalg.api.ops.impl.shape.Broadcast;
 import org.nd4j.linalg.api.ops.impl.transforms.Pow;
 import org.nd4j.linalg.api.ops.impl.transforms.RectifedLinear;
 import org.nd4j.linalg.api.ops.impl.transforms.Step;
@@ -72,11 +71,6 @@ public class DefaultOpFactory implements OpFactory {
      */
     @Override
     public Op createShape(String name, INDArray x, INDArray z, Object[] extraArgs) {
-        switch(name) {
-            case "broadcast":
-                return new Broadcast(x,z);
-        }
-
         throw new IllegalArgumentException("Illegal opName for create shape op" + name);
     }
 

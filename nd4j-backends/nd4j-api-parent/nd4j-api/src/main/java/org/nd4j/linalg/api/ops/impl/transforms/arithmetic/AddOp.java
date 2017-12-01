@@ -25,6 +25,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +43,11 @@ public class AddOp extends DynamicCustomOp {
 
     public AddOp( INDArray[] inputs, INDArray[] outputs) {
         super(null, inputs, outputs);
+    }
+
+    @Override
+    public List<int[]> calculateOutputShape() {
+        return Arrays.asList(arg().getResultShape());
     }
 
     @Override
