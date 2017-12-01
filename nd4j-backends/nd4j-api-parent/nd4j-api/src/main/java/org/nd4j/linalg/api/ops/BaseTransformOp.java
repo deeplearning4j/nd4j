@@ -189,22 +189,18 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         return ret;
     }
 
-    @Override
-    protected void addAsNewVertexId() {
-        super.addAsNewVertexId();
-    }
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        if(!sameDiff.shapeAlreadyExistsForVertexId(vertexId))
+  /*      if(!sameDiff.shapeAlreadyExistsForVertexId(vertexId))
             sameDiff.putShapeForVertexId(vertexId,calculateOutputShape().get(0));
-    }
+  */  }
 
     @Override
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
-        if(!sameDiff.shapeAlreadyExistsForVertexId(vertexId))
+       /* if(!sameDiff.shapeAlreadyExistsForVertexId(vertexId))
             sameDiff.putShapeForVertexId(vertexId,calculateOutputShape().get(0));
-
+*/
     }
 
 }

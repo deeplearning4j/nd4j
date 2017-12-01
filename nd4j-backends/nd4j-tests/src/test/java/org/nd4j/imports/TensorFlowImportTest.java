@@ -515,7 +515,7 @@ public class TensorFlowImportTest {
 
         val graph = FlatGraph.getRootAsFlatGraph(fb);
         assertEquals(1, graph.nodesLength());
-        assertEquals(3, graph.variablesLength());
+        assertEquals(2, graph.variablesLength());
 
         assertEquals("Sum", graph.nodes(0).name());
 
