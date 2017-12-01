@@ -2480,6 +2480,145 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
         Nd4j.getExecutioner().commit();
 
+        if (op.opName().equalsIgnoreCase("im2col")) {
+            val dtype = Nd4j.dataType();
+
+            val xArr = op.getInputArguments().get(0);
+            val zArr = op.getOutputArguments().get(0);
+
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+
+            if (extraz.get() == null)
+                extraz.set(new PointerPointer(32));
+
+            PointerPointer xShapeHost =
+                    extraz.get().put(AddressRetriever.retrieveHostPointer(xArr.shapeInfoDataBuffer()), // 0
+                            context.getOldStream(), // 1
+                            AtomicAllocator.getInstance().getDeviceIdPointer(), // 2
+                            context.getBufferAllocation(), // 3
+                            context.getBufferReduction(), // 4
+                            context.getBufferScalar(), // 5
+                            context.getBufferSpecial(),
+                            null,
+                            AddressRetriever.retrieveHostPointer(zArr.shapeInfoDataBuffer())
+                            );
+
+
+            val x = AtomicAllocator.getInstance().getPointer(xArr, context);
+            val z = AtomicAllocator.getInstance().getPointer(zArr, context);
+
+            val xShape = AtomicAllocator.getInstance().getPointer(xArr.shapeInfoDataBuffer(), context);
+            val zShape = AtomicAllocator.getInstance().getPointer(zArr.shapeInfoDataBuffer(), context);
+
+            val extrass = new double[]{op.getIArguments().get(0), op.getIArguments().get(1), op.getIArguments().get(2), op.getIArguments().get(3), op.getIArguments().get(4), op.getIArguments().get(5), op.getIArguments().get(6), op.getIArguments().get(7), op.getIArguments().get(8)};
+            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
+
+
+            if (dtype == DataBuffer.Type.DOUBLE) {
+                nativeOps.execTransformDouble(xShapeHost, 37, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.FLOAT) {
+                nativeOps.execTransformFloat(xShapeHost, 37, (FloatPointer) x, (IntPointer) xShape, (FloatPointer) z, (IntPointer) zShape, (FloatPointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.HALF) {
+                nativeOps.execTransformHalf(xShapeHost, 37, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
+            }
+
+            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+
+            return;
+        } else if (op.opName().equalsIgnoreCase("col2im")) {
+            val dtype = Nd4j.dataType();
+
+            val xArr = op.getInputArguments().get(0);
+            val zArr = op.getOutputArguments().get(0);
+
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+
+            if (extraz.get() == null)
+                extraz.set(new PointerPointer(32));
+
+            PointerPointer xShapeHost =
+                    extraz.get().put(AddressRetriever.retrieveHostPointer(xArr.shapeInfoDataBuffer()), // 0
+                            context.getOldStream(), // 1
+                            AtomicAllocator.getInstance().getDeviceIdPointer(), // 2
+                            context.getBufferAllocation(), // 3
+                            context.getBufferReduction(), // 4
+                            context.getBufferScalar(), // 5
+                            context.getBufferSpecial(),
+                            null,
+                            AddressRetriever.retrieveHostPointer(zArr.shapeInfoDataBuffer())
+                    );
+
+
+            val x = AtomicAllocator.getInstance().getPointer(xArr, context);
+            val z = AtomicAllocator.getInstance().getPointer(zArr, context);
+
+            val xShape = AtomicAllocator.getInstance().getPointer(xArr.shapeInfoDataBuffer(), context);
+            val zShape = AtomicAllocator.getInstance().getPointer(zArr.shapeInfoDataBuffer(), context);
+
+            val extrass = new double[]{op.getIArguments().get(0), op.getIArguments().get(1), op.getIArguments().get(2), op.getIArguments().get(3), op.getIArguments().get(4), op.getIArguments().get(5), op.getIArguments().get(6), op.getIArguments().get(7)};
+            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
+
+
+            if (dtype == DataBuffer.Type.DOUBLE) {
+                nativeOps.execTransformDouble(xShapeHost, 38, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.FLOAT) {
+                nativeOps.execTransformFloat(xShapeHost, 38, (FloatPointer) x, (IntPointer) xShape, (FloatPointer) z, (IntPointer) zShape, (FloatPointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.HALF) {
+                nativeOps.execTransformHalf(xShapeHost, 38, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
+            }
+
+            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+
+            return;
+        } else if (op.opName().equalsIgnoreCase("pooling2d")) {
+            val dtype = Nd4j.dataType();
+
+            val xArr = op.getInputArguments().get(0);
+            val zArr = op.getOutputArguments().get(0);
+
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+
+            if (extraz.get() == null)
+                extraz.set(new PointerPointer(32));
+
+            PointerPointer xShapeHost =
+                    extraz.get().put(AddressRetriever.retrieveHostPointer(xArr.shapeInfoDataBuffer()), // 0
+                            context.getOldStream(), // 1
+                            AtomicAllocator.getInstance().getDeviceIdPointer(), // 2
+                            context.getBufferAllocation(), // 3
+                            context.getBufferReduction(), // 4
+                            context.getBufferScalar(), // 5
+                            context.getBufferSpecial(),
+                            null,
+                            AddressRetriever.retrieveHostPointer(zArr.shapeInfoDataBuffer())
+                    );
+
+
+            val x = AtomicAllocator.getInstance().getPointer(xArr, context);
+            val z = AtomicAllocator.getInstance().getPointer(zArr, context);
+
+            val xShape = AtomicAllocator.getInstance().getPointer(xArr.shapeInfoDataBuffer(), context);
+            val zShape = AtomicAllocator.getInstance().getPointer(zArr.shapeInfoDataBuffer(), context);
+
+            val extrass = new double[]{op.getIArguments().get(0), op.getIArguments().get(1), op.getIArguments().get(2), op.getIArguments().get(3), op.getIArguments().get(4), op.getIArguments().get(5), op.getIArguments().get(6), op.getIArguments().get(7), op.getIArguments().get(8)};
+            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
+
+
+            if (dtype == DataBuffer.Type.DOUBLE) {
+                nativeOps.execTransformDouble(xShapeHost, 71, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.FLOAT) {
+                nativeOps.execTransformFloat(xShapeHost, 71, (FloatPointer) x, (IntPointer) xShape, (FloatPointer) z, (IntPointer) zShape, (FloatPointer) extraArgs);
+            } else if (dtype == DataBuffer.Type.HALF) {
+                nativeOps.execTransformHalf(xShapeHost, 71, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
+            }
+
+            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+
+
+            return;
+        }
+
+
         CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareActionAllWrite(op.getOutputArguments().toArray(new INDArray[0]));
 
         if (extraz.get() == null)
@@ -2504,16 +2643,25 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
         int cnt= 0;
         for (val in: op.getInputArguments()) {
+            val hp = AtomicAllocator.getInstance().getHostPointer(in.shapeInfoDataBuffer());
             inputBuffers.put(cnt,  AtomicAllocator.getInstance().getHostPointer(in));
-            inputShapes.put(cnt++, AtomicAllocator.getInstance().getHostPointer(in.shapeInfoDataBuffer()));
+            inputShapes.put(cnt, hp);
 
-            if (op.isInplaceCall());
+
+            val dp = AtomicAllocator.getInstance().getPointer(in.shapeInfoDataBuffer(), context);
+
+            inputBuffers.put(cnt + op.getInputArguments().size(), AtomicAllocator.getInstance().getPointer(in, context));
+            inputShapes.put(cnt+ op.getInputArguments().size(), dp);
+
+            if (op.isInplaceCall())
                 AtomicAllocator.getInstance().getAllocationPoint(in).tickHostWrite();
-        }
 
-        for (val in: op.getInputArguments()) {
-            inputBuffers.put(cnt,  AtomicAllocator.getInstance().getPointer(in, context));
-            inputShapes.put(cnt++, AtomicAllocator.getInstance().getPointer(in.shapeInfoDataBuffer(), context));
+
+            log.error("Storing hostBuffer at [{}], deviceBuffer at [{}]", cnt, cnt + op.getInputArguments().size());
+            log.info("HP: {}", hp);
+            log.info("DP: {}", dp);
+
+            cnt++;
         }
 
 
@@ -2523,16 +2671,14 @@ public class CudaExecutioner extends DefaultOpExecutioner {
         cnt= 0;
         for (val out: op.getOutputArguments()) {
             outputBuffers.put(cnt,  AtomicAllocator.getInstance().getHostPointer(out));
-            outputShapes.put(cnt++,  AtomicAllocator.getInstance().getHostPointer(out.shapeInfoDataBuffer()));
+            outputShapes.put(cnt,  AtomicAllocator.getInstance().getHostPointer(out.shapeInfoDataBuffer()));
+
+            outputBuffers.put(cnt + op.getOutputArguments().size(),  AtomicAllocator.getInstance().getPointer(out, context));
+            outputShapes.put(cnt + op.getOutputArguments().size(),  AtomicAllocator.getInstance().getPointer(out.shapeInfoDataBuffer(), context));
 
             AtomicAllocator.getInstance().getAllocationPoint(out).tickHostWrite();
-        }
 
-        for (val out: op.getOutputArguments()) {
-            outputBuffers.put(cnt,  AtomicAllocator.getInstance().getPointer(out, context));
-            outputShapes.put(cnt++,  AtomicAllocator.getInstance().getPointer(out.shapeInfoDataBuffer(), context));
-
-            AtomicAllocator.getInstance().getAllocationPoint(out).tickHostWrite();
+            cnt++;
         }
 
         if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
