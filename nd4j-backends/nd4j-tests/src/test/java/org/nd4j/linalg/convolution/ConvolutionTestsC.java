@@ -287,13 +287,12 @@ public class ConvolutionTestsC extends BaseNd4jTest {
                         4, 4, 2, 2, 2, 2, 4, 4, 4, 4}, new int[] {1, 1, 2, 2, 4, 4});
         INDArray im2colTest = Convolution.im2col(ret, kh, kw, sy, sx, ph, pw, 0, false);
         assertEquals(assertion, im2colTest);
+
     }
 
 
     @Test
     public void testCol2Im() {
-        Nd4j.getExecutioner().enableDebugMode(true);
-        Nd4j.getExecutioner().enableVerboseMode(true);
         int kh = 1;
         int kw = 1;
         int sy = 1;
@@ -301,11 +300,11 @@ public class ConvolutionTestsC extends BaseNd4jTest {
         int ph = 1;
         int pw = 1;
         INDArray linspaced = Nd4j.linspace(1, 64, 64).reshape(2, 2, 2, 2, 2, 2);
-        //INDArray newTest = Convolution.col2im(linspaced, sy, sx, ph, pw, 2, 2);
+        INDArray newTest = Convolution.col2im(linspaced, sy, sx, ph, pw, 2, 2);
         INDArray assertion = OldConvolution.col2im(linspaced, sy, sx, ph, pw, 2, 2);
 
         System.out.println("Assertion dimensions: " + Arrays.toString(assertion.shape()));
-       // assertEquals(assertion, newTest);
+        assertEquals(assertion, newTest);
     }
 
     @Test

@@ -13068,7 +13068,10 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //                                                     for (int e = 0; e < this->getOpDescriptor()->getNumberOfOutputs(); e++) {
 //                                                         int* newshape;
 //                                                         ALLOCATE(newshape, block.getWorkspace(), shape::shapeInfoLength(inputShape->at(e)), int);
-//                                                         memcpy(newshape, inputShape->at(0), shape::shapeInfoByteLength(inputShape->at(e)));
+//                                                         if (shape::order(inputShape->at(e)) == 'c')
+//                                                             shape::shapeBuffer(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
+//                                                         else
+//                                                             shape::shapeBufferFortran(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
 //                                                         shapeList->push_back(newshape);
 //                                                     }
 //                                                     return shapeList;
@@ -13166,7 +13169,10 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //                                                                 for (int e = 0; e < this->getOpDescriptor()->getNumberOfOutputs(); e++) {
 //                                                                     int* newshape;
 //                                                                     ALLOCATE(newshape, block.getWorkspace(), shape::shapeInfoLength(inputShape->at(e)), int);
-//                                                                     memcpy(newshape, inputShape->at(e), shape::shapeInfoByteLength(inputShape->at(e)));
+//                                                                     if (shape::order(inputShape->at(e)) == 'c')
+//                                                                         shape::shapeBuffer(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
+//                                                                     else
+//                                                                         shape::shapeBufferFortran(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
 //                                                                     shapeList->push_back(newshape);
 //                                                                 }
 //                                                                 return shapeList;
@@ -13218,7 +13224,10 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //                                                                                     for (int e = 0; e < this->getOpDescriptor()->getNumberOfOutputs(); e++) {
 //                                                                                         int* newshape;
 //                                                                                         ALLOCATE(newshape, block.getWorkspace(), shape::shapeInfoLength(inputShape->at(e)), int);
-//                                                                                         memcpy(newshape, inputShape->at(e), shape::shapeInfoByteLength(inputShape->at(e)));
+//                                                                                         if (shape::order(inputShape->at(e)) == 'c')
+//                                                                                             shape::shapeBuffer(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
+//                                                                                         else
+//                                                                                             shape::shapeBufferFortran(shape::rank(inputShape->at(e)), shape::shapeOf(inputShape->at(e)), newshape);
 //                                                                                         shapeList->push_back(newshape);
 //                                                                                     }
 //                                                                                     return shapeList;
