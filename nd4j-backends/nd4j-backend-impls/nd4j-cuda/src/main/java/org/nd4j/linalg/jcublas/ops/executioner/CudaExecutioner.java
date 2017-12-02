@@ -2480,6 +2480,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
         Nd4j.getExecutioner().commit();
 
+        log.info("Launching op: {} -> {}", op.opName(), op.getInputArguments().size());
+
         if (op.opName().equalsIgnoreCase("im2col")) {
             val dtype = Nd4j.dataType();
 
