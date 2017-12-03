@@ -484,6 +484,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         for(int i = 0; i < args().length; i++) {
             val var = sameDiff.getVariableForVertexId(args()[i].resultVertexId());
             val func = args[i];
+            if(func instanceof DynamicCustomOp) {
+                DynamicCustomOp dynamicCustomOp = (DynamicCustomOp) func;
+                dynamicCustomOp.addArrayInputArguments();
+            }
+
+
             if(var != null) {
                 if(var.getArr() == null) {
                     int[] shape = sameDiff.getShapeForVertexId(var.getVertexId());

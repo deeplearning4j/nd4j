@@ -3902,7 +3902,7 @@ public class SameDiff {
                         customOp.addInputArgument(otherArr);
                     }
 
-                    else
+                    else if(customOp.numInputArguments() < inputs.length)
                         customOp.addInputArgument(getArr);
 
                 }
@@ -3940,7 +3940,7 @@ public class SameDiff {
                         putArrayForVertexId(outputVertexId,otherArr);
                         customOp.addOutputArgument(otherArr);
                     }
-                    else
+                    else if(customOp.numOutputArguments() < inputs.length)
                         customOp.addOutputArgument(getArr);
                 }
 

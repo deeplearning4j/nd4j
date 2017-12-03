@@ -145,7 +145,7 @@ public class Reshape extends DynamicCustomOp {
 
     @Override
     public void addArrayInputArguments() {
-        if(numIArguments() > 0)
+        if(numInputArguments() > 0)
             return;
         val inputArray = sameDiff.getArrForVertexId(args()[0].resultVertexId());
         if(inputArray == null) {
@@ -153,6 +153,15 @@ public class Reshape extends DynamicCustomOp {
         }
 
         addInputArgument(inputArray);
+    }
+
+    @Override
+    public void addInputArgument(INDArray... arg) {
+        if(numInputArguments() > 1) {
+            throw new ND4JIllegalStateException("Unable to add more input. Reshape should only have 1.");
+        }
+
+        super.addInputArgument(arg);
     }
 
     @Override
