@@ -34,7 +34,8 @@ public class TFGraphTestAllHelper {
 
     public  enum ExecuteWith {
         SAMEDIFF,
-        LIBND4J
+        LIBND4J,
+        JUST_PRINT
     }
 
     //TODO: Later, we can add this as a param so we can test different graphs in samediff and not samediff
@@ -103,6 +104,11 @@ public class TFGraphTestAllHelper {
             val results = executioner.executeGraph(graph, configuration);
             assertEquals(1, results.length); //FIXME: Later
             nd4jPred = graph.getVariable("output").getArr();
+        } else if (execType.equals(ExecuteWith.JUST_PRINT)) {
+            val string = graph.asFlatPrint();
+
+            log.info("Graph structure: \n{}", string);
+            return;
         }
 
         INDArray tfPred = predictions.get("output");

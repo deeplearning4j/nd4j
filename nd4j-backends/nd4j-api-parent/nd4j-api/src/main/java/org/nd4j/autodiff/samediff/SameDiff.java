@@ -4223,6 +4223,48 @@ public class SameDiff {
         }
     }
 
+    public String asFlatPrint() {
+        val sb = new StringBuilder();
+        val fb = asFlatBuffers();
+
+        val graph = FlatGraph.getRootAsFlatGraph(fb);
+
+        sb.append("\nExternal variables:\n\n");
+        for (int e = 0; e < graph.variablesLength(); e++) {
+            val var = graph.variables(e);
+            val ndarray = Nd4j.createFromFlatArray(var.ndarray());
+
+            sb.append(var.id().first())
+                    .append(":<").append(var.name()).append("> ")
+                    .append(Arrays.toString(ndarray.shapeInfoDataBuffer().asInt())).append("\n");
+        }
+
+
+        sb.append("\nOps sequence:\n\n");
+        for (int e = 0; e <graph.nodesLength(); e++) {
+            val node = graph.nodes(e);
+
+            log.info("{}:<{}>", node.id(), node.name());
+            sb.append(node.id())
+                    .append(":<").append(node.name()).append("> Inputs: {");
+
+            for (int i = 0; i < node.inputPairedLength(); i++) {
+                val pair = node.inputPaired(i);
+
+                sb.append("[").append(pair.first()).append(":").append(pair.second()).append("]");
+
+                if (i < node.inputPairedLength() - 1)
+                    sb.append(", ");
+            }
+
+            sb.append("}\n");
+        }
+
+
+
+        return sb.toString();
+    }
+
     public static DataBuffer.Type getDataTypeFromByte(byte val) {
         if (val == DataType.FLOAT)
             return DataBuffer.Type.FLOAT;
