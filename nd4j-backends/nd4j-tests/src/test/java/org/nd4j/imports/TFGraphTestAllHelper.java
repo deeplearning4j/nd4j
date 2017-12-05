@@ -17,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -104,6 +105,8 @@ public class TFGraphTestAllHelper {
             val results = executioner.executeGraph(graph, configuration);
             assertEquals(1, results.length); //FIXME: Later
             nd4jPred = graph.getVariable("output").getArr();
+            //graph.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/transpose.fb"));
+            //return;
         } else if (execType.equals(ExecuteWith.JUST_PRINT)) {
             val string = graph.asFlatPrint();
 
