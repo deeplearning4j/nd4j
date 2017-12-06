@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class MergeMax extends DynamicCustomOp {
+public class MergeSum extends DynamicCustomOp {
     private int concatDimension;
 
     @Override
     public String opName() {
-        return "mergemax";
+        return "mergesum";
     }
 
 
@@ -77,12 +77,12 @@ public class MergeMax extends DynamicCustomOp {
 
     @Override
     public String onnxName() {
-        return "MergeMax";
+        return "MergeSum";
     }
 
     @Override
     public String tensorflowName() {
-        return "MergeMax";
+        return "AddN";
     }
 
 
