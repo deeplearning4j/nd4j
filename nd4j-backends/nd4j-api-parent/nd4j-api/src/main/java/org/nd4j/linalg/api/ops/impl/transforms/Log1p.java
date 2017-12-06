@@ -27,59 +27,59 @@ import org.nd4j.linalg.api.ops.BaseTransformOp;
 import java.util.List;
 
 /**
- * RSqrt function
+ * Log1p function
  *
- * @author Adam Gibson
+ * @author raver119@gmail.com
   */
-public class RSqrt extends BaseTransformOp {
-    public RSqrt(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
+public class Log1p extends BaseTransformOp {
+    public Log1p(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
         super(sameDiff, i_v, inPlace);
     }
 
-    public RSqrt(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
+    public Log1p(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, shape, inPlace, extraArgs);
     }
 
-    public RSqrt(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
+    public Log1p(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
         super(sameDiff, i_v, extraArgs);
     }
 
-    public RSqrt() {}
+    public Log1p() {}
 
-    public RSqrt(INDArray x, INDArray z) {
+    public Log1p(INDArray x, INDArray z) {
         super(x, z);
     }
 
-    public RSqrt(INDArray x, INDArray z, long n) {
+    public Log1p(INDArray x, INDArray z, long n) {
         super(x, z, n);
     }
 
-    public RSqrt(INDArray x, INDArray y, INDArray z, long n) {
+    public Log1p(INDArray x, INDArray y, INDArray z, long n) {
         super(x, y, z, n);
     }
 
-    public RSqrt(INDArray x) {
+    public Log1p(INDArray x) {
         super(x);
     }
 
     @Override
     public int opNum() {
-        return 76;
+        return 77;
     }
 
     @Override
     public String opName() {
-        return "rsqrt";
+        return "log1p";
     }
 
     @Override
     public String onnxName() {
-        return "Rsqrt";
+        return "Log1p";
     }
 
     @Override
     public String tensorflowName() {
-        return "Rsqrt";
+        return "Log1p";
     }
 
 

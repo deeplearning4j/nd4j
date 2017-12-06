@@ -26,25 +26,25 @@ import static org.nd4j.imports.TFGraphTestAllHelper.*;
 public class TFGraphTestList {
 
     public static String[] modelNames = new String[]{
-            //"add_n",
+            "add_n",
             //"ae_00",
-            "bias_add",
+            //"bias_add",
             //"conv_0",
             //"deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
             //"deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
             //"g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
-            "g_01",
+            //"g_01",
             //"math_mul_order",
             //"mlp_00",
             //"mnist_00",
             //"transform_0",
-            "transpose",
+            //"transpose",
     };
     //change this to SAMEDIFF for samediff
-    public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;
+    //public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;
 
    // public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.LIBND4J;
-   // public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.JUST_PRINT;
+    public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.JUST_PRINT;
     public static String modelDir = TFGraphTestAllHelper.COMMON_BASE_DIR; //this is for later if we want to check in models separately for samediff and libnd4j
 
     private String modelName;
