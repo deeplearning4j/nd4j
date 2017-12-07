@@ -86,6 +86,8 @@ public class Conv2D extends DynamicCustomOp {
         }
 
 
+
+
     }
 
     @Override
@@ -124,6 +126,9 @@ public class Conv2D extends DynamicCustomOp {
         this.conv2DConfig = conv2DConfig;
 
         addArgs();
+
+        addOutputArgument(arr);
+
 
     }
 
@@ -164,6 +169,7 @@ public class Conv2D extends DynamicCustomOp {
         this.conv2DConfig = conv2DConfig;
         addArgs();
 
+        addOutputArgument(arr);
     }
 
     @Override

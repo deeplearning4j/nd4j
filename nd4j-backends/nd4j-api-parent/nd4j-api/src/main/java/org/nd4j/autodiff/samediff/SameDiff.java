@@ -3838,6 +3838,8 @@ public class SameDiff {
         }
 
 
+        resolveVariablesWith(Collections.emptyMap());
+
         List<DifferentialFunction> ops = new ArrayList<>();
         List<OpExecAction> opExecActions = graph().getOpOrder().getActions();
 
