@@ -163,7 +163,6 @@ public class Conv2D extends DynamicCustomOp {
                 .build();
         this.conv2DConfig = conv2DConfig;
         addArgs();
-        addArrayInputArguments();
 
     }
 

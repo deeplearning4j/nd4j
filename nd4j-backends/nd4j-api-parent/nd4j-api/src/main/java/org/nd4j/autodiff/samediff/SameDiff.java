@@ -336,6 +336,7 @@ public class SameDiff {
         if(vertexIdToArr.containsKey(vertexId)) {
             throw new ND4JIllegalStateException("Array for " + Arrays.toString(vertexId) + " already exists!");
         }
+
         vertexIdToArr.put(vertexId,arr);
     }
 
@@ -3111,7 +3112,8 @@ public class SameDiff {
 
             Op op = (Op) differentialFunction;
             differentialFunction.fillInArrays();
-            op.setN(op.x().length());
+            val argZero = getArrForVertexId(differentialFunction.resultVertexId());
+            op.setN(argZero.length());
 
         }
         else if(differentialFunction instanceof DynamicCustomOp) {
@@ -3625,26 +3627,61 @@ public class SameDiff {
             if(!placeHolderVertexIds.contains(arrVertexId)) {
                 throw new ND4JIllegalStateException("Illegal variable " + entry.getKey() + " passed in. Variable found not to be a place holder variable");
             }
-
-
-
             associateArrayWithVariable(entry.getValue(),getVariable(entry.getKey()));
             updateArrayForVertexId(arrVertexId,entry.getValue());
 
         }
 
+        for(val variable : variableMap.values()) {
+            val func = getFunctionForVertexId(variable.resultVertexId());
+            if(variable.getArr() == null) {
+                int[] shape = getShapeForVertexId(variable.resultVertexId());
+                if (shape == null) {
+                    if(func != null) {
+                        func.initWithArrays(arrays);
+                        shape =  func.calculateOutputShape().get(0);
+                        putShapeForVertexId(variable.resultVertexId(),shape);
+                        if(getArrForVertexId(variable.resultVertexId()) == null)
+                            variable.storeAndAllocateNewArray();
+                    }
+                    else if(shape != null &&  getArrForVertexId(variable.resultVertexId()) == null) {
+                        variable.storeAndAllocateNewArray();
+                    }
+                    else
+                        throw new ND4JIllegalStateException("No shape found for variable " + variable.getVarName());
+                }
+                else  if(getArrForVertexId(variable.resultVertexId()) == null) {
+                    variable.storeAndAllocateNewArray();
+                }
+            }
+
+            if(func != null)
+                func.initOutputWithArrays(arrays);
+
+        }
+
+
+   /*     int[][] sortedVertexIds = graph().topologicalSort();
         Set<int[]> initialized = new IntArrayKeySet();
+        Set<int[]> outputInitialized = new IntArrayKeySet();
         //update functions after variables are set
-        for(DifferentialFunction function : functionInstances.values()) {
+        for(int[] vertexId : sortedVertexIds) {
+            val function = getFunctionForVertexId(vertexId);
             //resolve arguments in case
             val args = function.args();
             for(DifferentialFunction arg : args) {
-                /**
-                 * Need to resolve shapes and arrays here.
-                 */
-                if(!initialized.contains(arg.resultVertexId())) {
+                *//**
+         * Need to resolve shapes and arrays here.
+         *//*
+                if(!initialized.contains(arg.resultVertexId()) || getArrForVertexId(arg.resultVertexId()) == null) {
                     arg.initWithArrays(arrays);
                     initialized.add(arg.resultVertexId());
+                    if(arg instanceof CustomOp) {
+                        val casted = (CustomOp) arg;
+                        if(casted.numInputArguments() < 1)
+                            throw new ND4JIllegalStateException("Arg " + arg + " does not have input arguments!");
+
+                    }
                 }
             }
 
@@ -3654,6 +3691,43 @@ public class SameDiff {
                 initialized.add(function.resultVertexId());
             }
         }
+
+
+        *//**
+         * Now initialize outputs
+         *//*
+        //update functions after variables are set
+        for(int[] vertexId : sortedVertexIds) {
+            val function = getFunctionForVertexId(vertexId);
+            //resolve arguments in case
+            val args = function.outputFunctions();
+            for(DifferentialFunction arg : args) {
+                *//**
+         * Need to resolve shapes and arrays here.
+         *//*
+                if(!outputInitialized.contains(arg.resultVertexId()) || getArrForVertexId(arg.resultVertexId()) == null) {
+                    arg.initOutputWithArrays(arrays);
+                    outputInitialized.add(arg.resultVertexId());
+                    if(getArrForVertexId(arg.resultVertexId()) == null)
+                        throw new ND4JIllegalStateException("Op " + arg + " not initialized with initWithArrays call!");
+                    if(arg instanceof CustomOp) {
+                        val casted = (CustomOp) arg;
+                        if(casted.numInputArguments() < 1)
+                            throw new ND4JIllegalStateException("Arg " + arg + " does not have input arguments!");
+                        if(casted.numOutputArguments() < 1)
+                            throw new ND4JIllegalStateException("Arg " + arg + " does not have output arguments!");
+
+
+                    }
+                }
+            }
+
+
+            if(!outputInitialized.contains(function.resultVertexId())) {
+                function.initOutputWithArrays(arrays);
+                outputInitialized.add(function.resultVertexId());
+            }
+        }*/
     }
 
     /**
@@ -3887,66 +3961,6 @@ public class SameDiff {
             }
             else if(differentialFunction instanceof CustomOp) {
                 DynamicCustomOp customOp = (DynamicCustomOp) differentialFunction;
-                /**
-                 * Setup outputs and inputs relative to samediff.
-                 */
-
-                val inputs = customOp.args();
-                for(DifferentialFunction output : inputs) {
-                    val outputVertexId = output.resultVertexId();
-                    val getArr = getArrForVertexId(outputVertexId);
-                    if(getArr == null) {
-                        val shape = getShapeForVertexId(outputVertexId);
-                        val var = getVariableForVertexId(outputVertexId);
-                        val otherArr = var.getWeightInitScheme().create(shape);
-                        putArrayForVertexId(outputVertexId,otherArr);
-                        customOp.addInputArgument(otherArr);
-                    }
-
-                    else if(customOp.numInputArguments() < inputs.length)
-                        customOp.addInputArgument(getArr);
-
-                }
-
-                val outputs = customOp.outputFunctions();
-                for(DifferentialFunction output : outputs) {
-                    if(output == null)
-                        throw new ND4JIllegalStateException("No output can be null");
-                    val outputVertexId = output.resultVertexId();
-                    val getArr = getArrForVertexId(outputVertexId);
-                    if(getArr == null) {
-                        //ensure shape is defined for output as well
-                        //just in case it hasn't run already
-                        int[] shape = getShapeForVertexId(outputVertexId);
-                        val var = getVariableForVertexId(outputVertexId);
-                        if(shape == null) {
-                            val newOutputShape = customOp.calculateOutputShape();
-                            if(newOutputShape == null ||  newOutputShape.isEmpty()) {
-                                throw new ND4JIllegalStateException("Unable to compute output shape! CalculateOutputShape on op returned null or empty!");
-                            }
-
-                            if(newOutputShape.size() != outputs.length) {
-                                throw new ND4JIllegalStateException("Outputs size not equal to outputs length. Missing output arrays possibly?");
-                            }
-
-                            for(int outputIdx = 0; outputIdx < newOutputShape.size(); outputIdx++) {
-                                val outputI = outputs[outputIdx];
-                                putShapeForVertexId(outputI.resultVertexId(),newOutputShape.get(outputIdx));
-                            }
-
-                            shape = getShapeForVertexId(outputVertexId);
-                        }
-
-                        if(customOp.numOutputArguments() < 1) {
-                            val otherArr = var.getWeightInitScheme().create(shape);
-                            putArrayForVertexId(outputVertexId, otherArr);
-                            customOp.addOutputArgument(otherArr);
-                        }
-                    }
-                    else if(customOp.numOutputArguments() < outputs.length)
-                        customOp.addOutputArgument(getArr);
-                }
-
                 Nd4j.getExecutioner().exec(customOp);
             }
 
@@ -4140,10 +4154,6 @@ public class SameDiff {
             log.info("Exporting variable: [{}]", variable.getVarName());
             if(variable.getArr() == null || variable.getShape() == null)
                 continue;
-
-
-            if(!vertexIdToVariable.containsKey(variable.getVertexId()))
-                putArrayForVertexId(variable.getVertexId(),Nd4j.create(variable.getShape()));
 
             val arr = variable.getArr();
 
