@@ -28,49 +28,49 @@ import org.nd4j.linalg.api.ops.BaseTransformOp;
 import java.util.List;
 
 /**
- * Erf function
+ * Erfc function
  *
  * @author raver119@gmail.com
   */
-public class Erf extends BaseTransformOp {
-    public Erf(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
+public class Erfc extends BaseTransformOp {
+    public Erfc(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
         super(sameDiff, i_v, inPlace);
     }
 
-    public Erf(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
+    public Erfc(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, shape, inPlace, extraArgs);
     }
 
-    public Erf(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
+    public Erfc(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
         super(sameDiff, i_v, extraArgs);
     }
 
-    public Erf() {}
+    public Erfc() {}
 
-    public Erf(INDArray x, INDArray z) {
+    public Erfc(INDArray x, INDArray z) {
         super(x, z);
     }
 
-    public Erf(INDArray x, INDArray z, long n) {
+    public Erfc(INDArray x, INDArray z, long n) {
         super(x, z, n);
     }
 
-    public Erf(INDArray x, INDArray y, INDArray z, long n) {
+    public Erfc(INDArray x, INDArray y, INDArray z, long n) {
         super(x, y, z, n);
     }
 
-    public Erf(INDArray x) {
+    public Erfc(INDArray x) {
         super(x);
     }
 
     @Override
     public int opNum() {
-        return 78;
+        return 90;
     }
 
     @Override
     public String opName() {
-        return "erf";
+        return "erfc";
     }
 
     @Override
@@ -80,7 +80,7 @@ public class Erf extends BaseTransformOp {
 
     @Override
     public String tensorflowName() {
-        return "Erf";
+        return "Erfc";
     }
 
 
