@@ -92,6 +92,7 @@ public class SameDiff {
     @Getter
     private boolean debugMode;
     private Map<int[],Op> opsForResult;
+    private boolean resolvedVariables = false;
     private Map<OpExecAction,ForwardBackwardState> forwardBackwardStates;
 
     static {
@@ -3728,6 +3729,9 @@ public class SameDiff {
                 outputInitialized.add(function.resultVertexId());
             }
         }*/
+
+        //declare resolved
+        resolvedVariables = true;
     }
 
     /**
@@ -3837,8 +3841,8 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Undefined variables found.");
         }
 
-
-        resolveVariablesWith(Collections.emptyMap());
+        if(!resolvedVariables)
+            resolveVariablesWith(Collections.emptyMap());
 
         List<DifferentialFunction> ops = new ArrayList<>();
         List<OpExecAction> opExecActions = graph().getOpOrder().getActions();

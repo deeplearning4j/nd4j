@@ -47,15 +47,15 @@ public class Conv2D extends DynamicCustomOp {
     public Conv2D() {}
 
     protected void addArgs() {
-       addIArgument(new int[]{conv2DConfig.getKh(),
-      conv2DConfig.getKw(),
-      conv2DConfig.getSy(),
-      conv2DConfig.getSx(),
-      conv2DConfig.getPh(),
-      conv2DConfig.getPw(),
-      conv2DConfig.getDh(),
-      conv2DConfig.getDw(),
-      fromBoolean(conv2DConfig.isSameMode())});
+        addIArgument(new int[]{conv2DConfig.getKh(),
+                conv2DConfig.getKw(),
+                conv2DConfig.getSy(),
+                conv2DConfig.getSx(),
+                conv2DConfig.getPh(),
+                conv2DConfig.getPw(),
+                conv2DConfig.getDh(),
+                conv2DConfig.getDw(),
+                fromBoolean(conv2DConfig.isSameMode())});
 
     }
 
@@ -86,6 +86,17 @@ public class Conv2D extends DynamicCustomOp {
         }
 
 
+
+        val inputs = args();
+        for(val func : inputs) {
+            INDArray arr = sameDiff.getArrForVertexId(func.resultVertexId());
+            if(arr == null) {
+                val var2 = sameDiff.getVariableForVertexId(func.resultVertexId());
+                arr = var2.storeAndAllocateNewArray();
+            }
+
+            addInputArgument(arr);
+        }
 
 
     }
