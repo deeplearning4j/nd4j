@@ -3662,75 +3662,7 @@ public class SameDiff {
         }
 
 
-   /*     int[][] sortedVertexIds = graph().topologicalSort();
-        Set<int[]> initialized = new IntArrayKeySet();
-        Set<int[]> outputInitialized = new IntArrayKeySet();
-        //update functions after variables are set
-        for(int[] vertexId : sortedVertexIds) {
-            val function = getFunctionForVertexId(vertexId);
-            //resolve arguments in case
-            val args = function.args();
-            for(DifferentialFunction arg : args) {
-                *//**
-         * Need to resolve shapes and arrays here.
-         *//*
-                if(!initialized.contains(arg.resultVertexId()) || getArrForVertexId(arg.resultVertexId()) == null) {
-                    arg.initWithArrays(arrays);
-                    initialized.add(arg.resultVertexId());
-                    if(arg instanceof CustomOp) {
-                        val casted = (CustomOp) arg;
-                        if(casted.numInputArguments() < 1)
-                            throw new ND4JIllegalStateException("Arg " + arg + " does not have input arguments!");
-
-                    }
-                }
-            }
-
-
-            if(!initialized.contains(function.resultVertexId())) {
-                function.initWithArrays(arrays);
-                initialized.add(function.resultVertexId());
-            }
-        }
-
-
-        *//**
-         * Now initialize outputs
-         *//*
-        //update functions after variables are set
-        for(int[] vertexId : sortedVertexIds) {
-            val function = getFunctionForVertexId(vertexId);
-            //resolve arguments in case
-            val args = function.outputFunctions();
-            for(DifferentialFunction arg : args) {
-                *//**
-         * Need to resolve shapes and arrays here.
-         *//*
-                if(!outputInitialized.contains(arg.resultVertexId()) || getArrForVertexId(arg.resultVertexId()) == null) {
-                    arg.initOutputWithArrays(arrays);
-                    outputInitialized.add(arg.resultVertexId());
-                    if(getArrForVertexId(arg.resultVertexId()) == null)
-                        throw new ND4JIllegalStateException("Op " + arg + " not initialized with initWithArrays call!");
-                    if(arg instanceof CustomOp) {
-                        val casted = (CustomOp) arg;
-                        if(casted.numInputArguments() < 1)
-                            throw new ND4JIllegalStateException("Arg " + arg + " does not have input arguments!");
-                        if(casted.numOutputArguments() < 1)
-                            throw new ND4JIllegalStateException("Arg " + arg + " does not have output arguments!");
-
-
-                    }
-                }
-            }
-
-
-            if(!outputInitialized.contains(function.resultVertexId())) {
-                function.initOutputWithArrays(arrays);
-                outputInitialized.add(function.resultVertexId());
-            }
-        }*/
-
-        //declare resolved
+       //declare resolved
         resolvedVariables = true;
     }
 
