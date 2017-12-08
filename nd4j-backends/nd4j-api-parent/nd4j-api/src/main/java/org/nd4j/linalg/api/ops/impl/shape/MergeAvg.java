@@ -1,12 +1,10 @@
 package org.nd4j.linalg.api.ops.impl.shape;
 
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -16,12 +14,12 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class MergeMax extends DynamicCustomOp {
+public class MergeAvg extends DynamicCustomOp {
     private int concatDimension;
 
     @Override
     public String opName() {
-        return "mergemax";
+        return "mergeavg";
     }
 
 
@@ -51,7 +49,7 @@ public class MergeMax extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        return "MergeMax";
+        return "MergeAvg";
     }
 
 
