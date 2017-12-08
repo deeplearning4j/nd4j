@@ -15,7 +15,6 @@ import java.util.Map;
 
 @Slf4j
 public class MergeAvg extends DynamicCustomOp {
-    private int concatDimension;
 
     @Override
     public String opName() {

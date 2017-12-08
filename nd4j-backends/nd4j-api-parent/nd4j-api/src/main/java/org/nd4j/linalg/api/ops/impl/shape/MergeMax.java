@@ -17,7 +17,6 @@ import java.util.Map;
 
 @Slf4j
 public class MergeMax extends DynamicCustomOp {
-    private int concatDimension;
 
     @Override
     public String opName() {
