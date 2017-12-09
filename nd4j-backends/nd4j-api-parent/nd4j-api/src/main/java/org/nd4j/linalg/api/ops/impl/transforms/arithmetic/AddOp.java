@@ -22,10 +22,9 @@ package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,21 +32,16 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
-public class AddOp extends DynamicCustomOp {
+public class AddOp extends BaseDynamicTransformOp {
 
     public AddOp() {}
 
     public AddOp( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
-        super(null, sameDiff, args, inPlace);
+        super(sameDiff, args, inPlace);
     }
 
     public AddOp( INDArray[] inputs, INDArray[] outputs) {
-        super(null, inputs, outputs);
-    }
-
-    @Override
-    public List<int[]> calculateOutputShape() {
-        return Arrays.asList(arg().getResultShape());
+        super(inputs, outputs);
     }
 
     @Override

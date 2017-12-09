@@ -79,7 +79,7 @@ public class Transpose extends DynamicCustomOp {
                 val permuteArrayOp = sameDiff.getArrForVertexId(args[1].resultVertexId());
                 if(permuteArrayOp != null) {
                     this.permuteDims = permuteArrayOp.data().asInt();
-                    if(permuteDims.length < args[0].getResultShape().length) {
+                    if(ArrayUtil.prod(permuteDims) == 0 || permuteDims.length < args[0].getResultShape().length) {
                         this.permuteDims = ArrayUtil.reverseCopy(ArrayUtil.range(0,args[0].getResultShape().length));
                     }
                     else {

@@ -3662,7 +3662,7 @@ public class SameDiff {
         }
 
 
-       //declare resolved
+        //declare resolved
         resolvedVariables = true;
     }
 
@@ -3795,6 +3795,9 @@ public class SameDiff {
 
             DifferentialFunction differentialFunction = createOp(
                     opExecAction);
+
+            //debug
+            printFunction(differentialFunction);
             if(differentialFunction instanceof If) {
                 If ifOp = (If) differentialFunction;
                 if(!onBackward) {
@@ -3968,6 +3971,37 @@ public class SameDiff {
         return new Pair<>(opMap,ops);
     }
 
+
+    public void printFunction(DifferentialFunction differentialFunction) {
+        StringBuilder argShapes = new StringBuilder();
+        for(val arg : differentialFunction.args()) {
+            argShapes.append(" Variable " + getVariableForVertexId(arg.resultVertexId()).getVarName() +
+                    " Shape for " + Arrays.toString(arg.getResultShape()));
+        }
+
+        for(val func : differentialFunction.outputFunctions()) {
+            argShapes.append("  Output variable " + getVariableForVertexId(func.resultVertexId()) + " is " + Arrays.toString(getVariableForVertexId(differentialFunction.resultVertexId()).getResultShape()));
+        }
+
+        log.info("Executing op " + differentialFunction.opName() + " with variable " + getVariableForVertexId(differentialFunction.resultVertexId()).getVarName() +
+                " with expected output shape " + Arrays.toString(differentialFunction.getResultShape()) + argShapes);
+
+        StringBuilder realShapes = new StringBuilder();
+        for(val arg: differentialFunction.args()) {
+            val var = getVariableForVertexId(arg.resultVertexId());
+            realShapes.append(" Input shape for " + var.getVarName() + " is  " + Arrays.
+                    toString(getArrForVertexId(arg.resultVertexId()).shape()));
+        }
+
+        for(val arg: differentialFunction.outputFunctions()) {
+            val var = getVariableForVertexId(arg.resultVertexId());
+            realShapes.append(" Output shape for " + var.getVarName() + " is  " + Arrays.
+                    toString(getArrForVertexId(arg.resultVertexId()).shape()));
+        }
+
+
+        log.info(realShapes.toString());
+    }
 
     /**
      * Update the {@link INDArray}
