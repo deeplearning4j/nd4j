@@ -23,31 +23,52 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.api.ops.BaseTransformOp;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Bit mask over the ndarrays as to whether
- * the components are less than or not
+ * Not equal to function:
+ * Bit mask over whether 2 elements are not equal or not
  *
  * @author Adam Gibson
  */
-public class LessThan extends BaseDynamicTransformOp {
-    public LessThan() {}
-
-    public LessThan( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
+public class OldNotEqualTo extends BaseTransformOp {
+    public OldNotEqualTo(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
+        super(sameDiff, i_v1, i_v2);
     }
 
-    public LessThan( INDArray[] inputs, INDArray[] outputs) {
-        super(inputs, outputs);
+    public OldNotEqualTo(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
+        super(sameDiff, i_v1, i_v2, inPlace);
+    }
+
+    public OldNotEqualTo() {}
+
+    public OldNotEqualTo(INDArray x) {
+        super(x);
+    }
+
+    public OldNotEqualTo(INDArray x, INDArray y, INDArray z, long n) {
+        super(x, y, z, n);
+    }
+
+    public OldNotEqualTo(INDArray x, INDArray z) {
+        super(x, z);
+    }
+
+    public OldNotEqualTo(INDArray x, INDArray z, long n) {
+        super(x, z, n);
+    }
+
+    @Override
+    public int opNum() {
+        return 15;
     }
 
     @Override
     public String opName() {
-        return "lt";
+        return "neq";
     }
 
     @Override
@@ -57,12 +78,14 @@ public class LessThan extends BaseDynamicTransformOp {
 
     @Override
     public String tensorflowName() {
-      return "Less";
+        return "logical_not";
     }
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return Arrays.<DifferentialFunction>asList(f().val(getResult()));
+    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
+        return Collections.singletonList(f().neg(i_v.get(0)));
     }
+
+
 }

@@ -21,9 +21,8 @@ package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
+import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,69 +32,32 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
-public class FloorDivOp extends BaseTransformOp {
-    public FloorDivOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
-        super(sameDiff, i_v1, i_v2);
-    }
-
-    public FloorDivOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
-        super(sameDiff, i_v1, i_v2, inPlace);
-    }
-
+public class FloorDivOp extends BaseDynamicTransformOp {
     public FloorDivOp() {}
 
-    public FloorDivOp(INDArray x, INDArray y, INDArray z, long n) {
-        super(x, y, z, n);
+    public FloorDivOp( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+        super(sameDiff, args, inPlace);
     }
 
-    public FloorDivOp(INDArray x) {
-        super(x);
+    public FloorDivOp( INDArray[] inputs, INDArray[] outputs) {
+        super(inputs, outputs);
     }
 
-    public FloorDivOp(INDArray x, INDArray z) {
-        super(x, z);
-    }
-
-    public FloorDivOp(INDArray x, INDArray z, long n) {
-        super(x, z, n);
-    }
-
-    public FloorDivOp(INDArray x, INDArray y, INDArray z) {
-        super(x, y, z, x.lengthLong());
-    }
-
-    @Override
-    public int opNum() {
-        return 20;
-    }
 
     @Override
     public String opName() {
-        return "floordiv";
-    }
-
-
-
-
-    @Override
-    public void init(INDArray x, INDArray y, INDArray z, long n) {
-        super.init(x, y, z, n);
-        if (y == null)
-            throw new IllegalArgumentException("No components to divide");
+        return "fdiv";
     }
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
+        return "FloorDiv";
     }
 
     @Override
     public String tensorflowName() {
         return "FloorDiv";
     }
-
-
-
 
 
 

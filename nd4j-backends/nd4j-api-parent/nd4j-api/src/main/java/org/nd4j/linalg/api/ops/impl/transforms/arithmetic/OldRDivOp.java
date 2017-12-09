@@ -22,61 +22,87 @@ package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.api.ops.BaseTransformOp;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Multiplication operation
+ * Reverse Division operation
  *
  * @author Adam Gibson
  */
-public class MulOp  extends BaseDynamicTransformOp {
-
-    public MulOp() {}
-
-    public MulOp( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
+public class OldRDivOp extends BaseTransformOp {
+    public OldRDivOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
+        super(sameDiff, i_v1, i_v2);
     }
 
-    public MulOp( INDArray[] inputs, INDArray[] outputs) {
-        super(inputs, outputs);
+    public OldRDivOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
+        super(sameDiff, i_v1, i_v2, inPlace);
+    }
+
+    public OldRDivOp() {}
+
+    public OldRDivOp(INDArray x, INDArray y, INDArray z, long n) {
+        super(x, y, z, n);
+    }
+
+    public OldRDivOp(INDArray x) {
+        super(x);
+    }
+
+    public OldRDivOp(INDArray x, INDArray z) {
+        super(x, z);
+    }
+
+    public OldRDivOp(INDArray x, INDArray z, long n) {
+        super(x, z, n);
+    }
+
+    public OldRDivOp(INDArray x, INDArray y, INDArray z) {
+        super(x, y, z, x.lengthLong());
     }
 
     @Override
     public int opNum() {
-        return 6;
+        return 18;
     }
 
     @Override
     public String opName() {
-        return "mul";
+        return "rdiv";
     }
-
 
     @Override
     public String onnxName() {
-        return "Mul";
+        return "Div";
     }
 
     @Override
     public String tensorflowName() {
-        return "Mul";
+        return "div";
     }
+
+
+
+    @Override
+    public void init(INDArray x, INDArray y, INDArray z, long n) {
+        super.init(x, y, z, n);
+        if (y == null)
+            throw new IllegalArgumentException("No components to divide");
+    }
+
 
 
 
     @Override
     public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
-        DifferentialFunction g = sameDiff.setupFunction(i_v.get(0));
-        DifferentialFunction gradWrtX = f().mul(g,rarg());
-        DifferentialFunction gradWrtY = f().mul(g,larg());
+        DifferentialFunction gradWrtX = f().div(i_v.get(0),larg());
+        DifferentialFunction gradWrtY = f().mul(f().neg(gradWrtX),f().div(rarg(),larg()));
         List<DifferentialFunction> ret = new ArrayList<>(2);
         ret.add(gradWrtX);
         ret.add(gradWrtY);
         return ret;
     }
-
 
 }

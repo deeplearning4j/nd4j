@@ -21,9 +21,8 @@ package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.BaseTransformOp;
+import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 
 import java.util.Collections;
 import java.util.List;
@@ -34,37 +33,17 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
-public class NotEqualTo extends BaseTransformOp {
-    public NotEqualTo(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
-        super(sameDiff, i_v1, i_v2);
-    }
-
-    public NotEqualTo(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
-        super(sameDiff, i_v1, i_v2, inPlace);
-    }
-
+public class NotEqualTo extends BaseDynamicTransformOp {
     public NotEqualTo() {}
 
-    public NotEqualTo(INDArray x) {
-        super(x);
+    public NotEqualTo( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+        super(sameDiff, args, inPlace);
     }
 
-    public NotEqualTo(INDArray x, INDArray y, INDArray z, long n) {
-        super(x, y, z, n);
+    public NotEqualTo( INDArray[] inputs, INDArray[] outputs) {
+        super(inputs, outputs);
     }
 
-    public NotEqualTo(INDArray x, INDArray z) {
-        super(x, z);
-    }
-
-    public NotEqualTo(INDArray x, INDArray z, long n) {
-        super(x, z, n);
-    }
-
-    @Override
-    public int opNum() {
-        return 15;
-    }
 
     @Override
     public String opName() {
@@ -73,12 +52,12 @@ public class NotEqualTo extends BaseTransformOp {
 
     @Override
     public String onnxName() {
-        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
+        return "LogicalNot";
     }
 
     @Override
     public String tensorflowName() {
-        return "logical_not";
+        return "LogicalNot";
     }
 
 

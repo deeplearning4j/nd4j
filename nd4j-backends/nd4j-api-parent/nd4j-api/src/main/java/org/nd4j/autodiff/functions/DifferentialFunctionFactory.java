@@ -332,7 +332,7 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
     @Override
     public DifferentialFunction eq(DifferentialFunction iX, DifferentialFunction i_y) {
-        return sameDiff().setupFunction(new EqualTo(sameDiff(),iX,i_y));
+        return sameDiff().setupFunction(new EqualTo(sameDiff(),new DifferentialFunction[]{iX,i_y},false));
     }
 
 
@@ -351,12 +351,12 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
 
     @Override
     public DifferentialFunction neqi(DifferentialFunction iX, DifferentialFunction i_y) {
-        return sameDiff().setupFunction(new NotEqualTo(sameDiff(),iX,i_y,true));
+        return sameDiff().setupFunction(new NotEqualTo(sameDiff(),new DifferentialFunction[]{iX,i_y},true));
 
     }
     @Override
     public DifferentialFunction neq(DifferentialFunction iX, DifferentialFunction i_y) {
-        return sameDiff().setupFunction(new NotEqualTo(sameDiff(),iX,i_y));
+        return sameDiff().setupFunction(new NotEqualTo(sameDiff(),new DifferentialFunction[]{iX,i_y},false));
 
     }
 
@@ -694,14 +694,14 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     @Override
     public DifferentialFunction rdiv(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new RDivOp(sameDiff(),differentialFunction,i_v));
+        return sameDiff().setupFunction(new RDivOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},false));
 
     }
 
     @Override
     public DifferentialFunction rdivi(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new RDivOp(sameDiff(),differentialFunction,i_v));
+        return sameDiff().setupFunction(new RDivOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},true));
 
     }
 
@@ -743,27 +743,27 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     @Override
     public DifferentialFunction mul(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new MulOp(sameDiff(),differentialFunction,i_v));
+        return sameDiff().setupFunction(new MulOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},false));
 
     }
 
     @Override
     public DifferentialFunction muli(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new MulOp(sameDiff(),differentialFunction,i_v,true));
+        return sameDiff().setupFunction(new MulOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},true));
 
     }
 
     @Override
     public DifferentialFunction div(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new DivOp(sameDiff(),differentialFunction,i_v));
+        return sameDiff().setupFunction(new DivOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},false));
     }
 
     @Override
     public DifferentialFunction divi(DifferentialFunction differentialFunction, DifferentialFunction i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
-        return sameDiff().setupFunction(new DivOp(sameDiff(),differentialFunction,i_v,true));
+        return sameDiff().setupFunction(new DivOp(sameDiff(),new DifferentialFunction[]{differentialFunction,i_v},true));
     }
 
     @Override
@@ -848,56 +848,56 @@ public class DifferentialFunctionFactory implements FunctionFactory  {
     public DifferentialFunction gt(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new GreaterThan(sameDiff(),functionInput,functionInput1,false));
+        return sameDiff().setupFunction(new GreaterThan(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},false));
     }
 
     @Override
     public DifferentialFunction lt(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new LessThan(sameDiff(),functionInput,functionInput1,false));
+        return sameDiff().setupFunction(new LessThan(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},false));
     }
 
     @Override
     public DifferentialFunction gti(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new GreaterThan(sameDiff(),functionInput,functionInput1,true));
+        return sameDiff().setupFunction(new GreaterThan(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},true));
     }
 
     @Override
     public DifferentialFunction lti(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new LessThan(sameDiff(),functionInput,functionInput1,true));
+        return sameDiff().setupFunction(new LessThan(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},true));
     }
 
     @Override
     public DifferentialFunction gte(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},false));
     }
 
     @Override
     public DifferentialFunction lte(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),functionInput,functionInput1,false));
+        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},false));
     }
 
     @Override
     public DifferentialFunction gtei(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+        return sameDiff().setupFunction(new GreaterThanOrEqual(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},true));
     }
 
     @Override
     public DifferentialFunction ltOrEqi(DifferentialFunction functionInput, DifferentialFunction functionInput1) {
         validateDifferentialFunctionsameDiff(functionInput);
         validateDifferentialFunctionsameDiff(functionInput1);
-        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),functionInput,functionInput1,true));
+        return sameDiff().setupFunction(new LessThanOrEqual(sameDiff(),new DifferentialFunction[]{functionInput,functionInput1},true));
     }
 
 

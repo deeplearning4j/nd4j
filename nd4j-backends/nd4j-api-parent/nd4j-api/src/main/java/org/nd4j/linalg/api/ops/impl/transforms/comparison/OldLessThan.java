@@ -23,7 +23,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.api.ops.BaseTransformOp;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,15 +34,56 @@ import java.util.List;
  *
  * @author Adam Gibson
  */
-public class LessThan extends BaseDynamicTransformOp {
-    public LessThan() {}
-
-    public LessThan( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
+public class OldLessThan extends BaseTransformOp {
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
+        super(sameDiff, i_v1, i_v2);
     }
 
-    public LessThan( INDArray[] inputs, INDArray[] outputs) {
-        super(inputs, outputs);
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
+        super(sameDiff, i_v1, i_v2, inPlace);
+    }
+
+    public OldLessThan(SameDiff sameDiff) {
+        super(sameDiff);
+    }
+
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, Object[] extraArgs) {
+        super(sameDiff, i_v1, i_v2, extraArgs);
+    }
+
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
+        super(sameDiff, i_v, inPlace);
+    }
+
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
+        super(sameDiff, i_v, shape, inPlace, extraArgs);
+    }
+
+    public OldLessThan(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
+        super(sameDiff, i_v, extraArgs);
+    }
+
+    public OldLessThan() {}
+
+    public OldLessThan(INDArray x, INDArray y, INDArray z, long n) {
+        super(x, y, z, n);
+    }
+
+    public OldLessThan(INDArray x) {
+        super(x);
+    }
+
+    public OldLessThan(INDArray ndArray, INDArray dup) {
+        super(ndArray, dup);
+    }
+
+    public OldLessThan(INDArray x, INDArray z, long n) {
+        super(x, z, n);
+    }
+
+    @Override
+    public int opNum() {
+        return 5;
     }
 
     @Override
