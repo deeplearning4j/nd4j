@@ -115,7 +115,7 @@ public class TFGraphTestAllHelper {
     }
 
     public static void checkIntermediate(Map<String, INDArray> inputs, String modelName, String baseDir, ExecuteWith execType) throws IOException {
-        Nd4j.EPS_THRESHOLD = 1e-4;
+        Nd4j.EPS_THRESHOLD = 1e-3;
         Nd4j.getExecutioner().enableDebugMode(true);
         Nd4j.getExecutioner().enableVerboseMode(true);
         val graph = getGraphAfterExec(baseDir, modelName, inputs, execType);
