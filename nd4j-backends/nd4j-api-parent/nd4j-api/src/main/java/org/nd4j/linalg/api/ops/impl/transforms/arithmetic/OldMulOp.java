@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -34,11 +35,11 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class OldMulOp extends BaseTransformOp {
-    public OldMulOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
+    public OldMulOp(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 
-    public OldMulOp(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
+    public OldMulOp(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2, boolean inPlace) {
         super(sameDiff, i_v1, i_v2, inPlace);
     }
 
@@ -94,7 +95,7 @@ public class OldMulOp extends BaseTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
         DifferentialFunction g = sameDiff.setupFunction(i_v.get(0));
         DifferentialFunction gradWrtX = f().mul(g,rarg());
         DifferentialFunction gradWrtY = f().mul(g,larg());

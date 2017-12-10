@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -130,7 +131,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
 
     @Override
-    public DifferentialFunction[] outputFunctions() {
+    public SDVariable[] outputVariables() {
         if(this.outputFunctions == null) {
             int[] to = sameDiff.graph().getToFor(vertexId);
             if(to == null) {
@@ -255,8 +256,8 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         //this is a cumulative algorithm so we should always
         //refresh the current list
         for(int i = 0; i < arg.length; i++) {
-            if(!Arrays.equals(args[i].getResultShape(),arrsSoFar[i].shape()))
-                throw new ND4JIllegalStateException("Illegal array passed in. Expected shape " + Arrays.toString(args[i].getResultShape()) + " and received array with shape " + Arrays.toString(arg[i].shape()));
+            if(!Arrays.equals(args[i].getShape(),arrsSoFar[i].shape()))
+                throw new ND4JIllegalStateException("Illegal array passed in. Expected shape " + Arrays.toString(args[i].getShape()) + " and received array with shape " + Arrays.toString(arg[i].shape()));
         }
     }
 
@@ -279,14 +280,14 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     public void addOutputArgument(INDArray... arg) {
         outputArguments.addAll(Arrays.asList(arg));
 
-        val outputFunctions = outputFunctions();
+        val outputFunctions = outputVariables();
         val arrsSoFar = outputArguments();
         //validate arrays passed in, keep in mind that
         //this is a cumulative algorithm so we should always
         //refresh the current list
         for(int i = 0; i < arg.length; i++) {
-            if (!Arrays.equals(outputFunctions[i].getResultShape(), arrsSoFar[i].shape())) {
-                 val message = "Illegal array passed in. Expected shape " + Arrays.toString(outputFunctions[i].getResultShape()) + " and received array with shape " + Arrays.toString(arg[i].shape());
+            if (!Arrays.equals(outputFunctions[i].getShape(), arrsSoFar[i].shape())) {
+                 val message = "Illegal array passed in. Expected shape " + Arrays.toString(outputFunctions[i].getShape()) + " and received array with shape " + Arrays.toString(arg[i].shape());
                 throw new ND4JIllegalStateException(message);
             }
         }
@@ -351,7 +352,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
     }
 
@@ -472,7 +473,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public void initOutputWithArrays(Map<String, INDArray> arrayMap, Object... extraArgs) {
-        val outputFunctions = outputFunctions();
+        val outputFunctions = outputVariables();
 
         //ensure output functions are initialized as well
         for(val outputFunction : outputFunctions) {
@@ -493,7 +494,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 INDArray arr = sameDiff.getArrForVertexId(function.resultVertexId());
                 if(arr == null) {
                     val var = sameDiff.getVariableForVertexId(function.resultVertexId());
-                    arr = var.getWeightInitScheme().create(function.getResultShape());
+                    arr = var.getWeightInitScheme().create(function.getShape());
                     sameDiff.putArrayForVertexId(function.resultVertexId(),arr);
                 }
 
@@ -505,7 +506,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             INDArray arr = sameDiff.getVariableForVertexId(resultVertexId()).getArr();
             if (arr == null) {
                 val var = sameDiff.getVariableForVertexId(resultVertexId());
-                arr = var.getWeightInitScheme().create(getResultShape());
+                arr = var.getWeightInitScheme().create(getShape());
                 sameDiff.putArrayForVertexId(resultVertexId(), arr);
             }
         }
@@ -529,7 +530,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         }
 
         //already initialized
-        if(inputArguments.size() == args().length && outputArguments.size() == outputFunctions().length || isArrayInit() || isArrayInitialized())
+        if(inputArguments.size() == args().length && outputArguments.size() == outputVariables().length || isArrayInit() || isArrayInitialized())
             return;
 
 
@@ -551,7 +552,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 if(var.getArr() == null) {
                     int[] shape = sameDiff.getShapeForVertexId(var.getVertexId());
                     if(shape == null) {
-                        shape = func.getResultShape();
+                        shape = func.getShape();
                     }
                     if(shape == null) {
                         throw new ND4JIllegalStateException("Unable to resolve shape for variable " + var.getVarName());

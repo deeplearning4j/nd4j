@@ -82,7 +82,7 @@ public class Linear extends BaseModule {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         execSameDiff();
         return forward.doDiff(f1);
     }
@@ -153,7 +153,7 @@ public class Linear extends BaseModule {
                         MMulTranspose.builder().transposeA(false).transposeB(true).build());
             }
 
-            this.outputFunctions = forward.outputFunctions();
+            this.outputFunctions = forward.outputVariables();
         }
 
 

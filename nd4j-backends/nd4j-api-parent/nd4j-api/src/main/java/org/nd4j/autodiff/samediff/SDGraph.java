@@ -5,6 +5,7 @@ import com.google.common.primitives.Ints;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.graph.Graph;
 import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.graph.api.Vertex;
@@ -23,7 +24,7 @@ import java.util.*;
  */
 @NoArgsConstructor
 @Data
-public class SDGraph extends Graph<SDVariable,String> {
+public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
     protected SameDiff sameDiff;
 
@@ -42,10 +43,10 @@ public class SDGraph extends Graph<SDVariable,String> {
 
     @Builder
     private SDGraph(boolean allowMultipleEdges,
-                    Map<int[], List<Edge<String>>> edges,
+                    Map<int[], List<Edge<DifferentialFunction>>> edges,
                     Map<Integer, Vertex<SDVariable>> vertices,
                     boolean frozen,
-                    Map<int[], List<Edge<String>>> incomingEdges,
+                    Map<int[], List<Edge<DifferentialFunction>>> incomingEdges,
                     SameDiff sameDiff) {
         super(allowMultipleEdges, edges, vertices, frozen, incomingEdges);
         this.sameDiff = sameDiff;
@@ -149,9 +150,9 @@ public class SDGraph extends Graph<SDVariable,String> {
             }
 
 
-            Set<Edge<String>> allEdges = new HashSet<>();
-            Collection<List<Edge<String>>> outgoingEdges = getEdges().values();
-            for(List<Edge<String>> edge : outgoingEdges) {
+            Set<Edge<DifferentialFunction>> allEdges = new HashSet<>();
+            Collection<List<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
+            for(List<Edge<DifferentialFunction>> edge : outgoingEdges) {
                 allEdges.addAll(edge);
             }
 
@@ -168,8 +169,8 @@ public class SDGraph extends Graph<SDVariable,String> {
 
 
             List<IntArrayKeyMap.IntArray> vertices = new ArrayList<>();
-            for(List<Edge<String>> edge : getEdges().values())  {
-                for(Edge<String> edge1 : edge) {
+            for(List<Edge<DifferentialFunction>> edge : getEdges().values())  {
+                for(Edge<DifferentialFunction> edge1 : edge) {
                     if(!vertices.contains(new IntArrayKeyMap.IntArray(edge1.getTo()))) {
                         vertices.add(new IntArrayKeyMap.IntArray(edge1.getTo()));
                     }
@@ -223,10 +224,10 @@ public class SDGraph extends Graph<SDVariable,String> {
                 int numInputs = Math.max(1, getVertexInDegree(order[i]));
                 int inputsCount = 0;
                 List<Integer> inputIdsList = new ArrayList<>();
-                List<Edge<String>> inputStrings = getIncomingEdges().get(order[i]);
+                List<Edge<DifferentialFunction>> inputStrings = getIncomingEdges().get(order[i]);
                 List<SDVariable> inputInfo = new ArrayList<>();
                 //get the inputs for this this output array
-                for (Edge<String> edge : inputStrings) {
+                for (Edge<DifferentialFunction> edge : inputStrings) {
                     inputIdsList.addAll(Ints.asList(edge.getFrom()));
                     for(int input : edge.getFrom())  {
                         Preconditions.checkNotNull(getVariableForVertex(input));
@@ -237,7 +238,7 @@ public class SDGraph extends Graph<SDVariable,String> {
 
                 // Preconditions.checkState(inputsCount == numInputs, "Not all inputs were filled.");
                 //add edges
-                Edge<String> edge = inputStrings.get(0);
+                Edge<DifferentialFunction> edge = inputStrings.get(0);
                 if(!seenStates.contains(edge.getTo())) {
                     ret.add(OpExecAction.builder()
                             .inputsIds(Ints.toArray(inputIdsList))
@@ -289,8 +290,8 @@ public class SDGraph extends Graph<SDVariable,String> {
      */
     public int[][] topologicalSort(boolean reverse) {
         List<int[]> vertices = new ArrayList<>();
-        for(List<Edge<String>> edge : getEdges().values())  {
-            for(Edge<String> edge1 : edge) {
+        for(List<Edge<DifferentialFunction>> edge : getEdges().values())  {
+            for(Edge<DifferentialFunction> edge1 : edge) {
                 if(!ArrayUtil.listOfIntsContains(vertices,edge1.getTo())) {
                     vertices.add(edge1.getTo());
                 }
@@ -326,9 +327,9 @@ public class SDGraph extends Graph<SDVariable,String> {
             Collections.reverse(vertices);
 
 
-            Set<Edge<String>> allEdges = new HashSet<>();
-            Collection<List<Edge<String>>> outgoingEdges = getEdges().values();
-            for(List<Edge<String>> edge : outgoingEdges) {
+            Set<Edge<DifferentialFunction>> allEdges = new HashSet<>();
+            Collection<List<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
+            for(List<Edge<DifferentialFunction>> edge : outgoingEdges) {
                 allEdges.addAll(edge);
             }
 
@@ -366,10 +367,10 @@ public class SDGraph extends Graph<SDVariable,String> {
                     noIncoming.add(key);
                 }
 
-                List<Edge<String>> edges = getEdgesOut(i);
+                List<Edge<DifferentialFunction>> edges = getEdgesOut(i);
                 Set<int[]> outVertices = new IntArrayKeySet();
                 Set<int[]> currInputs = new IntArrayKeySet();
-                for (Edge<String> edge : edges) {
+                for (Edge<DifferentialFunction> edge : edges) {
                     outVertices.add(edge.getTo());
                     Set<int[]> outputSetForInputIdx = outputEdges.get(i);
                     if (outputSetForInputIdx == null) {
@@ -381,7 +382,7 @@ public class SDGraph extends Graph<SDVariable,String> {
                 }
 
                 if( getIncomingEdges().get(i) != null) {
-                    for (Edge<String> edge : getIncomingEdges().get(i)) {
+                    for (Edge<DifferentialFunction> edge : getIncomingEdges().get(i)) {
                         currInputs.add(edge.getFrom());
 
                     }

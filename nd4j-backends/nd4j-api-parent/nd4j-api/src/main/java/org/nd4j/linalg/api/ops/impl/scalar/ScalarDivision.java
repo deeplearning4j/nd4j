@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.scalar;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -52,19 +52,19 @@ public class ScalarDivision extends BaseScalarOp {
         super(x, num);
     }
 
-    public ScalarDivision(SameDiff sameDiff, DifferentialFunction i_v, Number scalar) {
+    public ScalarDivision(SameDiff sameDiff, SDVariable i_v, Number scalar) {
         super(sameDiff, i_v, scalar);
     }
 
-    public ScalarDivision(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace) {
+    public ScalarDivision(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace) {
         super(sameDiff, i_v, scalar, inPlace);
     }
 
-    public ScalarDivision(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
+    public ScalarDivision(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, inPlace, extraArgs);
     }
 
-    public ScalarDivision(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, Object[] extraArgs) {
+    public ScalarDivision(SameDiff sameDiff, SDVariable i_v, Number scalar, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, extraArgs);
     }
 
@@ -89,9 +89,8 @@ public class ScalarDivision extends BaseScalarOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
-        DifferentialFunction ret = f().div(f().mul(i_v1.get(0),scalarValue.doubleValue()),f().pow(arg(),2.0));
-
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
+        SDVariable ret = f().div(f().mul(i_v1.get(0),scalarValue.doubleValue()),f().pow(arg(),2.0));
         return Arrays.asList(ret);
     }
 }

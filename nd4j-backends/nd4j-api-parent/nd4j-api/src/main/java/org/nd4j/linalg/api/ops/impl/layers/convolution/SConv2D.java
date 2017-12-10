@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -32,7 +33,7 @@ public class SConv2D extends Conv2D {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         List<DifferentialFunction> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
@@ -41,7 +42,7 @@ public class SConv2D extends Conv2D {
                 .conv2DConfig(conv2DConfig)
                 .inputFunctions(inputs.toArray(new DifferentialFunction[inputs.size()]))
                 .build();
-        ret.addAll(Arrays.asList(conv2DDerivative.outputFunctions()));
+        ret.addAll(Arrays.asList(conv2DDerivative.outputVariables()));
         return ret;
     }
 

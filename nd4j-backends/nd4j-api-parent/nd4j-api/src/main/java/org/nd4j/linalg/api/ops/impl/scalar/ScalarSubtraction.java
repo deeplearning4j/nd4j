@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.scalar;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -57,19 +57,19 @@ public class ScalarSubtraction extends BaseScalarOp {
         this(x, 0);
     }
 
-    public ScalarSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar) {
+    public ScalarSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar) {
         super(sameDiff, i_v, scalar);
     }
 
-    public ScalarSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace) {
+    public ScalarSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace) {
         super(sameDiff, i_v, scalar, inPlace);
     }
 
-    public ScalarSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
+    public ScalarSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, inPlace, extraArgs);
     }
 
-    public ScalarSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, Object[] extraArgs) {
+    public ScalarSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, extraArgs);
     }
 
@@ -97,8 +97,8 @@ public class ScalarSubtraction extends BaseScalarOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
-        DifferentialFunction g = i_v1.get(0);
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
+        SDVariable g = i_v1.get(0);
 
         return Arrays.asList(g);
     }

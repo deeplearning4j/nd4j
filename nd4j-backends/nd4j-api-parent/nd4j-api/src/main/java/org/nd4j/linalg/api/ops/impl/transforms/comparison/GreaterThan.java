@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -37,7 +37,7 @@ import java.util.List;
 public class GreaterThan extends BaseDynamicTransformOp {
     public GreaterThan() {}
 
-    public GreaterThan( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+    public GreaterThan( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(sameDiff, args, inPlace);
     }
 
@@ -64,7 +64,7 @@ public class GreaterThan extends BaseDynamicTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
-        return Arrays.<DifferentialFunction>asList(f().val(getResult()));
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
+        return Arrays.asList(outputVariables()[0]);
     }
 }

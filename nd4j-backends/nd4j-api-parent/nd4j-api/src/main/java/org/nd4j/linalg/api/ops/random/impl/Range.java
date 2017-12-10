@@ -2,7 +2,7 @@ package org.nd4j.linalg.api.ops.random.impl;
 
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -87,7 +87,7 @@ public class Range extends DynamicCustomOp {
             this.delta = delta.getDouble(0);
             addTArgument(this.from,this.to,this.delta);
             if(sameDiff.getArrForVertexId(resultVertexId()) == null) {
-                val arr = Nd4j.create(getResultShape());
+                val arr = Nd4j.create(getShape());
                 sameDiff.putArrayForVertexId(resultVertexId(), arr);
                 addOutputArgument(arr);
             }
@@ -120,7 +120,7 @@ public class Range extends DynamicCustomOp {
             this.delta = delta.getDouble(0);
             addTArgument(this.from,this.to,this.delta);
             if(sameDiff.getArrForVertexId(resultVertexId()) == null) {
-                val arr = Nd4j.create(getResultShape());
+                val arr = Nd4j.create(getShape());
                 sameDiff.putArrayForVertexId(resultVertexId(), arr);
                 addOutputArgument(arr);
             }
@@ -192,7 +192,7 @@ public class Range extends DynamicCustomOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         throw new UnsupportedOperationException("Unable to differentiate array creation routine");
     }
 

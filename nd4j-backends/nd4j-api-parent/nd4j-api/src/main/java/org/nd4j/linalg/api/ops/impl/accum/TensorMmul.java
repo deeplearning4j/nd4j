@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -54,15 +55,15 @@ public class TensorMmul extends DynamicCustomOp {
     protected MMulTranspose mMulTranspose;
 
     public TensorMmul(SameDiff sameDiff,
-                      DifferentialFunction i_v1,
-                      DifferentialFunction i_v2,
+                      SDVariable i_v1,
+                      SDVariable i_v2,
                       int[][] dimensions) {
         this(sameDiff,i_v1,i_v2,dimensions,MMulTranspose.allFalse());
     }
 
     public TensorMmul(SameDiff sameDiff,
-                      DifferentialFunction i_v1,
-                      DifferentialFunction i_v2,
+                      SDVariable i_v1,
+                      SDVariable i_v2,
                       int[][] dimensions,
                       MMulTranspose mMulTranspose) {
         this.sameDiff = sameDiff;
@@ -84,8 +85,8 @@ public class TensorMmul extends DynamicCustomOp {
     @Override
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>(1);
-        int[] aShape = mMulTranspose.isTransposeA() ? ArrayUtil.reverseCopy(larg().getResultShape()) : larg().getResultShape();
-        int[] bShape = mMulTranspose.isTransposeB() ? ArrayUtil.reverseCopy(rarg().getResultShape()) : rarg().getResultShape();
+        int[] aShape = mMulTranspose.isTransposeA() ? ArrayUtil.reverseCopy(larg().getShape()) : larg().getShape();
+        int[] bShape = mMulTranspose.isTransposeB() ? ArrayUtil.reverseCopy(rarg().getShape()) : rarg().getShape();
         if(aShape != null && bShape != null) {
             val shape =  this instanceof Mmul ? Shape.getMatrixMultiplyShape(
                     aShape,bShape)
@@ -102,19 +103,19 @@ public class TensorMmul extends DynamicCustomOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         List<DifferentialFunction> ret = new ArrayList<>();
-        int[] bAxes = range(0, rarg().getResultShape().length);
-        int[] aAxes = range(0, larg().getResultShape().length);
-        int aRank = larg().getResultShape().length;
-        int bRank = rarg().getResultShape().length;
+        int[] bAxes = range(0, rarg().getShape().length);
+        int[] aAxes = range(0, larg().getShape().length);
+        int aRank = larg().getShape().length;
+        int bRank = rarg().getShape().length;
         int[][] sumAxes = new int[][]{
                 mod(axes[0], aRank), mod(axes[1], bRank)
         };
         int[][] deletedAxes = new int[][]{
                 removeIndex(aAxes, sumAxes[0]),
                 removeIndex(bAxes, sumAxes[1])};
-        int[] gAxes = range(0, i_v1.get(0).getResultShape().length);
+        int[] gAxes = range(0, i_v1.get(0).getShape().length);
         int[][] firstAxes = new int[][]{
                 Arrays.copyOfRange(gAxes, deletedAxes[0].length, gAxes.length),
                 deletedAxes[1]
@@ -148,17 +149,17 @@ public class TensorMmul extends DynamicCustomOp {
 
         int validationLength = Math.min(axes[0].length, axes[1].length);
         for (int i = 0; i < validationLength; i++) {
-            if (a.getResultShape()[axes[0][i]] != b.getResultShape()[axes[1][i]])
+            if (a.getShape()[axes[0][i]] != b.getShape()[axes[1][i]])
                 throw new IllegalArgumentException("Size of the given axes at each dimension must be the same size.");
             if (axes[0][i] < 0)
-                axes[0][i] += a.getResultShape().length;
+                axes[0][i] += a.getShape().length;
             if (axes[1][i] < 0)
-                axes[1][i] += b.getResultShape().length;
+                axes[1][i] += b.getShape().length;
 
         }
 
         List<Integer> listA = new ArrayList<>();
-        for (int i = 0; i < a.getResultShape().length; i++) {
+        for (int i = 0; i < a.getShape().length; i++) {
             if (!Ints.contains(axes[0], i))
                 listA.add(i);
         }
@@ -167,7 +168,7 @@ public class TensorMmul extends DynamicCustomOp {
 
 
         List<Integer> listB = new ArrayList<>();
-        for (int i = 0; i < b.getResultShape().length; i++) {
+        for (int i = 0; i < b.getShape().length; i++) {
             if (!Ints.contains(axes[1], i))
                 listB.add(i);
         }
@@ -175,9 +176,9 @@ public class TensorMmul extends DynamicCustomOp {
         int[] newAxesB = Ints.concat(axes[1], Ints.toArray(listB));
 
         int n2 = 1;
-        int aLength = Math.min(a.getResultShape().length, axes[0].length);
+        int aLength = Math.min(a.getShape().length, axes[0].length);
         for (int i = 0; i < aLength; i++) {
-            n2 *= a.getResultShape()[axes[0][i]];
+            n2 *= a.getShape()[axes[0][i]];
         }
 
         //if listA and listB are empty these do not initialize.
@@ -189,13 +190,13 @@ public class TensorMmul extends DynamicCustomOp {
         } else {
             oldShapeA = Ints.toArray(listA);
             for (int i = 0; i < oldShapeA.length; i++)
-                oldShapeA[i] = a.getResultShape()[oldShapeA[i]];
+                oldShapeA[i] = a.getShape()[oldShapeA[i]];
         }
 
         int n3 = 1;
-        int bNax = Math.min(b.getResultShape().length, axes[1].length);
+        int bNax = Math.min(b.getShape().length, axes[1].length);
         for (int i = 0; i < bNax; i++) {
-            n3 *= b.getResultShape()[axes[1][i]];
+            n3 *= b.getShape()[axes[1][i]];
         }
 
 
@@ -206,7 +207,7 @@ public class TensorMmul extends DynamicCustomOp {
         } else {
             oldShapeB = Ints.toArray(listB);
             for (int i = 0; i < oldShapeB.length; i++)
-                oldShapeB[i] = b.getResultShape()[oldShapeB[i]];
+                oldShapeB[i] = b.getShape()[oldShapeB[i]];
         }
 
 
@@ -263,7 +264,7 @@ public class TensorMmul extends DynamicCustomOp {
 
         super.initWithArrays(arrayMap);
         for (int i = 0; i < args().length; i++) {
-            if (args()[i].getResultShape() == null) {
+            if (args()[i].getShape() == null) {
                 throw new ND4JIllegalStateException("Unable to get shape for arg " + i);
             }
         }
@@ -276,7 +277,7 @@ public class TensorMmul extends DynamicCustomOp {
             addOutputArgument(arr);
         }
 
-        else if(numOutputArguments() < outputFunctions().length)
+        else if(numOutputArguments() < outputVariables().length)
             addOutputArgument(arr);
 
 

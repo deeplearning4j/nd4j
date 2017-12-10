@@ -25,6 +25,7 @@ import lombok.val;
 import onnx.OnnxProto3;
 import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
@@ -53,13 +54,13 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
     protected boolean keepDims;
 
     public BaseAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
+                            SDVariable i_v,
                             int[] dimensions,boolean keepDims) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
             sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v},this);
             this.dimensions = dimensions;
-            sameDiff.putShapeForVertexId(vertexId,Shape.getReducedShape(i_v.getResultShape(),dimensions));
+            sameDiff.putShapeForVertexId(zVertexId,Shape.getReducedShape(i_v.getShape(),dimensions));
             f().validateDifferentialFunctionsameDiff(i_v);
             addAsNewVertexId();
             this.keepDims = keepDims;
@@ -72,14 +73,14 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
     }
 
     public BaseAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
-                            DifferentialFunction i_v2,
+                            SDVariable i_v,
+                            SDVariable i_v2,
                             int[] dimensions,boolean keepDims) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
             sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v,i_v2},this);
             this.dimensions = dimensions;
-            sameDiff.putShapeForVertexId(vertexId,Shape.getReducedShape(i_v.getResultShape(),dimensions));
+            sameDiff.putShapeForVertexId(zVertexId,Shape.getReducedShape(i_v.getShape(),dimensions));
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
             addAsNewVertexId();
@@ -96,15 +97,15 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
 
 
     public BaseAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
+                            SDVariable i_v,
                             int[] dimensions) {
         this(sameDiff,i_v,dimensions,false);
 
     }
 
     public BaseAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
-                            DifferentialFunction i_v2,
+                            SDVariable i_v,
+                            SDVariable i_v2,
                             int[] dimensions) {
         this(sameDiff,i_v,i_v2,dimensions,false);
     }
@@ -179,7 +180,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         }
 
         List<int[]> ret = new ArrayList<>(1);
-        val reducedShape = Shape.getReducedShape(arg().getResultShape(),dimensions);
+        val reducedShape = Shape.getReducedShape(arg().getShape(),dimensions);
         ret.add(reducedShape);
         return ret;
     }

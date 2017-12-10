@@ -29,10 +29,7 @@ public class Constant extends BaseTransformOp {
         this.inPlace = inPlace;
         this.sameDiff = sameDiff;
 
-
-        this.vertexId = vertexId;
-        f().validateFunctionReference(this);
-        if(sameDiff.getGraph().getVertex(this.vertexId[0]) == null) {
+        if(sameDiff.getGraph().getVertex(vertexId[0]) == null) {
             sameDiff.getGraph().addVertex(new NDArrayVertex(sameDiff,vertexId[0],0,i_v));
         }
 
@@ -43,17 +40,6 @@ public class Constant extends BaseTransformOp {
                     int[] shape,int[] vertexId) {
         this(sameDiff,i_v,shape,false,vertexId);
     }
-
-    /**
-     * Get the result shape for this function
-     *
-     * @return
-     */
-    @Override
-    public int[] getResultShape() {
-        return sameDiff.getShapeForVertexId(vertexId);
-    }
-
     @Override
     public boolean isConstant() {
         return true;
@@ -61,37 +47,17 @@ public class Constant extends BaseTransformOp {
 
 
     @Override
-    public SDVariable getResult() {
-        return sameDiff.getVariableForVertexId(vertexId);
-    }
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
+        return Collections.singletonList(sameDiff.zero("grad-" + UUID.randomUUID().toString(),i_v.get(0).getShape()));
 
-    @Override
-    public DifferentialFunction[] args() {
-        return new DifferentialFunction[] {this};
-    }
-
-    @Override
-    public DifferentialFunction arg() {
-        return this;
-    }
-
-    @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
-        f().validateDifferentialFunctionsameDiff(i_v);
-        return Collections.<DifferentialFunction> singletonList(sameDiff.zero("grad-" + UUID.randomUUID().toString(),i_v.get(0).getResultShape()));
-
-    }
-
-    @Override
-    public String toString() {
-        return getResult().toString();
     }
 
 
 
     @Override
     public DifferentialFunction dup() {
-        Constant ret = sameDiff.setupFunction(new Constant(sameDiff, sameDiff.getVariableForVertexId(vertexId),sameDiff.getShapeForVertexId(vertexId),vertexId));
+        Constant ret = new Constant(sameDiff, sameDiff.getVariableForVertexId(outputVariables()[0].getVertexId())
+                ,sameDiff.getShapeForVertexId(outputVariables()[0].getVertexId()),outputVariables()[0].getVertexId());
         Constant differentialFunction = ret;
         return differentialFunction;
     }

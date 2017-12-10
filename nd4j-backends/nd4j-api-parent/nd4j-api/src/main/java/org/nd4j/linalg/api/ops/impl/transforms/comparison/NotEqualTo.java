@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
@@ -36,7 +37,7 @@ import java.util.List;
 public class NotEqualTo extends BaseDynamicTransformOp {
     public NotEqualTo() {}
 
-    public NotEqualTo( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+    public NotEqualTo( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(sameDiff, args, inPlace);
     }
 
@@ -62,7 +63,7 @@ public class NotEqualTo extends BaseDynamicTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
         return Collections.singletonList(f().neg(i_v.get(0)));
     }
 

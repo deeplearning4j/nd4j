@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
@@ -36,7 +37,7 @@ import java.util.List;
 public class GreaterThanOrEqual extends BaseDynamicTransformOp {
     public GreaterThanOrEqual() {}
 
-    public GreaterThanOrEqual( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+    public GreaterThanOrEqual( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(sameDiff, args, inPlace);
     }
 
@@ -65,7 +66,7 @@ public class GreaterThanOrEqual extends BaseDynamicTransformOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         return Arrays.<DifferentialFunction>asList(f().val(getResult()));
     }
 }

@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
@@ -36,7 +36,7 @@ public class AddOp extends BaseDynamicTransformOp {
 
     public AddOp() {}
 
-    public AddOp( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+    public AddOp( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(sameDiff, args, inPlace);
     }
 
@@ -64,9 +64,9 @@ public class AddOp extends BaseDynamicTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
-        DifferentialFunction g = sameDiff.setupFunction(i_v.get(0));
-        List<DifferentialFunction> ret = new ArrayList<>();
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
+        SDVariable g = sameDiff.setupFunction(i_v.get(0));
+        List<SDVariable> ret = new ArrayList<>();
         for(int i = 0; i < 2; i++)
             ret.add(g);
 

@@ -166,7 +166,7 @@ public class While extends DifferentialFunction implements CustomOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         ret.add(new WhileDerivative(this));
         return ret;
@@ -186,7 +186,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
     @Override
-    public int[] getResultShape() {
+    public int[] getShape() {
         return dummyResult.getShape();
     }
 

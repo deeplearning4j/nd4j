@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.scalar;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseScalarOp;
@@ -87,7 +87,7 @@ public class ScalarMin extends BaseScalarOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         throw new UnsupportedOperationException();
     }
 }

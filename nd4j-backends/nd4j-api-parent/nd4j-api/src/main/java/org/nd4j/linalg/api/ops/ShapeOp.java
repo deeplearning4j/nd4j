@@ -29,12 +29,12 @@ public abstract class ShapeOp extends BaseOp {
 
 
 
-    public ShapeOp(SameDiff sameDiff,DifferentialFunction i_v,boolean inPlace) {
-        this(sameDiff,i_v,i_v.getResultShape(),inPlace,null);
+    public ShapeOp(SameDiff sameDiff,SDVariable i_v,boolean inPlace) {
+        this(sameDiff,i_v,i_v.getShape(),inPlace,null);
     }
 
     public ShapeOp(SameDiff sameDiff,
-                   DifferentialFunction i_v,
+                   SDVariable i_v,
                    int[] shape,
                    boolean inPlace,
                    Object[] extraArgs) {

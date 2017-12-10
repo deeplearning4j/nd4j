@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
@@ -105,12 +106,12 @@ public class Rank extends DynamicCustomOp {
     }
 
     @Override
-    public int[] getResultShape() {
+    public int[] getShape() {
         return new int[] {1,1};
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
         DifferentialFunction ret = this;
 
         return Collections.singletonList(ret);

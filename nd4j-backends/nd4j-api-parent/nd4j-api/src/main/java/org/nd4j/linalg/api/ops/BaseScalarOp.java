@@ -22,7 +22,8 @@ package org.nd4j.linalg.api.ops;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import lombok.val;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.complex.IComplexNumber;
@@ -82,27 +83,27 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     }
 
 
-    public BaseScalarOp(SameDiff sameDiff,DifferentialFunction i_v,Number scalar) {
+    public BaseScalarOp(SameDiff sameDiff,SDVariable i_v,Number scalar) {
         this(sameDiff,i_v,scalar,false,null);
     }
 
-    public BaseScalarOp(SameDiff sameDiff,DifferentialFunction i_v,Number scalar,boolean inPlace) {
+    public BaseScalarOp(SameDiff sameDiff,SDVariable i_v,Number scalar,boolean inPlace) {
         this(sameDiff,i_v,scalar,inPlace,null);
     }
 
     public BaseScalarOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            Number scalar,
                            boolean inPlace,
                            Object[] extraArgs) {
         super(sameDiff,inPlace,extraArgs);
         this.scalarValue = scalar;
         if (i_v != null) {
-            f().validateFunctionReference(i_v);
+            val vertexId = new int[] {sameDiff.graph().nextVertexId()};
             f().validateDifferentialFunctionsameDiff(i_v);
             addAsNewVertexId();
-            f().addFunctionEdges(this);
-            sameDiff.putShapeForVertexId(this.vertexId,sameDiff.setupFunction(i_v).getResultShape());
+            f().addFunctionEdges(i_v);
+            sameDiff.putShapeForVertexId(vertexId,sameDiff.setupFunction(i_v).getShape());
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
@@ -111,7 +112,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
 
 
     public BaseScalarOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            Number scalar,
                            Object[] extraArgs) {
         this(sameDiff,i_v,scalar,false,extraArgs);
@@ -119,9 +120,14 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
 
 
     @Override
+    public SDVariable[] outputVariables() {
+        return new SDVariable[] {sameDiff.getVariableForVertexId(sameDiff.graph().getToFor(arg().getVertexId()))};
+    }
+
+    @Override
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>(1);
-        ret.add(arg().getResultShape());
+        ret.add(arg().getShape());
         return ret;
     }
 

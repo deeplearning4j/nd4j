@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -35,11 +36,11 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class OldLessThanOrEqual extends BaseTransformOp {
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, boolean inPlace) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2, boolean inPlace) {
         super(sameDiff, i_v1, i_v2, inPlace);
     }
 
@@ -47,19 +48,19 @@ public class OldLessThanOrEqual extends BaseTransformOp {
         super(sameDiff);
     }
 
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v1, DifferentialFunction i_v2, Object[] extraArgs) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2, Object[] extraArgs) {
         super(sameDiff, i_v1, i_v2, extraArgs);
     }
 
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v, boolean inPlace) {
         super(sameDiff, i_v, inPlace);
     }
 
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, shape, inPlace, extraArgs);
     }
 
-    public OldLessThanOrEqual(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs) {
+    public OldLessThanOrEqual(SameDiff sameDiff, SDVariable i_v, Object[] extraArgs) {
         super(sameDiff, i_v, extraArgs);
     }
 
@@ -104,7 +105,7 @@ public class OldLessThanOrEqual extends BaseTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         return Arrays.<DifferentialFunction>asList(f().val(getResult()));
     }
 }

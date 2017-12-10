@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
@@ -36,7 +36,7 @@ public class RDivOp extends BaseDynamicTransformOp {
 
     public RDivOp() {}
 
-    public RDivOp( SameDiff sameDiff, DifferentialFunction[] args, boolean inPlace) {
+    public RDivOp( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(sameDiff, args, inPlace);
     }
 
@@ -65,10 +65,10 @@ public class RDivOp extends BaseDynamicTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
-        DifferentialFunction gradWrtX = f().div(i_v.get(0),larg());
-        DifferentialFunction gradWrtY = f().mul(f().neg(gradWrtX),f().div(rarg(),larg()));
-        List<DifferentialFunction> ret = new ArrayList<>(2);
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
+        SDVariable gradWrtX = f().div(i_v.get(0),larg());
+        SDVariable gradWrtY = f().mul(f().neg(gradWrtX),f().div(rarg(),larg()));
+        List<SDVariable> ret = new ArrayList<>(2);
         ret.add(gradWrtX);
         ret.add(gradWrtY);
         return ret;

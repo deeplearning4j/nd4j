@@ -169,7 +169,7 @@ public class If extends DifferentialFunction implements CustomOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         ret.add(new IfDerivative(this));
         return ret;

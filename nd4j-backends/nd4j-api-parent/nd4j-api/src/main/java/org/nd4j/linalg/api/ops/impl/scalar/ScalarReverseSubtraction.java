@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.scalar;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -53,19 +53,19 @@ public class ScalarReverseSubtraction extends BaseScalarOp {
         super(x, num);
     }
 
-    public ScalarReverseSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar) {
+    public ScalarReverseSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar) {
         super(sameDiff, i_v, scalar);
     }
 
-    public ScalarReverseSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace) {
+    public ScalarReverseSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace) {
         super(sameDiff, i_v, scalar, inPlace);
     }
 
-    public ScalarReverseSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
+    public ScalarReverseSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, inPlace, extraArgs);
     }
 
-    public ScalarReverseSubtraction(SameDiff sameDiff, DifferentialFunction i_v, Number scalar, Object[] extraArgs) {
+    public ScalarReverseSubtraction(SameDiff sameDiff, SDVariable i_v, Number scalar, Object[] extraArgs) {
         super(sameDiff, i_v, scalar, extraArgs);
     }
 
@@ -93,9 +93,8 @@ public class ScalarReverseSubtraction extends BaseScalarOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
-        DifferentialFunction g = f().neg(i_v1.get(0));
-
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
+        SDVariable g = f().neg(i_v1.get(0));
         return Arrays.asList(g);
     }
 

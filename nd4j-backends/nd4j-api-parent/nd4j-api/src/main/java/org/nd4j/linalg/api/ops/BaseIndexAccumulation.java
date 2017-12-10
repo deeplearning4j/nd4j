@@ -24,7 +24,7 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
 
 
     public BaseIndexAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
+                            SDVariable i_v,
                             int[] dimensions) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
@@ -40,8 +40,8 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
     }
 
     public BaseIndexAccumulation(SameDiff sameDiff,
-                            DifferentialFunction i_v,
-                            DifferentialFunction i_v2,
+                            SDVariable i_v,
+                            SDVariable i_v2,
                             int[] dimensions) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
@@ -127,7 +127,7 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
     @Override
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>(1);
-        ret.add(Shape.getReducedShape(arg().getResultShape(),dimensions));
+        ret.add(Shape.getReducedShape(arg().getShape(),dimensions));
         return ret;
     }
 

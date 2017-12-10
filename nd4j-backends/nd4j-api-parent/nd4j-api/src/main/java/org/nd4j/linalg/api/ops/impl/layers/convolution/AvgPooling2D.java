@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
@@ -76,7 +77,7 @@ public class AvgPooling2D extends DynamicCustomOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         List<DifferentialFunction> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
@@ -86,7 +87,7 @@ public class AvgPooling2D extends DynamicCustomOp {
                 .sameDiff(sameDiff)
                 .config(config)
                 .build();
-        ret.addAll(Arrays.asList(pooling2DDerivative.outputFunctions()));
+        ret.addAll(Arrays.asList(pooling2DDerivative.outputVariables()));
         return ret;
     }
 

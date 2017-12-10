@@ -22,6 +22,7 @@ package org.nd4j.linalg.api.ops;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
@@ -42,25 +43,23 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
 
     public BaseTransformOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
+                           SDVariable i_v1,
                            DifferentialFunction i_v2) {
         this(sameDiff,i_v1,i_v2,false);
     }
 
     public BaseTransformOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
-                           DifferentialFunction i_v2,
+                           SDVariable i_v1,
+                           SDVariable i_v2,
                            boolean inPlace) {
         super(sameDiff,inPlace,new Object[] {i_v2});
         if (i_v1 != null && i_v2 != null) {
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
-            f().validateFunctionReference(i_v1);
-            f().validateFunctionReference(i_v2);
             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
             addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId,i_v1.getResultShape());
+            sameDiff.putShapeForVertexId(vertexId,i_v1.getShape());
             sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v1,i_v2},this);
             f().addFunctionEdges(this);
 
@@ -76,8 +75,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
     }
 
     public BaseTransformOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
-                           DifferentialFunction i_v2,
+                           SDVariable i_v1,
+                           SDVariable i_v2,
                            Object[] extraArgs) {
         super(sameDiff,extraArgs);
         if (i_v1 != null && i_v2 != null) {
@@ -86,7 +85,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
             addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId,i_v1.getResultShape());
+            sameDiff.putShapeForVertexId(vertexId,i_v1.getShape());
             sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v1,i_v2},this);
 
             f().addFunctionEdges(this);
@@ -100,19 +99,18 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
 
 
-    public BaseTransformOp(SameDiff sameDiff,DifferentialFunction i_v,boolean inPlace) {
-        this(sameDiff,i_v,i_v.getResultShape(),inPlace,null);
+    public BaseTransformOp(SameDiff sameDiff,SDVariable i_v,boolean inPlace) {
+        this(sameDiff,i_v,i_v.getShape(),inPlace,null);
     }
 
     public BaseTransformOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            int[] shape,
                            boolean inPlace,
                            Object[] extraArgs) {
         super(sameDiff,inPlace,extraArgs);
         ;
         if (i_v != null) {
-            f().validateFunctionReference(i_v);
             f().validateDifferentialFunctionsameDiff(i_v);
             addAsNewVertexId();
             sameDiff.putShapeForVertexId(vertexId,shape);
@@ -126,9 +124,9 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
 
     public BaseTransformOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            Object[] extraArgs) {
-        this(sameDiff,i_v,i_v.getResultShape(),false,extraArgs);
+        this(sameDiff,i_v,i_v.getShape(),false,extraArgs);
     }
 
 
@@ -232,7 +230,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
         arrayInitialized = true;
 
-        val outputFunctions = outputFunctions();
+        val outputFunctions = outputVariables();
        /*
         for(val arg : outputFunctions) {
             arg.initOutputWithArrays(arrayMap,extraArgs);

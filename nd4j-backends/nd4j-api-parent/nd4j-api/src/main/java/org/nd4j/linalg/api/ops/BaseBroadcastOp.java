@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.shape.Shape;
@@ -24,15 +25,15 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
 
     public BaseBroadcastOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
-                           DifferentialFunction i_v2,
+                           SDVariable i_v1,
+                           SDVariable i_v2,
                            int[] dimension) {
         this(sameDiff, i_v1, i_v2, false, dimension);
     }
 
     public BaseBroadcastOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
-                           DifferentialFunction i_v2,
+                           SDVariable i_v1,
+                           SDVariable i_v2,
                            boolean inPlace,
                            int[] dimension) {
         super(sameDiff, inPlace, new Object[]{i_v2});
@@ -47,7 +48,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             this.dimension = dimension;
             ;
             addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getResultShape(), i_v2.getResultShape()));
+            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
 
         } else {
@@ -62,8 +63,8 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     }
 
     public BaseBroadcastOp(SameDiff sameDiff,
-                           DifferentialFunction i_v1,
-                           DifferentialFunction i_v2,
+                           SDVariable i_v1,
+                           SDVariable i_v2,
                            int[] dimension,
                            Object[] extraArgs) {
         super(sameDiff, extraArgs);
@@ -76,7 +77,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
             this.sameDiff = sameDiff;
             addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getResultShape(), i_v2.getResultShape()));
+            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
 
 
@@ -89,12 +90,12 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     }
 
 
-    public BaseBroadcastOp(SameDiff sameDiff, DifferentialFunction i_v, int[] dimension, boolean inPlace) {
-        this(sameDiff, i_v, i_v.getResultShape(), inPlace, dimension, null);
+    public BaseBroadcastOp(SameDiff sameDiff, SDVariable i_v, int[] dimension, boolean inPlace) {
+        this(sameDiff, i_v, i_v.getShape(), inPlace, dimension, null);
     }
 
     public BaseBroadcastOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            int[] shape,
                            boolean inPlace,
                            int[] dimension,
@@ -119,10 +120,10 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
 
 
     public BaseBroadcastOp(SameDiff sameDiff,
-                           DifferentialFunction i_v,
+                           SDVariable i_v,
                            int[] dimension,
                            Object[] extraArgs) {
-        this(sameDiff, i_v, i_v.getResultShape(), false, dimension, extraArgs);
+        this(sameDiff, i_v, i_v.getShape(), false, dimension, extraArgs);
     }
 
     public BaseBroadcastOp(INDArray x, INDArray y, INDArray z, int... dimension) {
@@ -146,9 +147,9 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
      */
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>();
-        if (larg().getResultShape() != null && rarg().getResultShape() != null)
-            ret.add(Shape.broadcastOutputShape(larg().getResultShape(), rarg().getResultShape()));
-        ret.add(larg().getResultShape());
+        if (larg().getShape() != null && rarg().getShape() != null)
+            ret.add(Shape.broadcastOutputShape(larg().getShape(), rarg().getShape()));
+        ret.add(larg().getShape());
         return ret;
     }
 
@@ -167,7 +168,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     @Override
     public int[] getDimension() {
         if (dimension == null) {
-            dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
+            dimension = Shape.getBroadcastDimensions(larg().getShape(), rarg().getShape());
         }
         return dimension;
     }
@@ -175,13 +176,13 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
     @Override
     public void initWithArrays(Map<String, INDArray> arrayMap, Object... extraArgs) {
         super.initWithArrays(arrayMap);
-        if (args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null) {
-            if (Shape.isRowVectorShape(rarg().getResultShape())) {
+        if (args().length > 1 && larg() != null && rarg() != null && larg().getShape() != null && rarg().getShape() != null) {
+            if (Shape.isRowVectorShape(rarg().getShape())) {
                 this.dimension = new int[]{1};
-            } else if(Shape.isColumnVectorShape(rarg().getResultShape()))
+            } else if(Shape.isColumnVectorShape(rarg().getShape()))
                 this.dimension = new int[]{0};
-            else if (args().length > 1 && larg() != null && rarg() != null && larg().getResultShape() != null && rarg().getResultShape() != null && !sameDiff.isPlaceHolder(larg().resultVertexId()) && !sameDiff.isPlaceHolder(rarg().resultVertexId()))
-                this.dimension = Shape.getBroadcastDimensions(larg().getResultShape(), rarg().getResultShape());
+            else if (args().length > 1 && larg() != null && rarg() != null && larg().getShape() != null && rarg().getShape() != null && !sameDiff.isPlaceHolder(larg().resultVertexId()) && !sameDiff.isPlaceHolder(rarg().resultVertexId()))
+                this.dimension = Shape.getBroadcastDimensions(larg().getShape(), rarg().getShape());
         }
 
     }

@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
@@ -40,17 +41,17 @@ public class LeakyReLU extends BaseTransformOp {
     public static final double DEFAULT_ALPHA = 0.01;
     private double alpha = DEFAULT_ALPHA;
 
-    public LeakyReLU(SameDiff sameDiff, DifferentialFunction i_v, boolean inPlace, double alpha) {
+    public LeakyReLU(SameDiff sameDiff, SDVariable i_v, boolean inPlace, double alpha) {
         super(sameDiff, i_v, inPlace);
         this.alpha = alpha;
     }
 
-    public LeakyReLU(SameDiff sameDiff, DifferentialFunction i_v, int[] shape, boolean inPlace, Object[] extraArgs, double alpha) {
+    public LeakyReLU(SameDiff sameDiff, SDVariable i_v, int[] shape, boolean inPlace, Object[] extraArgs, double alpha) {
         super(sameDiff, i_v, shape, inPlace, extraArgs);
         this.alpha = alpha;
     }
 
-    public LeakyReLU(SameDiff sameDiff, DifferentialFunction i_v, Object[] extraArgs, double alpha) {
+    public LeakyReLU(SameDiff sameDiff, SDVariable i_v, Object[] extraArgs, double alpha) {
         super(sameDiff, i_v, extraArgs);
         this.alpha = alpha;
     }
@@ -130,7 +131,7 @@ public class LeakyReLU extends BaseTransformOp {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
         DifferentialFunction ret = f().leakyReluDerivative(arg(),i_v.get(0) , alpha);
 
         return Collections.singletonList(ret);

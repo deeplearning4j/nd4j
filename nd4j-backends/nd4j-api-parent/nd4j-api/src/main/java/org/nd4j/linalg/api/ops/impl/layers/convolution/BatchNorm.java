@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
@@ -64,7 +65,7 @@ public class BatchNorm extends DynamicCustomOp {
     }
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> f1) {
+    public List<SDVariable> doDiff(List<SDVariable> f1) {
         List<DifferentialFunction> ret = new ArrayList<>();
         List<DifferentialFunction> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
@@ -74,7 +75,7 @@ public class BatchNorm extends DynamicCustomOp {
                 .isMiniBatch(isMiniBatch)
                 .training(training)
                 .build();
-        ret.addAll(Arrays.asList(batchNormDerivative.outputFunctions()));
+        ret.addAll(Arrays.asList(batchNormDerivative.outputVariables()));
         return ret;
     }
 

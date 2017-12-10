@@ -21,6 +21,7 @@ package org.nd4j.linalg.api.ops.impl.accum;
 
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
@@ -35,11 +36,11 @@ import java.util.List;
  */
 @Slf4j
 public class Sum extends BaseAccumulation {
-    public Sum(SameDiff sameDiff, DifferentialFunction i_v, int[] dimensions) {
+    public Sum(SameDiff sameDiff, SDVariable i_v, int[] dimensions) {
         super(sameDiff, i_v, dimensions);
     }
 
-    public Sum(SameDiff sameDiff, DifferentialFunction i_v, DifferentialFunction i_v2, int[] dimensions) {
+    public Sum(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int[] dimensions) {
         super(sameDiff, i_v, i_v2, dimensions);
     }
 
@@ -79,7 +80,7 @@ public class Sum extends BaseAccumulation {
 
 
     @Override
-    public List<DifferentialFunction> doDiff(List<DifferentialFunction> i_v1) {
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         f().validateDifferentialFunctionsameDiff(i_v1);
         f().validateFunctionReference(i_v1);
         DifferentialFunction repeat =  f().doRepeat(
