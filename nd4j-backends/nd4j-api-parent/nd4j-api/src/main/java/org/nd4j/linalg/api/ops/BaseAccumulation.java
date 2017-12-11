@@ -38,6 +38,7 @@ import org.tensorflow.framework.NodeDef;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Base class for accumulation, initiates the initial entry
@@ -59,9 +60,12 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
         if (i_v != null) {
             sameDiff.addArgsFor(new SDVariable[] {i_v},this);
             this.dimensions = dimensions;
-            sameDiff.putShapeForVertexId(zVertexId,Shape.getReducedShape(i_v.getShape(),dimensions));
             f().validateDifferentialFunctionsameDiff(i_v);
             this.keepDims = keepDims;
+            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions));
+            sameDiff.addOutgoingFor(new int[]{var2.getVertexId()},this);
+            this.xVertexId = i_v.getVertexId();
+            this.zVertexId = var2.getVertexId();
             f().addFunctionEdges(this);
 
         } else {
@@ -82,6 +86,11 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.keepDims = keepDims;
+            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions));
+            sameDiff.addOutgoingFor(new int[]{var2.getVertexId()},this);
+            this.xVertexId = i_v.getVertexId();
+            this.zVertexId = var2.getVertexId();
+
             f().addFunctionEdges(this);
 
 

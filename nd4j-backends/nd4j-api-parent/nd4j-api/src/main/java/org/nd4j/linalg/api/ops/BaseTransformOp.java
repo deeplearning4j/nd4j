@@ -56,8 +56,13 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
+            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + "-output",i_v1.getShape());
             sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),i_v1.getShape());
             sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
+            sameDiff.addOutgoingFor(new int[]{var.getVertexId()},this);
+            this.xVertexId = i_v1.getVertexId();
+            this.yVertexId = i_v2.getVertexId();
+            this.zVertexId = var.getVertexId();
             f().addFunctionEdges(this);
 
         } else {
@@ -81,9 +86,13 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
+            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + "-output",i_v1.getShape());
             sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),i_v1.getShape());
             sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
-
+            sameDiff.addOutgoingFor(new int[]{var.getVertexId()},this);
+            this.xVertexId = i_v1.getVertexId();
+            this.yVertexId = i_v2.getVertexId();
+            this.zVertexId = var.getVertexId();
             f().addFunctionEdges(this);
 
         } else {
@@ -108,8 +117,11 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         ;
         if (i_v != null) {
             f().validateDifferentialFunctionsameDiff(i_v);
-            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),shape);
+            val var = sameDiff.var(i_v.getVarName() + "-" + opName() + "-" + "-output",shape);
             sameDiff.addArgsFor(new SDVariable[] {i_v},this);
+            sameDiff.addOutgoingFor(new int[]{var.getVertexId()},this);
+            this.xVertexId = i_v.getVertexId();
+            this.zVertexId = var.getVertexId();
             f().addFunctionEdges(this);
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
@@ -122,6 +134,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
                            SDVariable i_v,
                            Object[] extraArgs) {
         this(sameDiff,i_v,i_v.getShape(),false,extraArgs);
+
     }
 
 
