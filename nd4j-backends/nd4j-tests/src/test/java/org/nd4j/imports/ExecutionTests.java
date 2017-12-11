@@ -1,5 +1,6 @@
 package org.nd4j.imports;
 
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.bytedeco.javacpp.BytePointer;
 import org.bytedeco.javacpp.IntPointer;
@@ -17,6 +18,8 @@ import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.nativeblas.Nd4jCpu;
 
+import java.util.LinkedHashMap;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -24,6 +27,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author raver119@gmail.com
  */
+@Slf4j
 @RunWith(Parameterized.class)
 public class ExecutionTests extends BaseNd4jTest {
 
@@ -40,26 +44,25 @@ public class ExecutionTests extends BaseNd4jTest {
         Nd4j.getExecutioner().enableVerboseMode(true);
 
         val tg = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getInputStream());
-        val bb = tg.asFlatBuffers();
 
-        val ptr = new BytePointer(bb);
+        val array0 = Nd4j.create(3, 3).assign(2.0);
+        val map0 = new LinkedHashMap<String, INDArray>();
+        map0.put("alpha", array0);
 
-        NativeOpsHolder.getInstance().getDeviceNativeOps().registerGraphFloat(null, 119, ptr);
+        val result_0 = tg.yetAnotherExecMethod(map0);
+        val exp_0 = Nd4j.create(3, 1).assign(6.0);
 
-        val array = Nd4j.create(3, 3).assign(3);
-
-        val ptrBuffers = new PointerPointer(32);
-        val ptrShapes = new PointerPointer(32);
-        val ptrIndices = new IntPointer(new int[] {1});
-
-        ptrBuffers.put(0, array.data().addressPointer());
-        ptrShapes.put(0, array.shapeInfoDataBuffer().addressPointer());
+        assertEquals(exp_0, result_0);
 
 
-        val backP = (Nd4jCpu.FloatVariablesSet) NativeOpsHolder.getInstance().getDeviceNativeOps().executeStoredGraphFloat(null, 119, ptrBuffers, ptrShapes, ptrIndices, 1);
+        val array1 = Nd4j.create(3, 3).assign(3.0);
+        val map1 = new LinkedHashMap<String, INDArray>();
+        map1.put("alpha", array1);
 
-        assertEquals(0, backP.status());
+        val result_1 = tg.yetAnotherExecMethod(map1);
+        val exp_1 = Nd4j.create(3, 1).assign(9.0);
 
+        assertEquals(exp_1, result_1);
     }
 
     @Override
