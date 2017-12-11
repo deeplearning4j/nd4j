@@ -161,8 +161,8 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
             PriorityQueue<int[]> depthQueue = new PriorityQueue<>(allEdges.size(), new Comparator<int[]>() {
                 @Override
                 public int compare(int[] o1, int[] o2) {
-                    int o1MaxDepth = getMaxDepth(o1);
-                    int o2MaxDepth = getMaxDepth(o2);
+                    int o1MaxDepth = getMaxDepth(o1[0]);
+                    int o2MaxDepth = getMaxDepth(o2[0]);
                     return Ints.compare(-o1MaxDepth,-o2MaxDepth);
                 }
             });
@@ -337,8 +337,8 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
             PriorityQueue<int[]> depthQueue = new PriorityQueue<>(allEdges.size(), new Comparator<int[]>() {
                 @Override
                 public int compare(int[] o1, int[] o2) {
-                    int o1MaxDepth = getMaxDepth(o1);
-                    int o2MaxDepth = getMaxDepth(o2);
+                    int o1MaxDepth = getMaxDepth(o1[0]);
+                    int o2MaxDepth = getMaxDepth(o2[0]);
                     return Ints.compare(-o1MaxDepth,-o2MaxDepth);
                 }
             });
@@ -442,11 +442,10 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
 
 
-    public int getMaxDepth(int[] vertexIdx) {
+    public int getMaxDepth(int vertexIdx) {
         int ret = -1;
-        for(int vertexId : vertexIdx)
-            if(getVertex(vertexId).depth() > ret)
-                ret = getVertex(vertexId).depth();
+            if(getVertex(vertexIdx).depth() > ret)
+                ret = getVertex(vertexIdx).depth();
         return ret;
     }
     /**

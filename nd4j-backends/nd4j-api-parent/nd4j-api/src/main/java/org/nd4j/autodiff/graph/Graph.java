@@ -266,12 +266,12 @@ public class Graph<V, E> extends BaseGraph<V, E> {
     }
 
     @Override
-    public int getVertexInDegree(int[] vertex) {
+    public int getVertexInDegree(int vertex) {
         int ret = 0;
         if(!incomingEdges.containsKey(vertex))
             return 0;
         for(Edge<E> edge : incomingEdges.get(vertex)) {
-            if(Arrays.equals(edge.getTo(),vertex))
+            if(Arrays.equals(edge.getTo(),new int[]{vertex}))
                 ret++;
         }
 
