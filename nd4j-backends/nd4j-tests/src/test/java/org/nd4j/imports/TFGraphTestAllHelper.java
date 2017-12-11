@@ -124,7 +124,7 @@ public class TFGraphTestAllHelper {
             for (String varName : graph.variableMap().keySet()) {
                 if (!inputs.containsKey(varName)) { //avoiding placeholders
                     INDArray tfValue = intermediateVars(modelName, baseDir, varName);
-                    assertEquals("Shape not equal on node " + varName, ArrayUtils.toString(tfValue.shape()), ArrayUtils.toString(graph.getVariable(varName).getResultShape()));
+                    assertEquals("Shape not equal on node " + varName, ArrayUtils.toString(tfValue.shape()), ArrayUtils.toString(graph.getVariable(varName).getShape()));
                     assertEquals("Value not equal on node " + varName, tfValue, graph.getVariable(varName).getArr());
                     log.info("\n\tShapes equal for " + varName);
                     log.info("\n\tValues equal for " + varName);

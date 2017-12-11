@@ -256,6 +256,69 @@ public class SameDiff {
 
 
     /**
+     * Returns the inputs for the given function
+     * @param function the function to get the
+     *                 inputs for
+     * @return the input ids for a given function
+     */
+    public int[] getInputsForFunction(DifferentialFunction function) {
+        return incomingArgsReverse.get(function);
+    }
+
+    /**
+     * Returns the outputs for the given function
+     * @param function the function to get the
+     *                 inputs for
+     * @return the outputs ids for a given function
+     */
+    public int[] getOutputsForFunction(DifferentialFunction function) {
+        return ougoingArgsReverse.get(function);
+    }
+
+
+    /**
+     * Get the output variables given a set of ids
+     * from {@link #getOutputsForFunction(DifferentialFunction)}
+     * @param function the function reference to get the id for
+     * @return the output variables for the given function
+     */
+    public SDVariable[] getOutputVariablesForFunction(DifferentialFunction function) {
+        val inputs = getOutputsForFunction(function);
+        if(inputs == null) {
+            throw new ND4JIllegalStateException("No inputs found for function " + function);
+        }
+
+        val vars = new SDVariable[inputs.length];
+        for(int i = 0; i < inputs.length; i++) {
+            vars[i] = getVariableForVertexId(inputs[i]);
+        }
+
+        return vars;
+    }
+
+
+    /**
+     * Get the input variables given a set of ids
+     * from {@link #getInputVariablesForFunction(DifferentialFunction)}
+     * @param function the function reference to get the id for
+     * @return the output variables for the given function
+     */
+    public SDVariable[] getInputVariablesForFunction(DifferentialFunction function) {
+        val inputs = getInputsForFunction(function);
+        if(inputs == null) {
+            throw new ND4JIllegalStateException("No inputs found for function " + function);
+        }
+
+        val vars = new SDVariable[inputs.length];
+        for(int i = 0; i < inputs.length; i++) {
+            vars[i] = getVariableForVertexId(inputs[i]);
+        }
+
+        return vars;
+    }
+
+
+    /**
      * Returns the arguments for a given output {@link DifferentialFunction}
      * @param output the output to get the arguments for
      * @return the arguments for the target function

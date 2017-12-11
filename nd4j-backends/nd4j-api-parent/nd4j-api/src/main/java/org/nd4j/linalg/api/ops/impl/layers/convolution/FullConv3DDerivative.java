@@ -2,7 +2,6 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -20,7 +19,7 @@ public class FullConv3DDerivative extends FullConv3D {
     public FullConv3DDerivative() {}
 
     @Builder(builderMethodName = "derivativeBuilder")
-    public FullConv3DDerivative(SameDiff sameDiff, DifferentialFunction[] inputFunctions, INDArray[] inputs, INDArray[] outputs, FullConv3DConfig conv3DConfig) {
+    public FullConv3DDerivative(SameDiff sameDiff, SDVariable[] inputFunctions, INDArray[] inputs, INDArray[] outputs, FullConv3DConfig conv3DConfig) {
         super(sameDiff, inputFunctions, inputs, outputs, conv3DConfig);
     }
 

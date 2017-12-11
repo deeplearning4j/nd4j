@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -38,7 +37,7 @@ public class Pooling2D extends DynamicCustomOp {
 
     @Builder(builderMethodName = "builder")
     @SuppressWarnings("Used in lombok")
-    public Pooling2D(SameDiff sameDiff, DifferentialFunction[] inputs,INDArray[] arrayInputs, INDArray[] arrayOutputs,Pooling2DConfig config) {
+    public Pooling2D(SameDiff sameDiff, SDVariable[] inputs,INDArray[] arrayInputs, INDArray[] arrayOutputs,Pooling2DConfig config) {
         super(null,sameDiff, inputs, false);
        if(arrayInputs != null) {
            addInputArgument(arrayInputs);

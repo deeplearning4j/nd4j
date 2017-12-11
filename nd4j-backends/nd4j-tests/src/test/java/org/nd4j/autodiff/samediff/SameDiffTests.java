@@ -17,6 +17,7 @@ import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.transforms.Sigmoid;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.AddOp;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
@@ -227,6 +228,17 @@ public class SameDiffTests {
         assertTrue(varOne.getArr() == func.getVariable(varOne.getVarName()).getArr());
     }
 
+
+
+    @Test
+    public void testFunctdionInputsAndArgs() {
+        SameDiff sameDiff = SameDiff.create();
+        SDVariable var = sameDiff.var("one",Nd4j.scalar(1.0));
+        SDVariable variable2 = sameDiff.var("two",Nd4j.scalar(1.0));
+        val sum = var.add(variable2);
+        assertArrayEquals(new int[]{1,1},sum.getShape());
+        assertTrue(sameDiff.getFunction(new int[]{1,2},new int[]{3}) instanceof AddOp);
+    }
 
 
 
@@ -685,10 +697,6 @@ public class SameDiffTests {
     }
 
 
-    @Test
-    public void testConv2d() {
-
-    }
 
     @Test
     public void testWhileBackwards() {

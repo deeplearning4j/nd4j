@@ -217,11 +217,11 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
             //the goal is to get all of the needed op executions
             for (int i = 0; i < order.length; i++) {
                 //skip vertices that are only inputs
-                if (getVertexInDegree(order[i]) < 1) {
+                if (getVertexInDegree(order[i][0]) < 1) {
                     continue;
                 }
 
-                int numInputs = Math.max(1, getVertexInDegree(order[i]));
+                int numInputs = Math.max(1, getVertexInDegree(order[i][0]));
                 int inputsCount = 0;
                 List<Integer> inputIdsList = new ArrayList<>();
                 List<Edge<DifferentialFunction>> inputStrings = getIncomingEdges().get(order[i]);
@@ -363,7 +363,7 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
             for (int[] i : vertices) {
                 int[] key = i;
-                if (getVertexInDegree(key) < 1) {
+                if (getVertexInDegree(key[0]) < 1) {
                     noIncoming.add(key);
                 }
 

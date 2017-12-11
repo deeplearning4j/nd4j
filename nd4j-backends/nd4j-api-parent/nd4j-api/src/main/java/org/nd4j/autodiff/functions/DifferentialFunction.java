@@ -253,7 +253,7 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     public  SDVariable[] args() {
-        return sameDiff.getArgsFor(outputVariables()[0]);
+        return sameDiff.getInputVariablesForFunction(this);
     }
 
     public SDVariable arg() {
@@ -265,7 +265,7 @@ public abstract class DifferentialFunction implements Differential {
     public List<SDVariable> diff(List<SDVariable> i_v1) {
         List<SDVariable> vals = doDiff(i_v1);
         for(int i = 0; i < args().length; i++) {
-            SDVariable differentialFunction = sameDiff.setupFunction((SDVariable) vals.get(i));
+            SDVariable differentialFunction = sameDiff.setupFunction(vals.get(i));
             SDVariable var = sameDiff.getVariableForVertexId(differentialFunction.getVertexId());
             SDVariable grad = var.getGradient();
             if(grad != null) {
