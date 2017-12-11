@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -109,7 +108,7 @@ public class Pow extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        DifferentialFunction g = f().mul(f().pow(arg(),scalarValue.doubleValue()),i_v1.get(0));
+        SDVariable g = f().mul(f().pow(arg(),scalarValue.doubleValue()),i_v1.get(0));
 
         return Arrays.asList(g);
     }

@@ -1,7 +1,7 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNumber;
@@ -28,10 +28,9 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
                             int[] dimensions) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[]{i_v},this);
+            sameDiff.addArgsFor(new SDVariable[]{i_v},this);
             this.dimensions = dimensions;
             f().validateDifferentialFunctionsameDiff(i_v);
-            addAsNewVertexId();
             f().addFunctionEdges(this);
 
         } else {
@@ -45,11 +44,10 @@ public abstract class BaseIndexAccumulation extends BaseOp implements IndexAccum
                             int[] dimensions) {
         super(sameDiff,new Object[]{dimensions});
         if (i_v != null) {
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v,i_v2},this);
+            sameDiff.addArgsFor(new SDVariable[]{i_v,i_v2},this);
             this.dimensions = dimensions;
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
-            addAsNewVertexId();
             f().addFunctionEdges(this);
 
         } else {

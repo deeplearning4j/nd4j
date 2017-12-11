@@ -55,11 +55,6 @@ public class Broadcast extends DynamicCustomOp {
     }
 
 
-    @Override
-    public int[] getShape() {
-        return sameDiff.getShapeForVertexId(vertexId);
-    }
-
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {

@@ -20,7 +20,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.gradient;
 
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -88,7 +87,7 @@ public class HardTanhDerivative extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().one(getShape());
+        SDVariable ret = f().one(outputVariables()[0].getShape());
         return Arrays.asList(ret);
     }
 

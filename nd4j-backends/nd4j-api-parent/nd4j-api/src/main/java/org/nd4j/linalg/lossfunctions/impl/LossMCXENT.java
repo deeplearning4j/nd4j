@@ -216,7 +216,10 @@ public class LossMCXENT extends DifferentialFunction implements ILossFunction {
     }
 
 
-
+    @Override
+    public SDVariable[] outputVariables() {
+        return new SDVariable[0];
+    }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {

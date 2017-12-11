@@ -77,12 +77,12 @@ public class Pooling2D extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        List<DifferentialFunction> ret = new ArrayList<>();
-        List<DifferentialFunction> inputs = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
+        List<SDVariable> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         Pooling2DDerivative pooling2DDerivative = Pooling2DDerivative.derivativeBuilder()
-                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .inputs(inputs.toArray(new SDVariable[inputs.size()]))
                 .sameDiff(sameDiff)
                 .config(config)
                 .build();

@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -89,8 +88,7 @@ public class Abs extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().div(arg(),f().abs(arg()));
-
+        SDVariable ret = f().div(arg(),f().abs(arg()));
         return Collections.singletonList(ret);
     }
 

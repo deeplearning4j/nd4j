@@ -455,6 +455,11 @@ public class LossMixtureDensity extends DifferentialFunction implements ILossFun
 
 
     @Override
+    public SDVariable[] outputVariables() {
+        return new SDVariable[0];
+    }
+
+    @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
         return null;
     }

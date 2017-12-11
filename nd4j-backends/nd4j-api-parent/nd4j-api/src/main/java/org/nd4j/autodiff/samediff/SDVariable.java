@@ -49,7 +49,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     @Getter
     @Setter
     @JsonIgnore
-    protected int[] vertexId;
+    protected Integer vertexId;
 
     @Getter
     @Setter
@@ -63,7 +63,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                        SameDiff sameDiff,
                        int[] shape,
                        WeightInitScheme weightInitScheme,
-                       int[] vertexId) {
+                       int vertexId) {
         if(shape != null && shape.length >= 2)
             sameDiff.putShapeForVertexId(vertexId,Shape.resolveNegativeShapeIfNeccessary(new int[shape.length],shape));
         this.varName = varName;
@@ -77,7 +77,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         this.sameDiff = sameDiff;
 
         if(this.vertexId == null) {
-            this.vertexId = new int[] {sameDiff.graph().nextVertexId()};
+            this.vertexId =  sameDiff.graph().nextVertexId();
         }
 
 
@@ -611,23 +611,22 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     }
 
 
-    protected void addAsNewVertexId(int[] vertexId) {
+    protected void addAsNewVertexId(int vertexId) {
         this.vertexId = vertexId;
 
         SDVariable var = sameDiff.var(opName() + "-" + UUID.randomUUID().toString(),getShape(),new ZeroInitScheme('f'),vertexId,maxDepthForArgs());
-        if(sameDiff.graph().getVertex(vertexId[0]) == null) {
-            NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff, var.vertexId[0], depth(), var);
-            var.setVertexId(new int[]{ndArrayVertex.vertexID()});
+        if(sameDiff.graph().getVertex(vertexId) == null) {
+            NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff, var.vertexId, depth(), var);
+            var.setVertexId(ndArrayVertex.vertexID());
         }
 
         sameDiff.addVariable(var);
-        sameDiff.putFunction(var.getVertexId(),this);
 
     }
 
     protected void addAsNewVertexId() {
         int vertexId = sameDiff.graph().getNextVertexId()  > sameDiff.graph().numVertices() ? sameDiff.graph().getNextVertexId() : sameDiff.graph().nextVertexId();
-        addAsNewVertexId(new int[]{vertexId});
+        addAsNewVertexId(vertexId);
     }
 
     //end scalars

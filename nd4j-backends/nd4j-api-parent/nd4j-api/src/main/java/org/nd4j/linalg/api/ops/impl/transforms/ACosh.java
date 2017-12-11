@@ -19,7 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -90,9 +90,10 @@ public class ACosh extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().div(f().one(getShape()),
-                f().mul(f().sqrt(f().sub(arg(),f().one(getShape()))),f()
-                        .sqrt(f().add(arg(),f().one(getShape())))));
+        val shape = outputVariables()[0].getShape();
+        SDVariable ret = f().div(f().one(shape),
+                f().mul(f().sqrt(f().sub(arg(),f().one(shape))),f()
+                        .sqrt(f().add(arg(),f().one(shape)))));
 
         return Collections.singletonList(ret);
     }

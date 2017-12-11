@@ -21,7 +21,6 @@ package org.nd4j.linalg.api.ops;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -29,7 +28,6 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.LinAlgExceptions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +42,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
     public BaseTransformOp(SameDiff sameDiff,
                            SDVariable i_v1,
-                           DifferentialFunction i_v2) {
+                           SDVariable i_v2) {
         this(sameDiff,i_v1,i_v2,false);
     }
 
@@ -58,9 +56,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId,i_v1.getShape());
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v1,i_v2},this);
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),i_v1.getShape());
+            sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
             f().addFunctionEdges(this);
 
         } else {
@@ -84,9 +81,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId,i_v1.getShape());
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v1,i_v2},this);
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),i_v1.getShape());
+            sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
 
             f().addFunctionEdges(this);
 
@@ -112,9 +108,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         ;
         if (i_v != null) {
             f().validateDifferentialFunctionsameDiff(i_v);
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId,shape);
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {sameDiff.setupFunction(i_v)},this);
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(),shape);
+            sameDiff.addArgsFor(new SDVariable[] {i_v},this);
             f().addFunctionEdges(this);
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
@@ -181,13 +176,13 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         for(val arg : args) {
             arg.initWithArrays(arrayMap,extraArgs);
         }
-}
+    }
 
 
     @Override
     public void initOutputWithArrays(Map<String, INDArray> arrayMap, Object... extraArgs) {
         super.initOutputWithArrays(arrayMap, extraArgs);
-
+        val vertexId = outputVariables()[0].getVertexId();
         if(!sameDiff.shapeAlreadyExistsForVertexId(vertexId) && sameDiff.getArrForVertexId(vertexId) == null) {
             val shape = calculateOutputShape();
             if (shape.isEmpty() || shape.get(0) == null) {
@@ -211,19 +206,20 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         }
 
         val args = args();
+        val resultVertexId = outputVariables()[0].getVertexId();
         if(sameDiff.getArrForVertexId(vertexId) == null || x == null) {
-            if(sameDiff.getArrForVertexId(args[0].resultVertexId()) != null) {
-                this.x = sameDiff.getArrForVertexId(args[0].resultVertexId());
+            if(sameDiff.getArrForVertexId(args[0].getVertexId()) != null) {
+                this.x = sameDiff.getArrForVertexId(args[0].getVertexId());
             }
             else
-                throw new ND4JIllegalStateException("No input found for vertex id " + Arrays.toString(resultVertexId()) + " and op " + opName());
+                throw new ND4JIllegalStateException("No input found for vertex id " + resultVertexId + " and op " + opName());
             if(args().length  > 1) {
-                if(sameDiff.getArrForVertexId(args[1].resultVertexId()) != null) {
-                    this.y = sameDiff.getArrForVertexId(args[1].resultVertexId());
+                if(sameDiff.getArrForVertexId(args[1].getVertexId()) != null) {
+                    this.y = sameDiff.getArrForVertexId(args[1].getVertexId());
                 }
 
                 else
-                    throw new ND4JIllegalStateException("No second input found for vertex id " + Arrays.toString(resultVertexId()) + " and op " + opName());
+                    throw new ND4JIllegalStateException("No second input found for vertex id " + resultVertexId + " and op " + opName());
 
             }
         }
@@ -232,23 +228,23 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
         val outputFunctions = outputVariables();
        /*
-        for(val arg : outputFunctions) {
+        for(val arg : outputVariables) {
             arg.initOutputWithArrays(arrayMap,extraArgs);
         }
 */
         if(sameDiff.getArrForVertexId(vertexId) == null || z == null) {
-            if(sameDiff.getArrForVertexId(args[0].resultVertexId()) != null) {
-                this.z = sameDiff.getArrForVertexId(outputFunctions[0].resultVertexId());
+            if(sameDiff.getArrForVertexId(args[0].getVertexId()) != null) {
+                this.z = sameDiff.getArrForVertexId(outputFunctions[0].getVertexId());
             }
             else
-                throw new ND4JIllegalStateException("No input found for vertex id " + Arrays.toString(resultVertexId()) + " and op " + opName());
+                throw new ND4JIllegalStateException("No input found for vertex id " + outputVariables()[0].getVertexId() + " and op " + opName());
         }
     }
 
     @Override
     public List<int[]> calculateOutputShape() {
         List<int[]> ret = new ArrayList<>(1);
-        val arr = sameDiff.getArrForVertexId(arg().resultVertexId());
+        val arr = sameDiff.getArrForVertexId(arg().getVertexId());
         if(arr == null)
             throw new ND4JIllegalStateException("Array must not be null for argument!");
         ret.add(arr.shape());

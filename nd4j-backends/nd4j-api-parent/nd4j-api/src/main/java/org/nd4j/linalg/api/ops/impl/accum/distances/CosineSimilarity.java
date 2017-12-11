@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum.distances;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -121,8 +120,8 @@ public class CosineSimilarity extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        DifferentialFunction numerator = f().mul(larg(),rarg());
-        DifferentialFunction denom = f().sqrt(f().mul(f().pow(larg(),2),f().pow(rarg(),2)));
+        SDVariable numerator = f().mul(larg(),rarg());
+        SDVariable denom = f().sqrt(f().mul(f().pow(larg(),2),f().pow(rarg(),2)));
         return Arrays.asList(f().div(numerator,denom));
     }
 

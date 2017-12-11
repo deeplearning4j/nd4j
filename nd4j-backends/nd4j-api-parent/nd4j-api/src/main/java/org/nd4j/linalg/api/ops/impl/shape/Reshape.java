@@ -121,7 +121,7 @@ public class Reshape extends DynamicCustomOp {
         super.initWithArrays(arrayMap);
         if(numIArguments() == 0) {
             if(args().length > 1) {
-                val arr = sameDiff.getArrForVertexId(args()[1].resultVertexId());
+                val arr = sameDiff.getArrForVertexId(args()[1].getVertexId());
                 if(arr == null) {
                     throw new ND4JIllegalStateException("Unable to infer shape for reshape. No array found for getting shape data from!");
                 }
@@ -176,8 +176,7 @@ public class Reshape extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = this;
-
+        SDVariable ret = outputVariables()[0];
         return Collections.singletonList(ret);
     }
 

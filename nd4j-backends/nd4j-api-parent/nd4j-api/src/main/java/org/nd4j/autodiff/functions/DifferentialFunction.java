@@ -104,16 +104,21 @@ public abstract class DifferentialFunction implements Differential {
 
     }
 
-    public DifferentialFunction(SameDiff sameDiff, DifferentialFunction[] args) {
+    public DifferentialFunction(SameDiff sameDiff, SDVariable[] args) {
         this(sameDiff,false,args);
     }
 
-    public DifferentialFunction(SameDiff sameDiff, boolean inPlace, DifferentialFunction[] args) {
+    public DifferentialFunction(SameDiff sameDiff, boolean inPlace, SDVariable[] args) {
         this.sameDiff = sameDiff;
         this.inPlace = inPlace;
-        if(sameDiff != null)
-            sameDiff.associateFunctionsAsArgs(args,this);
+        val nodeIds = new int[args.length];
+        for(int i = 0; i < args.length; i++) {
+            nodeIds[i] = args[i].getVertexId();
+        }
 
+        if(sameDiff != null) {
+            sameDiff.addArgsFor(nodeIds, this);
+        }
     }
 
 
@@ -136,6 +141,36 @@ public abstract class DifferentialFunction implements Differential {
     }
 
 
+    /**
+     * Get the input vertex ids
+     * for this function
+     * @return
+     */
+    public int[] inputVertexIds() {
+        val args = args();
+        int[] ret = new int[args.length];
+        for(int i = 0; i < args.length; i++) {
+            ret[i] = args[i].getVertexId();
+        }
+
+        return ret;
+    }
+
+
+    /**
+     * Get the input vertex ids
+     * for this function
+     * @return
+     */
+    public int[] outputVertexIds() {
+        val args = outputVariables();
+        int[] ret = new int[args.length];
+        for(int i = 0; i < args.length; i++) {
+            ret[i] = args[i].getVertexId();
+        }
+
+        return ret;
+    }
 
 
 
@@ -218,7 +253,7 @@ public abstract class DifferentialFunction implements Differential {
     }
 
     public  SDVariable[] args() {
-        return sameDiff.getArgsFor(this);
+        return sameDiff.getArgsFor(outputVariables()[0]);
     }
 
     public SDVariable arg() {

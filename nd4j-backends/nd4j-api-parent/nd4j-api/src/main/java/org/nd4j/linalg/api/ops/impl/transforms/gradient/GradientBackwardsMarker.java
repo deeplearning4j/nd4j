@@ -1,6 +1,5 @@
 package org.nd4j.linalg.api.ops.impl.transforms.gradient;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -13,7 +12,7 @@ import java.util.List;
  *
  */
 public class GradientBackwardsMarker extends BaseGradientOp  {
-    public GradientBackwardsMarker(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
+    public GradientBackwardsMarker(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 

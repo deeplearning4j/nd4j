@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -34,7 +33,7 @@ public class MaxPooling2D extends DynamicCustomOp {
 
     @Builder(builderMethodName = "builder")
     @SuppressWarnings("Used in lombok")
-    public MaxPooling2D(SameDiff sameDiff, DifferentialFunction[] inputs, INDArray[] arrayInputs, INDArray[] arrayOutputs, Pooling2DConfig config) {
+    public MaxPooling2D(SameDiff sameDiff, SDVariable[] inputs, INDArray[] arrayInputs, INDArray[] arrayOutputs, Pooling2DConfig config) {
         super(null,sameDiff, inputs, false);
         if(arrayInputs != null) {
            addInputArgument(arrayInputs);
@@ -74,12 +73,12 @@ public class MaxPooling2D extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        List<DifferentialFunction> ret = new ArrayList<>();
-        List<DifferentialFunction> inputs = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
+        List<SDVariable> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         Pooling2DDerivative pooling2DDerivative = Pooling2DDerivative.derivativeBuilder()
-                .inputs(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .inputs(inputs.toArray(new SDVariable[inputs.size()]))
                 .sameDiff(sameDiff)
                 .config(config)
                 .build();

@@ -34,13 +34,18 @@ public class Conv2D extends DynamicCustomOp {
 
     @Builder(builderMethodName = "builder")
     public Conv2D(SameDiff sameDiff,
-                  DifferentialFunction[] inputFunctions,
+                  SDVariable[] inputFunctions,
                   INDArray[] inputArrays, INDArray[] outputs,
                   Conv2DConfig conv2DConfig) {
         super(null,inputArrays,outputs);
         this.sameDiff = sameDiff;
+        val ids = new int[inputFunctions.length];
+        for(int i = 0; i < ids.length; i++) {
+            ids[i] = inputFunctions[i].getVertexId();
+        }
+
         if(inputFunctions != null && sameDiff != null)
-            sameDiff.associateFunctionsAsArgs(inputFunctions,this);
+            sameDiff.addArgsFor(ids,this);
         this.conv2DConfig = conv2DConfig;
         addArgs();
     }
@@ -61,17 +66,8 @@ public class Conv2D extends DynamicCustomOp {
     }
 
     @Override
-    public int[] getShape() {
-        val shapes = this.calculateOutputShape();
-        if(shapes.isEmpty()) {
-            throw new ND4JIllegalStateException("Unable to compute shape for conv2d! Perhaps missing inputs?");
-        }
-        return shapes.get(0);
-    }
-
-    @Override
     public void initWithArrays(Map<String, INDArray> arrayMap, Object... extraArgs) {
-        val var = sameDiff.getVariableForVertexId(args()[1].resultVertexId());
+        val var = sameDiff.getVariableForVertexId(args()[1].getVertexId());
         //place holder variable
         if (var.getArr() == null) {
             //assuming the array hasn't been initialized, setup the config
@@ -90,9 +86,9 @@ public class Conv2D extends DynamicCustomOp {
 
         val inputs = args();
         for(val func : inputs) {
-            INDArray arr = sameDiff.getArrForVertexId(func.resultVertexId());
+            INDArray arr = sameDiff.getArrForVertexId(func.getVertexId());
             if(arr == null) {
-                val var2 = sameDiff.getVariableForVertexId(func.resultVertexId());
+                val var2 = sameDiff.getVariableForVertexId(func.getVertexId());
                 arr = var2.storeAndAllocateNewArray();
             }
 
@@ -115,7 +111,7 @@ public class Conv2D extends DynamicCustomOp {
         int kY = 1;
         int kX = 1;
         val args = args();
-        INDArray arr = sameDiff.getVariableForVertexId(args[1].resultVertexId()).getArr();
+        INDArray arr = sameDiff.getVariableForVertexId(args[1].getVertexId()).getArr();
         if(arr == null) {
             arr = TFGraphMapper.getInstance().getNDArrayFromTensor(nodeDef.getInput(0), nodeDef, graph);
         }
@@ -123,7 +119,7 @@ public class Conv2D extends DynamicCustomOp {
         kY = arr.size(0);
         kX = arr.size(1);
         arr = (arr.permute(3, 2, 0, 1).dup('c'));
-        val  varForOp = initWith.getVariableForVertexId(args[1].resultVertexId());
+        val  varForOp = initWith.getVariableForVertexId(args[1].getVertexId());
         initWith.associateArrayWithVariable(arr, varForOp);
 
 
@@ -156,7 +152,7 @@ public class Conv2D extends DynamicCustomOp {
         int kY = kernelShape.getIntsList().get(0).intValue();
         int kX = kernelShape.getIntsList().size() < 2 ? kY : kernelShape.getIntsList().get(1).intValue();
 
-
+        val vertexId = inputVertexIds()[0];
 
         INDArray arr = sameDiff.getVariableForVertexId(vertexId).getArr();
         arr = (arr.permute(3, 2, 0, 1).dup('c'));
@@ -191,14 +187,14 @@ public class Conv2D extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        List<DifferentialFunction> ret = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
         List<DifferentialFunction> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         Conv2DDerivative conv2DDerivative = Conv2DDerivative.derivativeBuilder()
                 .conv2DConfig(conv2DConfig)
                 .outputs(outputArguments())
-                .inputFunctions(inputs.toArray(new DifferentialFunction[inputs.size()]))
+                .inputFunctions(inputs.toArray(new SDVariable[inputs.size()]))
                 .build();
         ret.addAll(Arrays.asList(conv2DDerivative.outputVariables()));
         return ret;

@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -100,11 +99,10 @@ public class Prod extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        f().validateDifferentialFunctionsameDiff(i_v1);
-        DifferentialFunction ret = f().div(f().doRepeat(
-                this,
+        SDVariable ret = f().div(f().doRepeat(
+                outputVariables()[0],
                 i_v1.get(0)
-                ,dimensions),f().mul(f().one(getShape()),f()
+                ,dimensions),f().mul(f().one(outputVariables()[0].getShape()),f()
                 .getInputLength(i_v1.get(0))));
 
         return Collections.singletonList(ret);

@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -87,8 +86,7 @@ public class HardTanh extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().hardTanhDerivative(f().val(this.sameDiff.getVariableForVertexId(resultVertexId())));
-
+        SDVariable ret = f().hardTanhDerivative(this.sameDiff.getVariableForVertexId(outputVariables()[0].getVertexId()));
         return Collections.singletonList(ret);
     }
 }

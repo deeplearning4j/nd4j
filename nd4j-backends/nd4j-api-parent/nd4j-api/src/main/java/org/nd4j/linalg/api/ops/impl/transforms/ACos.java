@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -89,8 +88,8 @@ public class ACos extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().div(f().one(getShape()),
-                f().sqrt(f().sub(f().one(getShape()),f().pow(arg(),2))));
+        SDVariable ret = f().div(f().one(outputVariables()[0].getShape()),
+                f().sqrt(f().sub(f().one(outputVariables()[0].getShape()),f().pow(arg(),2))));
 
         return Collections.singletonList(ret);
     }

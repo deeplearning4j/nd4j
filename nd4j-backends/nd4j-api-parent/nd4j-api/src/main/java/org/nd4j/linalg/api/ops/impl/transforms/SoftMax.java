@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -42,7 +41,7 @@ import java.util.List;
  */
 
 public class SoftMax extends BaseTransformOp {
-    public SoftMax(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
+    public SoftMax(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 
@@ -165,7 +164,7 @@ public class SoftMax extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().softmaxDerivative(arg(), i_v.get(0));
+        SDVariable ret = f().softmaxDerivative(arg(), i_v.get(0));
 
         return Collections.singletonList(ret);
     }

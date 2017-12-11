@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -99,9 +98,8 @@ public class Max extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        f().validateDifferentialFunctionsameDiff(i_v1);
-        List<DifferentialFunction> ret = new ArrayList<>(1);
-        ret.add(sameDiff.f().doGradChoose(this,i_v1.get(0),dimensions));
+        List<SDVariable> ret = new ArrayList<>(1);
+        ret.add(sameDiff.f().doGradChoose(outputVariables()[0],i_v1.get(0),dimensions));
         return ret;
     }
 

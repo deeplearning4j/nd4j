@@ -1,10 +1,8 @@
 package org.nd4j.linalg.api.ops;
 
-import com.google.common.base.Preconditions;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -38,24 +36,19 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
                            int[] dimension) {
         super(sameDiff, inPlace, new Object[]{i_v2});
         if (i_v1 != null && i_v2 != null) {
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[]{sameDiff.setupFunction(i_v1), sameDiff.setupFunction(i_v2)}, this);
+            sameDiff.addArgsFor(new SDVariable[]{i_v1, i_v2}, this);
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
-            f().validateFunctionReference(i_v1);
-            f().validateFunctionReference(i_v2);
-            this.sameDiff = sameDiff;
+             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
             this.dimension = dimension;
-            ;
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
 
-        Preconditions.checkState(sameDiff.setupFunction(this) == this);
     }
 
     public BaseBroadcastOp(SameDiff sameDiff) {
@@ -70,14 +63,13 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         super(sameDiff, extraArgs);
         this.dimension = dimension;
         if (i_v1 != null && i_v2 != null) {
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[]{sameDiff.setupFunction(i_v1), sameDiff.setupFunction(i_v2)}, this);
+            sameDiff.addArgsFor(new SDVariable[]{i_v1, i_v2}, this);
 
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
 
             this.sameDiff = sameDiff;
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId, Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
 
 
@@ -85,7 +77,6 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             throw new IllegalArgumentException("Input not null variables.");
         }
 
-        Preconditions.checkState(sameDiff.setupFunction(this) == this);
 
     }
 
@@ -103,18 +94,15 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         super(sameDiff, inPlace, extraArgs);
         this.dimension = dimension;
         if (i_v != null) {
-            sameDiff.associateFunctionsAsArgs(new DifferentialFunction[]{sameDiff.setupFunction(i_v)}, this);
-            f().validateFunctionReference(i_v);
+            sameDiff.addArgsFor(new SDVariable[]{i_v}, this);
             f().validateDifferentialFunctionsameDiff(i_v);
-            addAsNewVertexId();
-            sameDiff.putShapeForVertexId(vertexId, shape);
+            sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), shape);
             f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
 
-        Preconditions.checkState(sameDiff.setupFunction(this) == this);
 
     }
 
@@ -153,17 +141,6 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
         return ret;
     }
 
-    @Override
-    public int broadcastLength() {
-        if (y == null)
-            throw new IllegalStateException("Unable to get broad cast length for y, no y specified");
-        return y.length();
-    }
-
-    @Override
-    public int[] broadcastShape() {
-        return calculateOutputShape().get(0);
-    }
 
     @Override
     public int[] getDimension() {
@@ -181,7 +158,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
                 this.dimension = new int[]{1};
             } else if(Shape.isColumnVectorShape(rarg().getShape()))
                 this.dimension = new int[]{0};
-            else if (args().length > 1 && larg() != null && rarg() != null && larg().getShape() != null && rarg().getShape() != null && !sameDiff.isPlaceHolder(larg().resultVertexId()) && !sameDiff.isPlaceHolder(rarg().resultVertexId()))
+            else if (args().length > 1 && larg() != null && rarg() != null && larg().getShape() != null && rarg().getShape() != null && !sameDiff.isPlaceHolder(larg().getVertexId()) && !sameDiff.isPlaceHolder(rarg().getVertexId()))
                 this.dimension = Shape.getBroadcastDimensions(larg().getShape(), rarg().getShape());
         }
 

@@ -2,7 +2,6 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -21,7 +20,7 @@ public class DeConv2DDerivative extends DeConv2D {
     public DeConv2DDerivative() {}
 
     @Builder(builderMethodName = "derivativeBuilder")
-    public DeConv2DDerivative(SameDiff sameDiff, DifferentialFunction[] inputs, INDArray[] inputArrays, INDArray[] outputs, boolean inPlace, DeConv2DConfig config) {
+    public DeConv2DDerivative(SameDiff sameDiff, SDVariable[] inputs, INDArray[] inputArrays, INDArray[] outputs, boolean inPlace, DeConv2DConfig config) {
         super(sameDiff, inputs, inputArrays, outputs, inPlace, config);
     }
 

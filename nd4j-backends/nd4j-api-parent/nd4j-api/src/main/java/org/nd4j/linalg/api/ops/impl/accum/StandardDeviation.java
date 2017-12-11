@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -76,10 +75,9 @@ public class StandardDeviation extends Variance {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        f().validateDifferentialFunctionsameDiff(i_v1);
         int inputs = f().getInputLength(i_v1.get(0));
-        DifferentialFunction g =  f().doRepeat(this,i_v1.get(0),dimensions);
-        DifferentialFunction ret = f().div(f().sub(f().mul(g,arg()),f().mean(arg(),dimensions)),f().mul(f()
+        SDVariable g =  f().doRepeat(outputVariables()[0],i_v1.get(0),dimensions);
+        SDVariable ret = f().div(f().sub(f().mul(g,arg()),f().mean(arg(),dimensions)),f().mul(f()
                 .one(g.getShape()),inputs));
 
         return Collections.singletonList(ret);

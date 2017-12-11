@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -76,7 +75,7 @@ public class EqualsWithEps extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        return Arrays.<DifferentialFunction>asList(f().val(getResult()));
+        return Arrays.asList(outputVariables()[0]);
     }
 
     @Override

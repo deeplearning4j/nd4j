@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -90,7 +89,7 @@ public class Norm1 extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        DifferentialFunction ret = f().doNormGrad(this,i_v1.get(0),"norm1",dimensions);
+        SDVariable ret = f().doNormGrad(outputVariables()[0],i_v1.get(0),"norm1",dimensions);
 
         return Collections.singletonList(ret);
     }

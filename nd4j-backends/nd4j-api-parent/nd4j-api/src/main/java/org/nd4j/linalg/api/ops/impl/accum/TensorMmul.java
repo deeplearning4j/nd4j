@@ -23,7 +23,6 @@ import com.google.common.primitives.Ints;
 import lombok.NoArgsConstructor;
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
@@ -70,11 +69,8 @@ public class TensorMmul extends DynamicCustomOp {
         this.mMulTranspose = mMulTranspose;
         this.axes = dimensions;
         this.extraArgs = new Object[] {axes,mMulTranspose};
-
-        f().validateFunctionReference(i_v1);
-        f().validateFunctionReference(i_v2);
-        addAsNewVertexId();
-        sameDiff.associateFunctionsAsArgs(new DifferentialFunction[] {i_v1,i_v2},this);
+        val vertexId = outputVariables()[0].getVertexId();
+        sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
         sameDiff.putShapeForVertexId(vertexId,calculateOutputShape().get(0));
         if(!addedEdges) {
             f().addFunctionEdges(this);
@@ -104,7 +100,7 @@ public class TensorMmul extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        List<DifferentialFunction> ret = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
         int[] bAxes = range(0, rarg().getShape().length);
         int[] aAxes = range(0, larg().getShape().length);
         int aRank = larg().getShape().length;
@@ -129,22 +125,22 @@ public class TensorMmul extends DynamicCustomOp {
 
         //tensor matrix multiply gradient wrt second variable
         int[] firstPerm = argsort(combine(deletedAxes[0],keep(argsort(sumAxes[1]),sumAxes[0])));
-        DifferentialFunction firstResult = doTensorMmul(i_v1.get(0), rarg(), firstAxes);
-        DifferentialFunction permuted = f().permute(firstResult,firstPerm);
+        SDVariable firstResult = doTensorMmul(i_v1.get(0), rarg(), firstAxes);
+        SDVariable permuted = f().permute(firstResult,firstPerm);
         ret.add(permuted);
 
         //tensor matrix multiply gradient wrt first variable
         int[] secondPerm = argsort(combine(keep(argsort(sumAxes[0]),sumAxes[1]),deletedAxes[1]));
-        DifferentialFunction secondResult = doTensorMmul(i_v1.get(0), larg(), secondAxes);
-        DifferentialFunction secondPermuted = f().permute(secondResult,secondPerm);
+        SDVariable secondResult = doTensorMmul(i_v1.get(0), larg(), secondAxes);
+        SDVariable secondPermuted = f().permute(secondResult,secondPerm);
         ret.add(secondPermuted);
         return ret;
     }
 
 
 
-    private DifferentialFunction doTensorMmul(DifferentialFunction a,
-                                              DifferentialFunction b,
+    private SDVariable doTensorMmul(SDVariable a,
+                                              SDVariable b,
                                               int[][] axes) {
 
         int validationLength = Math.min(axes[0].length, axes[1].length);
@@ -211,14 +207,14 @@ public class TensorMmul extends DynamicCustomOp {
         }
 
 
-        DifferentialFunction at = f()
+        SDVariable at = f()
                 .reshape(f().permute
                         (a,newAxesA),newShapeA);
-        DifferentialFunction bt = f()
+        SDVariable bt = f()
                 .reshape(f()
                         .permute(b,newAxesB),newShapeB);
 
-        DifferentialFunction ret = f().mmul(at,bt);
+        SDVariable ret = f().mmul(at,bt);
         int[] aPlusB = Ints.concat(oldShapeA, oldShapeB);
         return f().reshape(ret,aPlusB);
     }
@@ -269,11 +265,13 @@ public class TensorMmul extends DynamicCustomOp {
             }
         }
 
-        val var = sameDiff.getVariableForVertexId(resultVertexId());
-        INDArray arr = sameDiff.getArrForVertexId(var.resultVertexId());
+        val outputVertexId = outputVariables()[0].getVertexId();
+
+        val var = sameDiff.getVariableForVertexId(outputVertexId);
+        INDArray arr = sameDiff.getArrForVertexId(var.getVertexId());
         if (arr == null) {
             arr = var.getWeightInitScheme().create(calculateOutputShape().get(0));
-            sameDiff.putArrayForVertexId(vertexId, arr);
+            sameDiff.putArrayForVertexId(outputVertexId, arr);
             addOutputArgument(arr);
         }
 

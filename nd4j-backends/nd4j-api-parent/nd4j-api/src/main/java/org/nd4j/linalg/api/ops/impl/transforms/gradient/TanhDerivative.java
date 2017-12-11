@@ -1,7 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms.gradient;
 
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -17,7 +16,7 @@ import java.util.List;
  *
  */
 public class TanhDerivative extends BaseGradientOp  {
-    public TanhDerivative(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
+    public TanhDerivative(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 
@@ -91,8 +90,7 @@ public class TanhDerivative extends BaseGradientOp  {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().div(f().one(getShape()),f().pow(f().cosh(arg()),2));
-
+        SDVariable ret = f().div(f().one(outputVariables()[0].getShape()),f().pow(f().cosh(arg()),2));
         return Collections.singletonList(ret);
     }
 

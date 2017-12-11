@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.shape;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 
@@ -51,7 +50,7 @@ public class Permute extends Transpose {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return Collections.<DifferentialFunction>singletonList(this);
+        return Collections.singletonList(outputVariables()[0]);
     }
 
 

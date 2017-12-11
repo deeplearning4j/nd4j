@@ -68,10 +68,10 @@ public class FullConv3D extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        List<DifferentialFunction> inputs = new ArrayList<>();
+        List<SDVariable> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
         inputs.addAll(f1);
-        List<DifferentialFunction> ret = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
         FullConv3DDerivative fullConv3DDerivative = FullConv3DDerivative.derivativeBuilder()
                 .conv3DConfig(conv3DConfig)
                 .sameDiff(sameDiff)

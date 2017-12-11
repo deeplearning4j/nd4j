@@ -99,9 +99,8 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
         super(sameDiff,inPlace,extraArgs);
         this.scalarValue = scalar;
         if (i_v != null) {
-            val vertexId = new int[] {sameDiff.graph().nextVertexId()};
+            val vertexId = sameDiff.graph().nextVertexId();
             f().validateDifferentialFunctionsameDiff(i_v);
-            addAsNewVertexId();
             f().addFunctionEdges(i_v);
             sameDiff.putShapeForVertexId(vertexId,sameDiff.setupFunction(i_v).getShape());
         } else {
@@ -121,7 +120,7 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
 
     @Override
     public SDVariable[] outputVariables() {
-        return new SDVariable[] {sameDiff.getVariableForVertexId(sameDiff.graph().getToFor(arg().getVertexId()))};
+        return new SDVariable[] {sameDiff.getVariableForVertexId(sameDiff.graph().getToFor(new int[]{arg().getVertexId()})[0])};
     }
 
     @Override
@@ -141,25 +140,11 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
         this.num = scalar;
     }
 
-    @Override
-    public int broadcastLength() {
-        return 1;
-    }
-
-    @Override
-    public int[] broadcastShape() {
-        return new int[] {1, 1};
-    }
-
-    @Override
+      @Override
     public Number scalar() {
         return num;
     }
 
-    @Override
-    public IComplexNumber complexScalar() {
-        return complexNumber;
-    }
 
     @Override
     public int[] getDimension() {

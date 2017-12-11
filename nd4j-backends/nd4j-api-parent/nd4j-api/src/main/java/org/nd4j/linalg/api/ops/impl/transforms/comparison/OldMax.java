@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms.comparison;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -34,7 +33,7 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class OldMax extends BaseTransformOp {
-    public OldMax(SameDiff sameDiff, SDVariable i_v1, DifferentialFunction i_v2) {
+    public OldMax(SameDiff sameDiff, SDVariable i_v1, SDVariable i_v2) {
         super(sameDiff, i_v1, i_v2);
     }
 

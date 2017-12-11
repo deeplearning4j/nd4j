@@ -23,21 +23,21 @@ public class Constant extends BaseTransformOp {
     protected Constant(SameDiff sameDiff,
                        SDVariable i_v,
                        int[] shape,
-                       boolean inPlace,int[] vertexId) {
+                       boolean inPlace,int vertexId) {
         super();
         sameDiff.putShapeForVertexId(vertexId,shape);
         this.inPlace = inPlace;
         this.sameDiff = sameDiff;
 
-        if(sameDiff.getGraph().getVertex(vertexId[0]) == null) {
-            sameDiff.getGraph().addVertex(new NDArrayVertex(sameDiff,vertexId[0],0,i_v));
+        if(sameDiff.graph().getVertex(vertexId) == null) {
+            sameDiff.graph().addVertex(new NDArrayVertex(sameDiff,vertexId,0,i_v));
         }
 
     }
 
     public Constant(SameDiff sameDiff,
                     SDVariable i_v,
-                    int[] shape,int[] vertexId) {
+                    int[] shape,int vertexId) {
         this(sameDiff,i_v,shape,false,vertexId);
     }
     @Override

@@ -21,7 +21,6 @@ package org.nd4j.linalg.api.ops.impl.shape;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -139,7 +138,7 @@ public class StridedSlice extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = this;
+        SDVariable ret = outputVariables()[0];
 
         return Collections.singletonList(ret);
     }

@@ -66,8 +66,8 @@ public class BatchNorm extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        List<DifferentialFunction> ret = new ArrayList<>();
-        List<DifferentialFunction> inputs = new ArrayList<>();
+        List<SDVariable> ret = new ArrayList<>();
+        List<SDVariable> inputs = new ArrayList<>();
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         BatchNormDerivative batchNormDerivative = BatchNormDerivative.derivativeBuilder()

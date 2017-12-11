@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -88,7 +87,7 @@ public class Identity extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return Collections.<DifferentialFunction> singletonList(sameDiff.one("grad-" + UUID.randomUUID().toString(),i_v.get(0).getShape()));
+        return Collections.singletonList(sameDiff.one("grad-" + UUID.randomUUID().toString(),i_v.get(0).getShape()));
     }
 
 }

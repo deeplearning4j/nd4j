@@ -51,7 +51,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     protected long numProcessed;
     protected Object[] extraArgs;
     protected boolean passThrough;
-    protected int[] xVertexId,yVertexId,zVertexId;
+    protected int xVertexId,yVertexId,zVertexId;
     // cached instance, for dataType checks
     protected DataBuffer extraArgz;
 
@@ -285,7 +285,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
             if(sameDiff != null) {
                 this.x = sameDiff.getArrForVertexId(args()[0].getVertexId());
                 if(x == null) {
-                    throw new ND4JIllegalStateException("No input found for vertex id " + Arrays.toString(args()[0].getVertexId()) + " and op type " + opName() + " and shape " + Arrays.toString(args()[0].getShape()));
+                    throw new ND4JIllegalStateException("No input found for vertex id " + args()[0].getVertexId() + " and op type " + opName() + " and shape " + Arrays.toString(args()[0].getShape()));
                 }
             }
         }
@@ -298,7 +298,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
             if(sameDiff != null && args().length > 1) {
                 this.y = sameDiff.getArrForVertexId(args()[1].getVertexId());
                 if(y == null) {
-                    throw new ND4JIllegalStateException("No input found for vertex id " + Arrays.toString(args()[1].getVertexId()) + " and op type " + opName());
+                    throw new ND4JIllegalStateException("No input found for vertex id " + args()[1].getVertexId() + " and op type " + opName());
                 }
             }
         }

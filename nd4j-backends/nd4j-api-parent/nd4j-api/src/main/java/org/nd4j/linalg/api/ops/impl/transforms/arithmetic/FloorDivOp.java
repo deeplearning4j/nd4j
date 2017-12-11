@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -64,9 +63,9 @@ public class FloorDivOp extends BaseDynamicTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction gradWrtX = f().div(i_v.get(0),rarg());
-        DifferentialFunction gradWrtY = f().mul(f().neg(gradWrtX),f().div(larg(),rarg()));
-        List<DifferentialFunction> ret = new ArrayList<>(2);
+        SDVariable gradWrtX = f().div(i_v.get(0),rarg());
+        SDVariable gradWrtY = f().mul(f().neg(gradWrtX),f().div(larg(),rarg()));
+        List<SDVariable> ret = new ArrayList<>(2);
         ret.add(gradWrtX);
         ret.add(gradWrtY);
         return ret;

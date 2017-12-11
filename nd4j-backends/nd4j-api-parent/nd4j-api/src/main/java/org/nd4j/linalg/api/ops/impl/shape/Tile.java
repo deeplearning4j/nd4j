@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.shape;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -112,7 +111,6 @@ public class Tile extends ShapeOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        f().validateDifferentialFunctionsameDiff(i_v);
         throw new UnsupportedOperationException();
     }
 

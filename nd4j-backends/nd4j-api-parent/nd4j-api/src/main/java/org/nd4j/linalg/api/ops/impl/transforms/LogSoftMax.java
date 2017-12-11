@@ -20,7 +20,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import org.apache.commons.math3.util.FastMath;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -141,7 +140,7 @@ public class LogSoftMax extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        DifferentialFunction ret = f().logSoftmaxDerivative(arg(),i_v.get(0));
+        SDVariable ret = f().logSoftmaxDerivative(arg(),i_v.get(0));
 
         return Collections.singletonList(ret);
     }

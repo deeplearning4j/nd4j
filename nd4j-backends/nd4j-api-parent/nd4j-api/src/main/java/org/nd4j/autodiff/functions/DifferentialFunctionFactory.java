@@ -3,7 +3,6 @@ package org.nd4j.autodiff.functions;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import lombok.Data;
-import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
@@ -25,7 +24,6 @@ import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
-import org.nd4j.weightinit.impl.ZeroInitScheme;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -83,7 +81,7 @@ public class DifferentialFunctionFactory   {
 
     public Constant val(SDVariable iX) {
         return new Constant(sameDiff(), iX,
-                iX.getShape(),new int[]{sameDiff().graph().nextVertexId()}).outputVariables()[0];
+                iX.getShape(),sameDiff().graph().nextVertexId());
     }
 
 
@@ -93,7 +91,7 @@ public class DifferentialFunctionFactory   {
                 .shape(iX.getShape())
                 .varName(iName)
                 .sameDiff(sameDiff())
-                .vertexId(new int[]{sameDiff().graph().nextVertexId()})
+                .vertexId(sameDiff().graph().nextVertexId())
                 .build().outputVariables()[0];
     }
 
@@ -641,7 +639,7 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable mmul(SDVariable x,
                            SDVariable y) {
-        return mmul(x,y,MMulTranspose.allFalse().outputVariables()[0]);
+        return mmul(x,y,MMulTranspose.allFalse());
     }
 
 
@@ -981,26 +979,17 @@ public class DifferentialFunctionFactory   {
      * is thrown
      * @param op the operation to add edges to
      */
-    public void addFunctionEdges(SDVariable op) {
+    public void addFunctionEdges(DifferentialFunction op) {
         SDVariable[] inputs = op.args();
         for (SDVariable input : inputs) {
             validateDifferentialFunctionGraph(input);
         }
 
-        if(op.getVertexId() == null) {
+
+        if(op.outputVariables() == null) {
             throw new ND4JIllegalStateException("Op must have a vertex id defined!");
         }
 
-
-        /**
-         * Note here that we need to ensure the vertex is properly added.
-         * The output variable creation can create skipped vertices.
-         */
-        if(sameDiff.graph().getVertex(op.getVertexId()[0]) == null) {
-            SDVariable var = sameDiff.var(op.opName() + "-" + UUID.randomUUID().toString(),op.getShape(),new ZeroInitScheme('f'),op.getVertexId(),0);
-            NDArrayVertex ndArrayVertex = new NDArrayVertex(sameDiff,op.getVertexId()[0],0,var);
-            sameDiff.graph().addVertex(ndArrayVertex);
-        }
 
         String opName = op.opName();
 
@@ -1024,18 +1013,9 @@ public class DifferentialFunctionFactory   {
         if(outputShapes.size() > 1) {
             throw new ND4JIllegalStateException("Automatically generating edges assumes *only* 1 output for now. Consider using DynamicCustomOp for multi output");
         }
-        for (int i = 0; i < outputShapes.size(); i++) {
-            SDVariable variable = sameDiff.var(sameDiff.generateVariableName(opName, false,op.args()),outputShapes.get(i),new ZeroInitScheme('f'),op.getVertexId(),op.depth().outputVariables()[0];
-            outputVertexIds[i] = variable.getVertexId()[0];
-            resultInfo[i] = variable;
-            outputFunctions[i] = variable;
-
-        }
 
 
         int[] inputIds = Ints.toArray(inputIdsList);
-
-        String[] vertexIds = sameDiff.generateVertexIds(Ints.concat(inputIds, outputVertexIds).outputVariables()[0];
 
 
         /**
@@ -1044,8 +1024,7 @@ public class DifferentialFunctionFactory   {
          */
         sameDiff.graph().addEdge(
                 inputIds,
-                outputVertexIds,
-                opName + "(" + vertexIds + ")", true);
+                outputVertexIds, op, true);
 
 
 
@@ -1103,7 +1082,7 @@ public class DifferentialFunctionFactory   {
         SDVariable repeatedGrad = doRepeat(func,input,axes);
         SDVariable resultRepeated = doRepeat(func.args()[0],input,axes);
         SDVariable argMaxLocations = eq(input,resultRepeated);
-        return div(mul(argMaxLocations,repeatedGrad),sum(argMaxLocations,axes).outputVariables()[0];
+        return div(mul(argMaxLocations,repeatedGrad),sum(argMaxLocations,axes).outputVariables()[0]);
 
 
     }
