@@ -231,13 +231,15 @@ public class SameDiffTests {
 
 
     @Test
-    public void testFunctdionInputsAndArgs() {
+    public void testFunctionInputsAndArgs() {
         SameDiff sameDiff = SameDiff.create();
         SDVariable var = sameDiff.var("one",Nd4j.scalar(1.0));
         SDVariable variable2 = sameDiff.var("two",Nd4j.scalar(1.0));
         val sum = var.add(variable2);
         assertArrayEquals(new int[]{1,1},sum.getShape());
         assertTrue(sameDiff.getFunction(new int[]{1,2},new int[]{3}) instanceof AddOp);
+
+
     }
 
 
@@ -266,7 +268,10 @@ public class SameDiffTests {
         SDVariable firstVar = first.var("one",new int[]{2,2});
         SDVariable secondVar = second.var(firstVar);
         assumeNotNull(firstVar.getArr());
-        assertFalse("Vertex ids found to be the same reference",firstVar.getVertexId() == secondVar.getVertexId());
+        val firstId = firstVar.getVertexId().intValue();
+        val secondId = secondVar.getVertexId().intValue();
+
+        assertTrue("Vertex ids found to be the same reference",firstId == secondId);
         assertTrue(firstVar.getArr() == secondVar.getArr());
         assertEquals(firstVar.getVarName(),secondVar.getVarName());
 

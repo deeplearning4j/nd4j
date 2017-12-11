@@ -268,9 +268,9 @@ public class Graph<V, E> extends BaseGraph<V, E> {
     @Override
     public int getVertexInDegree(int vertex) {
         int ret = 0;
-        if(!incomingEdges.containsKey(vertex))
+        if(!incomingEdges.containsKey(new int[]{vertex}))
             return 0;
-        for(Edge<E> edge : incomingEdges.get(vertex)) {
+        for(Edge<E> edge : incomingEdges.get(new int[]{vertex})) {
             if(Arrays.equals(edge.getTo(),new int[]{vertex}))
                 ret++;
         }

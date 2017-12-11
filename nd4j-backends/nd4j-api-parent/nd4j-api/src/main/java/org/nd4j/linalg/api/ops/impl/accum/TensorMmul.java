@@ -69,9 +69,10 @@ public class TensorMmul extends DynamicCustomOp {
         this.mMulTranspose = mMulTranspose;
         this.axes = dimensions;
         this.extraArgs = new Object[] {axes,mMulTranspose};
-        val vertexId = outputVariables()[0].getVertexId();
         sameDiff.addArgsFor(new SDVariable[] {i_v1,i_v2},this);
-        sameDiff.putShapeForVertexId(vertexId,calculateOutputShape().get(0));
+        val vertexId = outputVariables()[0].getVertexId();
+        if(sameDiff.getShapeForVertexId(vertexId) == null)
+            sameDiff.putShapeForVertexId(vertexId,calculateOutputShape().get(0));
         if(!addedEdges) {
             f().addFunctionEdges(this);
             addedEdges = true;
@@ -140,8 +141,8 @@ public class TensorMmul extends DynamicCustomOp {
 
 
     private SDVariable doTensorMmul(SDVariable a,
-                                              SDVariable b,
-                                              int[][] axes) {
+                                    SDVariable b,
+                                    int[][] axes) {
 
         int validationLength = Math.min(axes[0].length, axes[1].length);
         for (int i = 0; i < validationLength; i++) {
