@@ -3236,7 +3236,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
      * @param ptrToDeviceId
      * @return
      */
-    public native String getDeviceName(@Cast("Nd4jPointer") Pointer ptrToDeviceId);
+    public native @Cast("char*") String getDeviceName(@Cast("Nd4jPointer") Pointer ptrToDeviceId);
 
     /**
      *
@@ -5170,8 +5170,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
     public native void sortCooIndicesHalf(@Cast("Nd4jPointer*") PointerPointer extraPointers, int[] indices, @Cast("float16*") short[] values, @Cast("Nd4jIndex") long length, int rank);
 
 
-    public native @Cast("Nd4jIndex*") LongPointer mmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, String fileName, @Cast("Nd4jIndex") long length);
-    public native @Cast("Nd4jIndex*") LongBuffer mmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("const char*") BytePointer fileName, @Cast("Nd4jIndex") long length);
+    public native @Cast("Nd4jIndex*") LongPointer mmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("char*") String fileName, @Cast("Nd4jIndex") long length);
+    public native @Cast("Nd4jIndex*") LongBuffer mmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("char*") BytePointer fileName, @Cast("Nd4jIndex") long length);
 
     public native void munmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("Nd4jIndex*") LongPointer ptrMap, @Cast("Nd4jIndex") long length);
     public native void munmapFile(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("Nd4jIndex*") LongBuffer ptrMap, @Cast("Nd4jIndex") long length);
@@ -5185,10 +5185,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
     // protobuf execution
     public native @Cast("Nd4jPointer") Pointer executeProtoGraphFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("Nd4jPointer") Pointer protoBufferPointer);
-    public native @Cast("Nd4jPointer") Pointer executeProtoGraphFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, String fileName);
-    public native @Cast("Nd4jPointer") Pointer executeProtoGraphFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("const char*") BytePointer fileName);
+    public native @Cast("Nd4jPointer") Pointer executeProtoGraphFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("char*") String fileName);
+    public native @Cast("Nd4jPointer") Pointer executeProtoGraphFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("char*") BytePointer fileName);
 
-    public native String getAllCustomOps();
+    public native @Cast("char*") String getAllCustomOps();
 
     // customOp executioner
     public native int execCustomOpFloat(@Cast("Nd4jPointer*") PointerPointer extraPointers, @Cast("Nd4jIndex") long hash, @Cast("Nd4jPointer*") PointerPointer inputBuffers, @Cast("Nd4jPointer*") PointerPointer inputShapes, int numInputs, @Cast("Nd4jPointer*") PointerPointer outputBuffers, @Cast("Nd4jPointer*") PointerPointer outputShapes, int numOutputs, FloatPointer tArgs, int numTArgs, IntPointer iArgs, int numIArgs, @Cast("bool") boolean isInplace);
@@ -5481,17 +5481,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // modifying operator for matrix, i - absolute index
         // be careful this method doesn't check the boundaries of array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(@Cast("const Nd4jIndex") long i);
+        public native @ByRef @Name("operator ()") FloatPointer apply(@Cast("const Nd4jIndex") long i);
 
         // accessing operator for 2D array, i - row, j - column        
 
         // modifying operator for 2D array, i - row, j - column
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j);
+        public native @ByRef @Name("operator ()") FloatPointer apply(int i, int j);
 
         // accessing operator for 3D array        
 
         // modifying operator for 3D array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j, int k);
+        public native @ByRef @Name("operator ()") FloatPointer apply(int i, int j, int k);
 
         // default constructor, do not allocate memory, memory for array is passed from outside 
         public FloatNDArray(FloatPointer buffer/*=nullptr*/, IntPointer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
@@ -5690,17 +5690,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean isContiguous();
 
         // print information about array shape
-        public native void printShapeInfo(String msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
-        public native void printShapeInfo(@Cast("const char*") BytePointer msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
 
-        public native void printBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
-        public native void printBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
-        public native void printIndexedBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
-        public native void printIndexedBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         // This method assigns values of given NDArray to this one, wrt order
         public native void assign(@Const FloatNDArray other);
@@ -5713,16 +5713,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native FloatNDArray dup();
 
         // Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShape(@Const FloatNDArray other);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector int[] shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
+        public native @Cast("bool") boolean isSameShape(@Const FloatNDArray other);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector int[] shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
 
 		// Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShapeStrict(@Const FloatNDArray other);
+        public native @Cast("bool") boolean isSameShapeStrict(@Const FloatNDArray other);
 
         // This method returns sum of all elements of this NDArray
         public native float sumNumber();
@@ -5785,26 +5785,26 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean equalsTo(@Const FloatNDArray other);
 
         // Return value from linear buffer
-        public native @ByVal FORCEINLINE getScalar(@Cast("const Nd4jIndex") long i);
+        public native float getScalar(@Cast("const Nd4jIndex") long i);
         
-        public native @ByVal FORCEINLINE getIndexedScalar(@Cast("const Nd4jIndex") long i);
+        public native float getIndexedScalar(@Cast("const Nd4jIndex") long i);
 
         // Returns value from 2D matrix by coordinates/indexes         
-        public native @ByVal FORCEINLINE getScalar(int i, int j);
+        public native float getScalar(int i, int j);
 
         // returns value from 3D tensor by coordinates        
-        public native @ByVal FORCEINLINE getScalar(int i, int j, int k);        
+        public native float getScalar(int i, int j, int k);        
         
-        public native @ByVal FORCEINLINE putIndexedScalar(@Cast("const Nd4jIndex") long i, float value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, float value);        
 
         // This method sets value in linear buffer to position i        
-        public native @ByVal FORCEINLINE putScalar(@Cast("const Nd4jIndex") long i, float value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, float value);        
 
         // This method sets value in 2D matrix to position i, j         
-        public native @ByVal FORCEINLINE putScalar(int i, int j, float value);        
+        public native void putScalar(int i, int j, float value);        
 
         // This method sets value in 3D matrix to position i,j,k        
-        public native @ByVal FORCEINLINE putScalar(int i, int j, int k, float value);
+        public native void putScalar(int i, int j, int k, float value);
         
         // This method adds given row to all rows in this NDArray, that is this array becomes affected
         public native void addiRowVector(@Const FloatNDArray row);
@@ -5990,17 +5990,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // modifying operator for matrix, i - absolute index
         // be careful this method doesn't check the boundaries of array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(@Cast("const Nd4jIndex") long i);
+        public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(@Cast("const Nd4jIndex") long i);
 
         // accessing operator for 2D array, i - row, j - column        
 
         // modifying operator for 2D array, i - row, j - column
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j);
+        public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(int i, int j);
 
         // accessing operator for 3D array        
 
         // modifying operator for 3D array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j, int k);
+        public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(int i, int j, int k);
 
         // default constructor, do not allocate memory, memory for array is passed from outside 
         public HalfNDArray(@Cast("float16*") ShortPointer buffer/*=nullptr*/, IntPointer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
@@ -6199,17 +6199,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean isContiguous();
 
         // print information about array shape
-        public native void printShapeInfo(String msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
-        public native void printShapeInfo(@Cast("const char*") BytePointer msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
 
-        public native void printBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
-        public native void printBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
-        public native void printIndexedBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
-        public native void printIndexedBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         // This method assigns values of given NDArray to this one, wrt order
         public native void assign(@Const HalfNDArray other);
@@ -6222,16 +6222,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native HalfNDArray dup();
 
         // Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShape(@Const HalfNDArray other);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector int[] shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
+        public native @Cast("bool") boolean isSameShape(@Const HalfNDArray other);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector int[] shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
 
 		// Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShapeStrict(@Const HalfNDArray other);
+        public native @Cast("bool") boolean isSameShapeStrict(@Const HalfNDArray other);
 
         // This method returns sum of all elements of this NDArray
         public native @Cast("float16") short sumNumber();
@@ -6294,26 +6294,26 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean equalsTo(@Const HalfNDArray other);
 
         // Return value from linear buffer
-        public native @ByVal FORCEINLINE getScalar(@Cast("const Nd4jIndex") long i);
+        public native @Cast("float16") short getScalar(@Cast("const Nd4jIndex") long i);
         
-        public native @ByVal FORCEINLINE getIndexedScalar(@Cast("const Nd4jIndex") long i);
+        public native @Cast("float16") short getIndexedScalar(@Cast("const Nd4jIndex") long i);
 
         // Returns value from 2D matrix by coordinates/indexes         
-        public native @ByVal FORCEINLINE getScalar(int i, int j);
+        public native @Cast("float16") short getScalar(int i, int j);
 
         // returns value from 3D tensor by coordinates        
-        public native @ByVal FORCEINLINE getScalar(int i, int j, int k);        
+        public native @Cast("float16") short getScalar(int i, int j, int k);        
         
-        public native @ByVal FORCEINLINE putIndexedScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
 
         // This method sets value in linear buffer to position i        
-        public native @ByVal FORCEINLINE putScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
 
         // This method sets value in 2D matrix to position i, j         
-        public native @ByVal FORCEINLINE putScalar(int i, int j, @Cast("const float16") short value);        
+        public native void putScalar(int i, int j, @Cast("const float16") short value);        
 
         // This method sets value in 3D matrix to position i,j,k        
-        public native @ByVal FORCEINLINE putScalar(int i, int j, int k, @Cast("const float16") short value);
+        public native void putScalar(int i, int j, int k, @Cast("const float16") short value);
         
         // This method adds given row to all rows in this NDArray, that is this array becomes affected
         public native void addiRowVector(@Const HalfNDArray row);
@@ -6499,17 +6499,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // modifying operator for matrix, i - absolute index
         // be careful this method doesn't check the boundaries of array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(@Cast("const Nd4jIndex") long i);
+        public native @ByRef @Name("operator ()") DoublePointer apply(@Cast("const Nd4jIndex") long i);
 
         // accessing operator for 2D array, i - row, j - column        
 
         // modifying operator for 2D array, i - row, j - column
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j);
+        public native @ByRef @Name("operator ()") DoublePointer apply(int i, int j);
 
         // accessing operator for 3D array        
 
         // modifying operator for 3D array
-        public native @ByRef @Name("operator ()") FORCEINLINE apply(int i, int j, int k);
+        public native @ByRef @Name("operator ()") DoublePointer apply(int i, int j, int k);
 
         // default constructor, do not allocate memory, memory for array is passed from outside 
         public DoubleNDArray(DoublePointer buffer/*=nullptr*/, IntPointer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
@@ -6708,17 +6708,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean isContiguous();
 
         // print information about array shape
-        public native void printShapeInfo(String msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
-        public native void printShapeInfo(@Cast("const char*") BytePointer msg/*=nullptr*/);
+        public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
 
-        public native void printBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
-        public native void printBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
-        public native void printIndexedBuffer(String msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
-        public native void printIndexedBuffer(@Cast("const char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+        public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         // This method assigns values of given NDArray to this one, wrt order
         public native void assign(@Const DoubleNDArray other);
@@ -6731,16 +6731,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native DoubleNDArray dup();
 
         // Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShape(@Const DoubleNDArray other);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector IntBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@StdVector int[] shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
-        public native @ByVal FORCEINLINE isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
+        public native @Cast("bool") boolean isSameShape(@Const DoubleNDArray other);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@StdVector int[] shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongPointer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector LongBuffer shape);
+        public native @Cast("bool") boolean isSameShape(@Cast("Nd4jIndex*") @StdVector long[] shape);
 
 		// Returns true if these two NDArrays have same shape
-        public native @ByVal FORCEINLINE isSameShapeStrict(@Const DoubleNDArray other);
+        public native @Cast("bool") boolean isSameShapeStrict(@Const DoubleNDArray other);
 
         // This method returns sum of all elements of this NDArray
         public native double sumNumber();
@@ -6803,26 +6803,26 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean equalsTo(@Const DoubleNDArray other);
 
         // Return value from linear buffer
-        public native @ByVal FORCEINLINE getScalar(@Cast("const Nd4jIndex") long i);
+        public native double getScalar(@Cast("const Nd4jIndex") long i);
         
-        public native @ByVal FORCEINLINE getIndexedScalar(@Cast("const Nd4jIndex") long i);
+        public native double getIndexedScalar(@Cast("const Nd4jIndex") long i);
 
         // Returns value from 2D matrix by coordinates/indexes         
-        public native @ByVal FORCEINLINE getScalar(int i, int j);
+        public native double getScalar(int i, int j);
 
         // returns value from 3D tensor by coordinates        
-        public native @ByVal FORCEINLINE getScalar(int i, int j, int k);        
+        public native double getScalar(int i, int j, int k);        
         
-        public native @ByVal FORCEINLINE putIndexedScalar(@Cast("const Nd4jIndex") long i, double value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, double value);        
 
         // This method sets value in linear buffer to position i        
-        public native @ByVal FORCEINLINE putScalar(@Cast("const Nd4jIndex") long i, double value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, double value);        
 
         // This method sets value in 2D matrix to position i, j         
-        public native @ByVal FORCEINLINE putScalar(int i, int j, double value);        
+        public native void putScalar(int i, int j, double value);        
 
         // This method sets value in 3D matrix to position i,j,k        
-        public native @ByVal FORCEINLINE putScalar(int i, int j, int k, double value);
+        public native void putScalar(int i, int j, int k, double value);
         
         // This method adds given row to all rows in this NDArray, that is this array becomes affected
         public native void addiRowVector(@Const DoubleNDArray row);
@@ -7105,7 +7105,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native FloatNDArray read(int idx);
         public native FloatNDArray readRaw(int idx);
-        public native @ByVal Nd4jStatus write(int idx, FloatNDArray array);
+        public native @Cast("Nd4jStatus") int write(int idx, FloatNDArray array);
         public native FloatNDArray pick(@StdVector IntPointer indices);
         public native FloatNDArray pick(@StdVector IntBuffer indices);
         public native FloatNDArray pick(@StdVector int[] indices);
@@ -7139,7 +7139,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native HalfNDArray read(int idx);
         public native HalfNDArray readRaw(int idx);
-        public native @ByVal Nd4jStatus write(int idx, HalfNDArray array);
+        public native @Cast("Nd4jStatus") int write(int idx, HalfNDArray array);
         public native HalfNDArray pick(@StdVector IntPointer indices);
         public native HalfNDArray pick(@StdVector IntBuffer indices);
         public native HalfNDArray pick(@StdVector int[] indices);
@@ -7173,7 +7173,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native DoubleNDArray read(int idx);
         public native DoubleNDArray readRaw(int idx);
-        public native @ByVal Nd4jStatus write(int idx, DoubleNDArray array);
+        public native @Cast("Nd4jStatus") int write(int idx, DoubleNDArray array);
         public native DoubleNDArray pick(@StdVector IntPointer indices);
         public native DoubleNDArray pick(@StdVector IntBuffer indices);
         public native DoubleNDArray pick(@StdVector int[] indices);
@@ -7234,8 +7234,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native FloatNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(FloatNDArray array);
 
-        public native @ByVal Nd4jStatus status();
-        public native void setStatus(@ByVal Nd4jStatus status);
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
         public native void purge();
         public native void setNonRemovable();
     }
@@ -7258,8 +7258,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native HalfNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(HalfNDArray array);
 
-        public native @ByVal Nd4jStatus status();
-        public native void setStatus(@ByVal Nd4jStatus status);
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
         public native void purge();
         public native void setNonRemovable();
     }
@@ -7282,8 +7282,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native DoubleNDArray at(@Cast("unsigned long") long idx);
         public native void push_back(DoubleNDArray array);
 
-        public native @ByVal Nd4jStatus status();
-        public native void setStatus(@ByVal Nd4jStatus status);
+        public native @Cast("Nd4jStatus") int status();
+        public native void setStatus(@Cast("Nd4jStatus") int status);
         public native void purge();
         public native void setNonRemovable();
     }
@@ -7533,20 +7533,20 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public FloatVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
-            public FloatVariable(FloatNDArray arrayw, String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(FloatNDArray arrayw, String name, int id, int idx/*=0*/);
-            public FloatVariable(FloatNDArray arrayw, String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(FloatNDArray arrayw, String name, int id);
-            public FloatVariable(FloatNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(FloatNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/);
-            public FloatVariable(FloatNDArray arrayw, @Cast("const char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(FloatNDArray arrayw, @Cast("const char*") BytePointer name, int id);
-            public FloatVariable(FloatNDArray array/*=nullptr*/, String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(FloatNDArray array/*=nullptr*/, String name/*=nullptr*/);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") String name, int id);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
+            public FloatVariable(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(FloatNDArray arrayw, @Cast("char*") BytePointer name, int id);
+            public FloatVariable(FloatNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(FloatNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/);
             public FloatVariable() { super((Pointer)null); allocate(); }
             private native void allocate();
-            public FloatVariable(FloatNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(FloatNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/);
+            public FloatVariable(FloatNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(FloatNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/);
 
             public native FloatVariable clone();
 
@@ -7600,20 +7600,20 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public HalfVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
-            public HalfVariable(HalfNDArray arrayw, String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(HalfNDArray arrayw, String name, int id, int idx/*=0*/);
-            public HalfVariable(HalfNDArray arrayw, String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(HalfNDArray arrayw, String name, int id);
-            public HalfVariable(HalfNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(HalfNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/);
-            public HalfVariable(HalfNDArray arrayw, @Cast("const char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(HalfNDArray arrayw, @Cast("const char*") BytePointer name, int id);
-            public HalfVariable(HalfNDArray array/*=nullptr*/, String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(HalfNDArray array/*=nullptr*/, String name/*=nullptr*/);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") String name, int id);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
+            public HalfVariable(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(HalfNDArray arrayw, @Cast("char*") BytePointer name, int id);
+            public HalfVariable(HalfNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(HalfNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/);
             public HalfVariable() { super((Pointer)null); allocate(); }
             private native void allocate();
-            public HalfVariable(HalfNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(HalfNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/);
+            public HalfVariable(HalfNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(HalfNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/);
 
             public native HalfVariable clone();
 
@@ -7667,20 +7667,20 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
             public DoubleVariable(@Cast("bool") boolean placeHolder) { super((Pointer)null); allocate(placeHolder); }
             private native void allocate(@Cast("bool") boolean placeHolder);
-            public DoubleVariable(DoubleNDArray arrayw, String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(DoubleNDArray arrayw, String name, int id, int idx/*=0*/);
-            public DoubleVariable(DoubleNDArray arrayw, String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(DoubleNDArray arrayw, String name, int id);
-            public DoubleVariable(DoubleNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
-            private native void allocate(DoubleNDArray arrayw, @Cast("const char*") BytePointer name, int id, int idx/*=0*/);
-            public DoubleVariable(DoubleNDArray arrayw, @Cast("const char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
-            private native void allocate(DoubleNDArray arrayw, @Cast("const char*") BytePointer name, int id);
-            public DoubleVariable(DoubleNDArray array/*=nullptr*/, String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(DoubleNDArray array/*=nullptr*/, String name/*=nullptr*/);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") String name, int id, int idx/*=0*/);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") String name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") String name, int id);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/) { super((Pointer)null); allocate(arrayw, name, id, idx); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id, int idx/*=0*/);
+            public DoubleVariable(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id) { super((Pointer)null); allocate(arrayw, name, id); }
+            private native void allocate(DoubleNDArray arrayw, @Cast("char*") BytePointer name, int id);
+            public DoubleVariable(DoubleNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(DoubleNDArray array/*=nullptr*/, @Cast("char*") String name/*=nullptr*/);
             public DoubleVariable() { super((Pointer)null); allocate(); }
             private native void allocate();
-            public DoubleVariable(DoubleNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
-            private native void allocate(DoubleNDArray array/*=nullptr*/, @Cast("const char*") BytePointer name/*=nullptr*/);
+            public DoubleVariable(DoubleNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(array, name); }
+            private native void allocate(DoubleNDArray array/*=nullptr*/, @Cast("char*") BytePointer name/*=nullptr*/);
 
             public native DoubleVariable clone();
 
@@ -7753,12 +7753,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
                 return (FloatVariablesSet)super.position(position);
             }
         
-            public FloatVariablesSet(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status) { super((Pointer)null); allocate(status); }
-            private native void allocate(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status);
+            public FloatVariablesSet(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/) { super((Pointer)null); allocate(status); }
+            private native void allocate(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/);
             public FloatVariablesSet() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            public native @ByVal Nd4jStatus status();
+            public native @Cast("Nd4jStatus") int status();
 
             public native int size();
 
@@ -7778,12 +7778,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
                 return (HalfVariablesSet)super.position(position);
             }
         
-            public HalfVariablesSet(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status) { super((Pointer)null); allocate(status); }
-            private native void allocate(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status);
+            public HalfVariablesSet(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/) { super((Pointer)null); allocate(status); }
+            private native void allocate(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/);
             public HalfVariablesSet() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            public native @ByVal Nd4jStatus status();
+            public native @Cast("Nd4jStatus") int status();
 
             public native int size();
 
@@ -7803,12 +7803,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
                 return (DoubleVariablesSet)super.position(position);
             }
         
-            public DoubleVariablesSet(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status) { super((Pointer)null); allocate(status); }
-            private native void allocate(@ByVal(nullValue = "Nd4jStatus(ND4J_STATUS_OK)") Nd4jStatus status);
+            public DoubleVariablesSet(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/) { super((Pointer)null); allocate(status); }
+            private native void allocate(@Cast("Nd4jStatus") int status/*=ND4J_STATUS_OK*/);
             public DoubleVariablesSet() { super((Pointer)null); allocate(); }
             private native void allocate();
 
-            public native @ByVal Nd4jStatus status();
+            public native @Cast("Nd4jStatus") int status();
 
             public native int size();
 
@@ -7943,12 +7943,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
                 return (KeyPair)super.position(position);
             }
         
-            public KeyPair(int node/*=0*/, String name/*=nullptr*/) { super((Pointer)null); allocate(node, name); }
-            private native void allocate(int node/*=0*/, String name/*=nullptr*/);
+            public KeyPair(int node/*=0*/, @Cast("char*") String name/*=nullptr*/) { super((Pointer)null); allocate(node, name); }
+            private native void allocate(int node/*=0*/, @Cast("char*") String name/*=nullptr*/);
             public KeyPair() { super((Pointer)null); allocate(); }
             private native void allocate();
-            public KeyPair(int node/*=0*/, @Cast("const char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(node, name); }
-            private native void allocate(int node/*=0*/, @Cast("const char*") BytePointer name/*=nullptr*/);
+            public KeyPair(int node/*=0*/, @Cast("char*") BytePointer name/*=nullptr*/) { super((Pointer)null); allocate(node, name); }
+            private native void allocate(int node/*=0*/, @Cast("char*") BytePointer name/*=nullptr*/);
 
             public native @Cast("bool") @Name("operator <") boolean lessThan(@Const @ByRef KeyPair other);
         }
@@ -7968,16 +7968,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             private native void allocate();
 
             //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
-            public native void storeArray(int nodeId, String name, FloatNDArray array);
-            public native void storeArray(int nodeId, @Cast("const char*") BytePointer name, FloatNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") String name, FloatNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") BytePointer name, FloatNDArray array);
 
             //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
-            public native @Cast("bool") boolean checkStash(int nodeId, String name);
-            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("const char*") BytePointer name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
             //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
-            public native FloatNDArray extractArray(int nodeId, String name);
-            public native FloatNDArray extractArray(int nodeId, @Cast("const char*") BytePointer name);
+            public native FloatNDArray extractArray(int nodeId, @Cast("char*") String name);
+            public native FloatNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
             public native void clear();
         }
@@ -7997,16 +7997,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             private native void allocate();
 
             //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
-            public native void storeArray(int nodeId, String name, HalfNDArray array);
-            public native void storeArray(int nodeId, @Cast("const char*") BytePointer name, HalfNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") String name, HalfNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") BytePointer name, HalfNDArray array);
 
             //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
-            public native @Cast("bool") boolean checkStash(int nodeId, String name);
-            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("const char*") BytePointer name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
             //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
-            public native HalfNDArray extractArray(int nodeId, String name);
-            public native HalfNDArray extractArray(int nodeId, @Cast("const char*") BytePointer name);
+            public native HalfNDArray extractArray(int nodeId, @Cast("char*") String name);
+            public native HalfNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
             public native void clear();
         }
@@ -8026,16 +8026,16 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             private native void allocate();
 
             //void storeArray(nd4j::graph::Block<T>& block, const char *name, nd4j::NDArray<T> *array);
-            public native void storeArray(int nodeId, String name, DoubleNDArray array);
-            public native void storeArray(int nodeId, @Cast("const char*") BytePointer name, DoubleNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") String name, DoubleNDArray array);
+            public native void storeArray(int nodeId, @Cast("char*") BytePointer name, DoubleNDArray array);
 
             //bool checkStash(nd4j::graph::Block<T>& block, const char *name);
-            public native @Cast("bool") boolean checkStash(int nodeId, String name);
-            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("const char*") BytePointer name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") String name);
+            public native @Cast("bool") boolean checkStash(int nodeId, @Cast("char*") BytePointer name);
 
             //nd4j::NDArray<T>* extractArray(nd4j::graph::Block<T>& block, const char *name);
-            public native DoubleNDArray extractArray(int nodeId, String name);
-            public native DoubleNDArray extractArray(int nodeId, @Cast("const char*") BytePointer name);
+            public native DoubleNDArray extractArray(int nodeId, @Cast("char*") String name);
+            public native DoubleNDArray extractArray(int nodeId, @Cast("char*") BytePointer name);
 
             public native void clear();
         }
@@ -13076,11 +13076,14 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 
 // define macros for compiler enforcement to make function inline  
 // #ifdef __clang__
-public static final int FORCEINLINE = inline; 
-// #elif _MSC_VER 
-// #elif __GNUC__ 
+// #define FORCEINLINE inline 
+// #elif _MSC_VER
+// #define FORCEINLINE __forceinline inline 
+// #elif __GNUC__
+// #define FORCEINLINE __attribute__((always_inline)) inline 
 // #elif __CUDACC__ 
-// #else 
+// #else
+// #define FORCEINLINE inline 
 // #endif
 
 
@@ -13170,10 +13173,10 @@ public static final int FORCEINLINE = inline;
             // default constructor
 
             // constructor for configurable op
-            public OpDescriptor(int numInputs, int numOutputs, String opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, tArgs, iArgs); }
-            private native void allocate(int numInputs, int numOutputs, String opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs);
-            public OpDescriptor(int numInputs, int numOutputs, @Cast("const char*") BytePointer opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, tArgs, iArgs); }
-            private native void allocate(int numInputs, int numOutputs, @Cast("const char*") BytePointer opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs);
+            public OpDescriptor(int numInputs, int numOutputs, @Cast("char*") String opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, tArgs, iArgs); }
+            private native void allocate(int numInputs, int numOutputs, @Cast("char*") String opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs);
+            public OpDescriptor(int numInputs, int numOutputs, @Cast("char*") BytePointer opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, tArgs, iArgs); }
+            private native void allocate(int numInputs, int numOutputs, @Cast("char*") BytePointer opName, @Cast("bool") boolean allowsInplace, int tArgs, int iArgs);
 
             // constructor for non-configurable divergent op
             public OpDescriptor(int numInputs, int numOutputs, @StdString BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, divergent); }
@@ -13184,16 +13187,16 @@ public static final int FORCEINLINE = inline;
             // constructor for non-configurable divergent op
 
             // constructor for configurable divergent op
-            public OpDescriptor(int numInputs, int numOutputs, String opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, divergent, tArgs, iArgs); }
-            private native void allocate(int numInputs, int numOutputs, String opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs);
-            public OpDescriptor(int numInputs, int numOutputs, @Cast("const char*") BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, divergent, tArgs, iArgs); }
-            private native void allocate(int numInputs, int numOutputs, @Cast("const char*") BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs);
+            public OpDescriptor(int numInputs, int numOutputs, @Cast("char*") String opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, divergent, tArgs, iArgs); }
+            private native void allocate(int numInputs, int numOutputs, @Cast("char*") String opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs);
+            public OpDescriptor(int numInputs, int numOutputs, @Cast("char*") BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs) { super((Pointer)null); allocate(numInputs, numOutputs, opName, allowsInplace, divergent, tArgs, iArgs); }
+            private native void allocate(int numInputs, int numOutputs, @Cast("char*") BytePointer opName, @Cast("bool") boolean allowsInplace, @Cast("bool") boolean divergent, int tArgs, int iArgs);
 
             // constructor for logical ops (while, scope, etc)
-            public OpDescriptor(String opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
-            private native void allocate(String opName, @Cast("bool") boolean isLogic);
-            public OpDescriptor(@Cast("const char*") BytePointer opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
-            private native void allocate(@Cast("const char*") BytePointer opName, @Cast("bool") boolean isLogic);
+            public OpDescriptor(@Cast("char*") String opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
+            private native void allocate(@Cast("char*") String opName, @Cast("bool") boolean isLogic);
+            public OpDescriptor(@Cast("char*") BytePointer opName, @Cast("bool") boolean isLogic) { super((Pointer)null); allocate(opName, isLogic); }
+            private native void allocate(@Cast("char*") BytePointer opName, @Cast("bool") boolean isLogic);
 
             // default destructor
 
@@ -13259,8 +13262,8 @@ public static final int FORCEINLINE = inline;
 // #include <chrono>
 // #include <ctime>
 
-        @Namespace("nd4j::ops") public static native @ByVal Nd4jStatus conditionHelper(String file, int line, int condition, int argNumber, String format);
-        @Namespace("nd4j::ops") public static native @ByVal Nd4jStatus conditionHelper(@Cast("const char*") BytePointer file, int line, int condition, int argNumber, @Cast("const char*") BytePointer format);
+        @Namespace("nd4j::ops") public static native @Cast("Nd4jStatus") int conditionHelper(@Cast("char*") String file, int line, int condition, int argNumber, @Cast("char*") String format);
+        @Namespace("nd4j::ops") public static native @Cast("Nd4jStatus") int conditionHelper(@Cast("char*") BytePointer file, int line, int condition, int argNumber, @Cast("char*") BytePointer format);
 
         /**
          * This class is the basic building block of Graph Operations. Any CustomOp out there is built on top of this "abstract" class.
@@ -13315,7 +13318,7 @@ public static final int FORCEINLINE = inline;
              * @param block
              * @return 0 if OK, error code otherwise
              */
-            public native @ByVal Nd4jStatus execute(FloatContext block);
+            public native @Cast("Nd4jStatus") int execute(FloatContext block);
 
             public native FloatResultSet execute(@ByRef FloatNDArrayVector inputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native FloatResultSet execute(@ByRef FloatNDArrayVector inputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs);
@@ -13323,39 +13326,39 @@ public static final int FORCEINLINE = inline;
             public native FloatResultSet execute(@ByRef FloatNDArrayVector inputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs);
             public native FloatResultSet execute(@ByRef FloatNDArrayVector inputs, @StdVector float[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native FloatResultSet execute(@ByRef FloatNDArrayVector inputs, @StdVector float[] tArgs, @StdVector int[] iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector float[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector float[] tArgs, @StdVector int[] iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector float[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef FloatNDArrayVector inputs, @ByRef FloatNDArrayVector outputs, @StdVector float[] tArgs, @StdVector int[] iArgs);
 
             // There methods provide various validation options
-            public native @ByVal Nd4jStatus validateNonEmptyInput(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateNonEmptyInput(@ByRef FloatContext block);
 
             // this method checks if all input arrays have equal lengths
-            public native @ByVal Nd4jStatus validateInputLengthMatch(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateInputLengthMatch(@ByRef FloatContext block);
 
             // this method checks if all input arrays have the same shapes (orders/strides are NOT checked)
-            public native @ByVal Nd4jStatus validateInputDimensionsMatch(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateInputDimensionsMatch(@ByRef FloatContext block);
 
             // this method check if all input arrays have the same orders
-            public native @ByVal Nd4jStatus validateOrdersMatch(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateOrdersMatch(@ByRef FloatContext block);
 
             // this method checks if all input arrays are 2D
-            public native @ByVal Nd4jStatus validateInput2D(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateInput2D(@ByRef FloatContext block);
 
             // this method checks if all input arrays are 3D
-            public native @ByVal Nd4jStatus validateInput3D(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateInput3D(@ByRef FloatContext block);
 
             // this method checks if all input arrays are 4D
-            public native @ByVal Nd4jStatus validateInput4D(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateInput4D(@ByRef FloatContext block);
 
             // this method checks if all input arrays are ND
-            public native @ByVal Nd4jStatus validateInputDimensions(@ByRef FloatContext block, int rank);
+            public native @Cast("Nd4jStatus") int validateInputDimensions(@ByRef FloatContext block, int rank);
 
             // this method checks if number of available arguments matches op expectations
-            public native @ByVal Nd4jStatus validateArguments(@ByRef FloatContext block);
+            public native @Cast("Nd4jStatus") int validateArguments(@ByRef FloatContext block);
         }
         @Name("nd4j::ops::DeclarableOp<float16>") @NoOffset public static class HalfDeclarableOp extends Pointer {
             static { Loader.load(); }
@@ -13406,7 +13409,7 @@ public static final int FORCEINLINE = inline;
              * @param block
              * @return 0 if OK, error code otherwise
              */
-            public native @ByVal Nd4jStatus execute(HalfContext block);
+            public native @Cast("Nd4jStatus") int execute(HalfContext block);
 
             public native HalfResultSet execute(@ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native HalfResultSet execute(@ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs);
@@ -13414,39 +13417,39 @@ public static final int FORCEINLINE = inline;
             public native HalfResultSet execute(@ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs);
             public native HalfResultSet execute(@ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native HalfResultSet execute(@ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef HalfNDArrayVector inputs, @ByRef HalfNDArrayVector outputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs);
 
             // There methods provide various validation options
-            public native @ByVal Nd4jStatus validateNonEmptyInput(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateNonEmptyInput(@ByRef HalfContext block);
 
             // this method checks if all input arrays have equal lengths
-            public native @ByVal Nd4jStatus validateInputLengthMatch(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateInputLengthMatch(@ByRef HalfContext block);
 
             // this method checks if all input arrays have the same shapes (orders/strides are NOT checked)
-            public native @ByVal Nd4jStatus validateInputDimensionsMatch(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateInputDimensionsMatch(@ByRef HalfContext block);
 
             // this method check if all input arrays have the same orders
-            public native @ByVal Nd4jStatus validateOrdersMatch(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateOrdersMatch(@ByRef HalfContext block);
 
             // this method checks if all input arrays are 2D
-            public native @ByVal Nd4jStatus validateInput2D(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateInput2D(@ByRef HalfContext block);
 
             // this method checks if all input arrays are 3D
-            public native @ByVal Nd4jStatus validateInput3D(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateInput3D(@ByRef HalfContext block);
 
             // this method checks if all input arrays are 4D
-            public native @ByVal Nd4jStatus validateInput4D(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateInput4D(@ByRef HalfContext block);
 
             // this method checks if all input arrays are ND
-            public native @ByVal Nd4jStatus validateInputDimensions(@ByRef HalfContext block, int rank);
+            public native @Cast("Nd4jStatus") int validateInputDimensions(@ByRef HalfContext block, int rank);
 
             // this method checks if number of available arguments matches op expectations
-            public native @ByVal Nd4jStatus validateArguments(@ByRef HalfContext block);
+            public native @Cast("Nd4jStatus") int validateArguments(@ByRef HalfContext block);
         }
         @Name("nd4j::ops::DeclarableOp<double>") @NoOffset public static class DoubleDeclarableOp extends Pointer {
             static { Loader.load(); }
@@ -13497,7 +13500,7 @@ public static final int FORCEINLINE = inline;
              * @param block
              * @return 0 if OK, error code otherwise
              */
-            public native @ByVal Nd4jStatus execute(DoubleContext block);
+            public native @Cast("Nd4jStatus") int execute(DoubleContext block);
 
             public native DoubleResultSet execute(@ByRef DoubleNDArrayVector inputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native DoubleResultSet execute(@ByRef DoubleNDArrayVector inputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs);
@@ -13505,39 +13508,39 @@ public static final int FORCEINLINE = inline;
             public native DoubleResultSet execute(@ByRef DoubleNDArrayVector inputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs);
             public native DoubleResultSet execute(@ByRef DoubleNDArrayVector inputs, @StdVector double[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
             public native DoubleResultSet execute(@ByRef DoubleNDArrayVector inputs, @StdVector double[] tArgs, @StdVector int[] iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector double[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
-            public native @ByVal Nd4jStatus execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector double[] tArgs, @StdVector int[] iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector double[] tArgs, @StdVector int[] iArgs, @Cast("bool") boolean isInplace/*=false*/);
+            public native @Cast("Nd4jStatus") int execute(@ByRef DoubleNDArrayVector inputs, @ByRef DoubleNDArrayVector outputs, @StdVector double[] tArgs, @StdVector int[] iArgs);
 
             // There methods provide various validation options
-            public native @ByVal Nd4jStatus validateNonEmptyInput(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateNonEmptyInput(@ByRef DoubleContext block);
 
             // this method checks if all input arrays have equal lengths
-            public native @ByVal Nd4jStatus validateInputLengthMatch(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateInputLengthMatch(@ByRef DoubleContext block);
 
             // this method checks if all input arrays have the same shapes (orders/strides are NOT checked)
-            public native @ByVal Nd4jStatus validateInputDimensionsMatch(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateInputDimensionsMatch(@ByRef DoubleContext block);
 
             // this method check if all input arrays have the same orders
-            public native @ByVal Nd4jStatus validateOrdersMatch(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateOrdersMatch(@ByRef DoubleContext block);
 
             // this method checks if all input arrays are 2D
-            public native @ByVal Nd4jStatus validateInput2D(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateInput2D(@ByRef DoubleContext block);
 
             // this method checks if all input arrays are 3D
-            public native @ByVal Nd4jStatus validateInput3D(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateInput3D(@ByRef DoubleContext block);
 
             // this method checks if all input arrays are 4D
-            public native @ByVal Nd4jStatus validateInput4D(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateInput4D(@ByRef DoubleContext block);
 
             // this method checks if all input arrays are ND
-            public native @ByVal Nd4jStatus validateInputDimensions(@ByRef DoubleContext block, int rank);
+            public native @Cast("Nd4jStatus") int validateInputDimensions(@ByRef DoubleContext block, int rank);
 
             // this method checks if number of available arguments matches op expectations
-            public native @ByVal Nd4jStatus validateArguments(@ByRef DoubleContext block);
+            public native @Cast("Nd4jStatus") int validateArguments(@ByRef DoubleContext block);
         }
     
 
@@ -13565,7 +13568,7 @@ public static final int FORCEINLINE = inline;
         
 
             
-            public native @ByVal Nd4jStatus execute(FloatContext block);
+            public native @Cast("Nd4jStatus") int execute(FloatContext block);
             public native FloatResultSet execute(FloatNDArrayList list, @ByRef FloatNDArrayVector inputs, @StdVector FloatPointer tArgs, @StdVector IntPointer iArgs);
             public native FloatResultSet execute(FloatNDArrayList list, @ByRef FloatNDArrayVector inputs, @StdVector FloatBuffer tArgs, @StdVector IntBuffer iArgs);
             public native FloatResultSet execute(FloatNDArrayList list, @ByRef FloatNDArrayVector inputs, @StdVector float[] tArgs, @StdVector int[] iArgs);
@@ -13579,7 +13582,7 @@ public static final int FORCEINLINE = inline;
         
 
             
-            public native @ByVal Nd4jStatus execute(HalfContext block);
+            public native @Cast("Nd4jStatus") int execute(HalfContext block);
             public native HalfResultSet execute(HalfNDArrayList list, @ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector ShortPointer tArgs, @StdVector IntPointer iArgs);
             public native HalfResultSet execute(HalfNDArrayList list, @ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector ShortBuffer tArgs, @StdVector IntBuffer iArgs);
             public native HalfResultSet execute(HalfNDArrayList list, @ByRef HalfNDArrayVector inputs, @Cast("float16*") @StdVector short[] tArgs, @StdVector int[] iArgs);
@@ -13593,7 +13596,7 @@ public static final int FORCEINLINE = inline;
         
 
             
-            public native @ByVal Nd4jStatus execute(DoubleContext block);
+            public native @Cast("Nd4jStatus") int execute(DoubleContext block);
             public native DoubleResultSet execute(DoubleNDArrayList list, @ByRef DoubleNDArrayVector inputs, @StdVector DoublePointer tArgs, @StdVector IntPointer iArgs);
             public native DoubleResultSet execute(DoubleNDArrayList list, @ByRef DoubleNDArrayVector inputs, @StdVector DoubleBuffer tArgs, @StdVector IntBuffer iArgs);
             public native DoubleResultSet execute(DoubleNDArrayList list, @ByRef DoubleNDArrayVector inputs, @StdVector double[] tArgs, @StdVector int[] iArgs);
@@ -13705,7 +13708,7 @@ public static final int FORCEINLINE = inline;
             public native @Cast("bool") boolean evaluate(@ByRef FloatNDArrayVector args);
             public native @Cast("bool") boolean evaluate(@ByRef FloatContext block);
 
-            public native @ByVal Nd4jStatus execute(FloatContext block);
+            public native @Cast("Nd4jStatus") int execute(FloatContext block);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
         }
@@ -13717,7 +13720,7 @@ public static final int FORCEINLINE = inline;
             public native @Cast("bool") boolean evaluate(@ByRef HalfNDArrayVector args);
             public native @Cast("bool") boolean evaluate(@ByRef HalfContext block);
 
-            public native @ByVal Nd4jStatus execute(HalfContext block);
+            public native @Cast("Nd4jStatus") int execute(HalfContext block);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
         }
@@ -13729,7 +13732,7 @@ public static final int FORCEINLINE = inline;
             public native @Cast("bool") boolean evaluate(@ByRef DoubleNDArrayVector args);
             public native @Cast("bool") boolean evaluate(@ByRef DoubleContext block);
 
-            public native @ByVal Nd4jStatus execute(DoubleContext block);
+            public native @Cast("Nd4jStatus") int execute(DoubleContext block);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
         }
@@ -13762,10 +13765,10 @@ public static final int FORCEINLINE = inline;
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public FloatLogicOp(Pointer p) { super(p); }
         
-            public FloatLogicOp(String name) { super((Pointer)null); allocate(name); }
-            private native void allocate(String name);
-            public FloatLogicOp(@Cast("const char*") BytePointer name) { super((Pointer)null); allocate(name); }
-            private native void allocate(@Cast("const char*") BytePointer name);
+            public FloatLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public FloatLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
         }
@@ -13774,10 +13777,10 @@ public static final int FORCEINLINE = inline;
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public HalfLogicOp(Pointer p) { super(p); }
         
-            public HalfLogicOp(String name) { super((Pointer)null); allocate(name); }
-            private native void allocate(String name);
-            public HalfLogicOp(@Cast("const char*") BytePointer name) { super((Pointer)null); allocate(name); }
-            private native void allocate(@Cast("const char*") BytePointer name);
+            public HalfLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public HalfLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
         }
@@ -13786,10 +13789,10 @@ public static final int FORCEINLINE = inline;
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public DoubleLogicOp(Pointer p) { super(p); }
         
-            public DoubleLogicOp(String name) { super((Pointer)null); allocate(name); }
-            private native void allocate(String name);
-            public DoubleLogicOp(@Cast("const char*") BytePointer name) { super((Pointer)null); allocate(name); }
-            private native void allocate(@Cast("const char*") BytePointer name);
+            public DoubleLogicOp(@Cast("char*") String name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") String name);
+            public DoubleLogicOp(@Cast("char*") BytePointer name) { super((Pointer)null); allocate(name); }
+            private native void allocate(@Cast("char*") BytePointer name);
 
             public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
         }
@@ -13830,7 +13833,7 @@ public static final int FORCEINLINE = inline;
             public static native OpRegistrator getInstance();
 
             
-            public native String getAllCustomOperations();
+            public native @Cast("char*") String getAllCustomOperations();
 
             /**
             * This method registers operation
@@ -13838,17 +13841,17 @@ public static final int FORCEINLINE = inline;
             * @param op
             */
             public native @Cast("bool") boolean registerOperationFloat(FloatDeclarableOp op);
-            public native @Cast("bool") boolean registerOperationFloat(String name, FloatDeclarableOp op);
-            public native @Cast("bool") boolean registerOperationFloat(@Cast("const char*") BytePointer name, FloatDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationFloat(@Cast("char*") String name, FloatDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationFloat(@Cast("char*") BytePointer name, FloatDeclarableOp op);
 
-            public native @Cast("bool") boolean registerOperationDouble(String name, DoubleDeclarableOp op);
-            public native @Cast("bool") boolean registerOperationDouble(@Cast("const char*") BytePointer name, DoubleDeclarableOp op);
-            public native @Cast("bool") boolean registerOperationHalf(String name, HalfDeclarableOp op);
-            public native @Cast("bool") boolean registerOperationHalf(@Cast("const char*") BytePointer name, HalfDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationDouble(@Cast("char*") String name, DoubleDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationDouble(@Cast("char*") BytePointer name, DoubleDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationHalf(@Cast("char*") String name, HalfDeclarableOp op);
+            public native @Cast("bool") boolean registerOperationHalf(@Cast("char*") BytePointer name, HalfDeclarableOp op);
             public native @Cast("bool") boolean registerOperationHalf(HalfDeclarableOp op);
             public native @Cast("bool") boolean registerOperationDouble(DoubleDeclarableOp op);
-            public native FloatDeclarableOp getOperationFloat(String name);
-            public native FloatDeclarableOp getOperationFloat(@Cast("const char*") BytePointer name);
+            public native FloatDeclarableOp getOperationFloat(@Cast("char*") String name);
+            public native FloatDeclarableOp getOperationFloat(@Cast("char*") BytePointer name);
 
 
             /**
@@ -13861,10 +13864,10 @@ public static final int FORCEINLINE = inline;
 
             public native FloatDeclarableOp getOperationFloat(@Cast("Nd4jIndex") long hash);
             public native HalfDeclarableOp getOperationHalf(@Cast("Nd4jIndex") long hash);
-            public native HalfDeclarableOp getOperationHalf(String name);
-            public native HalfDeclarableOp getOperationHalf(@Cast("const char*") BytePointer name);
-            public native DoubleDeclarableOp getOperationDouble(String name);
-            public native DoubleDeclarableOp getOperationDouble(@Cast("const char*") BytePointer name);
+            public native HalfDeclarableOp getOperationHalf(@Cast("char*") String name);
+            public native HalfDeclarableOp getOperationHalf(@Cast("char*") BytePointer name);
+            public native DoubleDeclarableOp getOperationDouble(@Cast("char*") String name);
+            public native DoubleDeclarableOp getOperationDouble(@Cast("char*") BytePointer name);
             public native DoubleDeclarableOp getOperationDouble(@Cast("Nd4jIndex") long hash);
     }
 
