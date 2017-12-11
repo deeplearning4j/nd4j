@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -39,11 +40,16 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             sameDiff.addArgsFor(new SDVariable[]{i_v1, i_v2}, this);
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
-             this.sameDiff = sameDiff;
+            this.sameDiff = sameDiff;
             this.inPlace = inPlace;
             this.dimension = dimension;
+            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + i_v2.getVarName() ,Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape())))
+            sameDiff.addOutgoingFor(new SDVariable[]{var},this);
             sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
+            this.xVertexId = i_v1.getVertexId();
+            this.yVertexId = i_v2.getVertexId();
+            this.zVertexId = var.getVertexId();
 
         } else {
             throw new IllegalArgumentException("Input not null variables.");
@@ -69,6 +75,11 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             f().validateDifferentialFunctionsameDiff(i_v2);
 
             this.sameDiff = sameDiff;
+            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + i_v2.getVarName() ,Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape())))
+            sameDiff.addOutgoingFor(new SDVariable[]{var},this);
+            this.xVertexId = i_v1.getVertexId();
+            this.yVertexId = i_v2.getVertexId();
+            this.zVertexId = var.getVertexId();
             sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), Shape.getBroadcastDimensions(i_v1.getShape(), i_v2.getShape()));
             f().addFunctionEdges(this);
 
@@ -97,6 +108,7 @@ public abstract class BaseBroadcastOp extends BaseOp implements BroadcastOp {
             sameDiff.addArgsFor(new SDVariable[]{i_v}, this);
             f().validateDifferentialFunctionsameDiff(i_v);
             sameDiff.putShapeForVertexId(outputVariables()[0].getVertexId(), shape);
+
             f().addFunctionEdges(this);
 
         } else {

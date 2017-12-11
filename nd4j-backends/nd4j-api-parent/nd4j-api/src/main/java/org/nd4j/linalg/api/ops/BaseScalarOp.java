@@ -25,10 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,6 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     @Getter
     @Setter
     protected Number num;
-    protected IComplexNumber complexNumber;
     public int[] opDimension;
 
 
@@ -52,8 +49,6 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     public BaseScalarOp(INDArray x, INDArray y, INDArray z, long n, Number num) {
         super(x, y, z, n);
         this.num = num;
-        if (x instanceof IComplexNDArray)
-            complexNumber = Nd4j.createComplexNumber(num, 0);
 
         init(x, y, z, n);
     }
@@ -61,26 +56,17 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
     public BaseScalarOp(INDArray x, Number num) {
         super(x);
         this.num = num;
-        if (x instanceof IComplexNDArray)
-            complexNumber = Nd4j.createComplexNumber(num, 0);
-
-        init(x, y, z, n);
+         init(x, y, z, n);
 
     }
 
     public BaseScalarOp(INDArray x, INDArray y, INDArray z, long n, IComplexNumber num) {
         super(x, y, z, n);
-        this.complexNumber = num;
         init(x, y, z, n);
 
     }
 
-    public BaseScalarOp(INDArray x, IComplexNumber num) {
-        super(x);
-        this.complexNumber = num;
-        init(x, y, z, n);
 
-    }
 
 
     public BaseScalarOp(SameDiff sameDiff,SDVariable i_v,Number scalar) {
@@ -99,10 +85,14 @@ public abstract class BaseScalarOp extends BaseOp implements ScalarOp {
         super(sameDiff,inPlace,extraArgs);
         this.scalarValue = scalar;
         if (i_v != null) {
-            val vertexId = sameDiff.graph().nextVertexId();
+            val var = sameDiff.var(i_v.getVarName() + "-" + opName() + "-" + "-output",i_v.getShape());
+            sameDiff.addArgsFor(new SDVariable[] {i_v},this);
+            sameDiff.addOutgoingFor(new int[]{var.getVertexId()},this);
+            this.xVertexId = i_v.getVertexId();
+            this.zVertexId = var.getVertexId();
             f().validateDifferentialFunctionsameDiff(i_v);
             f().addFunctionEdges(i_v);
-            sameDiff.putShapeForVertexId(vertexId,sameDiff.setupFunction(i_v).getShape());
+            sameDiff.putShapeForVertexId(var.getVertexId(),sameDiff.setupFunction(i_v).getShape());
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }
