@@ -2750,6 +2750,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
     @Override
     public Map<Integer, INDArray>  executeGraph(long id, Map<Integer, INDArray> map) {
 
+        this.commit();
+
         val ptrBuffers = new PointerPointer(map.size() * 2);
         val ptrShapes = new PointerPointer(map.size() * 2);
         val ptrIndices = new IntPointer(map.size());

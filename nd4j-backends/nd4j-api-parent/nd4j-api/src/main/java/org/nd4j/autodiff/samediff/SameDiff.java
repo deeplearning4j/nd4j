@@ -4117,6 +4117,7 @@ public class SameDiff {
 
 
     public ByteBuffer asFlatBuffers(@NonNull ExecutorConfiguration configuration) {
+        Nd4j.getExecutioner().commit();
         FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(1024);
 
         val flatVariables = new ArrayList<Integer>();
