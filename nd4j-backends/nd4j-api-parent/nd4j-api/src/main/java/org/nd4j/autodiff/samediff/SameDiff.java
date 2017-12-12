@@ -3197,7 +3197,7 @@ public class SameDiff {
 
         for (val key: keySet) {
             val vx = variableMap.get(key);
-            newMap.put(vx.getVertexId()[0], inputs.get(key));
+            newMap.put(vx.getVertexId(), inputs.get(key));
         }
 
         val result = Nd4j.getExecutioner().executeGraph(this.hashCode(), newMap);
