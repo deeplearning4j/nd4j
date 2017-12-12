@@ -38,9 +38,6 @@ public class ExecutionTests extends BaseNd4jTest {
     public void testStoredGraph_1()  throws Exception {
         Nd4j.create(1);
 
-        Nd4j.getExecutioner().enableDebugMode(true);
-        Nd4j.getExecutioner().enableVerboseMode(true);
-
         val tg = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/reduce_dim.pb.txt").getInputStream());
 
         val array0 = Nd4j.create(3, 3).assign(2.0);
