@@ -66,7 +66,6 @@ public class If extends DifferentialFunction implements CustomOp {
         this.trueBodyExecuted = ifStatement.trueBodyExecuted;
         this.dummyResult = ifStatement.dummyResult;
         sameDiff.addArgsFor(ifStatement.inputVars,this);
-        f().addFunctionEdges(this);
         this.inputVars = ifStatement.inputVars;
         this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),sameDiff.graph().nextVertexId(),0);
         sameDiff.putShapeForVertexId(dummyResult.getVertexId(),new int[]{1,1});

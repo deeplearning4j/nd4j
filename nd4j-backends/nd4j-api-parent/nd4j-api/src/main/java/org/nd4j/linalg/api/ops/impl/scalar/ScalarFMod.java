@@ -14,7 +14,6 @@ package org.nd4j.linalg.api.ops.impl.scalar;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.imports.NoOpNameFoundException;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseScalarOp;
 
@@ -36,13 +35,7 @@ public class ScalarFMod extends BaseScalarOp {
         super(x, num);
     }
 
-    public ScalarFMod(INDArray x, INDArray y, INDArray z, long n, IComplexNumber num) {
-        super(x, y, z, n, num);
-    }
 
-    public ScalarFMod(INDArray x, IComplexNumber num) {
-        super(x, num);
-    }
 
     @Override
     public int opNum() {

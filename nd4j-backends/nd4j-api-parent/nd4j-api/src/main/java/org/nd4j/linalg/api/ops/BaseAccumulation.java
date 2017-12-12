@@ -62,11 +62,10 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             this.dimensions = dimensions;
             f().validateDifferentialFunctionsameDiff(i_v);
             this.keepDims = keepDims;
-            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions));
+            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions),i_v.depth() + 1);
             sameDiff.addOutgoingFor(new int[]{var2.getVertexId()},this);
             this.xVertexId = i_v.getVertexId();
             this.zVertexId = var2.getVertexId();
-            f().addFunctionEdges(this);
 
         } else {
             throw new IllegalArgumentException("Input not null variable.");
@@ -86,12 +85,11 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             f().validateDifferentialFunctionsameDiff(i_v);
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.keepDims = keepDims;
-            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions));
+            val var2 = sameDiff.var(i_v.getVarName() + "-" + opName() + "-output-" + UUID.randomUUID().toString(),Shape.getReducedShape(i_v.getShape(),dimensions),Math.max(i_v.depth(),i_v2.depth()) + 1);
             sameDiff.addOutgoingFor(new int[]{var2.getVertexId()},this);
             this.xVertexId = i_v.getVertexId();
             this.zVertexId = var2.getVertexId();
 
-            f().addFunctionEdges(this);
 
 
         } else {

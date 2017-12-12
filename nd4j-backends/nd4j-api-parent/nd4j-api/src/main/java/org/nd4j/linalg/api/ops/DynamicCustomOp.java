@@ -46,12 +46,11 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         tArguments = new ArrayList<>();
     }
 
-    public DynamicCustomOp(String opName, SameDiff sameDiff, DifferentialFunction[] args) {
+    public DynamicCustomOp(String opName, SameDiff sameDiff, SDVariable[] args) {
         super(sameDiff, args);
         this.opName = opName;
         iArguments = new ArrayList<>();
         tArguments = new ArrayList<>();
-        f().addFunctionEdges(this);
 
     }
 
@@ -144,8 +143,13 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                     else {
                         val newVars = new SDVariable[shapes.size()];
                         val vertexIds = new int[newVars.length];
+                        int maxDepth = args()[0].depth();
+                        for(int i = 1 ; i < args.length; i++) {
+                            maxDepth = Math.min(args[i].depth(),maxDepth);
+                        }
+
                         for(int i = 0; i < shapes.size(); i++) {
-                            val var = sameDiff.var("output-" + opName() + UUID.randomUUID().toString(),shapes.get(i));
+                            val var = sameDiff.var("output-" + opName() + UUID.randomUUID().toString(),shapes.get(i),maxDepth + 1);
                             newVars[i] = var;
                             vertexIds[i] = var.getVertexId();
                         }

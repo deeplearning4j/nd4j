@@ -22,7 +22,6 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.onnx.OnnxGraphMapper;
@@ -49,7 +48,7 @@ public class Reshape extends DynamicCustomOp {
     private int[] shape;
 
     public Reshape(SameDiff sameDiff, SDVariable i_v,int[] shape) {
-        super(null,sameDiff, new DifferentialFunction[]{i_v});
+        super(null,sameDiff, new SDVariable[]{i_v});
         this.shape = shape;
     }
 

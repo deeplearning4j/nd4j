@@ -45,7 +45,8 @@ public abstract class ShapeOp extends BaseOp {
             val vertexId = outputVariables()[0].getVertexId();
             sameDiff.putShapeForVertexId(vertexId,shape);
             sameDiff.addArgsFor(new SDVariable[] {i_v},this);
-            f().addFunctionEdges(this);
+            sameDiff.addOutgoingFor(new int[]{vertexId},this);
+
         } else {
             throw new IllegalArgumentException("Input not null variable.");
         }

@@ -14,14 +14,16 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Data
 @NoArgsConstructor
 @Slf4j
-public abstract class DifferentialFunction implements Differential {
+public abstract class DifferentialFunction {
 
     @Getter
     @Setter
@@ -57,6 +59,9 @@ public abstract class DifferentialFunction implements Differential {
     @JsonIgnore
     protected  boolean arrayInitialized = false;
 
+    @Getter
+    protected String instanceId;
+
 
     /**
      * Initialize the function from the given
@@ -65,6 +70,7 @@ public abstract class DifferentialFunction implements Differential {
      */
     public DifferentialFunction(SameDiff sameDiff,NodeDef nodeDef, Map<String, AttrValue> attributesForNode, GraphDef graph) {
         this.sameDiff = sameDiff;
+        this.instanceId = UUID.randomUUID().toString();
         initFromTensorFlow(nodeDef, sameDiff,attributesForNode ,graph);
     }
 
@@ -75,6 +81,8 @@ public abstract class DifferentialFunction implements Differential {
      */
     public DifferentialFunction(SameDiff sameDiff,onnx.OnnxProto3.NodeProto node,Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
         this.sameDiff = sameDiff;
+        this.instanceId = UUID.randomUUID().toString();
+
         initFromOnnx(node, sameDiff, attributesForNode, graph);
     }
 
@@ -87,6 +95,7 @@ public abstract class DifferentialFunction implements Differential {
     public DifferentialFunction(SameDiff sameDiff,boolean inPlace, Object[] extraArgs) {
         this.sameDiff = sameDiff;
         this.inPlace = inPlace;
+        this.instanceId = UUID.randomUUID().toString();
         this.extraArgs = extraArgs;
 
 
@@ -100,6 +109,7 @@ public abstract class DifferentialFunction implements Differential {
      */
     public DifferentialFunction(SameDiff sameDiff, Object[] extraArgs) {
         this.sameDiff = sameDiff;
+        this.instanceId = UUID.randomUUID().toString();
         this.extraArgs = extraArgs;
 
     }
@@ -111,6 +121,7 @@ public abstract class DifferentialFunction implements Differential {
     public DifferentialFunction(SameDiff sameDiff, boolean inPlace, SDVariable[] args) {
         this.sameDiff = sameDiff;
         this.inPlace = inPlace;
+        this.instanceId = UUID.randomUUID().toString();
         val nodeIds = new int[args.length];
         for(int i = 0; i < args.length; i++) {
             nodeIds[i] = args[i].getVertexId();
@@ -261,10 +272,10 @@ public abstract class DifferentialFunction implements Differential {
     }
 
 
-    @Override
     public List<SDVariable> diff(List<SDVariable> i_v1) {
         List<SDVariable> vals = doDiff(i_v1);
-        for(int i = 0; i < args().length; i++) {
+        val outputVars = outputVariables();
+        for(int i = 0; i < outputVars.length; i++) {
             SDVariable differentialFunction = sameDiff.setupFunction(vals.get(i));
             SDVariable var = sameDiff.getVariableForVertexId(differentialFunction.getVertexId());
             SDVariable grad = var.getGradient();
@@ -428,16 +439,25 @@ public abstract class DifferentialFunction implements Differential {
 
         DifferentialFunction that = (DifferentialFunction) o;
 
-        //if (gradient != null ? !gradient.equals(that.gradient) : that.gradient != null) return false;
-        return true;
+        if (inPlace != that.inPlace) return false;
+        if (isArrayInit != that.isArrayInit) return false;
+        if (arrayInitialized != that.arrayInitialized) return false;
+        if (scalarValue != null ? !scalarValue.equals(that.scalarValue) : that.scalarValue != null) return false;
+        if (!Arrays.equals(dimensions, that.dimensions)) return false;
+        return instanceId != null ? instanceId.equals(that.instanceId) : that.instanceId == null;
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 31;
+        result = 31 * result + (inPlace ? 1 : 0);
+        result = 31 * result + (scalarValue != null ? scalarValue.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(dimensions);
+        result = 31 * result + (isArrayInit ? 1 : 0);
+        result = 31 * result + (arrayInitialized ? 1 : 0);
+        result = 31 * result + (instanceId != null ? instanceId.hashCode() : 0);
         return result;
     }
-
 
     /**
      * The opName of this function in onnx

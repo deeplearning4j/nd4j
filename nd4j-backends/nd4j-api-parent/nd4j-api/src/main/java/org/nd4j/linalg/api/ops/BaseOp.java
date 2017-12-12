@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -51,6 +52,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     protected long numProcessed;
     protected Object[] extraArgs;
     protected boolean passThrough;
+    @Getter
     protected int xVertexId,yVertexId,zVertexId;
     // cached instance, for dataType checks
     protected DataBuffer extraArgz;

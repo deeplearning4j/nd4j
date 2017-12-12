@@ -83,7 +83,6 @@ public class While extends DifferentialFunction implements CustomOp {
         this.dummyResult = whileStatement.dummyResult;
         this.predicate = whileStatement.predicate;
         this.predicateExecution = whileStatement.predicateExecution;
-        f().addFunctionEdges(this);
         this.inputVars = whileStatement.inputVars;
         this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),sameDiff.graph().nextVertexId(),0);
         int[] inputEdges = new int[inputVars.length];
@@ -94,7 +93,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
         sameDiff.addArgsFor(inputEdges,this);
-
+        sameDiff.addOutgoingFor(outputVars,this);
 
     }
 

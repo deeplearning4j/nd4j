@@ -22,7 +22,6 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import com.google.common.primitives.Ints;
 import lombok.val;
 import onnx.OnnxProto3;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
@@ -47,8 +46,8 @@ import java.util.Map;
 public class Transpose extends DynamicCustomOp {
     protected int[] permuteDims;
 
-    public Transpose(SameDiff sameDiff, DifferentialFunction i_v) {
-        super(null,sameDiff,new DifferentialFunction[]{i_v});
+    public Transpose(SameDiff sameDiff, SDVariable i_v) {
+        super(null,sameDiff,new SDVariable[]{i_v});
 
     }
 

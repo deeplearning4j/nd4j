@@ -1,7 +1,6 @@
 package org.nd4j.autodiff.functions;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.Ints;
 import lombok.Data;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -22,11 +21,12 @@ import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
 import org.nd4j.linalg.api.shape.Shape;
-import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  *
@@ -209,7 +209,7 @@ public class DifferentialFunctionFactory   {
 
 
     public SDVariable gradientBackwardsMarker(SDVariable iX) {
-        return new GradientBackwardsMarker(sameDiff(),iX,iX).outputVariables()[0];
+        return new GradientBackwardsMarker(sameDiff(),iX,sameDiff.scalar(iX.getVarName() + "-pairgrad" ,1.0)).outputVariables()[0];
     }
 
 
@@ -970,65 +970,6 @@ public class DifferentialFunctionFactory   {
         return ArrayUtil.prod(inputShape);
     }
 
-
-    /**
-     * Adds function edges to the same diff graph
-     * based on inputs and the current target op.
-     * Note that the op *must* have a vertex id defined.
-     * If not, an {@link ND4JIllegalStateException}
-     * is thrown
-     * @param op the operation to add edges to
-     */
-    public void addFunctionEdges(DifferentialFunction op) {
-        SDVariable[] inputs = op.args();
-        for (SDVariable input : inputs) {
-            validateDifferentialFunctionGraph(input);
-        }
-
-
-        if(op.outputVariables() == null) {
-            throw new ND4JIllegalStateException("Op must have a vertex id defined!");
-        }
-
-
-        String opName = op.opName();
-
-        List<int[]> outputShapes = op.calculateOutputShape();
-        int[] outputVertexIds = new int[outputShapes.size()];
-        List<Integer> inputIdsList = new ArrayList<>();
-        for (int i = 0; i < inputs.length; i++) {
-            SDVariable differentialFunction = inputs[i];
-            inputIdsList.addAll(Ints.asList(differentialFunction.getVertexId()));
-
-        }
-
-
-        /**
-         * Need to do something about in place operations.
-         * Due to how variables are handled, we need to make sure array references are updated properly.
-         *
-         */
-        DifferentialFunction[] outputFunctions = new DifferentialFunction[outputShapes.size()];
-        SDVariable[] resultInfo = new SDVariable[outputShapes.size()];
-        if(outputShapes.size() > 1) {
-            throw new ND4JIllegalStateException("Automatically generating edges assumes *only* 1 output for now. Consider using DynamicCustomOp for multi output");
-        }
-
-
-        int[] inputIds = Ints.toArray(inputIdsList);
-
-
-        /**
-         * Create 1 opstate with all of the vertex ids
-         * with all inputs and outputs representing the edge.
-         */
-        sameDiff.graph().addEdge(
-                inputIds,
-                outputVertexIds, op, true);
-
-
-
-    }
 
 
 

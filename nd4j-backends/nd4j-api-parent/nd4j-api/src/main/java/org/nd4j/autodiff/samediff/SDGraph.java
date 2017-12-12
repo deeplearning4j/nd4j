@@ -43,10 +43,10 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
     @Builder
     private SDGraph(boolean allowMultipleEdges,
-                    Map<int[], List<Edge<DifferentialFunction>>> edges,
+                    Map<int[], Set<Edge<DifferentialFunction>>> edges,
                     Map<Integer, Vertex<SDVariable>> vertices,
                     boolean frozen,
-                    Map<int[], List<Edge<DifferentialFunction>>> incomingEdges,
+                    Map<int[], Set<Edge<DifferentialFunction>>> incomingEdges,
                     SameDiff sameDiff) {
         super(allowMultipleEdges, edges, vertices, frozen, incomingEdges);
         this.sameDiff = sameDiff;
@@ -150,9 +150,9 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
             }
 
 
-            Set<Edge<DifferentialFunction>> allEdges = new HashSet<>();
-            Collection<List<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
-            for(List<Edge<DifferentialFunction>> edge : outgoingEdges) {
+            Set<Edge<DifferentialFunction>> allEdges = new LinkedHashSet<>();
+            Collection<Set<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
+            for(Set<Edge<DifferentialFunction>> edge : outgoingEdges) {
                 allEdges.addAll(edge);
             }
 
@@ -169,7 +169,7 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
 
             List<IntArrayKeyMap.IntArray> vertices = new ArrayList<>();
-            for(List<Edge<DifferentialFunction>> edge : getEdges().values())  {
+            for(Set<Edge<DifferentialFunction>> edge : getEdges().values())  {
                 for(Edge<DifferentialFunction> edge1 : edge) {
                     if(!vertices.contains(new IntArrayKeyMap.IntArray(edge1.getTo()))) {
                         vertices.add(new IntArrayKeyMap.IntArray(edge1.getTo()));
@@ -221,10 +221,8 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
                     continue;
                 }
 
-                int numInputs = Math.max(1, getVertexInDegree(order[i][0]));
-                int inputsCount = 0;
-                List<Integer> inputIdsList = new ArrayList<>();
-                List<Edge<DifferentialFunction>> inputStrings = getIncomingEdges().get(order[i]);
+                Set<Integer> inputIdsList = new LinkedHashSet<>();
+                Set<Edge<DifferentialFunction>> inputStrings = getIncomingEdges().get(order[i]);
                 List<SDVariable> inputInfo = new ArrayList<>();
                 //get the inputs for this this output array
                 for (Edge<DifferentialFunction> edge : inputStrings) {
@@ -232,13 +230,12 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
                     for(int input : edge.getFrom())  {
                         Preconditions.checkNotNull(getVariableForVertex(input));
                         inputInfo.add(getVariableForVertex(input));
-                        inputsCount++;
                     }
                 }
 
                 // Preconditions.checkState(inputsCount == numInputs, "Not all inputs were filled.");
                 //add edges
-                Edge<DifferentialFunction> edge = inputStrings.get(0);
+                Edge<DifferentialFunction> edge = inputStrings.iterator().next();
                 if(!seenStates.contains(edge.getTo())) {
                     ret.add(OpExecAction.builder()
                             .inputsIds(Ints.toArray(inputIdsList))
@@ -290,7 +287,7 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
      */
     public int[][] topologicalSort(boolean reverse) {
         List<int[]> vertices = new ArrayList<>();
-        for(List<Edge<DifferentialFunction>> edge : getEdges().values())  {
+        for(Set<Edge<DifferentialFunction>> edge : getEdges().values())  {
             for(Edge<DifferentialFunction> edge1 : edge) {
                 if(!ArrayUtil.listOfIntsContains(vertices,edge1.getTo())) {
                     vertices.add(edge1.getTo());
@@ -328,8 +325,8 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
 
             Set<Edge<DifferentialFunction>> allEdges = new HashSet<>();
-            Collection<List<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
-            for(List<Edge<DifferentialFunction>> edge : outgoingEdges) {
+            Collection<Set<Edge<DifferentialFunction>>> outgoingEdges = getEdges().values();
+            for(Set<Edge<DifferentialFunction>> edge : outgoingEdges) {
                 allEdges.addAll(edge);
             }
 
@@ -444,8 +441,8 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
     public int getMaxDepth(int vertexIdx) {
         int ret = -1;
-            if(getVertex(vertexIdx).depth() > ret)
-                ret = getVertex(vertexIdx).depth();
+        if(getVertex(vertexIdx).depth() > ret)
+            ret = getVertex(vertexIdx).depth();
         return ret;
     }
     /**

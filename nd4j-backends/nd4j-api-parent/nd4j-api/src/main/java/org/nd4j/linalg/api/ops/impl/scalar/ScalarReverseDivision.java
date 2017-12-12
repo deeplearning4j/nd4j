@@ -21,7 +21,6 @@ package org.nd4j.linalg.api.ops.impl.scalar;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseScalarOp;
 
@@ -45,13 +44,8 @@ public class ScalarReverseDivision extends BaseScalarOp {
         super(x, num);
     }
 
-    public ScalarReverseDivision(INDArray x, INDArray y, INDArray z, long n, IComplexNumber num) {
-        super(x, y, z, n, num);
-    }
 
-    public ScalarReverseDivision(INDArray x, IComplexNumber num) {
-        super(x, num);
-    }
+
 
     public ScalarReverseDivision(SameDiff sameDiff, SDVariable i_v, Number scalar) {
         super(sameDiff, i_v, scalar);

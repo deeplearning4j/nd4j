@@ -76,8 +76,8 @@ public class SameDiff {
     //
     private Map<int[],DifferentialFunction> incomingArgs;
     private Map<int[],DifferentialFunction> outgoingArgs;
-    private IdentityHashMap<DifferentialFunction,int[]> incomingArgsReverse;
-    private IdentityHashMap<DifferentialFunction,int[]> ougoingArgsReverse;
+    private Map<String,int[]> incomingArgsReverse;
+    private Map<String,int[]> ougoingArgsReverse;
     //index of edges
     private Table<IntArrayKeyMap.IntArray,IntArrayKeyMap.IntArray,DifferentialFunction> fromToTable;
 
@@ -98,10 +98,11 @@ public class SameDiff {
     private MemoryWorkspace workspace;
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
-    private Set<DifferentialFunction> functionInstances;
 
     private static Cloner cloner = new Cloner();
     private static Map<String,Method> opMethods;
+
+    private  Map<String,DifferentialFunction> functionInstancesById;
 
 
     //debug mode variables
@@ -174,7 +175,7 @@ public class SameDiff {
 
         }
 
-        for(List<Edge<DifferentialFunction>> edgeList : graph().getEdges().values()) {
+        for(Set<Edge<DifferentialFunction>> edgeList : graph().getEdges().values()) {
             for(Edge<DifferentialFunction> edge : edgeList) {
                 EdgeId newEdge = new EdgeId(
                         new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
@@ -188,11 +189,15 @@ public class SameDiff {
 
         for(val edgeList : graph().getIncomingEdges().values()) {
             for(val edge : edgeList) {
+                val newFrom = new int[]{thisVertexIdToNew.get(edge.getFrom()[0])};
+                val newTo =  new int[]{thisVertexIdToNew.get(edge.getTo()[0])};
                 EdgeId newEdge = new EdgeId(
-                        new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
-                        new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
+                        newFrom,
+                        newTo,
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
                 sameDiff.graph().addEdge(newEdge);
+                sameDiff.addArgsFor(newFrom,newEdge.getValue());
+                sameDiff.addOutgoingFor(newTo,newEdge.getValue());
 
             }
         }
@@ -223,19 +228,30 @@ public class SameDiff {
 
         }
 
-
-        for(DifferentialFunction function : functionInstances)  {
-            int newVertexId = thisVertexIdToNew.get(function.outputVariables()[0].getVertexId());
+        val newFunctions = new LinkedHashMap<String,DifferentialFunction>();
+        for(DifferentialFunction function : this.fromToTable.values())  {
             DifferentialFunction clone = cloner.deepCloneDontCloneInstances(
                     function,
                     function.getSameDiff());
             clone.setSameDiff(sameDiff);
-            sameDiff.addFunction(clone);
+            newFunctions.put(function.getInstanceId(),clone);
             for(DifferentialFunction clonedArgs : clone.args()) {
                 clonedArgs.setSameDiff(sameDiff);
             }
 
 
+        }
+
+        for(val entry : this.fromToTable.rowMap().entrySet()) {
+            val oldFrom = entry.getKey().getBackingArray();
+            val oldTo = entry.getValue().keySet().iterator().next().getBackingArray();
+
+            val currFunc = entry.getValue().values().iterator().next();
+            val reMappedFrom = new IntArrayKeyMap.IntArray(new int[]{thisVertexIdToNew.get(oldFrom[0])});
+            val reMappedTo =  new IntArrayKeyMap.IntArray(new int[]{thisVertexIdToNew.get(oldTo[0])});
+            currFunc.setSameDiff(sameDiff);
+            sameDiff.fromToTable.put(reMappedFrom,reMappedTo,newFunctions.get(currFunc.getInstanceId()));
+            sameDiff.functionInstancesById.put(currFunc.getInstanceId(),currFunc);
         }
 
         sameDiff.reverseArrayLookup.putAll(reverseArrayLookup);
@@ -247,11 +263,15 @@ public class SameDiff {
 
 
     /**
-     * Add a function
-     * @param differentialFunction
+     * Get the function by the {@link DifferentialFunction#getInstanceId()}
+     * @param id the id of the function
+     * @return the function for the given id if it exists
      */
-    public void addFunction(DifferentialFunction differentialFunction) {
-        functionInstances.add(differentialFunction);
+    public DifferentialFunction getFunctionById(String id) {
+        if(!functionInstancesById.containsKey(id)) {
+            throw new ND4JIllegalStateException("No function with id " + id + " found!");
+        }
+        return functionInstancesById.get(id);
     }
 
 
@@ -262,7 +282,7 @@ public class SameDiff {
      * @return the input ids for a given function
      */
     public int[] getInputsForFunction(DifferentialFunction function) {
-        return incomingArgsReverse.get(function);
+        return incomingArgsReverse.get(function.getInstanceId());
     }
 
     /**
@@ -272,7 +292,7 @@ public class SameDiff {
      * @return the outputs ids for a given function
      */
     public int[] getOutputsForFunction(DifferentialFunction function) {
-        return ougoingArgsReverse.get(function);
+        return ougoingArgsReverse.get(function.getInstanceId());
     }
 
 
@@ -618,7 +638,6 @@ public class SameDiff {
         variableMap = new LinkedHashMap<>();
         sameDiffFunctionDefinitionMap = new LinkedHashMap<>();
         sameDiffFunctionInstances = new LinkedHashMap<>();
-        functionInstances = new LinkedHashSet<>();
         vertexIdToVariable = new LinkedHashMap<>();
         gradients = new LinkedHashMap<>();
         forwardVarForGrad = new LinkedHashMap<>();
@@ -635,6 +654,7 @@ public class SameDiff {
         outgoingArgs = new IntArrayKeyMap<>();
         incomingArgsReverse = new IdentityHashMap<>();
         ougoingArgsReverse = new IdentityHashMap<>();
+        this.functionInstancesById = new HashMap<>();
         fromToTable = HashBasedTable.create();
 
     }
@@ -701,15 +721,18 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Outgoing arguments already declared for "  + function);
         }
 
-        if(ougoingArgsReverse.containsKey(function)) {
+        if(function.getInstanceId() == null)
+            throw new ND4JIllegalStateException("Instance id can not be null. Function not initialized properly");
+
+        if(ougoingArgsReverse.containsKey(function.getInstanceId())) {
             throw new ND4JIllegalStateException("Outgoing arguments already declared for " + function);
         }
 
 
-        ougoingArgsReverse.put(function,vertexIds);
+        ougoingArgsReverse.put(function.getInstanceId(),vertexIds);
         outgoingArgs.put(vertexIds,function);
 
-        val incomingArgs = incomingArgsReverse.get(function);
+        val incomingArgs = incomingArgsReverse.get(function.getInstanceId());
         graph().addEdge(incomingArgs,vertexIds,function,true);
         fromToTable.put(new IntArrayKeyMap.IntArray(incomingArgs),new IntArrayKeyMap.IntArray(vertexIds),function);
 
@@ -723,12 +746,12 @@ public class SameDiff {
      * @param function
      */
     public void addArgsFor(SDVariable[] variables,DifferentialFunction function) {
-       int[] vertexIds = new int[variables.length];
-       for(int i = 0; i < vertexIds.length; i++) {
-           vertexIds[i] = variables[i].getVertexId();
-       }
+        int[] vertexIds = new int[variables.length];
+        for(int i = 0; i < vertexIds.length; i++) {
+            vertexIds[i] = variables[i].getVertexId();
+        }
 
-       addArgsFor(vertexIds,function);
+        addArgsFor(vertexIds,function);
     }
 
 
@@ -743,12 +766,16 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Incoming arguments already declared for "  + function);
         }
 
-        if(incomingArgsReverse.containsKey(function)) {
-            throw new ND4JIllegalStateException("Incoming arguments already declared for " + function);
+        if(function.getInstanceId() == null)
+            throw new ND4JIllegalStateException("Instance id can not be null. Function not initialized properly");
+
+
+        if(incomingArgsReverse.containsKey(function.getInstanceId())) {
+           throw new ND4JIllegalStateException("Attempting to add duplicate function for function id " + function.getInstanceId());
         }
 
 
-        incomingArgsReverse.put(function,vertexIds);
+        incomingArgsReverse.put(function.getInstanceId(),vertexIds);
         incomingArgs.put(vertexIds,function);
     }
 
@@ -762,6 +789,11 @@ public class SameDiff {
      */
     public DifferentialFunction getFunction(int[] inputArgs,int[] outputArgs) {
         return fromToTable.get(new IntArrayKeyMap.IntArray(inputArgs),new IntArrayKeyMap.IntArray(outputArgs));
+    }
+
+    public DifferentialFunction[] functions() {
+        val values  = fromToTable.values();
+        return values.toArray(new DifferentialFunction[values.size()]);
     }
 
 
@@ -1168,7 +1200,7 @@ public class SameDiff {
      * @return the gradient for this variable or null
      */
     public SDVariable getGradForVertexId(int...vertexId) {
-        return gradients.get(vertexId);
+        return gradients.get(vertexId[0]);
     }
 
 
@@ -3406,7 +3438,7 @@ public class SameDiff {
 
 
 
-                    Set<DifferentialFunction> seen = new LinkedHashSet<>();
+                    Set<String> seen = new LinkedHashSet<>();
 
                     for(OpExecAction action : opOrder) {
                         if(action == null) {
@@ -3427,8 +3459,8 @@ public class SameDiff {
                         for(int i = 0; i < currFunction.args().length; i++) {
                             DifferentialFunction differentialFunction = sameDiff.setupFunction(backwardResult.get(i));
                             DifferentialFunction x  = sameDiff.setupFunction(currFunction.args()[i]);
-                            if(!seen.contains(x)) {
-                                seen.add(x);
+                            if(!seen.contains(x.getInstanceId())) {
+                                seen.add(x.getInstanceId());
 
                                 if (isDebugMode()) {
                                     SDVariable[] add = x.outputVariables();
@@ -3609,7 +3641,7 @@ public class SameDiff {
 
         }
 
-        for(val function : functionInstances) {
+        for(val function : fromToTable.values()) {
             val inputVertexIds = incomingArgsReverse.get(function);
             val outputArgs = ougoingArgsReverse.get(function);
             if(outputArgs == null) {
@@ -3632,35 +3664,6 @@ public class SameDiff {
             }
         }
 
-/*
-        for(val variable : variableMap.values()) {
-           // val func = getFunctionForVertexId(variable.getVertexId());
-            if(variable.getArr() == null) {
-                int[] shape = getShapeForVertexId(variable.getVertexId());
-                if (shape == null) {
-                    if(func != null) {
-                        func.initWithArrays(arrays);
-                        shape =  func.calculateOutputShape().get(0);
-                        putShapeForVertexId(variable.getVertexId(),shape);
-                        if(getArrForVertexId(variable.getVertexId()) == null)
-                            variable.storeAndAllocateNewArray();
-                    }
-                    else if(shape != null &&  getArrForVertexId(variable.getVertexId()) == null) {
-                        variable.storeAndAllocateNewArray();
-                    }
-                    else
-                        throw new ND4JIllegalStateException("No shape found for variable " + variable.getVarName());
-                }
-                else  if(getArrForVertexId(variable.getVertexId()) == null) {
-                    variable.storeAndAllocateNewArray();
-                }
-            }
-
-            if(func != null)
-                func.initOutputWithArrays(arrays);
-
-        }
-*/
 
 
         //declare resolved
@@ -3753,7 +3756,7 @@ public class SameDiff {
     public Pair<Map<SDVariable,DifferentialFunction>,List<DifferentialFunction>> execWithPlaceHolder(Map<String,INDArray> inputs) {
         resolveVariablesWith(inputs);
         //resolve the place holders
-        for(DifferentialFunction function : functionInstances) {
+        for(DifferentialFunction function : fromToTable.values()) {
             function.initWithArrays(inputs);
         }
 
@@ -4160,7 +4163,7 @@ public class SameDiff {
         }
 
         //add functions
-        for(val func : functionInstances) {
+        for(val func : fromToTable.values()) {
             flatNodes.add(asFlatNode(func,bufferBuilder));
         }
 

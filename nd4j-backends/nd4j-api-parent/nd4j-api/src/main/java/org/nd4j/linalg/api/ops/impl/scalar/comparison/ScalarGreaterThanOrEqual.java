@@ -21,7 +21,6 @@ package org.nd4j.linalg.api.ops.impl.scalar.comparison;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseScalarOp;
 
@@ -44,9 +43,6 @@ public class ScalarGreaterThanOrEqual extends BaseScalarOp {
         super(x, num);
     }
 
-    public ScalarGreaterThanOrEqual(INDArray x, INDArray y, INDArray z, long n, IComplexNumber num) {
-        super(x, y, z, n, num);
-    }
 
     public ScalarGreaterThanOrEqual(SameDiff sameDiff, SDVariable i_v, Number scalar) {
         super(sameDiff, i_v, scalar);
