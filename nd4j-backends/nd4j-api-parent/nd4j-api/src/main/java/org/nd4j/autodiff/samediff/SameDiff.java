@@ -12,7 +12,6 @@ import org.bytedeco.javacpp.BytePointer;
 import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
-import org.nd4j.autodiff.graph.api.Edge;
 import org.nd4j.autodiff.opstate.EdgeId;
 import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.opstate.OpExecAction;
@@ -180,22 +179,20 @@ public class SameDiff {
 
         }
 
-        for(Set<Edge<DifferentialFunction>> edgeList : graph().getEdges().values()) {
-            for(Edge<DifferentialFunction> edge : edgeList) {
-                EdgeId newEdge = new EdgeId(
-                        new int[]{thisVertexIdToNew.get(edge.getFrom()[0])},
-                        new int[]{thisVertexIdToNew.get(edge.getTo()[0])},
-                        cloner.deepCloneDontCloneInstances(edge.getValue()),true);
-
-                sameDiff.graph().addEdge(newEdge);
-            }
-        }
 
 
-        for(val edgeList : graph().getIncomingEdges().values()) {
-            for(val edge : edgeList) {
-                val newFrom = new int[]{thisVertexIdToNew.get(edge.getFrom()[0])};
-                val newTo =  new int[]{thisVertexIdToNew.get(edge.getTo()[0])};
+        for(val row : fromToTable.rowMap().entrySet()) {
+            for(val edge : row.getValue().entrySet()) {
+                val newFrom = new int[row.getKey().getBackingArray().length];
+                for(int i = 0; i < row.getKey().getBackingArray().length; i++) {
+                    newFrom[i] = thisVertexIdToNew.get(row.getKey().getBackingArray()[i]);
+                }
+
+                val newTo = new int[edge.getKey().getBackingArray().length];
+                for(int i = 0; i < edge.getKey().getBackingArray().length; i++) {
+                    newTo[i] = thisVertexIdToNew.get(edge.getKey().getBackingArray()[i]);
+                }
+
                 EdgeId newEdge = new EdgeId(
                         newFrom,
                         newTo,
@@ -3755,9 +3752,20 @@ public class SameDiff {
                 if(customOp.numOutputArguments() < 1) {
                     val args = function.outputVariables();
                     for(int i = 0; i < args.length; i++) {
-                        val arr = getArrForVertexId(args[i].getVertexId());
+                        INDArray arr = getArrForVertexId(args[i].getVertexId());
+                        val shape = getShapeForVertexId(args[i].getVertexId());
+                        if(shape == null) {
+                            val shapes = function.calculateOutputShape();
+                            if(shapes.size() != args.length) {
+                                throw new ND4JIllegalStateException("Op " + function.opName() + " can not compute shapes. Number of shapes from calculateOutputShapes() not same length as number of outputs from outputVariables() ");
+                            }
+                            for(int j = 0; j < args.length; j++) {
+                                putShapeForVertexId(args[j].getVertexId(),shapes.get(i));
+                            }
+                        }
+
                         if(arr == null) {
-                            throw new ND4JIllegalStateException("Op " + function.opName() + " not initialized!");
+                            arr = args[i].storeAndAllocateNewArray();
                         }
 
                         customOp.addOutputArgument(arr);

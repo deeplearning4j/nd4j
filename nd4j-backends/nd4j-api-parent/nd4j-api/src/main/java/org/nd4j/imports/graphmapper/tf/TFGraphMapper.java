@@ -373,17 +373,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
                 val opStateEdge = getOpStateEdge(indices.getFirst(),indices.getSecond(),tfNode,newInstance);
                 diff.graph().addEdge(opStateEdge);
-                diff.addArgsFor(indices.getRight(),newInstance);
+                diff.addArgsFor(indices.getFirst(),newInstance);
                 //make sure variables are properly mapped
                 if(diff.getVariable(TFGraphMapper.getInstance().getNodeName(tfNode.getName())) == null)
                     diff.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'),indices.getRight()[0]);
                 newInstance.setSameDiff(importState.getSameDiff());
 
                 newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
-                if(tfNode.getInputCount() != newInstance.args().length) {
-                    throw new ND4JIllegalStateException("Illegal number of arguments imported " + tfNode.getInputCount() + " with function args being resolved to " + newInstance.args().length);
-                }
-             /*   if(!diff.shapeAlreadyExistsForVertexId(indices.getRight()) && newInstance.getResultShape() != null)
+                diff.addOutgoingFor(indices.getSecond(),newInstance);
+               /*   if(!diff.shapeAlreadyExistsForVertexId(indices.getRight()) && newInstance.getResultShape() != null)
                     diff.putShapeForVertexId(indices.getRight(),newInstance.getResultShape());
 */
 

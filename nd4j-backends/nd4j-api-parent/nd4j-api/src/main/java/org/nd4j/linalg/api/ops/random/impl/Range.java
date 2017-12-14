@@ -81,8 +81,8 @@ public class Range extends DynamicCustomOp {
         val start = TFGraphMapper.getInstance().getNDArrayFromTensor("value",startNode,graph);
         val end = TFGraphMapper.getInstance().getNDArrayFromTensor("value",endNode,graph);
         val delta = TFGraphMapper.getInstance().getNDArrayFromTensor("value",deltaNode,graph);
-        val outputVars = outputVariables();
         if(start != null && end != null && delta != null) {
+            val outputVars = outputVariables();
             this.from = start.getDouble(0);
             this.to = end.getDouble(0);
             this.delta = delta.getDouble(0);

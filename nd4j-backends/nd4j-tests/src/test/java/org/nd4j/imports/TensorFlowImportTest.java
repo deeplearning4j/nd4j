@@ -442,6 +442,7 @@ public class TensorFlowImportTest {
         val graph = FlatGraph.getRootAsFlatGraph(fb);
         assertEquals(22, graph.variablesLength());
 
+        assertTrue(graph.nodesLength() > 1);
         assertEquals("strided_slice", graph.nodes(0).name());
         assertEquals("TensorArray", graph.nodes(1).name());
 

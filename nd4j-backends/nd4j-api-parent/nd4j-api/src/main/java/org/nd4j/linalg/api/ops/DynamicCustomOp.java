@@ -184,8 +184,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     public long opHash() {
         if (hash == 0) {
             val map = Nd4j.getExecutioner().getCustomOperations();
-            val lcName = opName().toLowerCase();
-            val desc = map.get(lcName);
+            val desc = map.get(opName());
             if(desc == null) {
                 System.out.println(map.keySet());
                 System.out.println(DifferentialFunctionClassHolder.getInstance().missingOps());
