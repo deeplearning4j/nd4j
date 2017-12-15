@@ -83,6 +83,9 @@ public class Pooling3D extends DynamicCustomOp {
     }
 
     public String getPoolingPrefix() {
+        if(config == null)  {
+            return "";
+        }
         switch(config.getType()) {
             case AVG:return "avg";
             case MAX: return "max";

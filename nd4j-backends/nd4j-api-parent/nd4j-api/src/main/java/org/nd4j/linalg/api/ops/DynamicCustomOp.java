@@ -128,48 +128,24 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public SDVariable[] outputVariables() {
         if(this.outputVariables == null) {
-            int[] to = null;
-            if(to == null) {
-                val args = args();
-                List<Integer> ids = new ArrayList<>();
-                for(int i = 0; i < args.length; i++) {
-                    ids.addAll(Ints.asList(args[i].getVertexId()));
+
+            val shapes = calculateOutputShape();
+            if(shapes.isEmpty())
+                throw new ND4JIllegalStateException("Unable to find to vertex id output functions for vertex ");
+            else {
+                val newVars = new SDVariable[shapes.size()];
+
+                for(int i = 0; i < shapes.size(); i++) {
+                    val var = sameDiff.var("output-" + opName() + UUID.randomUUID().toString(),shapes.get(i));
+                    newVars[i] = var;
+                    val arr = var.storeAndAllocateNewArray();
+                    addOutputArgument(arr);
                 }
 
-                to = sameDiff.graph().getToFor(Ints.toArray(ids));
-                if(to == null) {
-                    val shapes = calculateOutputShape();
-                    if(shapes.isEmpty())
-                        throw new ND4JIllegalStateException("Unable to find to vertex id output functions for vertex " + Arrays.toString(to));
-                    else {
-                        val newVars = new SDVariable[shapes.size()];
-                        val vertexIds = new int[newVars.length];
-                        int maxDepth = args()[0].depth();
-                        for(int i = 1 ; i < args.length; i++) {
-                            maxDepth = Math.min(args[i].depth(),maxDepth);
-                        }
-
-                        for(int i = 0; i < shapes.size(); i++) {
-                            val var = sameDiff.var("output-" + opName() + UUID.randomUUID().toString(),shapes.get(i),maxDepth + 1);
-                            newVars[i] = var;
-                            vertexIds[i] = var.getVertexId();
-                            val arr = var.storeAndAllocateNewArray();
-                            addOutputArgument(arr);
-                        }
-
-                        outputVariables = newVars;
-                        sameDiff.addOutgoingFor(vertexIds,this);
-                        return newVars;
-                    }
-                }
+                outputVariables = newVars;
+                return newVars;
             }
 
-            List<SDVariable> funcs = new ArrayList<>();
-            for(int i : to) {
-                funcs.add(sameDiff.getVariableForVertexId(i));
-            }
-
-            this.outputVariables = funcs.toArray(new SDVariable[funcs.size()]);
         }
 
         return outputVariables;
@@ -344,7 +320,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public List<int[]> calculateOutputShape() {
         for(val arg : args()) {
-            if(sameDiff.isPlaceHolder(arg.getVertexId()) && !sameDiff.shapeAlreadyExistsForVertexId(arg.getVertexId()))
+            if(sameDiff.isPlaceHolder(arg.getVarName()) && !sameDiff.shapeAlreadyExistsForVarName(arg.getVarName()))
                 return Collections.emptyList();
         }
 
@@ -486,11 +462,11 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
              *
              */
             for(val function : outputFunctions) {
-                INDArray arr = sameDiff.getArrForVertexId(function.getVertexId());
+                INDArray arr = sameDiff.getArrForVarName(function.getVarName());
                 if(arr == null) {
-                    val var = sameDiff.getVariableForVertexId(function.getVertexId());
+                    val var = sameDiff.getVariable(function.getVarName());
                     arr = var.getWeightInitScheme().create(function.getShape());
-                    sameDiff.putArrayForVertexId(function.getVertexId(),arr);
+                    sameDiff.putArrayForVarName(function.getVarName(),arr);
                 }
 
                 addOutputArgument(arr);
@@ -521,12 +497,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
 
         for(int i = 0; i < args().length; i++) {
-            val var = sameDiff.getVariableForVertexId(args()[i].getVertexId());
+            val var = sameDiff.getVariable(args()[i].getVarName());
             val func = args[i];
 
             if(var != null) {
                 if(var.getArr() == null) {
-                    int[] shape = sameDiff.getShapeForVertexId(var.getVertexId());
+                    int[] shape = sameDiff.getShapeForVarName(var.getVarName());
                     if(shape == null) {
                         shape = func.getShape();
                     }
@@ -534,7 +510,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                         throw new ND4JIllegalStateException("Unable to resolve shape for variable " + var.getVarName());
                     }
 
-                    sameDiff.putArrayForVertexId(var.getVertexId(),var.getWeightInitScheme().create(shape));
+                    sameDiff.putArrayForVarName(var.getVarName(),var.getWeightInitScheme().create(shape));
                 }
 
                 addInputArgument(var.getArr());

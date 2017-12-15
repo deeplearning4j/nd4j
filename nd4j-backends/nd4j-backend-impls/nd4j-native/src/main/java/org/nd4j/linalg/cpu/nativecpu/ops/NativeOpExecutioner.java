@@ -1410,7 +1410,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         if (customOps == null) {
             String list = loop.getAllCustomOps();
 
-            customOps = new HashMap<String, CustomOpDescriptor>();
+            customOps = new HashMap<>();
 
 
             if (list == null || list.isEmpty()) {
@@ -1438,7 +1438,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             }
         }
 
-        return customOps;
+        return new HashMap<>(customOps);
     }
 
 
@@ -1647,7 +1647,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     }
 
     @Override
-    public Map<Integer, INDArray>  executeGraph(long id, Map<Integer, INDArray> map) {
+    public Map<String, INDArray> executeGraph(long id, Map<String, INDArray> map) {
 
         val ptrBuffers = new PointerPointer(map.size());
         val ptrShapes = new PointerPointer(map.size());

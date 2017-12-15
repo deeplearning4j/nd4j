@@ -205,6 +205,7 @@ public class TensorFlowImportTest {
         assertEquals(6, graph.variablesLength());
         assertEquals("alpha/Assign", graph.nodes(0).name());
     }
+
 /*
     @Test
     public void testIntermediateLoop2() throws Exception {
@@ -360,7 +361,7 @@ public class TensorFlowImportTest {
         val constIn = tg.getVariable("StridedSlice/input");
         assertNotNull(constIn);
 
-        val arr = tg.getArrForVertexId(constIn.getVertexId());
+        val arr = tg.getArrForVarName(constIn.getVertexId());
         assertEquals(139.5, arr.sumNumber().doubleValue(), 1e-5);
 
 
@@ -664,7 +665,7 @@ public class TensorFlowImportTest {
         INDArray expectedOutput = Nd4j.linspace(1,40,40).reshape(10,4).addRowVector(Nd4j.linspace(1,4,4));
         INDArray actual =  graph.execWithPlaceHolderAndEndResult(Collections.singletonMap("input",input));
         assertEquals(input,graph.getVariable("input").getArr());
-        assertArrayEquals(input.shape(),graph.getShapeForVertexId(graph.getVariable("input").getVertexId()));
+        assertArrayEquals(input.shape(),graph.getShapeForVarName(graph.getVariable("input").getVertexId()));
         assertEquals(expectedOutput,actual);
     }
 }

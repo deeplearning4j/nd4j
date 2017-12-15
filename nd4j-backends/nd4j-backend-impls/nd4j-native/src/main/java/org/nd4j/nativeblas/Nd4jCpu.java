@@ -174,6 +174,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_invert_permutation.class,
         float_matrix_set_diag.class,
         float_betainc.class,
+        float_zeta.class,
+        float_polygamma.class,
         float_sigmoid_bp.class,
         float_softsign_bp.class,
         float_tanh_bp.class,
@@ -369,6 +371,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_invert_permutation.class,
         half_matrix_set_diag.class,
         half_betainc.class,
+        half_zeta.class,
+        half_polygamma.class,
         half_sigmoid_bp.class,
         half_softsign_bp.class,
         half_tanh_bp.class,
@@ -564,6 +568,8 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_invert_permutation.class,
         double_matrix_set_diag.class,
         double_betainc.class,
+        double_zeta.class,
+        double_polygamma.class,
         double_sigmoid_bp.class,
         double_softsign_bp.class,
         double_tanh_bp.class,
@@ -6257,8 +6263,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // This method returns length of this NDArray
         public native @Cast("Nd4jIndex") long lengthOf();
-
-        public native void svd(@ByRef FloatNDArray u, @ByRef FloatNDArray w, @ByRef FloatNDArray vt);
         public native @Cast("bool") boolean permutei(@StdVector IntPointer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector IntBuffer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector int[] dimensions);
@@ -6766,8 +6770,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // This method returns length of this NDArray
         public native @Cast("Nd4jIndex") long lengthOf();
-
-        public native void svd(@ByRef HalfNDArray u, @ByRef HalfNDArray w, @ByRef HalfNDArray vt);
         public native @Cast("bool") boolean permutei(@StdVector IntPointer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector IntBuffer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector int[] dimensions);
@@ -7275,8 +7277,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         // This method returns length of this NDArray
         public native @Cast("Nd4jIndex") long lengthOf();
-
-        public native void svd(@ByRef DoubleNDArray u, @ByRef DoubleNDArray w, @ByRef DoubleNDArray vt);
         public native @Cast("bool") boolean permutei(@StdVector IntPointer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector IntBuffer dimensions);
         public native @Cast("bool") boolean permutei(@StdVector int[] dimensions);
@@ -21421,6 +21421,90 @@ private native void allocate();
                 return (double_betainc)super.position(position);
             }
         public double_betainc() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        @Name("nd4j::ops::zeta<float>") public static class float_zeta extends FloatDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_zeta(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_zeta(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_zeta position(long position) {
+                return (float_zeta)super.position(position);
+            }
+        public float_zeta() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::zeta<float16>") public static class half_zeta extends HalfDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_zeta(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_zeta(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_zeta position(long position) {
+                return (half_zeta)super.position(position);
+            }
+        public half_zeta() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::zeta<double>") public static class double_zeta extends DoubleDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_zeta(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_zeta(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_zeta position(long position) {
+                return (double_zeta)super.position(position);
+            }
+        public double_zeta() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        @Name("nd4j::ops::polygamma<float>") public static class float_polygamma extends FloatDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_polygamma(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_polygamma(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_polygamma position(long position) {
+                return (float_polygamma)super.position(position);
+            }
+        public float_polygamma() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::polygamma<float16>") public static class half_polygamma extends HalfDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_polygamma(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_polygamma(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_polygamma position(long position) {
+                return (half_polygamma)super.position(position);
+            }
+        public half_polygamma() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::polygamma<double>") public static class double_polygamma extends DoubleDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_polygamma(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_polygamma(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_polygamma position(long position) {
+                return (double_polygamma)super.position(position);
+            }
+        public double_polygamma() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }

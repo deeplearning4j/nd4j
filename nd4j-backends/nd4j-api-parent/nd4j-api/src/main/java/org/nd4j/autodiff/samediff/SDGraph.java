@@ -105,20 +105,6 @@ public class SDGraph extends Graph<SDVariable,DifferentialFunction> {
 
 
 
-    /**
-     * Get the input vertices
-     * @return
-     */
-    public List<SDVariable> getInputs() {
-        List<SDVariable> ret = new ArrayList<>();
-        List<SDVariable> outVars = sameDiff.variables();
-        for (SDVariable entry : outVars) {
-            if(numInputsFor(entry.getVertexId()) < 1)
-                ret.add(entry);
-        }
-
-        return ret;
-    }
 
     /**
      * Get the number of inputs for a particular vertex id

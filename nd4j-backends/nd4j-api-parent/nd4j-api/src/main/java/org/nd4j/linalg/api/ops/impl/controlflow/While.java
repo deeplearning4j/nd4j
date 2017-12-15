@@ -84,16 +84,8 @@ public class While extends DifferentialFunction implements CustomOp {
         this.predicate = whileStatement.predicate;
         this.predicateExecution = whileStatement.predicateExecution;
         this.inputVars = whileStatement.inputVars;
-        this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),sameDiff.graph().nextVertexId(),0);
-        int[] inputEdges = new int[inputVars.length];
+        this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'));
 
-        for(int i = 0; i < inputEdges.length; i++) {
-            inputEdges[i] = inputVars[i].getVertexId();
-        }
-
-
-        sameDiff.addArgsFor(inputEdges,this);
-        sameDiff.addOutgoingFor(outputVars,this);
 
     }
 
@@ -121,14 +113,8 @@ public class While extends DifferentialFunction implements CustomOp {
         this.predicate = predicate;
         this.trueBody = trueBody;
         this.blockName = blockName;
-        int vertexId = parent.graph().nextVertexId();
+        this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'));
 
-        this.dummyResult =  parent.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'),vertexId);
-        int[] inputEdges = new int[inputVars.length];
-        for(int i = 0; i < inputVars.length; i++) {
-            inputVars[i] = parent.var(inputVars[i]);
-            inputEdges[i] = inputVars[i].getVertexId();
-        }
 
 
 
@@ -147,7 +133,6 @@ public class While extends DifferentialFunction implements CustomOp {
         parent.putSubFunction("predicate-eval-body",sameDiff);
         //get a reference to the actual loop body
         this.loopBodyExecution = parent.getFunction(trueBodyName);
-        parent.addArgsFor(inputEdges,this);
 
     }
 
@@ -246,8 +231,7 @@ public class While extends DifferentialFunction implements CustomOp {
             } else {
                 log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
                 val func = DifferentialFunctionClassHolder.getInstance().getInstance(TFGraphMapper.getInstance().getMappedOp(tfNode.getOp()).opName());
-                val varOutput = conditional.var(tfNode.getName(),sameDiff.getShapeForVertexId(func.outputVariables()[0].getVertexId()));
-                sameDiff.addOutgoingFor(new int[]{varOutput.getVertexId()},func);
+                val varOutput = conditional.var(tfNode.getName(),sameDiff.getShapeForVarName(func.outputVariables()[0].getVarName()));
                 func.initFromTensorFlow(tfNode,conditional,nodeDef.getAttrMap(),graph);
             }
 
@@ -281,8 +265,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
             val func = DifferentialFunctionClassHolder.getInstance().getInstance(TFGraphMapper.getInstance().getMappedOp(tfNode.getOp()).opName());
-            val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVertexId(func.outputVariables()[0].getVertexId()));
-            initWith.addOutgoingFor(new int[]{varOutput.getVertexId()},func);
+            val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVarName(func.outputVariables()[0].getVarName()));
             func.initFromTensorFlow(tfNode,initWith,nodeDef.getAttrMap(),graph);
             identityCnt++;
 
@@ -319,7 +302,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
             if (isConst || isVar || isPlaceholder) {
                 val var = initWith.var(tfNode.getName(),TFGraphMapper.getInstance().getArrayFrom(tfNode,graph));
-                log.info("Adding body var [{}:{}]", var.getVarName(), var.getVertexId());
+                log.info("Adding body var [{}:{}]", var.getVarName(), var.getVarName());
             } else {
                 log.info("starting on [{}]: {}", tfNode.getName(), tfNode.getOp());
 
@@ -340,15 +323,13 @@ public class While extends DifferentialFunction implements CustomOp {
                 if (isNewLoop) {
                     log.info("NEW LOOP ----------------------------------------");
                     val func = new While(startPosition);
-                    val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVertexId(func.outputVariables()[0].getVertexId()));
-                    sameDiff.addOutgoingFor(new int[]{varOutput.getVertexId()},func);
+                    val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVarName(func.outputVariables()[0].getVarName()));
                     func.initFromTensorFlow(tfNode,initWith,nodeDef.getAttrMap(),graph);
 
                     log.info("END LOOP ----------------------------------------");
                 } else {
                     val func = DifferentialFunctionClassHolder.getInstance().getInstance(TFGraphMapper.getInstance().getMappedOp(tfNode.getOp()).opName());
-                    val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVertexId(func.outputVariables()[0].getVertexId()));
-                    initWith.addOutgoingFor(new int[]{varOutput.getVertexId()},func);
+                    val varOutput = conditional.var(tfNode.getName(),initWith.getShapeForVarName(func.outputVariables()[0].getVarName()));
                     func.initFromTensorFlow(tfNode,initWith,nodeDef.getAttrMap(),graph);
                 }
             }
@@ -517,7 +498,7 @@ public class While extends DifferentialFunction implements CustomOp {
     public List<int[]> calculateOutputShape() {
         List<int[]> ret =  new ArrayList<>();
         for(SDVariable var : args()) {
-            ret.add(sameDiff.getShapeForVertexId(var.getVertexId()));
+            ret.add(sameDiff.getShapeForVarName(var.getVarName()));
         }
         return ret;
     }

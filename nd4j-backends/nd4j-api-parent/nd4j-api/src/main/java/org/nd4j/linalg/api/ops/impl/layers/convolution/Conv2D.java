@@ -39,13 +39,6 @@ public class Conv2D extends DynamicCustomOp {
                   Conv2DConfig conv2DConfig) {
         super(null,inputArrays,outputs);
         this.sameDiff = sameDiff;
-        val ids = new int[inputFunctions.length];
-        for(int i = 0; i < ids.length; i++) {
-            ids[i] = inputFunctions[i].getVertexId();
-        }
-
-        if(inputFunctions != null && sameDiff != null)
-            sameDiff.addArgsFor(ids,this);
         this.conv2DConfig = conv2DConfig;
         addArgs();
     }
@@ -67,7 +60,7 @@ public class Conv2D extends DynamicCustomOp {
 
     @Override
     public void initWithArrays(Map<String, INDArray> arrayMap, Object... extraArgs) {
-        val var = sameDiff.getVariableForVertexId(args()[1].getVertexId());
+        val var = sameDiff.getVariable(args()[1].getVarName());
         //place holder variable
         if (var.getArr() == null) {
             //assuming the array hasn't been initialized, setup the config
@@ -86,9 +79,9 @@ public class Conv2D extends DynamicCustomOp {
 
         val inputs = args();
         for(val func : inputs) {
-            INDArray arr = sameDiff.getArrForVertexId(func.getVertexId());
+            INDArray arr = sameDiff.getArrForVarName(func.getVarName());
             if(arr == null) {
-                val var2 = sameDiff.getVariableForVertexId(func.getVertexId());
+                val var2 = sameDiff.getVariable(func.getVarName());
                 arr = var2.storeAndAllocateNewArray();
             }
 
@@ -111,7 +104,7 @@ public class Conv2D extends DynamicCustomOp {
         int kY = 1;
         int kX = 1;
         val args = args();
-        INDArray arr = sameDiff.getVariableForVertexId(args[1].getVertexId()).getArr();
+        INDArray arr = sameDiff.getVariable(args[1].getVarName()).getArr();
         if(arr == null) {
             arr = TFGraphMapper.getInstance().getNDArrayFromTensor(nodeDef.getInput(0), nodeDef, graph);
         }
@@ -119,7 +112,7 @@ public class Conv2D extends DynamicCustomOp {
         kY = arr.size(0);
         kX = arr.size(1);
         arr = (arr.permute(3, 2, 0, 1).dup('c'));
-        val  varForOp = initWith.getVariableForVertexId(args[1].getVertexId());
+        val  varForOp = initWith.getVariable(args[1].getVarName());
         initWith.associateArrayWithVariable(arr, varForOp);
 
 
