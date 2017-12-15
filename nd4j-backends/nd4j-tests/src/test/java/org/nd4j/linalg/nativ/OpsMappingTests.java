@@ -6,7 +6,10 @@ import lombok.val;
 import org.junit.Test;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.*;
+import org.nd4j.linalg.api.ops.impl.accum.Variance;
+import org.nd4j.linalg.api.ops.random.BaseRandomOp;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
@@ -53,7 +56,8 @@ public class OpsMappingTests {
             val bt = Integer.valueOf(line[0]).byteValue();
             val ops = line[1].split("<<");
 
-            val list = getOperations(SameDiff.getTypeFromByte(bt));
+            val type = SameDiff.getTypeFromByte(bt);
+            val list = getOperations(type);
 
             for (val op: ops) {
                 val args = op.split(":");
@@ -62,10 +66,12 @@ public class OpsMappingTests {
                 val name = args[2];
 
                 //log.info("group: {}; hash: {}; name: {};", SameDiff.getTypeFromByte(bt), hash, name);
+                val needle = new Operation(type == Op.Type.CUSTOM ? -1 : opNum, name.toLowerCase());
+                if (!opMapped(list, needle))
+                    missing.add(type.toString() + " " + name);
+
             }
         }
-
-        //log.info("Ops: {}", str);
 
         if (missing.size() > 0) {
 
@@ -75,6 +81,19 @@ public class OpsMappingTests {
         }
     }
 
+    protected boolean opMapped(List<Operation> haystack, Operation needle) {
+        for (val c: haystack) {
+            if (needle.getFirst().longValue() == -1L) {
+                if (c.getSecond().toLowerCase().equals(needle.getSecond().toLowerCase()))
+                    return true;
+            } else {
+                if (c.getFirst().longValue() == needle.getFirst().longValue())
+                    return true;
+            }
+        }
+
+        return false;
+    }
 
     protected void addOperation(Class<? extends DifferentialFunction> clazz, List<Operation> list) {
         if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isInterface())
@@ -82,8 +101,18 @@ public class OpsMappingTests {
 
         try {
             DifferentialFunction node = clazz.newInstance();
-            list.add(new Operation(Long.valueOf(node.opNum()), node.opName()));
+            if (node instanceof DynamicCustomOp) {
+                list.add(new Operation(-1L, node.opName().toLowerCase()));
+                list.add(new Operation(-1L, node.tensorflowName().toLowerCase()));
+            } else {
+                val op = new Operation(Long.valueOf(node.opNum()), node.opName());
+                list.add(op);
+            }
         } catch (UnsupportedOperationException e) {
+            //
+        } catch (NoOpNameFoundException e) {
+            //
+        } catch (InstantiationException e) {
             //
         } catch (Exception e) {
             log.info("Failed on [{}]", clazz.getSimpleName());
@@ -100,6 +129,20 @@ public class OpsMappingTests {
 
 
         switch (type) {
+            case SUMMARYSTATS: {
+                Set<Class<? extends Variance>> clazzes = f.getSubTypesOf(Variance.class);
+
+                for (Class<? extends DifferentialFunction> clazz : clazzes)
+                    addOperation(clazz, list);
+            }
+            break;
+            case RANDOM: {
+                Set<Class<? extends BaseRandomOp>> clazzes = f.getSubTypesOf(BaseRandomOp.class);
+
+                for (Class<? extends DifferentialFunction> clazz : clazzes)
+                    addOperation(clazz, list);
+            }
+            break;
             case INDEXREDUCE: {
                 Set<Class<? extends BaseIndexAccumulation>> clazzes = f.getSubTypesOf(BaseIndexAccumulation.class);
 
@@ -162,6 +205,16 @@ public class OpsMappingTests {
     protected static class Operation extends Pair<Long, String> {
         protected Operation(Long opNum, String name) {
             super(opNum, name);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Operation))
+                return false;
+
+            Operation op = (Operation) o;
+
+            return op.key.equals(this.key);
         }
     }
 }
