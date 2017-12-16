@@ -1169,7 +1169,6 @@ public class SameDiff {
             initWorkspace();
 
         arr = arr.migrate();
-        int vertexIdx = this.graph.nextVertexId();
         SDVariable ret = SDVariable.builder()
                 .sameDiff(this)
                 .shape(arr.shape())
@@ -1178,9 +1177,6 @@ public class SameDiff {
         associateArrayWithVariable(arr,ret);
         if(ArrayUtil.prod(arr.shape()) == 1)
             ret.setScalarValue(arr.getDouble(0));
-
-        NDArrayVertex ndArrayVertex = new NDArrayVertex(this,vertexIdx, 0,ret);
-        graph.addVertex(ndArrayVertex);
 
         addVariable(ret);
         //ensure there is a reference to the array in the integer index

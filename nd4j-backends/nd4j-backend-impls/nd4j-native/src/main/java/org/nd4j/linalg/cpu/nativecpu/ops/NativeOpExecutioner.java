@@ -1654,18 +1654,18 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         val ptrIndices = new IntPointer(map.size());
 
         int cnt = 0;
-        val keySet = map.keySet();
+        val keySet = new ArrayList<String>(map.keySet());
         for (val key: keySet) {
             val array = map.get(key);
 
             ptrBuffers.put(cnt, array.data().addressPointer());
             ptrShapes.put(cnt, array.shapeInfoDataBuffer().addressPointer());
-            ptrIndices.put(cnt, key);
+            ptrIndices.put(cnt, cnt);
 
             cnt++;
         }
 
-        val newMap = new LinkedHashMap<Integer, INDArray>();
+        val newMap = new LinkedHashMap<String, INDArray>();
         if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
             val result = (Nd4jCpu.FloatVariablesSet) loop.executeStoredGraphFloat(null, id, ptrBuffers, ptrShapes, ptrIndices, map.size());
 
@@ -1695,7 +1695,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
                 Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
 
-                newMap.put(nodeId, array);
+                newMap.put(keySet.get(nodeId), array);
             }
             loop.deleteVariablesSetFloat(result);
         } else if (Nd4j.dataType() == DataBuffer.Type.DOUBLE) {
@@ -1727,7 +1727,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
                 Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
 
-                newMap.put(nodeId, array);
+                newMap.put(keySet.get(nodeId), array);
             }
 
             loop.deleteVariablesSetDouble(result);
@@ -1760,7 +1760,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
                 Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
 
-                newMap.put(nodeId, array);
+                newMap.put(keySet.get(nodeId), array);
             }
 
             loop.deleteVariablesSetHalf(result);
