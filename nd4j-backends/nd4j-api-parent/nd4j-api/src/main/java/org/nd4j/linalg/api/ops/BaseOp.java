@@ -153,6 +153,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
                 return extraArgz;
             }
         }
+
         return null;
     }
 

@@ -12,7 +12,6 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
-import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -143,6 +142,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 }
 
                 outputVariables = newVars;
+                sameDiff.addOutgoingFor(outputVariables,this);
                 return newVars;
             }
 
@@ -162,9 +162,9 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             val map = Nd4j.getExecutioner().getCustomOperations();
             val desc = map.get(opName());
             if(desc == null) {
-                System.out.println(map.keySet());
-                System.out.println(DifferentialFunctionClassHolder.getInstance().missingOps());
+               throw new ND4JIllegalStateException("Op name " + opName() + " is missing!");
             }
+
             hash = desc.getHash();
         }
 

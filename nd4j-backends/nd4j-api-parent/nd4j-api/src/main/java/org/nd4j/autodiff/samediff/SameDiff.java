@@ -81,10 +81,8 @@ public class SameDiff {
     private Map<String,String[]> ougoingArgsReverse;
 
 
-
     private Map<Integer,SDVariable> vertexIdToVariable;
 
-    private Map<String,List<Integer>> variableNameToVertexIds;
     //index of edges
     private Table<IntArrayKeyMap.IntArray,IntArrayKeyMap.IntArray,DifferentialFunction> fromToTable;
 
@@ -119,6 +117,9 @@ public class SameDiff {
     private boolean debugMode;
     private Map<int[],Op> opsForResult;
     private boolean resolvedVariables = false;
+
+
+
 
     private Map<OpExecAction,ForwardBackwardState> forwardBackwardStates;
 
@@ -162,6 +163,43 @@ public class SameDiff {
 
 
     /**
+     * Bootstraps the graph.
+     */
+    public void bootstrapGraph() {
+        if(incomingArgs.values().size() != outgoingArgs.size()) {
+            throw new ND4JIllegalStateException("Unable to bootstrap graph. Missing specified outputs for inputs and outputs. Number of specified inputs was " + incomingArgs.size() + " and specified outputs was " + outgoingArgs.size());
+        }
+
+        int depth = 0;
+        for(val func : incomingArgs.values()) {
+            //ensure variables are dynamically generated if necessary
+            func.outputVariables();
+            val incomingArgs = incomingArgsReverse.get(func.getInstanceId());
+            int[] argsIndices = new int[incomingArgs.length];
+            int argsIndicesIdx = 0;
+            for(val arg : incomingArgs)  {
+                val var = getVariable(arg);
+                val vertex = new NDArrayVertex(this,graph().nextVertexId(),depth,var);
+                argsIndices[argsIndicesIdx++] = vertex.getIdx();
+            }
+
+            argsIndicesIdx = 0;
+            val outgoingArgs = ougoingArgsReverse.get(func.getInstanceId());
+            int[] outgoingIndices = new int[outgoingArgs.length];
+            for(val arg : outgoingArgs)  {
+                val var = getVariable(arg);
+                val vertex = new NDArrayVertex(this,graph().nextVertexId(),depth,var);
+                outgoingIndices[argsIndicesIdx++] = vertex.getIdx();
+
+            }
+
+            graph().addEdge(argsIndices,outgoingIndices,func,true);
+            fromToTable.put(new IntArrayKeyMap.IntArray(argsIndices),new IntArrayKeyMap.IntArray(outgoingIndices),func);
+            depth++;
+        }
+    }
+
+    /**
      *
      * @param sameDiff
      * @return
@@ -177,8 +215,6 @@ public class SameDiff {
             }
 
         }
-
-
 
 
         //map new vertex ids and create new vertices
@@ -224,8 +260,8 @@ public class SameDiff {
                         newTo,
                         cloner.deepCloneDontCloneInstances(edge.getValue()),true);
                 sameDiff.graph().addEdge(newEdge);
-                sameDiff.addArgsFor(fromVars,newEdge.getValue(),newFrom);
-                sameDiff.addOutgoingFor(toVars,newTo,newEdge.getValue());
+                sameDiff.addArgsFor(fromVars,newEdge.getValue());
+                sameDiff.addOutgoingFor(toVars, newEdge.getValue());
 
             }
         }
@@ -390,6 +426,7 @@ public class SameDiff {
         if(!variableNameToArr.containsKey(varName)) {
             throw new ND4JIllegalStateException("Array for " + varName + " does not exist. Please use putArrayForVertexId instead.");
         }
+
         variableNameToArr.put(varName,arr);
         reverseArrayLookup.put(arr,getVariable(varName));
     }
@@ -651,7 +688,6 @@ public class SameDiff {
         placeHolderVarNames = new LinkedHashSet<>();
         placeHolderOriginalShapes = new LinkedHashMap<>();
         vertexIdToVariable = new HashMap<>();
-        variableNameToVertexIds = new HashMap<>();
         incomingArgs = new HashMap<>();
         outgoingArgs = new HashMap<>();
         incomingArgsReverse = new HashMap<>();
@@ -699,13 +735,9 @@ public class SameDiff {
      * @param variables
      * @param function
      */
-    public void addOutgoingFor(SDVariable[] variables,int[] vertexIds,DifferentialFunction function) {
+    public void addOutgoingFor(SDVariable[] variables, DifferentialFunction function) {
         String[] varNames = new String[variables.length];
-        for(int i = 0; i < vertexIds.length; i++) {
-            varNames[i] = variables[i].getVarName();
-        }
-
-        addOutgoingFor(vertexIds,function,varNames);
+        addOutgoingFor(varNames, function);
     }
 
 
@@ -715,14 +747,10 @@ public class SameDiff {
      * Also checks for input arguments
      * and updates the graph adding an appropriate edge
      * when the full graph is declared.
-     * @param vertexIds
-     * @param function
      * @param varNames
+     * @param function
      */
-    public void addOutgoingFor(int[] vertexIds, DifferentialFunction function, String[] varNames) {
-        if(outgoingArgs.containsKey(vertexIds)) {
-            throw new ND4JIllegalStateException("Outgoing arguments already declared for "  + function);
-        }
+    public void addOutgoingFor(String[] varNames, DifferentialFunction function) {
 
         if(function.getInstanceId() == null)
             throw new ND4JIllegalStateException("Instance id can not be null. Function not initialized properly");
@@ -731,13 +759,22 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Outgoing arguments already declared for " + function);
         }
 
-
         ougoingArgsReverse.put(function.getInstanceId(),varNames);
         outgoingArgs.put(varNames,function);
 
-        val incomingArgs = graph().getFromFor(vertexIds);
-        graph().addEdge(incomingArgs,vertexIds,function,true);
-        fromToTable.put(new IntArrayKeyMap.IntArray(incomingArgs),new IntArrayKeyMap.IntArray(vertexIds),function);
+    }
+
+    /**
+     * Adds incoming args to the graph
+     * @param variables
+     * @param function
+     */
+    public void addArgsFor(String[] variables, DifferentialFunction function) {
+        if(function.getInstanceId() == null)
+            throw new ND4JIllegalStateException("Instance id can not be null. Function not initialized properly");
+
+        incomingArgs.put(variables,function);
+        incomingArgsReverse.put(function.getInstanceId(),variables);
 
     }
 
@@ -748,13 +785,12 @@ public class SameDiff {
      * @param variables
      * @param function
      */
-    public void addArgsFor(SDVariable[] variables,DifferentialFunction function,int[] vertexIds) {
+    public void addArgsFor(SDVariable[] variables, DifferentialFunction function) {
         String[] varNames = new String[variables.length];
-        for(int i = 0; i < vertexIds.length; i++) {
+        for(int i = 0; i < varNames.length; i++)
             varNames[i] = variables[i].getVarName();
-        }
 
-        addArgsFor(vertexIds,function,varNames);
+        addArgsFor(varNames,function);
     }
 
 
@@ -1079,7 +1115,7 @@ public class SameDiff {
         if(workspace == null)
             initWorkspace();
 
-           final SDVariable ret = SDVariable.builder()
+        final SDVariable ret = SDVariable.builder()
                 .sameDiff(this)
                 .shape(arr.getShape())
                 .varName(arr.getVarName())
@@ -3629,77 +3665,9 @@ public class SameDiff {
 
         }
 
-        for(val function : fromToTable.values()) {
-            val inputVertexIds = incomingArgsReverse.get(function.getInstanceId());
-            /*int maxDepth = -1;
-            for(int i = 0; i < inputVertexIds.length; i++) {
-                maxDepth = Math.max(maxDepth,graph.getVertex(inputVertexIds[i]).depth());
-            }*/
-
-            val outputArgs = ougoingArgsReverse.get(function.getInstanceId());
-            val vars = new SDVariable[outputArgs.length];
-            for(int i = 0; i < vars.length; i++) {
-                vars[i] = getVariable(outputArgs[i]);
-            }
-
-            if(outputArgs == null) {
-                val shapes = function.calculateOutputShape();
-                val outgoingVertexIds = new int[shapes.size()];
-                int outgoingVertexIdx = 0;
-                for(val shape : shapes) {
-                    val newVertexId = graph().nextVertexId();
-                    val var = var("output-" + UUID.randomUUID().toString(),shape,new ZeroInitScheme('f'));
-                    outgoingVertexIds[outgoingVertexIdx++] = newVertexId;
-                    addVariable(var);
-                    if(getArrForVarName(var.getVarName()) == null)
-                        var.storeAndAllocateNewArray();
-                }
-
-                addOutgoingFor(vars,outgoingVertexIds,function);
-                function.initWithArrays(arrays);
-                function.initOutputWithArrays(arrays);
-            }
-
-            if(function instanceof CustomOp) {
-                CustomOp customOp = (CustomOp) function;
-                if(customOp.numInputArguments() < 1) {
-                    val args = function.args();
-                    for(int i = 0; i < args.length; i++) {
-                        val arr = getArrForVarName(args[i].getVarName());
-                        if(arr == null) {
-                            throw new ND4JIllegalStateException("Op " + function.opName() + " not initialized!");
-                        }
-
-                        customOp.addInputArgument(arr);
-                    }
-                }
 
 
-                if(customOp.numOutputArguments() < 1) {
-                    val args = function.outputVariables();
-                    for(int i = 0; i < args.length; i++) {
-                        INDArray arr = getArrForVarName(args[i].getVarName());
-                        val shape = getShapeForVarName(args[i].getVarName());
-                        if(shape == null) {
-                            val shapes = function.calculateOutputShape();
-                            if(shapes.size() != args.length) {
-                                throw new ND4JIllegalStateException("Op " + function.opName() + " can not compute shapes. Number of shapes from calculateOutputShapes() not same length as number of outputs from outputVariables() ");
-                            }
-                            for(int j = 0; j < args.length; j++) {
-                                putShapeForVarName(args[j].getVarName(),shapes.get(i));
-                            }
-                        }
-
-                        if(arr == null) {
-                            arr = args[i].storeAndAllocateNewArray();
-                        }
-
-                        customOp.addOutputArgument(arr);
-                    }
-                }
-            }
-        }
-
+        bootstrapGraph();
 
 
         //declare resolved
