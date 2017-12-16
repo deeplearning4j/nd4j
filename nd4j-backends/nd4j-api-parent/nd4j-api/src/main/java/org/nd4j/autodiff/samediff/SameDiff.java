@@ -181,6 +181,7 @@ public class SameDiff {
                 val var = getVariable(arg);
                 val vertex = new NDArrayVertex(this,graph().nextVertexId(),depth,var);
                 argsIndices[argsIndicesIdx++] = vertex.getIdx();
+                vertexIdToVariable.put(vertex.getIdx(),vertex.getValue());
             }
 
             argsIndicesIdx = 0;
@@ -190,11 +191,13 @@ public class SameDiff {
                 val var = getVariable(arg);
                 val vertex = new NDArrayVertex(this,graph().nextVertexId(),depth,var);
                 outgoingIndices[argsIndicesIdx++] = vertex.getIdx();
+                vertexIdToVariable.put(vertex.getIdx(),vertex.getValue());
 
             }
 
             graph().addEdge(argsIndices,outgoingIndices,func,true);
             fromToTable.put(new IntArrayKeyMap.IntArray(argsIndices),new IntArrayKeyMap.IntArray(outgoingIndices),func);
+
             depth++;
         }
     }
