@@ -73,6 +73,11 @@ public class IntArrayKeyMap<V> implements Map<int[],V> {
     }
 
     @Override
+    public Collection<V> values() {
+        return map.values();
+    }
+
+    @Override
     public Set<Entry<int[], V>> entrySet() {
         Set<Map.Entry<IntArray,V>> intArrays = map.entrySet();
         Set<Entry<int[], V>> ret = new LinkedHashSet<>();
