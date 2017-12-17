@@ -4433,6 +4433,8 @@ public class SameDiff {
                 return Op.Type.SHAPE;
             case OpType.PAIRWISE:
                 return Op.Type.PAIRWISE;
+            case OpType.SUMMARYSTATS:
+                return Op.Type.SUMMARYSTATS;
             default:
                 throw new UnsupportedOperationException("Unknown op type passed in: " + type);
         }
@@ -4466,6 +4468,8 @@ public class SameDiff {
                 return OpType.SHAPE;
             case PAIRWISE:
                 return OpType.PAIRWISE;
+            case SUMMARYSTATS:
+                return OpType.SUMMARYSTATS;
             default:
                 throw new UnsupportedOperationException("Unknown op type passed in: " + type);
         }
