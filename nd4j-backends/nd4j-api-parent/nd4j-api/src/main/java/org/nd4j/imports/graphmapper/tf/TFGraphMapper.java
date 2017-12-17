@@ -126,21 +126,21 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
     @Override
     public boolean isVariableNode(NodeDef nodeDef) {
-        boolean isVar = nodeDef.getOp().startsWith("VariableV");
+        boolean isVar = nodeDef.getOp().startsWith("VariableV") || nodeDef.getOp().equalsIgnoreCase("const");
         return isVar;
     }
 
     @Override
     public boolean shouldSkip(NodeDef opType) {
-        boolean isConst = opType.getOp().equalsIgnoreCase("const");
-        boolean isVar = opType.getOp().startsWith("VariableV");
-        boolean isPlaceholder = opType.getOp().startsWith("Placeholder");
+        if(opType == null)
+            return true;
+
         boolean endsWithRead = opType.getName().endsWith("/read");
         boolean isNoOp = opType.getOp().equalsIgnoreCase("NoOp");
         boolean isReductionIndices = opType.getOp().endsWith("/reduction_indices");
         boolean isIdentity = opType.getOp().endsWith("Identity");
 
-        return isConst || isVar || isPlaceholder || endsWithRead || isNoOp || isReductionIndices || isIdentity;
+        return  endsWithRead || isNoOp || isReductionIndices || isIdentity;
     }
 
     @Override
@@ -206,50 +206,72 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     @Override
     public Map<String, Pair<int[], int[]>> inputsAndOutputsForGraph(GraphDef graph) {
         val ret = new HashMap<String, Pair<int[], int[]>>(graph.getNodeCount());
-        Map<String,List<String>> outputs = new HashMap<>();
+        val nodeNameToVertexId = new HashMap<String,Integer>();
+        int count = 1;
+        for(val node : graph.getNodeList()) {
+            if(shouldSkip(node))
+                continue;
+            val nodeName = getNodeName(node.getName());
+            nodeNameToVertexId.put(nodeName,count++);
+        }
+
+
+        Map<String,List<Integer>> outputs = new HashMap<>();
         //map each node's outputs and inputs
         for(val node : graph.getNodeList()) {
+            if(shouldSkip(node))
+                continue;
+
             val nodeName = getNodeName(node.getName());
             //simultaneously collect the ids for inputs and outputs
             //incrementally building the list
+
+            List<Integer> newInputs = new ArrayList<>(node.getInputCount());
             for(int i = 0; i < node.getInputCount(); i++) {
-                val nodeInput = getNodeName(node.getInput(i));
-                if(!outputs.containsKey(nodeName)) {
-                    List<String> newInputs = new ArrayList<>();
-                    val get = nodeInput;
-                    if(get != null)
-                        newInputs.add(get);
-                    else {
-                        throw new ND4JIllegalStateException("Unable to map node " + nodeName + " no vertex id found!");
+                val inputName = getNodeName(node.getInput(i));
+                if(inputName.equals(nodeName))
+                    continue;
+
+                if(!outputs.containsKey(inputName)) {
+                    if(nodeNameToVertexId.get(inputName) == null) {
+                        throw new ND4JIllegalStateException("Node name " + inputName + " not found with vertex id!");
                     }
-                    outputs.put(nodeName,newInputs);
+                    newInputs.add(nodeNameToVertexId.get(inputName));
+                    outputs.put(inputName,newInputs);
                 }
                 else {
-                    List<String> outputIds = outputs.get(nodeName);
-                    val output = nodeName;
-                    if(output != null)
-                        outputIds.add(nodeInput);
+
+                    List<Integer> outputIds = outputs.get(inputName);
+                    if(outputIds != null)
+                        outputIds.add(nodeNameToVertexId.get(nodeName));
                     else {
                         throw new ND4JIllegalStateException("Unable to map node " + nodeName + " no vertex id found!");
                     }
+
+                    newInputs.add(nodeNameToVertexId.get(inputName));
+
 
                 }
 
             }
+
+
         }
 
 
-        //collect the final result
-/*        for(val entry : outputs.entrySet())  {
-            val name = getNodeName(entry.getKey());
-            val output = new int[] {nodeNameToVertexId.get(name)};
-            int[] inputIds = Ints.toArray(entry.getValue());
-            int[] outputIds = output;
-            ret.put(name,Pair.of(inputIds,outputIds));
+        for(val node : graph.getNodeList()) {
+            if (shouldSkip(node))
+                continue;
+            val nodeName = getNodeName(node.getName());
+            val outputsForNode = !outputs.containsKey(nodeName) ? new int[0] : Ints.toArray(outputs.get(nodeName));
+            val inputIndices = new int[node.getInputCount()];
+            for(int i = 0; i < node.getInputCount(); i++) {
+                val inputName = getNodeName(node.getInput(i));
+                inputIndices[i] = nodeNameToVertexId.get(inputName);
+            }
 
-
-
-        }*/
+            ret.put(nodeName,Pair.of(inputIndices,outputsForNode));
+        }
 
         return ret;
     }
@@ -271,7 +293,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     }
 
 
-
     @Override
     public Message.Builder getNewGraphBuilder() {
         return GraphDef.newBuilder();
@@ -291,7 +312,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
     @Override
     public void mapNodeType(NodeDef tfNode, ImportState<GraphDef,NodeDef> importState) {
-        if (shouldSkip(tfNode) || alreadySeen(tfNode)) {
+        if (shouldSkip(tfNode) || alreadySeen(tfNode) || isVariableNode(tfNode)) {
             return;
         }
 
@@ -334,6 +355,9 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 val newInstance = differentialFunction.getClass().newInstance();
                 val args = new SDVariable[tfNode.getInputCount()];
                 val indices = importState.getVertexIdMap().get(getNodeName(tfNode.getName()));
+                if(indices == null) {
+                    throw new ND4JIllegalStateException("No indices found for " + tfNode.getName());
+                }
 
                 for(int i = 0; i < tfNode.getInputCount(); i++) {
                     val name = getNodeName(tfNode.getInput(i));
@@ -348,23 +372,41 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                      * anything.
                      */
                     if(diff.isPlaceHolder( args[i].getVarName())) {
-                        diff.putPlaceHolderForVariable(args[i].getVarName(), args[i].getVarName());
+                        diff.putPlaceHolderForVariable(args[i].getVarName(), name);
                     }
 
                 }
 
+                //node
+                if(indices.getFirst().length < 1 || indices.getSecond().length < 1)
+                    return;
 
 
 
                 val opStateEdge = getOpStateEdge(indices.getFirst(),indices.getSecond(),tfNode,newInstance);
                 diff.graph().addEdge(opStateEdge);
                 diff.addArgsFor(args,newInstance);
+
                 //make sure variables are properly mapped
                 if(diff.getVariable(TFGraphMapper.getInstance().getNodeName(tfNode.getName())) == null)
                     diff.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'));
-                newInstance.setSameDiff(importState.getSameDiff());
 
+                newInstance.setSameDiff(importState.getSameDiff());
+                importState.getSameDiff().putFunctionForId(newInstance.getInstanceId(),newInstance);
+                val outgoingArgs = new SDVariable[opStateEdge.getTo().length];
+                for(int i = 0; i < opStateEdge.getTo().length; i++) {
+                    outgoingArgs[i] = diff.getVariableForVertexId(opStateEdge.getTo()[i]);
+                    if(outgoingArgs[i] == null) {
+                        throw new ND4JIllegalStateException("Invalid variable for index: " + opStateEdge.getTo()[i]);
+                    }
+                }
+
+                diff.addOutgoingFor(outgoingArgs,newInstance);
                 newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
+                //ensure functions are mapped for execution
+                diff.mapInputAndOutput(indices.getFirst(),indices.getSecond(),newInstance);
+
+
 
             } catch (Exception e) {
                 log.error("Failed with [{}]", opName);

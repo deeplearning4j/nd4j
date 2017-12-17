@@ -127,7 +127,16 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public SDVariable[] outputVariables() {
         if(this.outputVariables == null) {
+            val outputNames = sameDiff.getOutputsForFunction(this);
+            //no need to dynamically create if already exists
+            if(outputNames != null) {
+                outputVariables = new SDVariable[outputNames.length];
+                for(int i = 0; i < outputVariables.length; i++) {
+                    outputVariables[i] = sameDiff.getVariable(outputNames[i]);
+                }
 
+                return outputVariables;
+            }
             val shapes = calculateOutputShape();
             if(shapes.isEmpty())
                 throw new ND4JIllegalStateException("Unable to find to vertex id output functions for vertex ");
@@ -142,7 +151,8 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 }
 
                 outputVariables = newVars;
-                sameDiff.addOutgoingFor(outputVariables,this);
+                if(sameDiff.getOutputsForFunction(this) == null)
+                    sameDiff.addOutgoingFor(outputVariables,this);
                 return newVars;
             }
 
@@ -162,7 +172,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             val map = Nd4j.getExecutioner().getCustomOperations();
             val desc = map.get(opName());
             if(desc == null) {
-               throw new ND4JIllegalStateException("Op name " + opName() + " is missing!");
+                throw new ND4JIllegalStateException("Op name " + opName() + " is missing!");
             }
 
             hash = desc.getHash();
@@ -173,8 +183,9 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public INDArray[] outputArguments() {
-        if(!outputArguments.isEmpty())
+        if(!outputArguments.isEmpty()) {
             return outputArguments.toArray(new INDArray[outputArguments.size()]);
+        }
         return new INDArray[0];
     }
 
@@ -247,6 +258,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public void addInputArgument(INDArray... arg) {
+        for(int i = 0; i < arg.length; i++) {
+            if(arg[i] == null)
+                throw new ND4JIllegalStateException("Input " + i + " was null!");
+        }
+
+
         inputArguments.addAll(Arrays.asList(arg));
 
         val args = args();
@@ -277,6 +294,10 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public void addOutputArgument(INDArray... arg) {
+        for(int i = 0; i < arg.length; i++) {
+            if(arg[i] == null)
+                throw new ND4JIllegalStateException("Output " + i + " was null!");
+        }
         outputArguments.addAll(Arrays.asList(arg));
     }
 
@@ -335,7 +356,50 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return Nd4j.getExecutioner().calculateOutputShape(this);
     }
 
+    @Override
+    public CustomOpDescriptor getDescriptor() {
+        val map = Nd4j.getExecutioner().getCustomOperations();
+        return map.get(opName());
+    }
 
+    @Override
+    public void assertValidForExecution() {
+        val descriptor = getDescriptor();
+        if(numInputArguments() != descriptor.getNumInputs())
+            throw new ND4JIllegalStateException("Number of inputs is invalid for execution. Specified " + numInputArguments() + " but should be " + descriptor.getNumInputs());
+
+        if(numOutputArguments() != descriptor.getNumOutputs())
+            throw new ND4JIllegalStateException("Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumInputs());
+
+        if(numIArguments() != descriptor.getNumIArgs())
+            throw new ND4JIllegalStateException("Number of integer arguments is invalid for execution. Specified " + numIArguments() + " but should be " + descriptor.getNumIArgs());
+
+        if(numTArguments() != descriptor.getNumTArgs())
+            throw new ND4JIllegalStateException("Number of inputs is invalid for execution. Specified " + numTArguments() + " but should be " + descriptor.getNumTArgs());
+
+    }
+
+    @Override
+    public void populateInputsAndOutputsFromSameDiff() {
+        val descriptor = getDescriptor();
+        if(numInputArguments() != descriptor.getNumInputs()) {
+            //clear just in case
+            val args = args();
+            inputArguments.clear();
+            for(val arg : args) {
+                inputArguments.add(arg.getArr());
+            }
+        }
+
+        if(numOutputArguments() != descriptor.getNumOutputs()) {
+            //clear just in case
+            val outputVars =  outputVariables();
+            outputArguments.clear();
+            for(val arg : outputVars) {
+                outputArguments.add(arg.getArr());
+            }
+        }
+    }
 
 
     @Override
@@ -608,6 +672,8 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
             return this;
         }
+
+
 
         /**
          * Whether an op call is in place or not.

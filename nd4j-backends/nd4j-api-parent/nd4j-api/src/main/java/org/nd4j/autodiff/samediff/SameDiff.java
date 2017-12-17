@@ -79,7 +79,7 @@ public class SameDiff {
     private Map<String[],DifferentialFunction> outgoingArgs;
     private Map<String,String[]> incomingArgsReverse;
     private Map<String,String[]> ougoingArgsReverse;
-
+    private boolean shouldBootStrap = true;
 
     private Map<Integer,SDVariable> vertexIdToVariable;
 
@@ -102,7 +102,7 @@ public class SameDiff {
     private MemoryWorkspace workspace;
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
-
+    private Set<String> placeHolderFunctions;
     private static Cloner cloner = new Cloner();
     private static Map<String,Method> opMethods;
 
@@ -163,9 +163,21 @@ public class SameDiff {
 
 
     /**
+     * Set vertex id for variable (mainly used for import)
+     * @param id the id
+     * @param variable teh variable
+     */
+    public void setVertexIdForVariable(int id,SDVariable variable) {
+        vertexIdToVariable.put(id,variable);
+    }
+
+    /**
      * Bootstraps the graph.
      */
     public void bootstrapGraph() {
+        //should only be used with model import
+        if(!shouldBootStrap)
+            return;
         if(incomingArgs.values().size() != outgoingArgs.size()) {
             throw new ND4JIllegalStateException("Unable to bootstrap graph. Missing specified outputs for inputs and outputs. Number of specified inputs was " + incomingArgs.size() + " and specified outputs was " + outgoingArgs.size());
         }
@@ -200,6 +212,26 @@ public class SameDiff {
 
             depth++;
         }
+    }
+
+
+
+
+
+    /**
+     * Mainly used for model import.
+     * Directly adds in and out indices
+     * for the given function.
+     * Note that vertices and variable
+     * names should already be mapped
+     * before this method is called.
+     *
+     * @param inIndices the input arguments
+     * @param outIndices the output arguments
+     * @param func
+     */
+    public void mapInputAndOutput(int[] inIndices,int[] outIndices,DifferentialFunction func) {
+        fromToTable.put(new IntArrayKeyMap.IntArray(inIndices),new IntArrayKeyMap.IntArray(outIndices),func);
     }
 
     /**
@@ -319,6 +351,22 @@ public class SameDiff {
 
 
     /**
+     * Put the function for id
+     * @param id the id
+     * @param function the function
+     */
+    public void putFunctionForId(String id,DifferentialFunction function) {
+        if(functionInstancesById.containsKey(id)) {
+            throw new ND4JIllegalStateException("Function by id already exists!");
+        }
+
+        functionInstancesById.put(id,function);
+    }
+
+
+
+
+    /**
      * Returns the inputs for the given function
      * @param function the function to get the
      *                 inputs for
@@ -383,27 +431,7 @@ public class SameDiff {
     }
 
 
-    /**
-     * Returns the arguments for a given output {@link DifferentialFunction}
-     * @param output the output to get the arguments for
-     * @return the arguments for the target function
-     */
-    public SDVariable[] getArgsFor(SDVariable output) {
-        Set<SDVariable> ret = new LinkedHashSet<>();
-        val from = graph().getFromFor(output.inputVertexIds());
-        for (int i = 0; i < from.length; i++) {
-            val currFunc = getVariableForVertexId(from[i]);
-            if (currFunc != null && !ret.contains(currFunc)) {
-                ret.add(currFunc);
-            } else if (getVariableForVertexId(from[i]) != null) {
-                ret.add(getVariableForVertexId(from[i]));
-            } else
-                throw new ND4JIllegalStateException("No function or variable found for " + Arrays.toString(new int[]{from[i]}));
-        }
 
-
-        return ret.toArray(new SDVariable[ret.size()]);
-    }
 
 
     /**
@@ -506,6 +534,16 @@ public class SameDiff {
         variableNameToShape.put(varName,shape);
     }
 
+
+    /**
+     * Disable bootstrapping.
+     * This means calls to
+     * {@link #bootstrapGraph()} }
+     * will not be called.
+     */
+    public void disableBootStrap() {
+        shouldBootStrap = false;
+    }
 
     /**
      * Associate a vertex id with the given shape.
@@ -697,6 +735,7 @@ public class SameDiff {
         ougoingArgsReverse = new HashMap<>();
         this.functionInstancesById = new HashMap<>();
         fromToTable = HashBasedTable.create();
+        placeHolderFunctions = new HashSet<>();
 
     }
 
@@ -740,6 +779,10 @@ public class SameDiff {
      */
     public void addOutgoingFor(SDVariable[] variables, DifferentialFunction function) {
         String[] varNames = new String[variables.length];
+        for(int i = 0; i < varNames.length; i++) {
+            varNames[i] = variables[i].getVarName();
+        }
+
         addOutgoingFor(varNames, function);
     }
 
@@ -762,6 +805,15 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Outgoing arguments already declared for " + function);
         }
 
+        if(varNames == null)
+            throw new ND4JIllegalStateException("Var names can not be null!");
+
+
+        for(int i = 0; i < varNames.length; i++) {
+            if(varNames[i] == null)
+                throw new ND4JIllegalStateException("Variable name elements can not be null!");
+        }
+
         ougoingArgsReverse.put(function.getInstanceId(),varNames);
         outgoingArgs.put(varNames,function);
 
@@ -775,6 +827,14 @@ public class SameDiff {
     public void addArgsFor(String[] variables, DifferentialFunction function) {
         if(function.getInstanceId() == null)
             throw new ND4JIllegalStateException("Instance id can not be null. Function not initialized properly");
+
+        //double check if function contains placeholder args
+        for(val varName : variables) {
+            if(isPlaceHolder(varName)) {
+                placeHolderFunctions.add(function.getInstanceId());
+            }
+        }
+
 
         incomingArgs.put(variables,function);
         incomingArgsReverse.put(function.getInstanceId(),variables);
@@ -1272,9 +1332,9 @@ public class SameDiff {
                 .conv2DConfig(conv2DConfig)
                 .build();
 
-        val outputVertexId = conv2D.outputVertexIds()[0];
-        updateVariableName(getVariableForVertexId(outputVertexId).getVarName(),generateVariableName(conv2D.opName(),false,inputs));
-        return getVariableForVertexId(outputVertexId);
+        val outputVertexId = conv2D.outputVariables()[0];
+        updateVariableName(outputVertexId.getVarName(),generateVariableName(conv2D.opName(),false,inputs));
+        return outputVertexId;
     }
 
 
@@ -1291,9 +1351,9 @@ public class SameDiff {
                 .sameDiff(this)
                 .build();
 
-
-        updateVariableName(getVariableForVertexId(conv3D.outputVertexIds()[0]).getVarName(),generateVariableName(conv3D.opName(),false,inputs));
-        return getVariableForVertexId(conv3D.outputVertexIds()[0]);
+        val outputVars = conv3D.outputVariables();
+        updateVariableName(outputVars[0].getVarName(),generateVariableName(conv3D.opName(),false,inputs));
+        return outputVars[0];
     }
 
 
@@ -3659,14 +3719,28 @@ public class SameDiff {
                 throw new ND4JIllegalStateException("Illegal variable " + entry.getKey() + " passed in. Variable found not to be a place holder variable");
             }
 
+            updateShapeForVarName(entry.getKey(),entry.getValue().shape());
             associateArrayWithVariable(entry.getValue(),getVariable(entry.getKey()));
             updateArrayForVarName(entry.getKey(),entry.getValue());
 
         }
 
+        //propagate variable names, sometimes shapes depend on  variables
+        //that have place holders
+        for(val func : placeHolderFunctions) {
+            val calcOutputShape = getFunctionById(func).calculateOutputShape();
+            val outputs = getOutputVariablesForFunction(getFunctionById(func));
+            for(int i = 0; i < calcOutputShape.size(); i++) {
+               putShapeForVarName(outputs[i].getVarName(),calcOutputShape.get(i));
+               outputs[i].storeAndAllocateNewArray();
+            }
+        }
+
 
 
         bootstrapGraph();
+
+
 
 
         //declare resolved
@@ -3923,6 +3997,8 @@ public class SameDiff {
             }
             else if(differentialFunction instanceof CustomOp) {
                 DynamicCustomOp customOp = (DynamicCustomOp) differentialFunction;
+                customOp.populateInputsAndOutputsFromSameDiff();
+                customOp.assertValidForExecution();
                 Nd4j.getExecutioner().exec(customOp);
                 ops.add(customOp);
             }
@@ -4070,7 +4146,7 @@ public class SameDiff {
         return flatNode;
     }
 
-    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder) {
+    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder,List<SDVariable> variables) {
         val hash = getOpNum(node.opName(), node.opType());
         log.info("Exporting node: [{}:<{}>; OpType: {}; Hash/opNum: {}]", node.opName(), node.tensorflowName(), node.opType(), hash);
 
@@ -4078,6 +4154,7 @@ public class SameDiff {
         for (int e = 0; e < extras.length; e++) {
             extras[e] = ((Number) node.getExtraArgs()[e]).floatValue();
         }
+
 
         int[] extraBits = null;
         if(node.opType() == Op.Type.CUSTOM) {
@@ -4089,22 +4166,28 @@ public class SameDiff {
 
         val inPaired = new ArrayList<Integer>();
 
-        val outputVertexId = node.outputVertexIds();
-        val inputs = graph().getFromFor(outputVertexId);
-        for(int input : inputs) {
+        val outputVertexId = node.outputVariables();
+        val outputIds = new int[outputVertexId.length];
+        for(int i = 0; i < outputIds.length; i++) {
+            outputIds[i] = variables.indexOf(outputVertexId[i]);
+        }
+
+
+        val inputs = node.args();
+        for(val input : inputs) {
             for(int i = 0; i < outputVertexId.length; i++) {
-                inPaired.add(IntPair.createIntPair(bufferBuilder,input,i));
+                inPaired.add(IntPair.createIntPair(bufferBuilder,variables.indexOf(input),i));
             }
         }
 
 
         int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
-        int nodesOut = FlatNode.createOutputVector(bufferBuilder,outputVertexId);
+        int nodesOut = FlatNode.createOutputVector(bufferBuilder,outputIds);
         int extraz = FlatNode.createExtraParamsVector(bufferBuilder, extras);
         int integerArgs = FlatNode.createExtraIntegerVector(bufferBuilder, extraBits);
         int dimensions = FlatNode.createDimensionsVector(bufferBuilder, node.getDimensions() != null ? node.getDimensions() : new int[]{});
-        int fname = bufferBuilder.createString(getVariableForVertexId(outputVertexId[0]).getVarName());
+        int fname = bufferBuilder.createString(outputVertexId == null  || outputVertexId[0] == null ? "none" : outputVertexId[0].getVarName());
         int scopeName = bufferBuilder.createString("");
 
         if (node.opType() == null)
@@ -4112,7 +4195,7 @@ public class SameDiff {
 
         int flatNode = FlatNode.createFlatNode(
                 bufferBuilder,
-                outputVertexId[0],
+                variables.indexOf(outputVertexId[0]),
                 fname,
                 getFlatOpType(node.opType()),
                 hash,
@@ -4139,6 +4222,7 @@ public class SameDiff {
         val flatNodes = new ArrayList<Integer>();
 
         // first of all we build VariableSpace dump
+        List<SDVariable> variableList = new ArrayList<>(variables());
 
         int idx = 0;
         for (val variable: variables()) {
@@ -4158,7 +4242,7 @@ public class SameDiff {
 
         //add functions
         for(val func : fromToTable.values()) {
-            flatNodes.add(asFlatNode(func,bufferBuilder));
+            flatNodes.add(asFlatNode(func,bufferBuilder,variableList));
         }
 
         // we're dumping scopes now
@@ -4167,7 +4251,7 @@ public class SameDiff {
 
             // converting all ops from node
             for (val node: scope.getValue().variables()) {
-                flatNodes.add(asFlatNode(node, bufferBuilder));
+                flatNodes.add(asFlatNode(node, bufferBuilder,variableList));
             }
         }
 

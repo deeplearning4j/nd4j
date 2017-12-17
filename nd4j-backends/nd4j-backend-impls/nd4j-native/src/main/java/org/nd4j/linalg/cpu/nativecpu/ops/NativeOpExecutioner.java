@@ -1466,6 +1466,11 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         }
 
         val outputArgs = op.outputArguments();
+        for(int i = 0; i < outputArgs.length; i++) {
+            if(outputArgs[i] == null)
+                throw new ND4JIllegalStateException("Op output arguments must not be null!");
+        }
+
 
         val outputShapes = new PointerPointer<>(op.numOutputArguments());
         val outputBuffers = new PointerPointer<>(op.numOutputArguments());

@@ -11,6 +11,7 @@ import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
+import org.nd4j.linalg.api.ops.CustomOpDescriptor;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -501,6 +502,21 @@ public class While extends DifferentialFunction implements CustomOp {
             ret.add(sameDiff.getShapeForVarName(var.getVarName()));
         }
         return ret;
+    }
+
+    @Override
+    public CustomOpDescriptor getDescriptor() {
+        return null;
+    }
+
+    @Override
+    public void assertValidForExecution() {
+
+    }
+
+    @Override
+    public void populateInputsAndOutputsFromSameDiff() {
+
     }
 
 

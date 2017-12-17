@@ -124,14 +124,8 @@ public class Transpose extends DynamicCustomOp {
         }
 
         val permuteArrayOp = TFGraphMapper.getInstance().getNDArrayFromTensor("value",permuteDimsNode,graph);
-        val outputVertexId = outputVariables()[0].getVarName();
         if(permuteArrayOp != null) {
             this.permuteDims = permuteArrayOp.data().asInt();
-            if(arg().getShape() != null) {
-                val permutedShape = ArrayUtil.permute(arg().getShape(),permuteDims);
-                sameDiff.putShapeForVarName(outputVertexId,permutedShape);
-            }
-
             for(int i = 0; i < permuteDims.length; i++) {
                 addIArgument(permuteDims[i]);
             }

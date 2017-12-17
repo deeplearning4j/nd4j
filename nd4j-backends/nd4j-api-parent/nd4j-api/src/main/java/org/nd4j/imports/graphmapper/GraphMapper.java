@@ -92,7 +92,7 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      * @param graph
      * @return
      */
-    Map<String,Pair<int[],int[]>> inputsAndOutputsForGraph(GRAPH_TYPE graph);
+    Map<String, Pair<int[], int[]>> inputsAndOutputsForGraph(GRAPH_TYPE graph);
 
     /**
      * Get the variables for the given graph
@@ -100,6 +100,7 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
      * @return a map of variable name to tensor
      */
     Map<String,TENSOR_TYPE> variablesForGraph(GRAPH_TYPE graphType);
+
 
     /**
      *

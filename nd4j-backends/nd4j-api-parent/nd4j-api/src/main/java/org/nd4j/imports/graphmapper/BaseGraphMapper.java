@@ -7,6 +7,7 @@ import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.opstate.EdgeId;
+import org.nd4j.autodiff.opstate.NDArrayVertex;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -137,8 +138,11 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
         ImportState<GRAPH_TYPE,TENSOR_TYPE> importState = new ImportState<>();
         importState.setSameDiff(diff);
         importState.setGraph(tfGraph);
+
         val variablesForGraph = variablesForGraph(tfGraph);
         importState.setVariables(variablesForGraph);
+
+
         //map the names of the nodes while accumulating the vertex ids
         //for each variable
         for(Map.Entry<String,TENSOR_TYPE> entry : variablesForGraph.entrySet()) {
@@ -174,7 +178,7 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
                         importState.getSameDiff().setOriginalPlaceHolderShape(var.getVarName(),originalShape);
 
                 }
-              //  indexMap.put(entry.getKey(),var.getVertexId());
+
             }
             else {
                 val originalShape = getShapeFromTensor(entry.getValue());
@@ -193,9 +197,22 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
         }
 
+        //disable bootstrapping due to import
+        diff.disableBootStrap();
+
+        //setup vertex ids for  names
+
+
         //handle mapping vertex ids properly
         val inputsAndOutputs = inputsAndOutputsForGraph(tfGraph);
         importState.setVertexIdMap(inputsAndOutputs);
+
+        int count = 1;
+        for(val nodeName : variablesForGraph.keySet()) {
+            diff.setVertexIdForVariable(count,diff.getVariable(nodeName));
+            diff.graph().addVertex(new NDArrayVertex(diff,count,0,diff.getVariable(nodeName)));
+            count++;
+        }
 
 
         val tfNodesList = getNodeList(tfGraph);

@@ -11,6 +11,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
+import org.nd4j.linalg.api.ops.CustomOpDescriptor;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.AttrValue;
@@ -282,6 +283,21 @@ public class If extends DifferentialFunction implements CustomOp {
     @Override
     public List<int[]> calculateOutputShape() {
         return Arrays.asList(new int[]{1,1});
+    }
+
+    @Override
+    public CustomOpDescriptor getDescriptor() {
+        return null;
+    }
+
+    @Override
+    public void assertValidForExecution() {
+
+    }
+
+    @Override
+    public void populateInputsAndOutputsFromSameDiff() {
+
     }
 
     @Override

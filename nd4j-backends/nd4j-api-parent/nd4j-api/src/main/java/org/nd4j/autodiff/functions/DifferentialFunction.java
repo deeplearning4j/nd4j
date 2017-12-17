@@ -153,40 +153,8 @@ public abstract class DifferentialFunction {
     }
 
 
-    /**
-     * Get the input vertex ids
-     * for this function
-     * @return
-     */
-    public int[] inputVertexIds() {
-        val args = args();
-        /*int[] ret = new int[args.length];
-        for(int i = 0; i < args.length; i++) {
-            ret[i] = args[i].getVertexId();
-        }*/
-
-        //return ret;
-        throw new UnsupportedOperationException();
-    }
 
 
-    /**
-     * Get the input vertex ids
-     * for this function
-     * @return
-     */
-    public int[] outputVertexIds() {
-        val args = outputVariables();
-       /* int[] ret = new int[args.length];
-        for(int i = 0; i < args.length; i++) {
-            ret[i] = args[i].getVertexId();
-        }
-
-        return ret;*/
-
-        throw new UnsupportedOperationException();
-
-    }
 
 
 
@@ -304,8 +272,11 @@ public abstract class DifferentialFunction {
 
 
     private void setInstanceId() {
-        if(instanceId == null)
+        if(instanceId == null) {
             this.instanceId = UUID.randomUUID().toString();
+            if(sameDiff != null)
+                sameDiff.putFunctionForId(instanceId,this);
+        }
     }
 
     public String opName() {

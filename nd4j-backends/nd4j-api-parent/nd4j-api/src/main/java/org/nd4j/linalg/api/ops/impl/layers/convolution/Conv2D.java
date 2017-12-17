@@ -145,11 +145,11 @@ public class Conv2D extends DynamicCustomOp {
         int kY = kernelShape.getIntsList().get(0).intValue();
         int kX = kernelShape.getIntsList().size() < 2 ? kY : kernelShape.getIntsList().get(1).intValue();
 
-        val vertexId = inputVertexIds()[0];
+        val vertexId = args()[0];
 
-        INDArray arr = sameDiff.getVariableForVertexId(vertexId).getArr();
+        INDArray arr = vertexId.getArr();
         arr = (arr.permute(3, 2, 0, 1).dup('c'));
-        initWith.associateArrayWithVariable(arr, initWith.getVariableForVertexId(vertexId));
+        initWith.associateArrayWithVariable(arr, vertexId);
 
 
 
