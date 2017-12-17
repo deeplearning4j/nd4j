@@ -136,11 +136,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             return true;
 
         boolean endsWithRead = opType.getName().endsWith("/read");
-        boolean isNoOp = opType.getOp().equalsIgnoreCase("NoOp");
         boolean isReductionIndices = opType.getOp().endsWith("/reduction_indices");
-        boolean isIdentity = opType.getOp().endsWith("Identity");
-
-        return  endsWithRead || isNoOp || isReductionIndices || isIdentity;
+        return  endsWithRead  || isReductionIndices;
     }
 
     @Override
@@ -263,14 +260,32 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             if (shouldSkip(node))
                 continue;
             val nodeName = getNodeName(node.getName());
-            val outputsForNode = !outputs.containsKey(nodeName) ? new int[0] : Ints.toArray(outputs.get(nodeName));
-            val inputIndices = new int[node.getInputCount()];
-            for(int i = 0; i < node.getInputCount(); i++) {
-                val inputName = getNodeName(node.getInput(i));
-                inputIndices[i] = nodeNameToVertexId.get(inputName);
+            int[] outputsForNode = !outputs.containsKey(nodeName) ? new int[0] : Ints.toArray(outputs.get(nodeName));
+            if(!isVariableNode(node)) {
+                val inputIndices = new int[node.getInputCount()];
+                for(int i = 0; i < node.getInputCount(); i++) {
+                    val inputName = getNodeName(node.getInput(i));
+                    inputIndices[i] = nodeNameToVertexId.get(inputName);
+                }
+
+                if(outputsForNode.length < 1) {
+                    outputsForNode = new int[]{nodeNameToVertexId.get(nodeName)};
+                    ret.put(nodeName,Pair.of(inputIndices,outputsForNode));
+                }
+
+                ret.put(nodeName,Pair.of(inputIndices,outputsForNode));
             }
 
-            ret.put(nodeName,Pair.of(inputIndices,outputsForNode));
+            else {
+                if(node.getInputCount() < 1)
+                    ret.put(nodeName,Pair.of(new int[]{nodeNameToVertexId.get(nodeName)},outputsForNode));
+                if(outputsForNode.length < 1) {
+                    outputsForNode = new int[]{nodeNameToVertexId.get(nodeName)};
+                    ret.put(nodeName,Pair.of(new int[]{nodeNameToVertexId.get(nodeName)},outputsForNode));
+                }
+
+            }
+
         }
 
         return ret;
@@ -378,6 +393,9 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 }
 
                 //node
+                /**
+                 * Seems to not be linking last variable.
+                 */
                 if(indices.getFirst().length < 1 || indices.getSecond().length < 1)
                     return;
 
