@@ -3,10 +3,6 @@ package org.nd4j.autodiff.samediff;
 import lombok.val;
 import org.junit.Test;
 import org.nd4j.autodiff.functions.DifferentialFunction;
-import org.nd4j.autodiff.graph.Graph;
-import org.nd4j.autodiff.graph.api.Edge;
-import org.nd4j.autodiff.graph.api.Vertex;
-import org.nd4j.autodiff.opstate.OpExecOrder;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -15,7 +11,6 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
-import org.nd4j.linalg.api.ops.impl.transforms.Sigmoid;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.AddOp;
 import org.nd4j.linalg.factory.Nd4j;
@@ -78,25 +73,7 @@ public class SameDiffTests {
         assertEquals(twos, inputResult.eval());
     }
 
-    @Test
-    public void testSigmoid() {
-        SameDiff sameDiff = SameDiff.create();
-        INDArray arr = Nd4j.linspace(1, 4, 4);
-        SDVariable x = sameDiff.var("x", arr);
-        SDVariable sigmoid = sameDiff.sigmoid(x);
-        assertEquals(2, sameDiff.graph().numVertices());
-        assertEquals(1, sameDiff.graph().getEdges().size());
-        assertArrayEquals(arr.shape(), sigmoid.getShape());
-        int[][] topoSortResult= sameDiff.graph().topologicalSort();
-        assertEquals(1, sameDiff.graph().getOpOrder().getActions().size());
-        val actions = sameDiff.graph().getOpOrder().getActions();
-        val func = sameDiff.getFunction(actions.get(0).getInputsIds(),actions.get(0).getOutputId());
-        assertEquals("sigmoid", func.opName());
-        Op op = (Op) sameDiff.createOp(sameDiff.graph().getOpOrder().getActions().get(0));
-        assertTrue(op instanceof Sigmoid);
-        Nd4j.getExecutioner().exec(op);
-        assertEquals(Transforms.sigmoid(Nd4j.linspace(1, 4, 4)), op.z());
-    }
+
 
     @Test
     public void testSum() {
@@ -104,12 +81,10 @@ public class SameDiffTests {
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.sum(x, 1);
-        assertEquals(2, sameDiff.graph().numVertices());
-        assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(arr.shape(), result.getShape());
-        int[][] topoSortResult = sameDiff.graph().topologicalSort();
-        assertArrayEquals(new int[][]{{1},{2}}, topoSortResult);
     }
+
+
 
     @Test
     public void testReshape() {
@@ -117,8 +92,6 @@ public class SameDiffTests {
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4)).reshape(2, 2);
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.reshape(x, 2, 2);
-        assertEquals(2, sameDiff.graph().numVertices());
-        assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{2, 2}, result.getShape());
 
     }
@@ -130,8 +103,6 @@ public class SameDiffTests {
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.transpose(x);
         sameDiff.exec();
-        assertEquals(2, sameDiff.graph().numVertices());
-        assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{4, 1}, result.getArr().shape());
 
     }
@@ -164,7 +135,6 @@ public class SameDiffTests {
         SDVariable result = sameDiff.cosineSimilarity(x, y, 1);
         SDVariable addResult = result.add(result);
 
-        assertEquals(4, sameDiff.graph().numVertices());
         assertArrayEquals(new int[]{1, 2}, result.getShape());
     }
 
@@ -176,10 +146,6 @@ public class SameDiffTests {
         SDVariable y = sameDiff.var("y", arr);
         SDVariable result = sameDiff.mmul(x, y);
         SDVariable otherResult = result.add(result);
-        //2 inputs and 2 op results
-        assertEquals(4, sameDiff.graph().numVertices());
-        //2 edges for output
-        assertEquals(2, sameDiff.graph().getEdges().size());
         assertArrayEquals(new int[]{2, 2}, result.getShape());
     }
 
@@ -314,8 +280,6 @@ public class SameDiffTests {
         SDVariable x = sameDiff.var("x", arr);
         SDVariable y = sameDiff.var("y", arr);
         SDVariable result = sameDiff.tensorMmul(x, y, new int[][]{{0}, {1}});
-        assertEquals(3, sameDiff.graph().numVertices());
-        assertEquals(1, sameDiff.graph().getEdges().size());
         assertArrayEquals(ArrayUtil.getTensorMmulShape(new int[]{2, 2, 2}, new int[]{2, 2, 2}, new int[][]{{0}, {1}}), result.getShape());
         assertEquals(48, sameDiff.numElements());
     }
@@ -327,8 +291,6 @@ public class SameDiffTests {
         SDVariable x = sameDiff.var("x", arr);
         SDVariable y = sameDiff.var("y", arr);
         SameDiff tg2 = sameDiff.dup();
-
-        assertEquals(sameDiff.graph(), tg2.graph());
     }
 
 
@@ -554,25 +516,6 @@ public class SameDiffTests {
         assertEquals(assertion,result2);
     }
 
-
-    @Test
-    public void multiInputOutputTest() {
-        Graph<Integer,Integer> ints = new Graph<>();
-        ints.addVertex(new Vertex<>(1,0,1));
-        ints.addVertex(new Vertex<>(2,0,2));
-        ints.addVertex(new Vertex<>(3,1,3));
-        ints.addVertex(new Vertex<>(4,0,2));
-        ints.addVertex(new Vertex<>(5,1,3));
-        //multiple edge outputs
-        ints.addEdge(new Edge<>(new int[]{1},new int[]{2},0,true));
-        ints.addEdge(new Edge<>(new int[]{1},new int[]{3},0,true));
-
-        ints.addEdge(new Edge<>(new int[]{2},new int[]{3},0,true));
-        ints.addEdge(new Edge<>(new int[]{3},new int[]{2},0,true));
-
-        assertEquals(2,ints.getEdgesOut(new int[]{1}).size());
-        assertEquals(2,ints.getIncomingEdges().get(new int[]{3}).size());
-    }
 
 
 
@@ -1289,6 +1232,9 @@ public class SameDiffTests {
 
     }
 
+
+
+
     @Test
     public void testFunctionScalarResultPropagation() {
         SameDiff sameDiffOuter = SameDiff.create();
@@ -1347,61 +1293,10 @@ public class SameDiffTests {
         SDVariable x = sameDiffOuter.var("x",inputs.get("x"));
         SDVariable w = sameDiffOuter.var("w",inputs.get("w"));
         SDVariable output = sameDiffOuter.mmul(x,w);
-        assertEquals(1,sameDiffOuter.graph().getOpOrder().getActions().size());
     }
 
 
 
-
-    @Test
-    public void testGraphBuildingWithScalars() {
-        final SameDiff sameDiffOuter = SameDiff.create();
-        Map<String,INDArray> inputs = variablesForInput();
-
-        sameDiffOuter.defineFunction("logisticPredictions",new LogisticPredictions(),inputs);
-
-        SameDiff logisticPrediction = sameDiffOuter.getFunction("logisticPredictions");
-        List<String> logisticOpNameAssertions = Arrays.asList("mmul","sigmoid");
-        //do standalone test before new op definition to verify graph references
-        //aren't changed with new instances
-        OpExecOrder logisticPredictionOrder = logisticPrediction.graph().getOpOrder();
-        for(int i = 0; i < 2; i++) {
-            val currAction = logisticPrediction.graph().getOpOrder().getActions().get(i);
-            val func = logisticPrediction.getFunction(currAction.getInputsIds(),currAction.getOutputId());
-            assertEquals(logisticOpNameAssertions.get(i),func.opName());
-        }
-
-
-        sameDiffOuter.defineFunction("loss", new SameDiff.SameDiffFunctionDefinition() {
-            @Override
-            public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
-                SDVariable outputs = sameDiffOuter.invokeFunctionOn("logisticPredictions",sameDiff);
-                SDVariable outputTimesY = outputs.rsub(1.0);
-                return new SDVariable[] {outputTimesY};
-            }
-        },inputs);
-
-
-        logisticPredictionOrder = logisticPrediction.graph().getOpOrder();
-        for(int i = 0; i < 2; i++) {
-            val currAction = logisticPrediction.graph().getOpOrder().getActions().get(i);
-            val func = logisticPrediction.getFunction(currAction.getInputsIds(),currAction.getOutputId());
-            assertEquals(logisticOpNameAssertions.get(i),func.opName());
-        }
-
-        SameDiff logisticGraph = sameDiffOuter.getFunction("loss");
-        List<String> opNameAssertions = Arrays.asList("mmul","sigmoid","rsub_scalar");
-        OpExecOrder opExecOrder = logisticGraph.graph().getOpOrder();
-        System.out.println(opExecOrder);
-        assertEquals(3,opExecOrder.getActions().size());
-        val actions = logisticPrediction.graph().getOpOrder().getActions();
-        for(int i = 0; i < actions.size(); i++) {
-            val currAction = logisticPrediction.graph().getOpOrder().getActions().get(i);
-            val func = logisticPrediction.getFunction(currAction.getInputsIds(),currAction.getOutputId());
-            assertEquals(opNameAssertions.get(i),func.opName());
-        }
-
-    }
 
 
     @Test
@@ -1432,29 +1327,13 @@ public class SameDiffTests {
 
             }
         }, inputs);
-        {
 
 
-            SameDiff logisticPrediction = sameDiffOuter.getFunction("logisticPredictions");
-            List<String> logisticOpNameAssertions = Arrays.asList("mmul", "sigmoid");
-            OpExecOrder logisticPredictionOrder = logisticPrediction.graph().getOpOrder();
-            for (int i = 0; i < 2; i++) {
-                val currAction = logisticPrediction.graph().getOpOrder().getActions().get(i);
-                val func = logisticPrediction.getFunction(currAction.getInputsIds(),currAction.getOutputId());
-                assertEquals(logisticOpNameAssertions.get(i), func.opName());
-            }
 
-            SameDiff logisticGraph = sameDiffOuter.getFunction("loss");
-            List<String> opNameAssertions = Arrays.asList("mmul", "sigmoid", "mul");
-            OpExecOrder opExecOrder = logisticGraph.graph().getOpOrder();
-            assertEquals(3, opExecOrder.getActions().size());
-            for (int i = 0; i < 3; i++) {
-                val currAction = logisticPrediction.graph().getOpOrder().getActions().get(i);
-                val func = logisticPrediction.getFunction(currAction.getInputsIds(),currAction.getOutputId());
-                assertEquals(opNameAssertions.get(i), func.opName());
-            }
+        SameDiff logisticPrediction = sameDiffOuter.getFunction("logisticPredictions");
+        List<String> logisticOpNameAssertions = Arrays.asList("mmul", "sigmoid");
 
-        }
+
     }
 
 

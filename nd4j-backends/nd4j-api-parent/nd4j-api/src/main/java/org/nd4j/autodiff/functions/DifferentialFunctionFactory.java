@@ -58,10 +58,6 @@ public class DifferentialFunctionFactory   {
     }
 
     public SameDiff sameDiff() {
-        if(sameDiff.graph().getGraphApply() != null) {
-            return sameDiff.graph().getGraphApply().getSameDiff();
-        }
-
         return sameDiff;
     }
 

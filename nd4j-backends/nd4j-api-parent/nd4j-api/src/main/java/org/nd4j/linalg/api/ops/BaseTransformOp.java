@@ -121,7 +121,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             val var = sameDiff.var(i_v.getVarName() + "-" + opName() + "-" + "-output",shape);
             this.xVertexId = i_v.getVarName();
             this.zVertexId = var.getVarName();
-            sameDiff.putShapeForVarName(var.getVarName(),shape);
+            if(sameDiff.getShapeForVarName(var.getVarName()) == null)
+                sameDiff.putShapeForVarName(var.getVarName(),shape);
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
         }
