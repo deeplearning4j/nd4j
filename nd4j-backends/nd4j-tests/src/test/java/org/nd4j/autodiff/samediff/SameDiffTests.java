@@ -8,11 +8,9 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
-import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
-import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.AddOp;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
@@ -189,7 +187,6 @@ public class SameDiffTests {
         SDVariable variable2 = sameDiff.var("two",Nd4j.scalar(1.0));
         val sum = var.add(variable2);
         assertArrayEquals(new int[]{1,1},sum.getShape());
-        assertTrue(sameDiff.getFunction(new int[]{1,2},new int[]{3}) instanceof AddOp);
 
 
     }
@@ -616,7 +613,7 @@ public class SameDiffTests {
         sameDiff.ifStatement(new SameDiff.DefaultSameDiffConditional(), conditionBody, trueBody, falseBody,firstInputs);
         sameDiff.execBackwards();
         SameDiff grad = sameDiff.getFunction("grad");
-        If ifBlock = (If) grad.getFunction(new int[]{1},new int[]{2});
+       /* If ifBlock = (If) grad.getFunction(new int[]{1},new int[]{2});
         SameDiff assertComparision = SameDiff.create();
         SDVariable initialInput = assertComparision.zero("zero",new int[]{1,1});
         initialInput.addi(1.0);
@@ -624,7 +621,7 @@ public class SameDiffTests {
         assertTrue(ifBlock.getTrueBodyExecuted());
         assertEquals(Nd4j.scalar(1.00),initialInput.getArr());
         assertEquals(Nd4j.scalar(1.0),ifBlock.getLoopBodyExecution().getVariableForVertexId(2).getArr());
-
+*/
     }
 
 

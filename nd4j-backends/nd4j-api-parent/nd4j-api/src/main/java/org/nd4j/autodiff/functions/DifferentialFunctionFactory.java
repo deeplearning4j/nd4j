@@ -207,11 +207,6 @@ public class DifferentialFunctionFactory   {
         return new GradientBackwardsMarker(sameDiff(),iX,sameDiff.scalar(iX.getVarName() + "-pairgrad" ,1.0)).outputVariables()[0];
     }
 
-
-
-
-
-
     public SDVariable abs(SDVariable iX) {
         return new Abs(sameDiff(),iX,null).outputVariables()[0];
     }

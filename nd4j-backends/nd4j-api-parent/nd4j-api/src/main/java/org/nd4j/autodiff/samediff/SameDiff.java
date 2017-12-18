@@ -1,8 +1,6 @@
 package org.nd4j.autodiff.samediff;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import com.google.common.primitives.Ints;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.rits.cloning.Cloner;
@@ -12,7 +10,6 @@ import org.bytedeco.javacpp.BytePointer;
 import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
-
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
@@ -76,10 +73,7 @@ public class SameDiff {
     private Map<String,String[]> ougoingArgsReverse;
     private boolean shouldBootStrap = true;
 
-    private Map<Integer,SDVariable> vertexIdToVariable;
 
-    //index of edges
-    private Table<IntArrayKeyMap.IntArray,IntArrayKeyMap.IntArray,DifferentialFunction> fromToTable;
 
     private DifferentialFunctionFactory functionFactory;
     private Map<String,SDVariable> variableMap;
@@ -261,77 +255,6 @@ public class SameDiff {
     }
 
 
-    /**
-     * Set vertex id for variable (mainly used for import)
-     * @param id the id
-     * @param variable teh variable
-     */
-    public void setVertexIdForVariable(int id,SDVariable variable) {
-        vertexIdToVariable.put(id,variable);
-    }
-
-    /**
-     * Bootstraps the graph.
-     */
-    public void bootstrapGraph() {
-        //should only be used with model import
-        if(!shouldBootStrap)
-            return;
-        if(incomingArgs.values().size() != outgoingArgs.size()) {
-            throw new ND4JIllegalStateException("Unable to bootstrap graph. Missing specified outputs for inputs and outputs. Number of specified inputs was " + incomingArgs.size() + " and specified outputs was " + outgoingArgs.size());
-        }
-
-        int depth = 0;
-        for(val func : functionInstancesById.values()) {
-            //ensure variables are dynamically generated if necessary
-            val outgoingArgs = func.outputVariables();
-            val incomingArgs = incomingArgsReverse.get(func.getInstanceId());
-            int[] argsIndices = new int[incomingArgs.length];
-            int argsIndicesIdx = 0;
-            int vertexId = 1;
-            for(val arg : incomingArgs)  {
-                val var = getVariable(arg);
-                argsIndices[argsIndicesIdx++] = vertexId;
-                vertexIdToVariable.put(vertexId,var);
-            }
-
-            argsIndicesIdx = 0;
-            int[] outgoingIndices = new int[outgoingArgs.length];
-            for(val arg : outgoingArgs)  {
-                val var = arg;
-                argsIndices[argsIndicesIdx++] = vertexId;
-                vertexIdToVariable.put(vertexId,var);
-
-            }
-
-            fromToTable.put(new IntArrayKeyMap.IntArray(argsIndices),new IntArrayKeyMap.IntArray(outgoingIndices),func);
-
-            depth++;
-        }
-
-        //only bootstrap once
-        shouldBootStrap = false;
-    }
-
-
-
-
-
-    /**
-     * Mainly used for model import.
-     * Directly adds in and out indices
-     * for the given function.
-     * Note that vertices and variable
-     * names should already be mapped
-     * before this method is called.
-     *
-     * @param inIndices the input arguments
-     * @param outIndices the output arguments
-     * @param func
-     */
-    public void mapInputAndOutput(int[] inIndices,int[] outIndices,DifferentialFunction func) {
-        fromToTable.put(new IntArrayKeyMap.IntArray(inIndices),new IntArrayKeyMap.IntArray(outIndices),func);
-    }
 
     /**
      *
@@ -341,6 +264,7 @@ public class SameDiff {
     public SDVariable invokeGraphOn(SameDiff sameDiff) {
         //map the new vertices on to the old ones
         Map<Integer,Integer> thisVertexIdToNew = new HashMap<>();
+        int idx = 1;
         for(val var : variables()) {
             val clone = cloner.deepCloneDontCloneInstances(var,var.getSameDiff());
             val newVar = sameDiff.var(clone);
@@ -348,70 +272,48 @@ public class SameDiff {
                 sameDiff.associateArrayWithVariable(var.getArr(),newVar);
             }
 
+
+            thisVertexIdToNew.put(idx,idx);
             clone.setSameDiff(sameDiff);
+            idx++;
 
         }
 
-
-
-        for(val row : fromToTable.rowMap().entrySet()) {
-            for(val edge : row.getValue().entrySet()) {
-                val newFrom = new int[row.getKey().getBackingArray().length];
-                val fromVars = new SDVariable[newFrom.length];
-                for(int i = 0; i < row.getKey().getBackingArray().length; i++) {
-                    newFrom[i] = thisVertexIdToNew.get(row.getKey().getBackingArray()[i]);
-                    //get the var name from the original samediff for transition in to the new graph
-                    fromVars[i] = sameDiff.getVariable(getVariableForVertexId(row.getKey().getBackingArray()[i]).getVarName());
-
-                }
-
-                val newTo = new int[edge.getKey().getBackingArray().length];
-                val toVars = new SDVariable[newTo.length];
-                for(int i = 0; i < edge.getKey().getBackingArray().length; i++) {
-                    newTo[i] = thisVertexIdToNew.get(edge.getKey().getBackingArray()[i]);
-                    //get the var name from the original samediff for transition in to the new graph
-                    toVars[i] = sameDiff.getVariable(getVariableForVertexId(edge.getKey().getBackingArray()[i]).getVarName());
-                }
-
-
-
-                val func = cloner.deepCloneDontCloneInstances(edge.getValue());
-                sameDiff.addArgsFor(fromVars,func);
-                sameDiff.addOutgoingFor(toVars, func);
-                sameDiff.putFunctionForId(func.getInstanceId(),func);
-
-            }
-        }
 
 
 
         val newFunctions = new LinkedHashMap<String,DifferentialFunction>();
-        for(DifferentialFunction function : this.fromToTable.values())  {
+        for(DifferentialFunction function :functionInstancesById.values())  {
             DifferentialFunction clone = cloner.deepCloneDontCloneInstances(
                     function,
                     function.getSameDiff());
             clone.setSameDiff(sameDiff);
+            clone.setInstanceId(function.getInstanceId());
+            sameDiff.putFunctionForId(function.getInstanceId(),function);
             newFunctions.put(function.getInstanceId(),clone);
-            for(DifferentialFunction clonedArgs : clone.args()) {
-                clonedArgs.setSameDiff(sameDiff);
+
+            val argsForFunction = function.args();
+            val outputsForFunction = function.outputVariables();
+
+
+            //note that these have the same variable names
+            sameDiff.addArgsFor(argsForFunction,clone);
+            sameDiff.addOutgoingFor(outputsForFunction,function);
+
+            for(val arg : clone.args()) {
+                arg.setSameDiff(sameDiff);
             }
 
+            for(val output : clone.outputVariables()) {
+                output.setSameDiff(sameDiff);
+            }
 
         }
 
-        for(val entry : this.fromToTable.rowMap().entrySet()) {
-            val oldFrom = entry.getKey().getBackingArray();
-            val oldTo = entry.getValue().keySet().iterator().next().getBackingArray();
-
-            val currFunc = entry.getValue().values().iterator().next();
-            val reMappedFrom = new IntArrayKeyMap.IntArray(new int[]{thisVertexIdToNew.get(oldFrom[0])});
-            val reMappedTo =  new IntArrayKeyMap.IntArray(new int[]{thisVertexIdToNew.get(oldTo[0])});
-            currFunc.setSameDiff(sameDiff);
-            sameDiff.fromToTable.put(reMappedFrom,reMappedTo,newFunctions.get(currFunc.getInstanceId()));
-            sameDiff.functionInstancesById.put(currFunc.getInstanceId(),currFunc);
+        for(val reverseArrayEntry : reverseArrayLookup.entrySet()) {
+            sameDiff.reverseArrayLookup.put(reverseArrayEntry.getKey(),sameDiff.getVariable(reverseArrayEntry.getValue().getVarName()));
         }
 
-        sameDiff.reverseArrayLookup.putAll(reverseArrayLookup);
         return sameDiff.variables().get(sameDiff.variables().size() - 1);
 
     }
@@ -514,21 +416,6 @@ public class SameDiff {
 
 
 
-
-
-    /**
-     * Get the variable for a given vertex id.
-     * Note that this is *not* a primary
-     * key for a given variable. A variable itself
-     * can be an input or an output to multiple functions
-     * and will therefore have multiple vertex ids.
-     * @param vertexId the vertex id to get the variable for
-     * @return the variable for the given vertex id
-     */
-    public SDVariable getVariableForVertexId(int vertexId) {
-        return vertexIdToVariable.get(vertexId);
-    }
-
     /**
      * Update the ndarray for the given vertex id.
      * @throws {@link ND4JIllegalStateException} when the array does not exist.
@@ -616,16 +503,6 @@ public class SameDiff {
         variableNameToShape.put(varName,shape);
     }
 
-
-    /**
-     * Disable bootstrapping.
-     * This means calls to
-     * {@link #bootstrapGraph()} }
-     * will not be called.
-     */
-    public void disableBootStrap() {
-        shouldBootStrap = false;
-    }
 
     /**
      * Associate a vertex id with the given shape.
@@ -807,13 +684,11 @@ public class SameDiff {
         placeHolderMap = new LinkedHashMap<>();
         placeHolderVarNames = new LinkedHashSet<>();
         placeHolderOriginalShapes = new LinkedHashMap<>();
-        vertexIdToVariable = new LinkedHashMap<>();
         incomingArgs = new LinkedHashMap<>();
         outgoingArgs = new LinkedHashMap<>();
         incomingArgsReverse = new LinkedHashMap<>();
         ougoingArgsReverse = new LinkedHashMap<>();
         this.functionInstancesById = new LinkedHashMap<>();
-        fromToTable = HashBasedTable.create();
         placeHolderFunctions = new LinkedHashSet<>();
         functionsArgsFor = new LinkedHashMap<>();
         functionOutputFor = new LinkedHashMap<>();
@@ -985,21 +860,10 @@ public class SameDiff {
         return false;
     }
 
-    /**
-     * Get the function matching
-     * the specified inputs and outputs
-     * @param inputArgs the inputs
-     * @param outputArgs the outputs
-     * @return the function for the given inputs
-     * and outputs or null
-     */
-    public DifferentialFunction getFunction(int[] inputArgs,int[] outputArgs) {
-        return fromToTable.get(new IntArrayKeyMap.IntArray(inputArgs),new IntArrayKeyMap.IntArray(outputArgs));
-    }
 
     public DifferentialFunction[] functions() {
-        val values  = fromToTable.values();
-        return values.toArray(new DifferentialFunction[values.size()]);
+        val ret =  functionInstancesById.values();
+        return ret.toArray(new DifferentialFunction[ret.size()]);
     }
 
 
@@ -3439,7 +3303,7 @@ public class SameDiff {
      * @param function
      */
     public void defineFunction(String function,SameDiffFunctionDefinition functionDefinition) {
-        defineFunction(function,functionDefinition, new LinkedHashMap<>());
+        defineFunction(function,functionDefinition, new LinkedHashMap<String,INDArray>());
     }
 
     /**
@@ -3525,16 +3389,22 @@ public class SameDiff {
                         sameDiff.enableDebugMode();
                     }
 
-                    //may not be fully bootstrapped yet
-                    if(outer.shouldBootStrap) {
-                        outer.bootstrapGraph();
-                    }
-
                     outer.invokeGraphOn(sameDiff);
 
                     List<DifferentialFunction> allFunctions = new ArrayList<DifferentialFunction>(sameDiff.functionInstancesById.values());
                     if(allFunctions.isEmpty()) {
                         throw new ND4JIllegalStateException("No ops found!");
+                    }
+
+
+                    for(val func : allFunctions) {
+                        val args = func.args();
+                        for(val arg : args)
+                            arg.setSameDiff(sameDiff);
+                        val outputs = func.outputVariables();
+                        for(val output : outputs)
+                            output.setSameDiff(sameDiff);
+                        func.setSameDiff(sameDiff);
                     }
 
                     val initialOuts =  allFunctions.get(allFunctions.size() - 1).outputVariables();
@@ -3872,7 +3742,7 @@ public class SameDiff {
     public Pair<Map<SDVariable,DifferentialFunction>,List<DifferentialFunction>> execWithPlaceHolder(Map<String,INDArray> inputs) {
         resolveVariablesWith(inputs);
         //resolve the place holders
-        for(DifferentialFunction function : fromToTable.values()) {
+        for(DifferentialFunction function : functionInstancesById.values()) {
             function.initWithArrays(inputs);
         }
 
@@ -3927,7 +3797,7 @@ public class SameDiff {
         }
 
         if(!resolvedVariables)
-            resolveVariablesWith(Collections.emptyMap());
+            resolveVariablesWith(new LinkedHashMap<String, INDArray>());
 
         List<DifferentialFunction> ops = new ArrayList<>();
 
@@ -4258,7 +4128,7 @@ public class SameDiff {
         }
 
         //add functions
-        for(val func : fromToTable.values()) {
+        for(val func : functionInstancesById.values()) {
             flatNodes.add(asFlatNode(func,bufferBuilder,variableList));
         }
 

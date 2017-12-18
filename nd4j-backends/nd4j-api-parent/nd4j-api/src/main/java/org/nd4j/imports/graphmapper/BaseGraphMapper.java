@@ -181,9 +181,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
         }
 
-        //disable bootstrapping due to import
-        diff.disableBootStrap();
-
         //setup vertex ids for  names
 
 
@@ -191,11 +188,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
         val inputsAndOutputs = inputsAndOutputsForGraph(tfGraph);
         importState.setVertexIdMap(inputsAndOutputs);
 
-        int count = 1;
-        for(val nodeName : variablesForGraph.keySet()) {
-            diff.setVertexIdForVariable(count,diff.getVariable(nodeName));
-            count++;
-        }
 
 
         val tfNodesList = getNodeList(tfGraph);

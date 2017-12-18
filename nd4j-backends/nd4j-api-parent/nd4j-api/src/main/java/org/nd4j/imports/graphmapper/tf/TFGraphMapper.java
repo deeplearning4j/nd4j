@@ -403,8 +403,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 val from = indices.getFirst();
                 val to = indices.getSecond();
 
-                  diff.addArgsFor(args,newInstance);
+                diff.addArgsFor(args,newInstance);
 
+
+                val varsList = new ArrayList<SDVariable>(diff.variables());
                 //make sure variables are properly mapped
                 if(diff.getVariable(TFGraphMapper.getInstance().getNodeName(tfNode.getName())) == null)
                     diff.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'));
@@ -413,7 +415,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 importState.getSameDiff().putFunctionForId(newInstance.getInstanceId(),newInstance);
                 val outgoingArgs = new SDVariable[to.length];
                 for(int i = 0; i < to.length; i++) {
-                    outgoingArgs[i] = diff.getVariableForVertexId(to[i]);
+                    outgoingArgs[i] = varsList.get(to[i]);
                     if(outgoingArgs[i] == null) {
                         throw new ND4JIllegalStateException("Invalid variable for index: " + to[i]);
                     }
@@ -421,9 +423,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
                 diff.addOutgoingFor(outgoingArgs,newInstance);
                 newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
-                //ensure functions are mapped for execution
-                diff.mapInputAndOutput(indices.getFirst(),indices.getSecond(),newInstance);
-
 
 
             } catch (Exception e) {
