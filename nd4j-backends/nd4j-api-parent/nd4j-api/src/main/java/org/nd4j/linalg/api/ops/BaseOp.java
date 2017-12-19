@@ -327,9 +327,15 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     }
 
     @Override
-    public SDVariable[] outputVariables() {
-        return new SDVariable[] {sameDiff.getVariable(zVertexId)};
+    public SDVariable[] outputVariables(String baseName) {
+        if(zVertexId == null)  {
+            //xyz ops only have 1 output
+            this.zVertexId = sameDiff.generateOutputVariableForOp(this)[0].getVarName();
+        }
+
+        return new SDVariable[]{sameDiff.getVariable(zVertexId)};
     }
+
 
     @Override
     public long n() {

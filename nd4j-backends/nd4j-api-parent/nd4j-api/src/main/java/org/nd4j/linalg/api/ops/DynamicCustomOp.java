@@ -141,22 +141,54 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             }
 
 
+            val newVars = sameDiff.generateOutputVariableForOp(this,null);
+
+            for(int i = 0; i < newVars.length; i++) {
+                val arr = newVars[i].storeAndAllocateNewArray();
+                addOutputArgument(arr);
+            }
+
+            outputVariables = newVars;
+            if(sameDiff.getOutputsForFunction(this) == null)
+                sameDiff.addOutgoingFor(outputVariables,this);
+            return newVars;
+
+
+        }
+
+        return outputVariables;
+    }
+
+    @Override
+    public SDVariable[] outputVariables(String baseName) {
+        if(this.outputVariables == null) {
+            val outputNames = sameDiff.getOutputsForFunction(this);
+            //no need to dynamically create if already exists
+            if(outputNames != null) {
+                outputVariables = new SDVariable[outputNames.length];
+                for(int i = 0; i < outputVariables.length; i++) {
+                    outputVariables[i] = sameDiff.getVariable(outputNames[i]);
+                }
+
+                return outputVariables;
+            }
+
+
             val shapes = calculateOutputShape();
             if(shapes.isEmpty())
                 throw new ND4JIllegalStateException("Unable to find to vertex id output functions for vertex ");
             else {
-                val newVars = new SDVariable[shapes.size()];
+                val newVars = sameDiff.generateOutputVariableForOp(this,baseName);
 
-                for(int i = 0; i < shapes.size(); i++) {
-                    val var = sameDiff.var("output-" + opName() + UUID.randomUUID().toString(),shapes.get(i));
-                    newVars[i] = var;
-                    val arr = var.storeAndAllocateNewArray();
+                for(int i = 0; i < newVars.length; i++) {
+                    val arr = newVars[i].storeAndAllocateNewArray();
                     addOutputArgument(arr);
                 }
 
                 outputVariables = newVars;
                 if(sameDiff.getOutputsForFunction(this) == null)
                     sameDiff.addOutgoingFor(outputVariables,this);
+
                 return newVars;
             }
 

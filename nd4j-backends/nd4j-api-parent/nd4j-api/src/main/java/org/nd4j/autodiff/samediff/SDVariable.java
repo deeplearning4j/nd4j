@@ -80,6 +80,11 @@ public class SDVariable extends DifferentialFunction implements Serializable {
         return new SDVariable[0];
     }
 
+    @Override
+    public SDVariable[] outputVariables(String baseName) {
+        return new SDVariable[0];
+    }
+
 
     @Override
     public boolean isVariable() {

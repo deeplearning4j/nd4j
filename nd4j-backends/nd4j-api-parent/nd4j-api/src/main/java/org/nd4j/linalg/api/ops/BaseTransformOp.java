@@ -25,7 +25,6 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
-import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.linalg.util.LinAlgExceptions;
 
 import java.util.ArrayList;
@@ -57,19 +56,9 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
             this.inPlace = inPlace;
-            int[] retShape = null;
-            if(ArrayUtil.prod(i_v1.getShape()) > ArrayUtil.prod(i_v2.getShape()))
-                retShape = i_v1.getShape();
-            else if(ArrayUtil.prod(i_v1.getShape()) > ArrayUtil.prod(i_v2.getShape()))
-                retShape = i_v2.getShape();
-            else
-                retShape = i_v1.getShape();
-            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + "-output",retShape);
             this.xVertexId = i_v1.getVarName();
             this.yVertexId = i_v2.getVarName();
-            this.zVertexId = var.getVarName();
             sameDiff.addArgsFor(new SDVariable[]{i_v1,i_v2},this);
-            sameDiff.addOutgoingFor(new SDVariable[]{var},this);
 
 
 
@@ -98,7 +87,6 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             sameDiff.putShapeForVarName(var.getVarName(),i_v1.getShape());
             this.xVertexId = i_v1.getVarName();
             this.yVertexId = i_v2.getVarName();
-            this.zVertexId = var.getVarName();
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
@@ -121,13 +109,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
 
         if (i_v != null) {
             f().validateDifferentialFunctionsameDiff(i_v);
-            val var = sameDiff.var(i_v.getVarName() + "-" + opName() + "-" + "-output",shape);
             this.xVertexId = i_v.getVarName();
-            this.zVertexId = var.getVarName();
-            if(sameDiff.getShapeForVarName(var.getVarName()) == null)
-                sameDiff.putShapeForVarName(var.getVarName(),shape);
             sameDiff.addArgsFor(new SDVariable[]{i_v},this);
-            sameDiff.addOutgoingFor(new SDVariable[]{var},this);
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
         }
