@@ -326,6 +326,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 importState.getSameDiff().putFunctionForId(newInstance.getInstanceId(),newInstance);
                  //ensure we can track node name to function instance later.
                 diff.setBaseNameForFunctionInstanceId(tfNode.getName(),newInstance);
+                diff.addVarNameForImport(tfNode.getName());
 
             } catch (Exception e) {
                 log.error("Failed with [{}]", opName);

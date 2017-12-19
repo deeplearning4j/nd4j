@@ -72,7 +72,7 @@ public class SameDiff {
     private Map<String,String[]> incomingArgsReverse;
     private Map<String,String[]> ougoingArgsReverse;
     private boolean shouldBootStrap = true;
-
+    private Set<String> importedVarName;
     //map a function's instance id to a base name, used for propagating variable names
     //for output during import
     private Map<String,String> baseNameForFunctionInstanceId;
@@ -462,12 +462,6 @@ public class SameDiff {
      * @return the shape for the given vertex if if any.
      */
     public int[] getShapeForVarName(String varName) {
-        //first check that the shape doesn't already exists.
-        //if it does, remove it
-        if(variableNameToArr.containsKey(varName) && variableNameToShape.containsKey(varName)) {
-            variableNameToShape.remove(varName);
-        }
-
         if(variableNameToArr.containsKey(varName)) {
             return variableNameToArr.get(varName).shape();
         }
@@ -695,9 +689,30 @@ public class SameDiff {
         functionsArgsFor = new LinkedHashMap<>();
         functionOutputFor = new LinkedHashMap<>();
         baseNameForFunctionInstanceId = new LinkedHashMap<>();
+        importedVarName = new LinkedHashSet<>();
 
     }
 
+    /**
+     * Returns true if the variable name is imported
+     * @param variableName the imported variable name
+     * @return true if the name is imported, false otherwise
+     */
+    public boolean isImportVariable(String variableName) {
+        return importedVarName.contains(variableName);
+    }
+
+    /**
+     * Marks a variable name as imported.
+     * This is used in conjunction with model
+     * import to ensure immutability
+     * when referencing graph variables
+     * mapped from an external source.
+     * @param varName the var name to add.
+     */
+    public void addVarNameForImport(String varName) {
+        importedVarName.add(varName);
+    }
 
     /**
      * Sets a base name for the function id.
@@ -3092,19 +3107,22 @@ public class SameDiff {
         if(baseName == null || baseName.isEmpty()   && getBaseNameForFunction(function) != null)
             baseName = getBaseNameForFunction(function);
 
+
         for(int i = 0; i < ret.length; i++) {
             val shape = outputShape.get(i);
             SDVariable checkGet = getVariable(baseName);
             if(checkGet == null) {
                 checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
             }
-            else {
+            else if(!importedVarName.contains(baseName)) {
                 //need to find a new name
                 int count = 1;
                 while((checkGet = getVariable(baseName + "_" + count   + (i > 0 ? ":" +  i : ""))) != null) {
                 }
             }
 
+            else
+                putShapeForVarName(checkGet.getVarName(),shape);
             ret[i] = checkGet;
         }
 

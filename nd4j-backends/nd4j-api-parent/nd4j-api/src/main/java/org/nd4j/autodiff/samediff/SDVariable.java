@@ -209,7 +209,7 @@ public class SDVariable extends DifferentialFunction implements Serializable {
                 return arr.shape();
         }
 
-        return null;
+        return initialShape;
     }
 
 

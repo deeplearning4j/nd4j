@@ -409,10 +409,14 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public void assertValidForExecution() {
         val descriptor = getDescriptor();
-        if(numInputArguments() != descriptor.getNumInputs())
+        if(descriptor == null)
+            throw new NoOpNameFoundException("No descriptor found for op name " + opName());
+
+
+        if(descriptor.getNumInputs() > 0 && numInputArguments() != descriptor.getNumInputs())
             throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of inputs is invalid for execution. Specified " + numInputArguments() + " but should be " + descriptor.getNumInputs());
 
-        if(numOutputArguments() != descriptor.getNumOutputs())
+        if(descriptor.getNumOutputs() > 0 && numOutputArguments() != descriptor.getNumOutputs())
             throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumInputs());
 
         //< 0 means dynamic size
@@ -427,6 +431,9 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public void populateInputsAndOutputsFromSameDiff() {
         val descriptor = getDescriptor();
+        if(descriptor == null)
+            return;
+
         if(numInputArguments() != descriptor.getNumInputs()) {
             //clear just in case
             val args = args();

@@ -25,6 +25,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
+import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.linalg.util.LinAlgExceptions;
 
 import java.util.ArrayList;
@@ -59,7 +60,8 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             this.xVertexId = i_v1.getVarName();
             this.yVertexId = i_v2.getVarName();
             sameDiff.addArgsFor(new SDVariable[]{i_v1,i_v2},this);
-
+            if(i_v1.getShape() != null)
+                this.n = ArrayUtil.prod(i_v1.getShape());
 
 
         } else {
@@ -83,10 +85,12 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v1);
             f().validateDifferentialFunctionsameDiff(i_v2);
             this.sameDiff = sameDiff;
-            val var = sameDiff.var(i_v1.getVarName() + "-" + opName() + "-" + "-output",i_v1.getShape());
-            sameDiff.putShapeForVarName(var.getVarName(),i_v1.getShape());
             this.xVertexId = i_v1.getVarName();
             this.yVertexId = i_v2.getVarName();
+            sameDiff.addArgsFor(new SDVariable[]{i_v1,i_v2},this);
+            if(i_v1.getShape() != null)
+                this.n = ArrayUtil.prod(i_v1.getShape());
+
         } else {
             throw new IllegalArgumentException("Input not null variables.");
         }
@@ -111,6 +115,9 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
             f().validateDifferentialFunctionsameDiff(i_v);
             this.xVertexId = i_v.getVarName();
             sameDiff.addArgsFor(new SDVariable[]{i_v},this);
+            if(i_v.getShape() != null)
+                this.n = ArrayUtil.prod(i_v.getShape());
+
         } else {
             throw new IllegalArgumentException("Input must not null variable.");
         }
@@ -249,6 +256,7 @@ public abstract class BaseTransformOp extends BaseOp implements TransformOp {
         if(arr == null)
             throw new ND4JIllegalStateException("Array must not be null for argument!");
         ret.add(arr.shape());
+        this.n = arr.length();
         return ret;
     }
 

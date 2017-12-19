@@ -179,6 +179,7 @@ public class Range extends DynamicCustomOp {
     public List<int[]> calculateOutputShape() {
         val iArgs = iArgs();
         val tArgs = tArgs();
+        val inputArgs = inputArguments();
         int cnt = 0;
 
         if (iArgs.length > 0) {
@@ -206,6 +207,27 @@ public class Range extends DynamicCustomOp {
             double start = tArgs[0];
             double stop = tArgs[1];
             double step = tArgs[2];
+
+            double e = start;
+            if (start > stop) {
+                while (e > stop) {
+                    cnt++;
+                    e = step > 0.0 ? e - step : e + step;
+                }
+            } else {
+                while (e < stop) {
+                    cnt++;
+                    e += step;
+                }
+            }
+
+            return Arrays.asList(new int[]{1,cnt});
+        }
+
+        else if(inputArgs.length > 0) {
+            double start = inputArgs[0].getDouble(0);
+            double stop = inputArgs[1].getDouble(0);
+            double step = inputArgs[2].getDouble(0);
 
             double e = start;
             if (start > stop) {

@@ -289,7 +289,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
             if(sameDiff != null) {
                 this.x = sameDiff.getArrForVarName(args()[0].getVarName());
                 if(x == null) {
-                    throw new ND4JIllegalStateException("No input found for vertex id " + args()[0].getVarName() + " and op type " + opName() + " and shape " + Arrays.toString(args()[0].getShape()));
+                    x = args()[0].storeAndAllocateNewArray();
                 }
             }
         }
@@ -302,7 +302,7 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
             if(sameDiff != null && args().length > 1) {
                 this.y = sameDiff.getArrForVarName(args()[1].getVarName());
                 if(y == null) {
-                    throw new ND4JIllegalStateException("No input found for vertex id " + args()[1].getVarName() + " and op type " + opName());
+                    y = args()[1].storeAndAllocateNewArray();
                 }
             }
         }
@@ -314,9 +314,9 @@ public abstract class BaseOp extends DifferentialFunction implements Op {
     public INDArray z() {
         if(z == null) {
             if(sameDiff != null) {
-                this.z = sameDiff.getArrForVarName(getZVertexId());
+                this.z = outputVariables()[0].getArr();
                 if(this.z == null) {
-                    val var = sameDiff.getVariable(getZVertexId());
+                    val var = outputVariables()[0];
                     if(var.getShape() != null)
                         this. z = var.storeAndAllocateNewArray();
                 }
