@@ -185,9 +185,6 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
 
         //handle mapping vertex ids properly
-        val inputsAndOutputs = inputsAndOutputsForGraph(tfGraph);
-        importState.setVertexIdMap(inputsAndOutputs);
-
 
 
         val tfNodesList = getNodeList(tfGraph);

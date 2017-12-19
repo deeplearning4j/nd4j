@@ -26,8 +26,10 @@ public abstract class BaseDynamicTransformOp extends DynamicCustomOp {
     @Override
     public List<int[]> calculateOutputShape() {
         val args = args();
-        val firstLength = ArrayUtil.prod(args[0].getShape());
-        val secondLength = ArrayUtil.prod(args[1].getShape());
+        val firstArgShape = args[0].getShape();
+        val secondArgShape = args[1].getShape();
+        val firstLength = ArrayUtil.prod(firstArgShape);
+        val secondLength = ArrayUtil.prod(secondArgShape);
         if(firstLength > secondLength)
             return Arrays.asList(args[0].getShape());
         else

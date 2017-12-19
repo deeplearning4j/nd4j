@@ -210,14 +210,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
         try {
             val newInstance = differentialFunction.getClass().newInstance();
             val args = new SDVariable[tfNode.getInputCount()];
-            for(int i = 0; i < tfNode.getInputCount(); i++) {
-                val  initialVertexId = importState.getVertexIdMap().get(name);
-                args[i] = diff.getVariable(name);
-            }
 
-
-
-            val indices = importState.getVertexIdMap().get(name);
             newInstance.setSameDiff(importState.getSameDiff());
 
             newInstance.initFromOnnx(tfNode,diff,getAttrMap(tfNode),importState.getGraph());

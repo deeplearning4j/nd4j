@@ -15,7 +15,6 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
-import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.*;
 
 import java.io.*;
@@ -369,10 +368,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             try {
                 val newInstance = differentialFunction.getClass().newInstance();
                 val args = new SDVariable[tfNode.getInputCount()];
-                val indices = importState.getVertexIdMap().get(getNodeName(tfNode.getName()));
-                if(indices == null) {
-                    throw new ND4JIllegalStateException("No indices found for " + tfNode.getName());
-                }
 
                 for(int i = 0; i < tfNode.getInputCount(); i++) {
                     val name = getNodeName(tfNode.getInput(i));
@@ -392,38 +387,13 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
                 }
 
-                //node
-                /**
-                 * Seems to not be linking last variable.
-                 */
-                if(indices.getFirst().length < 1 || indices.getSecond().length < 1)
-                    return;
 
-
-                val from = indices.getFirst();
-                val to = indices.getSecond();
 
                 diff.addArgsFor(args,newInstance);
-
-
-                val varsList = new ArrayList<SDVariable>(diff.variables());
-                //make sure variables are properly mapped
-                if(diff.getVariable(TFGraphMapper.getInstance().getNodeName(tfNode.getName())) == null)
-                    diff.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'));
-
                 newInstance.setSameDiff(importState.getSameDiff());
-                importState.getSameDiff().putFunctionForId(newInstance.getInstanceId(),newInstance);
-                val outgoingArgs = new SDVariable[to.length];
-                for(int i = 0; i < to.length; i++) {
-                    outgoingArgs[i] = varsList.get(to[i] - 1);
-                    if(outgoingArgs[i] == null) {
-                        throw new ND4JIllegalStateException("Invalid variable for index: " + to[i]);
-                    }
-                }
 
-                diff.addOutgoingFor(outgoingArgs,newInstance);
                 newInstance.initFromTensorFlow(tfNode,diff,getAttrMap(tfNode),importState.getGraph());
-
+                importState.getSameDiff().putFunctionForId(newInstance.getInstanceId(),newInstance);
 
             } catch (Exception e) {
                 log.error("Failed with [{}]", opName);

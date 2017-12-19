@@ -3636,21 +3636,24 @@ public class SameDiff {
 
         }
 
+        //extra init after we know aray shape
+        for(val func : functionInstancesById.values()) {
+            func.initWithArrays(arrays);
+        }
+
         //propagate variable names, sometimes shapes depend on  variables
         //that have place holders
         for(val func : placeHolderFunctions) {
+            getFunctionById(func).outputVariables();
             val calcOutputShape = getFunctionById(func).calculateOutputShape();
             val outputs = getOutputVariablesForFunction(getFunctionById(func));
             for(int i = 0; i < calcOutputShape.size(); i++) {
-                putShapeForVarName(outputs[i].getVarName(),calcOutputShape.get(i));
-                outputs[i].storeAndAllocateNewArray();
+                if(getShapeForVarName(outputs[i].getVarName()) == null)
+                    putShapeForVarName(outputs[i].getVarName(),calcOutputShape.get(i));
+                if(getArrForVarName(outputs[i].getVarName()) == null)
+                    outputs[i].storeAndAllocateNewArray();
             }
         }
-
-
-
-        // bootstrapGraph();
-
 
 
 
@@ -3741,18 +3744,6 @@ public class SameDiff {
      */
     public Pair<Map<SDVariable,DifferentialFunction>,List<DifferentialFunction>> execWithPlaceHolder(Map<String,INDArray> inputs) {
         resolveVariablesWith(inputs);
-        //resolve the place holders
-        for(DifferentialFunction function : functionInstancesById.values()) {
-            //ensure output variables are calculated
-            function.outputVariables();
-            function.initWithArrays(inputs);
-        }
-
-
-        for(val entry : inputs.entrySet()) {
-            associateArrayWithVariable(entry.getValue(),getVariable(entry.getKey()));
-        }
-
         return exec();
     }
 
