@@ -302,22 +302,16 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
         inputArguments.addAll(Arrays.asList(arg));
 
-        val args = args();
+        val args = sameDiff != null ? args() : null;
         val arrsSoFar = inputArguments();
         //validate arrays passed in, keep in mind that
         //this is a cumulative algorithm so we should always
         //refresh the current list
-        for(int i = 0; i < arg.length; i++) {
-            if(args[i] == null) {
-                throw new ND4JIllegalStateException("Found null array at argument " + i);
+        if (args != null) {
+            for (int i = 0; i < arg.length; i++) {
+                if (!Arrays.equals(args[i].getShape(), arrsSoFar[i].shape()))
+                    throw new ND4JIllegalStateException("Illegal array passed in. Expected shape " + Arrays.toString(args[i].getShape()) + " and received array with shape " + Arrays.toString(arg[i].shape()));
             }
-
-            else if(args[i].getShape() == null) {
-                throw new ND4JIllegalStateException("Found null shape at argument " + i);
-            }
-
-            if(!Arrays.equals(args[i].getShape(),arrsSoFar[i].shape()))
-                throw new ND4JIllegalStateException("Illegal array passed in. Expected shape " + Arrays.toString(args[i].getShape()) + " and received array with shape " + Arrays.toString(arg[i].shape()));
         }
     }
 
@@ -432,7 +426,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     public void populateInputsAndOutputsFromSameDiff() {
         val descriptor = getDescriptor();
         if(descriptor == null)
-            return;
+            throw new ND4JIllegalStateException("No op found for " + opName());
 
         if(numInputArguments() != descriptor.getNumInputs()) {
             //clear just in case
