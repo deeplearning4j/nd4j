@@ -3094,6 +3094,10 @@ public abstract class BaseNDArray implements INDArray, Iterable {
                     return dup().mmuli(other,gemmResultArr);
                 }
 
+                if (other.isView() && other.isVector()) {
+                    return mmuli(other.dup(other.ordering()), gemmResultArr);
+                }
+
                 Nd4j.getBlasWrapper().level3().gemm(ordering(),
                         BlasBufferUtil.getCharForTranspose(other),
                         BlasBufferUtil.getCharForTranspose(gemmResultArr),
