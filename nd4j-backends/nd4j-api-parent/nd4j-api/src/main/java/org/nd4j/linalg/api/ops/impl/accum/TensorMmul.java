@@ -85,9 +85,7 @@ public class TensorMmul extends DynamicCustomOp {
             return Collections.emptyList();
 
         if(aShape != null && bShape != null) {
-            val shape =  this instanceof Mmul ? Shape.getMatrixMultiplyShape(
-                    aShape,bShape)
-                    : getTensorMmulShape(aShape,bShape, axes);
+            val shape =  getTensorMmulShape(aShape,bShape, axes);
             ret.add(shape);
         }
         if(!ret.isEmpty()) {
@@ -239,12 +237,6 @@ public class TensorMmul extends DynamicCustomOp {
     public TensorMmul(INDArray x, INDArray y, INDArray z, int[][] axes) {
         super(null,new INDArray[]{x, y, z},null);
         this.axes = axes;
-    }
-
-
-    @Override
-    public int opNum() {
-        return 3;
     }
 
     @Override
