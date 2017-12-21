@@ -143,16 +143,7 @@ public class SameDiff {
         variableMap.remove(oldVarNameRef.getVarName());
         val oldVarName = varName;
         variableMap.put(withName,oldVarNameRef);
-        if(incomingArgsReverse.containsKey(oldVarName)) {
-            val  args = incomingArgsReverse.remove(oldVarName);
-            incomingArgsReverse.put(withName,args);
-        }
-
-        if (ougoingArgsReverse.containsKey(oldVarName)) {
-            val args = ougoingArgsReverse.remove(oldVarName);
-            ougoingArgsReverse.put(withName,args);
-        }
-
+  
 
         for(val reverseValues : ougoingArgsReverse.entrySet()) {
             for(int i = 0; i < reverseValues.getValue().length; i++) {
