@@ -153,6 +153,24 @@ public class SameDiff {
             ougoingArgsReverse.put(withName,args);
         }
 
+
+        for(val reverseValues : ougoingArgsReverse.entrySet()) {
+            for(int i = 0; i < reverseValues.getValue().length; i++) {
+                if(reverseValues.getValue()[i].equals(oldVarName)) {
+                    reverseValues.getValue()[i] = withName;
+                }
+            }
+        }
+
+
+        for(val reverseValues : incomingArgsReverse.entrySet()) {
+            for(int i = 0; i < reverseValues.getValue().length; i++) {
+                if(reverseValues.getValue()[i].equals(oldVarName)) {
+                    reverseValues.getValue()[i] = withName;
+                }
+            }
+        }
+
         if(variableNameToArr.containsKey(oldVarName)) {
             val arr = variableNameToArr.remove(oldVarName);
             variableNameToArr.put(withName,arr);
@@ -227,6 +245,10 @@ public class SameDiff {
 
             functionOutputFor.put(withName,funcs);
         }
+
+        variableMap.remove(oldVarName);
+
+
     }
 
 
