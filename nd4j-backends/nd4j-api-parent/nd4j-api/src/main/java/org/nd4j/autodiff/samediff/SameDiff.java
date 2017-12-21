@@ -3163,7 +3163,7 @@ public class SameDiff {
                 CustomOp customOp = (CustomOp) function;
                 val descriptor = customOp.getDescriptor();
                 //can't guess number of outputs, variable
-                if(descriptor.getNumOutputs() <= 0) {
+                if(descriptor == null || descriptor.getNumOutputs() <= 0) {
                     return new SDVariable[0];
                 }
                 else {
