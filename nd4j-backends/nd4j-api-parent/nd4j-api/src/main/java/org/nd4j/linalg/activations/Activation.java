@@ -1,6 +1,15 @@
 package org.nd4j.linalg.activations;
 
+import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.activations.impl.*;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.TransformOp;
+import org.nd4j.linalg.api.ops.impl.transforms.*;
+import org.nd4j.linalg.api.ops.impl.transforms.SigmoidDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.TanhDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
+
 
 /**
  * This enum is the factory for the activation function.
@@ -64,6 +73,128 @@ public enum Activation {
      */
     public static Activation fromString(String name) {
         return Activation.valueOf(name.toUpperCase());
+    }
+
+    public SDVariable asSameDiff(SameDiff sd, SDVariable input) {
+        return asSameDiff(null, sd, input);
+    }
+
+    public SDVariable asSameDiff(String variableName, SameDiff sd, SDVariable input){
+        switch (this){
+            case CUBE:
+                return sd.pow(variableName, input, 3.0);
+            case ELU:
+                return sd.elu(variableName, input);
+            case HARDTANH:
+                return sd.hardTanh(variableName, input);
+            case IDENTITY:
+                return input;    //TODO Is this OK in all cases?
+            case LEAKYRELU:
+                return sd.leakyRelu(variableName, input, 0.0);
+            case RELU:
+                return sd.relu(variableName, input, 0.0);
+            case SIGMOID:
+                return sd.sigmoid(variableName, input);
+            case SOFTMAX:
+                return sd.softmax(variableName, input);
+            case SOFTPLUS:
+                return sd.softplus(variableName, input);
+            case SOFTSIGN:
+                return sd.softsign(variableName, input);
+            case TANH:
+                return sd.tanh(variableName, input);
+            case HARDSIGMOID:
+            case RATIONALTANH:
+            case RRELU:
+            case RECTIFIEDTANH:
+            case SELU:
+            case SWISH:
+            default:
+                throw new UnsupportedOperationException("Activation function not yet supported: " + this);
+        }
+    }
+
+    public TransformOp asTransform(INDArray in, boolean dup){
+        if(dup){
+            in = in.dup();
+        }
+        switch(this){
+            case CUBE:
+                return new Cube(in);
+            case ELU:
+                return new ELU(in);
+            case HARDSIGMOID:
+                return new HardSigmoid(in);
+            case HARDTANH:
+                return new HardTanh(in);
+            case IDENTITY:
+                return new OldIdentity(in);
+            case LEAKYRELU:
+                return new LeakyReLU(in);
+            case RATIONALTANH:
+                return new RationalTanh(in);
+            case RELU:
+                return new RectifedLinear(in);
+            case SIGMOID:
+                return new Sigmoid(in);
+            case SOFTMAX:
+                return new OldSoftMax(in);
+            case SOFTPLUS:
+                return new SoftPlus(in);
+            case SOFTSIGN:
+                return new SoftSign(in);
+            case TANH:
+                return new Tanh(in);
+            case RECTIFIEDTANH:
+                return new RectifiedTanh(in);
+            case SELU:
+                return new SELU(in);
+            case SWISH:
+                return new Swish(in);
+            case RRELU:
+            default:
+                throw new UnsupportedOperationException("Not supported via this method: " + this);
+        }
+    }
+
+    public TransformOp asTransformDerivative(INDArray in, boolean dup){
+        if(dup){
+            in = in.dup();
+        }
+        switch(this){
+            case CUBE:
+                return new CubeDerivative(in);
+            case ELU:
+                return new ELUDerivative(in);
+            case HARDSIGMOID:
+                return new HardSigmoidDerivative(in);
+            case HARDTANH:
+                return new HardTanhDerivative(in);
+            case LEAKYRELU:
+                return new LeakyReLUDerivative(in);
+            case RATIONALTANH:
+                return new RationalTanhDerivative(in);
+            case SIGMOID:
+                return new SigmoidDerivative(in);
+            case SOFTPLUS:
+                return new Sigmoid(in);
+            case SOFTSIGN:
+                return new SoftSignDerivative(in);
+            case TANH:
+                return new TanhDerivative(in);
+            case RECTIFIEDTANH:
+                return new RectifiedTanhDerivative(in);
+            case SELU:
+                return new SELUDerivative(in);
+            case SWISH:
+                return new SwishDerivative(in);
+            case IDENTITY:
+            case RRELU:
+            case RELU:
+            case SOFTMAX:
+            default:
+                throw new UnsupportedOperationException("Not supported via this method: " + this);
+        }
     }
 
 }

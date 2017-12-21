@@ -3701,6 +3701,111 @@ public class SameDiff {
     }
 
 
+    public Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> execBackwardsTEST(final INDArray outputGrad) {
+
+        final SameDiff outer = this;
+        if(getFunction("grad-external") == null)
+            defineFunction("grad-external", new SameDiffFunctionDefinition() {
+
+                @Override
+                public SDVariable[] define(SameDiff sameDiff, Map<String, INDArray> inputs, SDVariable[] variableInputs) {
+                    //propagate graph to this samediff instance
+                    //which wil also contain the backward
+                    if(SameDiff.this.debugMode) {
+                        sameDiff.enableDebugMode();
+                    }
+
+                    outer.invokeGraphOn(sameDiff);
+
+                    List<DifferentialFunction> allFunctions = new ArrayList<DifferentialFunction>(sameDiff.functionInstancesById.values());
+                    if(allFunctions.isEmpty()) {
+                        throw new ND4JIllegalStateException("No ops found!");
+                    }
+
+
+                    for(val func : allFunctions) {
+                        val args = func.args();
+                        for(val arg : args)
+                            arg.setSameDiff(sameDiff);
+                        val outputs = func.outputVariables();
+                        for(val output : outputs)
+                            output.setSameDiff(sameDiff);
+                        func.setSameDiff(sameDiff);
+                    }
+
+                    val initialOuts =  allFunctions.get(allFunctions.size() - 1).outputVariables();
+                    val firstBackward = initialOuts[0];
+
+                    //start with scalar backprop
+//                    SDVariable initialGrad = sameDiff.var("one-var",Nd4j.scalar(1.0));
+                    SDVariable initialGrad = sameDiff.var("initialGrad", outputGrad);
+                    sameDiff.forwardVarForGrad.put(firstBackward.getVarName(),initialGrad);
+                    sameDiff.gradients.put(firstBackward.getVarName(),initialGrad);
+
+                    SDVariable gradientBackwardsMarker = sameDiff.gradientBackwardsMarker(firstBackward);
+
+                    //reinitialize list with all declared variables
+                    allFunctions = new ArrayList<DifferentialFunction>(sameDiff.functionInstancesById.values());
+                    Collections.reverse(allFunctions);
+
+
+                    for(DifferentialFunction action : allFunctions) {
+                        if(action instanceof GradientBackwardsMarker) {
+                            log.warn("Action op state is null");
+                            continue;
+                        }
+
+                        DifferentialFunction currFunction = action;
+                        Preconditions.checkState(currFunction.getSameDiff() == sameDiff,"Wrong samediff instance found!");
+                        //Preconditions.checkNotNull("Gradient for " + currFunction.opName() + " was null ! " + sameDiff.getVariableForVertexId(currFunction.getVertexId()).getGradient());
+                        val args = currFunction.outputVariables();
+                        for(val arg : args) {
+                            if(arg.getSameDiff() != sameDiff) {
+                                arg.setSameDiff(sameDiff);
+                            }
+                        }
+
+
+                        List<SDVariable> grads = new ArrayList<>();
+                        for(val varToGrad : args) {
+                            val grad = varToGrad.gradient();
+                            if(grad == null)
+                                throw new ND4JIllegalStateException("No gradient found for " + varToGrad.getVarName());
+                            grads.add(grad);
+                        }
+
+                        currFunction.diff(grads);
+
+
+                    }
+
+
+                    if(sameDiff.isDebugMode()) {
+                        //ensure all gradients are present for all variables
+                        for(SDVariable sdVariable : variables()) {
+                            sdVariable.gradient();
+                        }
+                    }
+
+
+                    return new   SDVariable[] {sameDiff.var("grad",new int[] {1,1})};
+                }
+            });
+
+
+        Pair<Map<SDVariable, DifferentialFunction>, List<DifferentialFunction>> forward = exec("grad-external");
+        SameDiff grad = getFunction("grad-external");
+        if(grad.isDebugMode()) {
+            //ensure all gradients are present for all variables
+            for(SDVariable sdVariable : grad.variables()) {
+                sdVariable.gradient();
+            }
+        }
+
+        return forward;
+    }
+
+
     /**
      * Exec a backwards operation
      * and return the end result
