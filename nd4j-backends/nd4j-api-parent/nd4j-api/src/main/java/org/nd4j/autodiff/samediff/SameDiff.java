@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
 import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
+import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
 import org.nd4j.graph.*;
@@ -4278,10 +4279,9 @@ public class SameDiff {
             }
         }
 
+        log.info("Own Name: {}", node.getOwnName());
         int ownId = reverseMap.size() + 1;
         reverseMap.put(node.outputVariables()[0].getVarName(), ownId);
-
-        log.info("Own Name: {}", node.getInstanceId());
 
         int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
@@ -4397,7 +4397,7 @@ public class SameDiff {
 
     public ByteBuffer asFlatBuffers() {
         val configuration = ExecutorConfiguration.builder()
-                .outputMode(org.nd4j.autodiff.execution.conf.OutputMode.IMPLICIT)
+                .outputMode(OutputMode.VARIABLE_SPACE)
                 .executionMode(org.nd4j.autodiff.execution.conf.ExecutionMode.SEQUENTIAL)
                 .profilingMode(OpExecutioner.ProfilingMode.DISABLED)
                 .gatherTimings(true)

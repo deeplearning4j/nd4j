@@ -28,7 +28,7 @@ public class TFGraphTestList {
 
     public static String[] modelNames = new String[]{
             //"add_n",
-            "ae_00",
+            //"ae_00",
             //"bias_add",
             //"add_n",
             //"ae_00",
@@ -43,7 +43,7 @@ public class TFGraphTestList {
             //"mnist_00",
             //"node_multiple_out",// -> Need to map multiple out values to graph node output values
            // "transform_0",
-           // "transpose"
+            "transpose"
     };
     //change this to SAMEDIFF for samediff
     //public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;
