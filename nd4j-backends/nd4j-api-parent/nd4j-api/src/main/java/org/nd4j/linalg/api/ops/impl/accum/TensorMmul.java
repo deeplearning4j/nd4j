@@ -69,6 +69,11 @@ public class TensorMmul extends DynamicCustomOp {
         if(!addedEdges && sameDiff.getOutputsForFunction(this) == null) {
             addedEdges = true;
         }
+
+        addIArgument(dimensions[0].length);
+        addIArgument(dimensions[0]);
+        addIArgument(dimensions[1].length);
+        addIArgument(dimensions[1]);
     }
 
     @Override
