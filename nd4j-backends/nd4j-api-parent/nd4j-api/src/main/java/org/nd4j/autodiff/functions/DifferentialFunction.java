@@ -144,7 +144,7 @@ public abstract class DifferentialFunction {
      * @return
      */
     public  SDVariable[] outputVariables() {
-        return outputVariables(opName());
+        return outputVariables(getOwnName() != null ? getOwnName() : opName());
     }
 
 

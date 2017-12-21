@@ -683,9 +683,8 @@ public class TensorFlowImportTest {
             val ownName = func.getOwnName();
             val outName = func.outputVariables()[0].getVarName();
 
-            log.info("Own name: {}; OutputName: {}", ownName, outName);
-
             assertTrue("Missing ownName: [" + ownName +"]",variables.containsKey(ownName));
+            assertEquals(ownName, outName);
         }
     }
 
