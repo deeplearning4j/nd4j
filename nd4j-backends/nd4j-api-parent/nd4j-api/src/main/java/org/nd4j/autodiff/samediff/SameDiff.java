@@ -195,15 +195,15 @@ public class SameDiff {
             for(val func : funcs) {
                 if(func instanceof BaseOp) {
                     BaseOp baseOp = (BaseOp) func;
-                    if(baseOp.getXVertexId().equals(oldVarName)) {
+                    if(baseOp.getXVertexId() != null && baseOp.getXVertexId().equals(oldVarName)) {
                         baseOp.setXVertexId(withName);
                     }
 
-                    if(baseOp.getYVertexId().equals(oldVarName)) {
+                    if(baseOp.getYVertexId() != null && baseOp.getYVertexId().equals(oldVarName)) {
                         baseOp.setYVertexId(withName);
                     }
 
-                    if(baseOp.getZVertexId().equals(oldVarName)) {
+                    if(baseOp.getZVertexId() != null && baseOp.getZVertexId().equals(oldVarName)) {
                         baseOp.setZVertexId(withName);
                     }
 
@@ -2564,8 +2564,7 @@ public class SameDiff {
      */
     public SDVariable hardTanh(String name,SDVariable iX) {
         SDVariable result = functionFactory.hardTanh(iX);
-        result.setVarName(name);
-        return result;
+        return updateVariableNameAndReference(result, name);
     }
 
     /**
