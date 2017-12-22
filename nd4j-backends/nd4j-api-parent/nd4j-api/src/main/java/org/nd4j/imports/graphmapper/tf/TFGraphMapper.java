@@ -300,6 +300,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             try {
                 val newInstance = differentialFunction.getClass().newInstance();
                 val args = new SDVariable[tfNode.getInputCount()];
+                newInstance.setOwnName(tfNode.getName());
 
                 for(int i = 0; i < tfNode.getInputCount(); i++) {
                     val name = getNodeName(tfNode.getInput(i));

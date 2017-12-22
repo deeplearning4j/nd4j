@@ -57,7 +57,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
                         "ops/declarable/BooleanOp.h",
                         "ops/declarable/LogicOp.h",
                         "ops/declarable/OpRegistrator.h",
-                        "ops/declarable/CustomOperations.h"}, compiler = "cpp11",
+                        "ops/declarable/CustomOperations.h"}, compiler = {"cpp11", "nowarnings"},
                                 library = "jnind4jcuda", link = "nd4jcuda", preload = "libnd4jcuda"),
                                 @Platform(value = "linux", preload = "gomp@.1",
                                                 preloadpath = {"/lib64/", "/lib/", "/usr/lib64/", "/usr/lib/",
@@ -66,7 +66,7 @@ import org.bytedeco.javacpp.tools.InfoMapper;
 public class Nd4jCudaPresets implements InfoMapper {
     @Override
     public void map(InfoMap infoMap) {
-        infoMap.put(new Info("thread_local", "ND4J_EXPORT", "INLINEDEF", "CUBLASWINAPI", "FORCEINLINE").cppTypes().annotations())
+        infoMap.put(new Info("thread_local", "ND4J_EXPORT", "INLINEDEF", "CUBLASWINAPI", "FORCEINLINE", "_CUDA_H", "_CUDA_D", "_CUDA_G", "_CUDA_HD").cppTypes().annotations())
                 .put(new Info("NativeOps").base("org.nd4j.nativeblas.NativeOps"))
                 .put(new Info("char").valueTypes("char").pointerTypes("@Cast(\"char*\") String",
                         "@Cast(\"char*\") BytePointer"))

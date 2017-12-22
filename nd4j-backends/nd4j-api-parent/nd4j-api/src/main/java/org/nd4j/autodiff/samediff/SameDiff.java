@@ -8,6 +8,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
 import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
+import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
 import org.nd4j.graph.*;
@@ -4315,7 +4316,39 @@ public class SameDiff {
         return flatNode;
     }
 
-    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder,List<SDVariable> variables) {
+    /**
+     * This method extract base variable name and output index (if exists) from raw variable name.
+     * I.e:
+     * - if variable name is "Unstack_2", result will be Pair("Unstack_2", 0)
+     * - if variable name is "Unstack_2:12", result will be Pair("Unstack_2", 12)
+     *
+     *
+     * @param varName
+     * @return
+     */
+    public static Pair<String, Integer> parseVariable(@NonNull String varName) {
+        if (!varName.contains(":")) {
+            return Pair.pairOf(varName, 0);
+        } else {
+            val split = varName.split(":");
+            val index = Integer.valueOf(split[split.length-1]);
+            if (split.length == 2)
+                return Pair.pairOf(split[0], index);
+            else {
+                val builder = new StringBuilder();
+                for (int e = 0; e < split.length - 1; e++) {
+                    builder.append(split[e]);
+
+                    if (e < split.length - 2)
+                        builder.append(":");
+                }
+
+                return Pair.pairOf(builder.toString(), index);
+            }
+        }
+    }
+
+    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder,List<SDVariable> variables, Map<String, Integer> reverseMap) {
         val hash = getOpNum(node.opName(), node.opType());
         //log.info("Exporting node: [{}:<{}> ; OpType: {}; Hash/opNum: {}]", node.opName(), node.tensorflowName(), node.opType(), hash);
 
@@ -4345,10 +4378,20 @@ public class SameDiff {
         val inputs = node.args();
         for(val input : inputs) {
             for(int i = 0; i < outputVertexId.length; i++) {
-                inPaired.add(IntPair.createIntPair(bufferBuilder,variables.indexOf(input),i));
+                val pair = parseVariable(input.getVarName());
+                if (!reverseMap.containsKey(pair.getFirst()))
+                    throw new ND4JIllegalStateException("Unknown variable used in input: [" +  pair.getFirst() + "]");
+
+                int nodeId = reverseMap.get(pair.getFirst());
+                int outputIndex = pair.getSecond();
+
+                inPaired.add(IntPair.createIntPair(bufferBuilder, nodeId, outputIndex));
             }
         }
 
+        // log.info("Own Name: {}", node.getOwnName());
+        int ownId = reverseMap.size() + 1;
+        reverseMap.put(node.outputVariables()[0].getVarName(), ownId);
 
         int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
@@ -4368,8 +4411,7 @@ public class SameDiff {
 
         int flatNode = FlatNode.createFlatNode(
                 bufferBuilder,
-                outputVertexId.length < 1 ||
-                        outputVertexId[0] == null ? -1 : variables.indexOf(outputVertexId[0]),
+                ownId,
                 fname,
                 getFlatOpType(node.opType()),
                 hash,
@@ -4387,6 +4429,12 @@ public class SameDiff {
     }
 
 
+    /**
+     * This method exports given SameDiff instance into FlatBuffers
+     *
+     * @param configuration - ExecutorConfiguration to be embedded into serialized graph
+     * @return
+     */
     public ByteBuffer asFlatBuffers(@NonNull ExecutorConfiguration configuration) {
         Nd4j.getExecutioner().commit();
         FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(1024);
@@ -4397,6 +4445,7 @@ public class SameDiff {
 
         // first of all we build VariableSpace dump
         List<SDVariable> variableList = new ArrayList<>(variables());
+        val reverseMap = new LinkedHashMap<String, Integer>();
 
         int idx = 0;
         for (val variable: variables()) {
@@ -4404,11 +4453,16 @@ public class SameDiff {
             if(variable.getArr() == null || variable.getShape() == null)
                 continue;
 
+            val pair = parseVariable(variable.getVarName());
+            reverseMap.put(pair.getFirst(), ++idx);
+            log.info("Adding [{}] as [{}]", pair.getFirst(), idx);
+
             val arr = variable.getArr();
 
             int name = bufferBuilder.createString(variable.getVarName());
             int array = arr.toFlatArray(bufferBuilder);
-            int id = IntPair.createIntPair(bufferBuilder, idx++, 0);
+            int id = IntPair.createIntPair(bufferBuilder, idx, 0);
+
 
             int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
             flatVariables.add(flatVariable);
@@ -4416,7 +4470,7 @@ public class SameDiff {
 
         //add functions
         for(val func : functionInstancesById.values()) {
-            flatNodes.add(asFlatNode(func,bufferBuilder,variableList));
+            flatNodes.add(asFlatNode(func,bufferBuilder,variableList, reverseMap));
         }
 
         // we're dumping scopes now
@@ -4429,7 +4483,12 @@ public class SameDiff {
 
                 int name = bufferBuilder.createString(node.getVarName());
                 int array = arr.toFlatArray(bufferBuilder);
-                int id = IntPair.createIntPair(bufferBuilder, idx++, 0);
+                int id = IntPair.createIntPair(bufferBuilder, ++idx, 0);
+
+                val pair = parseVariable(node.getVarName());
+                reverseMap.put(pair.getFirst(), idx);
+
+                log.info("Adding [{}] as [{}]", pair.getFirst(), idx);
 
                 int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
                 flatVariables.add(flatVariable);
@@ -4437,7 +4496,7 @@ public class SameDiff {
 
             //add functions
             for(val func : scope.getValue().functionInstancesById.values()) {
-                flatNodes.add(asFlatNode(func,bufferBuilder,currVarList));
+                flatNodes.add(asFlatNode(func,bufferBuilder,currVarList, reverseMap));
             }
 
         }
@@ -4452,9 +4511,14 @@ public class SameDiff {
         return bufferBuilder.dataBuffer();
     }
 
+    /**
+     * This method exports given SameDiff instance into FlatBuffers
+     *
+     * @return
+     */
     public ByteBuffer asFlatBuffers() {
         val configuration = ExecutorConfiguration.builder()
-                .outputMode(org.nd4j.autodiff.execution.conf.OutputMode.IMPLICIT)
+                .outputMode(OutputMode.VARIABLE_SPACE)
                 .executionMode(org.nd4j.autodiff.execution.conf.ExecutionMode.SEQUENTIAL)
                 .profilingMode(OpExecutioner.ProfilingMode.DISABLED)
                 .gatherTimings(true)
@@ -4463,6 +4527,12 @@ public class SameDiff {
         return asFlatBuffers(configuration);
     }
 
+    /**
+     * This method just converts enums
+     *
+     * @param val
+     * @return
+     */
     public static ByteOrder getOrderFromByte(byte val) {
         if (val == org.nd4j.graph.ByteOrder.LE)
             return ByteOrder.LITTLE_ENDIAN;
@@ -4470,6 +4540,10 @@ public class SameDiff {
             return ByteOrder.BIG_ENDIAN;
     }
 
+    /**
+     * This method returns current byte order for this JVM as libnd4j enum
+     * @return
+     */
     public static byte getOrderAsByte() {
         if (ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN))
             return org.nd4j.graph.ByteOrder.BE;
@@ -4493,6 +4567,11 @@ public class SameDiff {
         }
     }
 
+    /**
+     * This method returns "flattened" graph.
+     *
+     * @return
+     */
     public String asFlatPrint() {
         val sb = new StringBuilder();
         val fb = asFlatBuffers();
@@ -4556,6 +4635,12 @@ public class SameDiff {
         return sb.toString();
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param val
+     * @return
+     */
     public static DataBuffer.Type getDataTypeFromByte(byte val) {
         if (val == DataType.FLOAT)
             return DataBuffer.Type.FLOAT;
@@ -4567,6 +4652,12 @@ public class SameDiff {
         throw new UnsupportedOperationException("Unsupported DataType: [" + val + "]");
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static byte getDataTypeAsByte(DataBuffer.Type type) {
         switch (type) {
             case FLOAT: return DataType.FLOAT;
@@ -4578,6 +4669,13 @@ public class SameDiff {
         }
     }
 
+    /**
+     * This method return operation ID for given op name/type pair.
+     *
+     * @param name
+     * @param type
+     * @return
+     */
     public static long getOpNum(String name, Op.Type type) {
         if (type == Op.Type.LOOP) {
             return 0;
@@ -4596,6 +4694,12 @@ public class SameDiff {
             return (long) Nd4j.getOpFactory().getOpNumByName(name);
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static Op.Type getTypeFromByte(byte type) {
         switch (type) {
             case OpType.SCALAR:
@@ -4627,7 +4731,12 @@ public class SameDiff {
         }
     }
 
-
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static byte getFlatOpType(Op.Type type) {
         switch (type) {
             case SCALAR:
