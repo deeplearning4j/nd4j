@@ -20,6 +20,9 @@ public class SRU extends DynamicCustomOp {
 
     private SRUConfiguration configuration;
 
+    public SRU() {
+    }
+
     public SRU(SameDiff sameDiff, SRUConfiguration configuration) {
         super(null, sameDiff, configuration.args());
         this.configuration = configuration;

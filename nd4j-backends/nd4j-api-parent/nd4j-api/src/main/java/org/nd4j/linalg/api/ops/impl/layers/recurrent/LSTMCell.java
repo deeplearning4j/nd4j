@@ -19,6 +19,9 @@ public class LSTMCell extends DynamicCustomOp {
 
     private LSTMCellConfiguration configuration;
 
+    public LSTMCell() {
+    }
+
     public LSTMCell(SameDiff sameDiff, LSTMCellConfiguration configuration) {
         super(null, sameDiff, configuration.args());
         this.configuration = configuration;

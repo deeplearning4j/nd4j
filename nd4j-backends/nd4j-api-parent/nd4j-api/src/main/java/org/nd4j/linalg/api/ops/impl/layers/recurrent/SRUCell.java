@@ -20,7 +20,10 @@ public class SRUCell extends DynamicCustomOp {
 
     private SRUCellConfiguration configuration;
 
-    public SRUCell(SameDiff sameDiff,SRUCellConfiguration configuration) {
+    public SRUCell() {
+    }
+
+    public SRUCell(SameDiff sameDiff, SRUCellConfiguration configuration) {
         super(null, sameDiff, configuration.args());
         this.configuration = configuration;
     }

@@ -14,7 +14,10 @@ public class GRUCell extends DynamicCustomOp {
 
     private GRUCellConfiguration configuration;
 
-    public GRUCell(SameDiff sameDiff,  GRUCellConfiguration configuration) {
+    public GRUCell() {
+    }
+
+    public GRUCell(SameDiff sameDiff, GRUCellConfiguration configuration) {
         super(null, sameDiff, configuration.args());
         this.configuration = configuration;
         addIArgument(configuration.iArgs());
