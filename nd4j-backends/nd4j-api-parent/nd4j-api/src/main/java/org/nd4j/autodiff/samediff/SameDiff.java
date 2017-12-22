@@ -4216,6 +4216,16 @@ public class SameDiff {
         return flatNode;
     }
 
+    /**
+     * This method extract base variable name and output index (if exists) from raw variable name.
+     * I.e:
+     * - if variable name is "Unstack_2", result will be Pair("Unstack_2", 0)
+     * - if variable name is "Unstack_2:12", result will be Pair("Unstack_2", 12)
+     *
+     *
+     * @param varName
+     * @return
+     */
     public static Pair<String, Integer> parseVariable(@NonNull String varName) {
         if (!varName.contains(":")) {
             return Pair.pairOf(varName, 0);
@@ -4279,7 +4289,7 @@ public class SameDiff {
             }
         }
 
-        log.info("Own Name: {}", node.getOwnName());
+        // log.info("Own Name: {}", node.getOwnName());
         int ownId = reverseMap.size() + 1;
         reverseMap.put(node.outputVariables()[0].getVarName(), ownId);
 
@@ -4319,6 +4329,12 @@ public class SameDiff {
     }
 
 
+    /**
+     * This method exports given SameDiff instance into FlatBuffers
+     *
+     * @param configuration - ExecutorConfiguration to be embedded into serialized graph
+     * @return
+     */
     public ByteBuffer asFlatBuffers(@NonNull ExecutorConfiguration configuration) {
         Nd4j.getExecutioner().commit();
         FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(1024);
@@ -4395,6 +4411,11 @@ public class SameDiff {
         return bufferBuilder.dataBuffer();
     }
 
+    /**
+     * This method exports given SameDiff instance into FlatBuffers
+     *
+     * @return
+     */
     public ByteBuffer asFlatBuffers() {
         val configuration = ExecutorConfiguration.builder()
                 .outputMode(OutputMode.VARIABLE_SPACE)
@@ -4406,6 +4427,12 @@ public class SameDiff {
         return asFlatBuffers(configuration);
     }
 
+    /**
+     * This method just converts enums
+     *
+     * @param val
+     * @return
+     */
     public static ByteOrder getOrderFromByte(byte val) {
         if (val == org.nd4j.graph.ByteOrder.LE)
             return ByteOrder.LITTLE_ENDIAN;
@@ -4413,6 +4440,10 @@ public class SameDiff {
             return ByteOrder.BIG_ENDIAN;
     }
 
+    /**
+     * This method returns current byte order for this JVM as libnd4j enum
+     * @return
+     */
     public static byte getOrderAsByte() {
         if (ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN))
             return org.nd4j.graph.ByteOrder.BE;
@@ -4436,6 +4467,11 @@ public class SameDiff {
         }
     }
 
+    /**
+     * This method returns "flattened" graph.
+     *
+     * @return
+     */
     public String asFlatPrint() {
         val sb = new StringBuilder();
         val fb = asFlatBuffers();
@@ -4499,6 +4535,12 @@ public class SameDiff {
         return sb.toString();
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param val
+     * @return
+     */
     public static DataBuffer.Type getDataTypeFromByte(byte val) {
         if (val == DataType.FLOAT)
             return DataBuffer.Type.FLOAT;
@@ -4510,6 +4552,12 @@ public class SameDiff {
         throw new UnsupportedOperationException("Unsupported DataType: [" + val + "]");
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static byte getDataTypeAsByte(DataBuffer.Type type) {
         switch (type) {
             case FLOAT: return DataType.FLOAT;
@@ -4521,6 +4569,13 @@ public class SameDiff {
         }
     }
 
+    /**
+     * This method return operation ID for given op name/type pair.
+     *
+     * @param name
+     * @param type
+     * @return
+     */
     public static long getOpNum(String name, Op.Type type) {
         if (type == Op.Type.LOOP) {
             return 0;
@@ -4539,6 +4594,12 @@ public class SameDiff {
             return (long) Nd4j.getOpFactory().getOpNumByName(name);
     }
 
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static Op.Type getTypeFromByte(byte type) {
         switch (type) {
             case OpType.SCALAR:
@@ -4570,7 +4631,12 @@ public class SameDiff {
         }
     }
 
-
+    /**
+     * This method converts enums for DataType
+     *
+     * @param type
+     * @return
+     */
     public static byte getFlatOpType(Op.Type type) {
         switch (type) {
             case SCALAR:
