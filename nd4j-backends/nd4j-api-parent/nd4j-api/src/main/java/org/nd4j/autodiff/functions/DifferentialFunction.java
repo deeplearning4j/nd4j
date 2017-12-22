@@ -470,10 +470,5 @@ public abstract class DifferentialFunction {
      */
     public abstract String tensorflowName();
 
-    protected int fromBoolean(boolean bool) {
-        return bool ? 1 : 0;
-    }
-
-
 
 }

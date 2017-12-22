@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.layers.recurrent;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.GRUCellConfiguration;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -10,6 +11,15 @@ import org.tensorflow.framework.NodeDef;
 import java.util.Map;
 
 public class GRUCell extends DynamicCustomOp {
+
+    private GRUCellConfiguration configuration;
+
+    public GRUCell(SameDiff sameDiff,  GRUCellConfiguration configuration) {
+        super(null, sameDiff, configuration.args());
+        this.configuration = configuration;
+        addIArgument(configuration.iArgs());
+    }
+
     @Override
     public String opName() {
         return "gruCell";

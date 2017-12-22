@@ -56,7 +56,7 @@ public class Mmul extends DynamicCustomOp {
                 MMulTranspose mMulTranspose) {
         super(null,sameDiff,new SDVariable[]{i_v1,i_v2});
         this.mMulTranspose = mMulTranspose;
-        addIArgument(fromBoolean(mMulTranspose.isTransposeA()),fromBoolean(mMulTranspose.isTransposeB()));
+        addIArgument(ArrayUtil.fromBoolean(mMulTranspose.isTransposeA()), ArrayUtil.fromBoolean(mMulTranspose.isTransposeB()));
     }
 
 

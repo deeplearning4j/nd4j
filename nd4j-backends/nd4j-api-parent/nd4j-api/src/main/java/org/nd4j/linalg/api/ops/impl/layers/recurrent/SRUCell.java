@@ -2,14 +2,28 @@ package org.nd4j.linalg.api.ops.impl.layers.recurrent;
 
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUCellConfiguration;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
 import java.util.Map;
 
+/**
+ * A simple recurrent unit cell.
+ *
+ * @author Adam Gibson
+ */
 public class SRUCell extends DynamicCustomOp {
+
+    private SRUCellConfiguration configuration;
+
+    public SRUCell(SameDiff sameDiff,SRUCellConfiguration configuration) {
+        super(null, sameDiff, configuration.args());
+        this.configuration = configuration;
+    }
 
     @Override
     public String opName() {
@@ -19,12 +33,12 @@ public class SRUCell extends DynamicCustomOp {
 
     @Override
     public String onnxName() {
-        return "GRU";
+        throw new NoOpNameFoundException("No onnx name found for " + opName());
     }
 
     @Override
     public String tensorflowName() {
-        return super.tensorflowName();
+        throw new NoOpNameFoundException("No tensorflow name found for " + opName());
     }
 
     @Override
