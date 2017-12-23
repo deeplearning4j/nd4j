@@ -66,7 +66,8 @@ public class AvgPooling2D extends DynamicCustomOp {
                         config.getDh(),
                         config.getDw(),
                         ArrayUtil.fromBoolean(config.isSameMode()),
-                        (int) config.getExtra()});
+                        (int) config.getExtra(),
+                        ArrayUtil.fromBoolean(config.isNHWC())});
 
     }
 

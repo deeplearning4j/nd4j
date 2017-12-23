@@ -122,7 +122,7 @@ public class Conv2D extends DynamicCustomOp {
 
         kY = arr.size(0);
         kX = arr.size(1);
-        arr = (arr.permute(3, 2, 0, 1).dup('c'));
+        //arr = (arr.permute(3, 2, 0, 1).dup('c'));
         val  varForOp = initWith.getVariable(args[1].getVarName());
         initWith.associateArrayWithVariable(arr, varForOp);
 
