@@ -107,6 +107,13 @@ public class MaxPooling2D extends DynamicCustomOp {
 
         boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
 
+        String data_format = "nhwc";
+        if (nodeDef.containsAttr("data_format")) {
+            val attr = nodeDef.getAttrOrThrow("data_format");
+
+            data_format = attr.getS().toStringUtf8().toLowerCase();
+        }
+
         int ph = padding.size() == 2 ? padding.get(0).intValue() : 0;
         int pw = padding.size() == 2 ? padding.get(1).intValue() : 0;
 
@@ -124,6 +131,7 @@ public class MaxPooling2D extends DynamicCustomOp {
                 .pw(pw)
                 .virtualWidth(1)
                 .virtualHeight(1)
+                .isNHWC(data_format.equalsIgnoreCase("nhwc"))
                 .build();
         this.config = pooling2DConfig;
         addArgs();

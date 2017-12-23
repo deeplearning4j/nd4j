@@ -19,6 +19,7 @@ public class Pooling2DConfig {
     private double extra;
     private Pooling2D.Pooling2DType type;
     private boolean isSameMode;
+    @Builder.Default private boolean isNHWC = false;
 
 
 }

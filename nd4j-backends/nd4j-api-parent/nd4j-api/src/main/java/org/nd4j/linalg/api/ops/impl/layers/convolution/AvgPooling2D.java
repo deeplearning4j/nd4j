@@ -112,6 +112,13 @@ public class AvgPooling2D extends DynamicCustomOp {
 
         boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
 
+        String data_format = "nhwc";
+        if (nodeDef.containsAttr("data_format")) {
+            val attr = nodeDef.getAttrOrThrow("data_format");
+
+            data_format = attr.getS().toStringUtf8().toLowerCase();
+        }
+
         if (!isSameMode)
             log.debug("Mode: {}", paddingMode);
 
@@ -128,6 +135,7 @@ public class AvgPooling2D extends DynamicCustomOp {
                 .pw(pw)
                 .virtualWidth(1)
                 .virtualHeight(1)
+                .isNHWC(data_format.equalsIgnoreCase("nhwc"))
                 .build();
         this.config = pooling2DConfig;
         addArgs();

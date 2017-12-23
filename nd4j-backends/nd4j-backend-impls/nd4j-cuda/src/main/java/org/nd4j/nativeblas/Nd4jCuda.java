@@ -5811,6 +5811,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void assign(@Const FloatNDArray other);
 
         /**
+        *  this method assigns values of given array to this one
+        */
+
+        /**
         *  this method assigns given value to all elements in array
         */ 
         public native void assign(float value);
@@ -6799,6 +6803,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void assign(@Const HalfNDArray other);
 
         /**
+        *  this method assigns values of given array to this one
+        */
+
+        /**
         *  this method assigns given value to all elements in array
         */ 
         public native void assign(@Cast("const float16") short value);
@@ -7785,6 +7793,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  this method assigns values of given array to this one
         */ 
         public native void assign(@Const DoubleNDArray other);
+
+        /**
+        *  this method assigns values of given array to this one
+        */
 
         /**
         *  this method assigns given value to all elements in array

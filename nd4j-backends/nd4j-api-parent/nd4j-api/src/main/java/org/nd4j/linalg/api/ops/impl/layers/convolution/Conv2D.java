@@ -55,7 +55,8 @@ public class Conv2D extends DynamicCustomOp {
                 conv2DConfig.getPw(),
                 conv2DConfig.getDh(),
                 conv2DConfig.getDw(),
-                ArrayUtil.fromBoolean(conv2DConfig.isSameMode())});
+                ArrayUtil.fromBoolean(conv2DConfig.isSameMode()),
+                ArrayUtil.fromBoolean(conv2DConfig.isNHWC())});
 
     }
 
@@ -101,6 +102,15 @@ public class Conv2D extends DynamicCustomOp {
 
         val aPadding = nodeDef.getAttrOrDefault("padding", null);
 
+        String data_format = "nhwc";
+        if (nodeDef.containsAttr("data_format")) {
+            val attr = nodeDef.getAttrOrThrow("data_format");
+
+            data_format = attr.getS().toStringUtf8().toLowerCase();
+        }
+
+
+
         val paddingMode = aPadding.getS().toStringUtf8();
         int kY = 1;
         int kX = 1;
@@ -124,6 +134,7 @@ public class Conv2D extends DynamicCustomOp {
                 .sx(sX.intValue())
                 .sy(sY.intValue())
                 .isSameMode(isSameMode)
+                .isNHWC(data_format.equalsIgnoreCase("nhwc"))
                 .build();
         this.conv2DConfig = conv2DConfig;
 
