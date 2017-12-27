@@ -1,5 +1,5 @@
+@call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
 @echo on
-call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" amd64
 
 if "%APPVEYOR_PULL_REQUEST_NUMBER%" == "" (
     set MAVEN_PHASE=deploy
