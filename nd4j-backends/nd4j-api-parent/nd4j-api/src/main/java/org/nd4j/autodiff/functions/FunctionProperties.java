@@ -9,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.nd4j.graph.FlatProperties;
 import org.nd4j.graph.FlatResult;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -19,12 +21,16 @@ import java.util.List;
 @Builder
 public class FunctionProperties {
     private String name;
-    private List<Integer> i;
-    private List<Long> l;
-    private List<Double> d;
-    private List<INDArray> a;
+    @Builder.Default private List<Integer> i = new ArrayList<>();
+    @Builder.Default private List<Long> l = new ArrayList<>();
+    @Builder.Default private List<Double> d = new ArrayList<>();
+    @Builder.Default private List<INDArray> a = new ArrayList<>();
 
-
+    /**
+     * This method converts this FunctionProperties instance to FlatBuffers representation
+     * @param bufferBuilder
+     * @return
+     */
     public int asFlatProperties(FlatBufferBuilder bufferBuilder) {
         int iname = bufferBuilder.createString(name);
         int ii = FlatProperties.createIVector(bufferBuilder, Ints.toArray(i));
@@ -43,7 +49,26 @@ public class FunctionProperties {
         return FlatProperties.createFlatProperties(bufferBuilder, iname, ii, il, id, ia);
     }
 
-    static FunctionProperties fromFlatProperties(FlatProperties properties) {
-        return null;
+    /**
+     * This method creates new FunctionProperties instance from FlatBuffers representation
+     * @param properties
+     * @return
+     */
+    public static FunctionProperties fromFlatProperties(FlatProperties properties) {
+        val props = new FunctionProperties();
+
+        for (int e = 0; e < properties.iLength(); e++)
+            props.getI().add(properties.i(e));
+
+        for (int e = 0; e < properties.lLength(); e++)
+            props.getL().add(properties.l(e));
+
+        for (int e = 0; e < properties.dLength(); e++)
+            props.getD().add(properties.d(e));
+
+        for (int e = 0; e < properties.iLength(); e++)
+            props.getA().add(Nd4j.createFromFlatArray(properties.a(e)));
+
+        return props;
     }
 }
