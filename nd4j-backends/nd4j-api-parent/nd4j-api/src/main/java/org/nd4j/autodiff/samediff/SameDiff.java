@@ -11,6 +11,7 @@ import org.nd4j.autodiff.execution.conf.ExecutorConfiguration;
 import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
+import org.nd4j.autodiff.functions.FunctionProperties;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
@@ -4394,8 +4395,9 @@ public class SameDiff {
         int ownId = reverseMap.size() + 1;
         reverseMap.put(node.getOwnName(), ownId);
 
-        //int properties = FlatProperties.createFlatProperties(bufferBuilder,0, 0, 0,0,0);
-        int properties = 0;
+        // TODO: Adam, just put your props here, instead of empty list, and they will be saved
+        List<FunctionProperties> props = new ArrayList<>();
+        int properties = FunctionProperties.asFlatProperties(bufferBuilder, props);
 
         int nodesIn = FlatNode.createInputVector(bufferBuilder, new int[]{});
         int nodesInPaired = FlatNode.createInputPairedVector(bufferBuilder, Ints.toArray(inPaired));
