@@ -6,12 +6,14 @@ import com.google.common.primitives.Longs;
 import com.google.flatbuffers.FlatBufferBuilder;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
+import org.nd4j.graph.FlatNode;
 import org.nd4j.graph.FlatProperties;
 import org.nd4j.graph.FlatResult;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -70,5 +72,22 @@ public class FunctionProperties {
             props.getA().add(Nd4j.createFromFlatArray(properties.a(e)));
 
         return props;
+    }
+
+    /**
+     * This method converts multiple FunctionProperties to FlatBuffers representation
+     *
+     * @param bufferBuilder
+     * @param properties
+     * @return
+     */
+    public static int asFlatProperties(FlatBufferBuilder bufferBuilder, Collection<FunctionProperties> properties) {
+        int props[] = new int[properties.size()];
+
+        int cnt = 0;
+        for (val p: properties)
+            props[cnt++] = p.asFlatProperties(bufferBuilder);
+
+        return FlatNode.createPropertiesVector(bufferBuilder, props);
     }
 }
