@@ -2009,6 +2009,10 @@ public class SameDiff {
         return mean(null,iX);
     }
 
+    public SDVariable mean(SDVariable iX, int... dimension){
+        return mean(null, iX, dimension);
+    }
+
     /**
      *
      * @param iX
@@ -2892,7 +2896,11 @@ public class SameDiff {
     public SDVariable mean(String name,SDVariable iX) {
         SDVariable result = functionFactory.mean(iX);
         return updateVariableNameAndReference(result,name);
+    }
 
+    public SDVariable mean(String name,SDVariable iX, int... dimension) {
+        SDVariable result = functionFactory.mean(iX, dimension);
+        return updateVariableNameAndReference(result,name);
     }
 
     /**
