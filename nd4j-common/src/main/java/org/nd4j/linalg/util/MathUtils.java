@@ -14,33 +14,34 @@
  *  *    See the License for the specific language governing permissions and
  *  *    limitations under the License.
  *
- *
  */
 
 package org.nd4j.linalg.util;
 
-
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.NonSquareMatrixException;
+import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.apache.commons.math3.util.FastMath;
+import org.nd4j.linalg.primitives.Counter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 
 /**
- * This is a math jcuda.utils class.
+ * This is a math utils class.
  *
  * @author Adam Gibson
+ *
  */
 public class MathUtils {
 
-
-
-    /**
-     * The natural logarithm of 2.
-     */
+    /** The natural logarithm of 2. */
     public static final double log2 = Math.log(2);
+
     /**
      * The small deviation allowed in double comparisons.
      */
@@ -63,7 +64,6 @@ public class MathUtils {
     /**
      * Normalize a value
      * (val - min) / (max - min)
-     *
      * @param val value to normalize
      * @param max max value
      * @param min min value
@@ -71,17 +71,16 @@ public class MathUtils {
      */
     public static double normalize(double val, double min, double max) {
         if (max < min)
-            throw new IllegalArgumentException("Max must be greather than min");
+            throw new IllegalArgumentException("Max must be greater than min");
 
         return (val - min) / (max - min);
     }
 
     /**
      * Clamps the value to a discrete value
-     *
      * @param value the value to clamp
-     * @param min   min for the probability distribution
-     * @param max   max for the probability distribution
+     * @param min min for the probability distribution
+     * @param max max for the probability distribution
      * @return the discrete value
      */
     public static int clamp(int value, int min, int max) {
@@ -94,10 +93,9 @@ public class MathUtils {
 
     /**
      * Discretize the given value
-     *
-     * @param value    the value to discretize
-     * @param min      the min of the distribution
-     * @param max      the max of the distribution
+     * @param value the value to discretize
+     * @param min the min of the distribution
+     * @param max the max of the distribution
      * @param binCount the number of bins
      * @return the discretized value
      */
@@ -106,9 +104,9 @@ public class MathUtils {
         return clamp(discreteValue, 0, binCount - 1);
     }
 
+
     /**
      * See: http://stackoverflow.com/questions/466204/rounding-off-to-nearest-power-of-2
-     *
      * @param v the number to getFromOrigin the next power of 2 for
      * @return the next power of 2 for the passed in value
      */
@@ -124,10 +122,11 @@ public class MathUtils {
 
     }
 
+
+
     /**
      * Generates a binomial distributed number using
      * the given rng
-     *
      * @param rng
      * @param n
      * @param p
@@ -148,7 +147,6 @@ public class MathUtils {
 
     /**
      * Generate a uniform random number from the given rng
-     *
      * @param rng the rng to use
      * @param min the min num
      * @param max the max num
@@ -161,8 +159,9 @@ public class MathUtils {
     /**
      * Returns the correlation coefficient of two double vectors.
      *
-     * @param residuals       residuals
+     * @param residuals residuals
      * @param targetAttribute target attribute vector
+     *
      * @return the correlation coefficient or r
      */
     public static double correlation(double[] residuals, double targetAttribute[]) {
@@ -177,18 +176,17 @@ public class MathUtils {
 
     /**
      * 1 / 1 + exp(-x)
-     *
      * @param x
      * @return
      */
     public static double sigmoid(double x) {
-        return 1.0 / (1.0 + Math.pow(Math.E, -x));
+        return 1.0 / (1.0 + FastMath.exp(-x));
     }
+
 
     /**
      * How much of the variance is explained by the regression
-     *
-     * @param residuals       error
+     * @param residuals error
      * @param targetAttribute data for target attribute
      * @return the sum squares of regression
      */
@@ -203,7 +201,6 @@ public class MathUtils {
 
     /**
      * How much of the variance is NOT explained by the regression
-     *
      * @param predictedValues predicted values
      * @param targetAttribute data for target attribute
      * @return the sum squares of regression
@@ -217,9 +214,42 @@ public class MathUtils {
 
     }
 
+
+    /**
+     * Calculate string similarity with tfidf weights relative to each character
+     * frequency and how many times a character appears in a given string
+     * @param strings the strings to calculate similarity for
+     * @return the cosine similarity between the strings
+     */
+    public static double stringSimilarity(String... strings) {
+        if (strings == null)
+            return 0;
+        Counter<String> counter = new Counter<>();
+        Counter<String> counter2 = new Counter<>();
+
+        for (int i = 0; i < strings[0].length(); i++)
+            counter.incrementCount(String.valueOf(strings[0].charAt(i)), 1.0f);
+
+        for (int i = 0; i < strings[1].length(); i++)
+            counter2.incrementCount(String.valueOf(strings[1].charAt(i)), 1.0f);
+        Set<String> v1 = counter.keySet();
+        Set<String> v2 = counter2.keySet();
+
+
+        Set<String> both = org.nd4j.linalg.util.SetUtils.intersection(v1, v2);
+
+        double sclar = 0, norm1 = 0, norm2 = 0;
+        for (String k : both)
+            sclar += counter.getCount(k) * counter2.getCount(k);
+        for (String k : v1)
+            norm1 += counter.getCount(k) * counter.getCount(k);
+        for (String k : v2)
+            norm2 += counter2.getCount(k) * counter2.getCount(k);
+        return sclar / Math.sqrt(norm1 * norm2);
+    }
+
     /**
      * Returns the vector length (sqrt(sum(x_i))
-     *
      * @param vector the vector to return the vector length for
      * @return the vector length of the passed in array
      */
@@ -239,34 +269,38 @@ public class MathUtils {
     /**
      * Inverse document frequency: the total docs divided by the number of times the word
      * appeared in a document
-     *
-     * @param totalDocs                       the total documents for the data applyTransformToDestination
+     * @param totalDocs the total documents for the data applyTransformToDestination
      * @param numTimesWordAppearedInADocument the number of times the word occurred in a document
      * @return log(10) (totalDocs/numTImesWordAppearedInADocument)
      */
     public static double idf(double totalDocs, double numTimesWordAppearedInADocument) {
-        return totalDocs > 0 ? Math.log10(totalDocs / numTimesWordAppearedInADocument) : 0;
+        //return totalDocs > 0 ? Math.log10(totalDocs/numTimesWordAppearedInADocument) : 0;
+        if (totalDocs == 0)
+            return 0;
+        double idf = Math.log10(totalDocs / numTimesWordAppearedInADocument);
+        return idf;
     }
 
     /**
      * Term frequency: 1+ log10(count)
-     *
      * @param count the count of a word or character in a given string or document
      * @return 1+ log(10) count
      */
-    public static double tf(int count) {
-        return count > 0 ? 1 + Math.log10(count) : 0;
+    public static double tf(int count, int documentLength) {
+        //return count > 0 ? 1 + Math.log10(count) : 0
+        double tf = ((double) count / documentLength);
+        return tf;
     }
 
     /**
      * Return td * idf
-     *
-     * @param td  the term frequency (assumed calculated)
+     * @param tf the term frequency (assumed calculated)
      * @param idf inverse document frequency (assumed calculated)
      * @return td * idf
      */
-    public static double tfidf(double td, double idf) {
-        return td * idf;
+    public static double tfidf(double tf, double idf) {
+        //        System.out.println("TF-IDF Value: " + (tf * idf));
+        return tf * idf;
     }
 
     private static int charForLetter(char c) {
@@ -279,10 +313,11 @@ public class MathUtils {
 
     }
 
+
+
     /**
      * Total variance in target attribute
-     *
-     * @param residuals       error
+     * @param residuals error
      * @param targetAttribute data for target attribute
      * @return Total variance in target attribute
      */
@@ -292,7 +327,6 @@ public class MathUtils {
 
     /**
      * This returns the sum of the given array.
-     *
      * @param nums the array of numbers to sum
      * @return the sum of the given array
      */
@@ -307,7 +341,6 @@ public class MathUtils {
 
     /**
      * This will merge the coordinates of the given coordinate system.
-     *
      * @param x the x coordinates
      * @param y the y coordinates
      * @return a vector such that each (x,y) pair is at ret[i],ret[i+1]
@@ -327,7 +360,6 @@ public class MathUtils {
 
     /**
      * This will merge the coordinates of the given coordinate system.
-     *
      * @param x the x coordinates
      * @param y the y coordinates
      * @return a vector such that each (x,y) pair is at ret[i],ret[i+1]
@@ -337,7 +369,7 @@ public class MathUtils {
             throw new IllegalArgumentException(
                             "Sample sizes must be the same for each data applyTransformToDestination.");
 
-        List<Double> ret = new ArrayList<Double>();
+        List<Double> ret = new ArrayList<>();
 
         for (int i = 0; i < x.size(); i++) {
             ret.add(x.get(i));
@@ -350,7 +382,6 @@ public class MathUtils {
      * This returns the minimized loss values for a given vector.
      * It is assumed that  the x, y pairs are at
      * vector[i], vector[i+1]
-     *
      * @param vector the vector of numbers to getFromOrigin the weights for
      * @return a double array with w_0 and w_1 are the associated indices.
      */
@@ -387,10 +418,10 @@ public class MathUtils {
     /**
      * This will return the squared loss of the given
      * points
-     *
-     * @param x   the x coordinates to use
-     * @param y   the y coordinates to use
+     * @param x the x coordinates to use
+     * @param y the y coordinates to use
      * @param w_0 the first weight
+     *
      * @param w_1 the second weight
      * @return the squared loss of the given points
      */
@@ -401,6 +432,7 @@ public class MathUtils {
         }
         return sum;
     }//end squaredLoss
+
 
     public static double w_1(double[] x, double[] y, int n) {
         return (n * sumOfProducts(x, y) - sum(x) * sum(y)) / (n * sumOfSquares(x) - Math.pow(sum(x), 2));
@@ -416,7 +448,6 @@ public class MathUtils {
      * This returns the minimized loss values for a given vector.
      * It is assumed that  the x, y pairs are at
      * vector[i], vector[i+1]
-     *
      * @param vector the vector of numbers to getFromOrigin the weights for
      * @return a double array with w_0 and w_1 are the associated indices.
      */
@@ -441,6 +472,7 @@ public class MathUtils {
         double w_0 = meanY - (w_1) * meanX;
 
 
+
         double[] ret = new double[vector.length];
         ret[0] = w_0;
         ret[1] = w_1;
@@ -455,8 +487,7 @@ public class MathUtils {
     /**
      * Used for calculating top part of simple regression for
      * beta 1
-     *
-     * @param vector  the x coordinates
+     * @param vector the x coordinates
      * @param vector2 the y coordinates
      * @return the sum of mean differences for the input vectors
      */
@@ -475,7 +506,6 @@ public class MathUtils {
     /**
      * Used for calculating top part of simple regression for
      * beta 1
-     *
      * @param vector the x coordinates
      * @return the sum of mean differences for the input vectors
      */
@@ -489,12 +519,15 @@ public class MathUtils {
         return ret;
     }//end sumOfMeanDifferences
 
+    public static double variance(double[] vector) {
+        return sumOfMeanDifferencesOnePoint(vector) / vector.length;
+    }
+
     /**
      * This returns the product of all numbers in the given array.
-     *
      * @param nums the numbers to multiply over
      * @return the product of all numbers in the array, or 0
-     * if the length is or or nums i null
+     * if the length is or nums i null
      */
     public static double times(double[] nums) {
         if (nums == null || nums.length == 0)
@@ -505,10 +538,10 @@ public class MathUtils {
         return ret;
     }//end times
 
+
     /**
      * This returns the sum of products for the given
      * numbers.
-     *
      * @param nums the sum of products for the give numbers
      * @return the sum of products for the given numbers
      */
@@ -526,11 +559,11 @@ public class MathUtils {
         return sum;
     }//end sumOfProducts
 
+
     /**
      * This returns the given column over an n arrays
-     *
      * @param column the column to getFromOrigin values for
-     * @param nums   the arrays to extract values from
+     * @param nums the arrays to extract values from
      * @return a double array containing all of the numbers in that column
      * for all of the arrays.
      * @throws IllegalArgumentException if the index is < 0
@@ -550,7 +583,6 @@ public class MathUtils {
      * This returns the coordinate split in a list of coordinates
      * such that the values for ret[0] are the x values
      * and ret[1] are the y values
-     *
      * @param vector the vector to split with x and y values/
      * @return a coordinate split for the given vector of values.
      * if null, is passed in null is returned
@@ -559,7 +591,7 @@ public class MathUtils {
 
         if (vector == null)
             return null;
-        List<double[]> ret = new ArrayList<double[]>();
+        List<double[]> ret = new ArrayList<>();
         /* x coordinates */
         double[] xVals = new double[vector.length / 2];
         /* y coordinates */
@@ -581,16 +613,19 @@ public class MathUtils {
         return ret;
     }//end coordSplit
 
+
+
     /**
      * This will partition the given whole variable data applyTransformToDestination in to the specified chunk number.
-     *
-     * @param arr   the data applyTransformToDestination to pass in
+     * @param arr the data applyTransformToDestination to pass in
      * @param chunk the number to separate by
      * @return a partition data applyTransformToDestination relative to the passed in chunk number
+     * @deprecated not thread-safe, unused, see https://github.com/deeplearning4j/deeplearning4j/issues/3797
      */
+    @Deprecated
     public static List<List<Double>> partitionVariable(List<Double> arr, int chunk) {
         int count = 0;
-        List<List<Double>> ret = new ArrayList<List<Double>>();
+        List<List<Double>> ret = new ArrayList<>();
 
 
         while (count < arr.size()) {
@@ -608,15 +643,15 @@ public class MathUtils {
         return ret;
     }//end partitionVariable
 
+
     /**
      * This returns the coordinate split in a list of coordinates
      * such that the values for ret[0] are the x values
      * and ret[1] are the y values
-     *
      * @param vector the vector to split with x and y values
-     *               Note that the list will be more stable due to the size operator.
-     *               The array version will have extraneous values if not monitored
-     *               properly.
+     * Note that the list will be more stable due to the size operator.
+     * The array version will have extraneous values if not monitored
+     * properly.
      * @return a coordinate split for the given vector of values.
      * if null, is passed in null is returned
      */
@@ -624,7 +659,7 @@ public class MathUtils {
 
         if (vector == null)
             return null;
-        List<double[]> ret = new ArrayList<double[]>();
+        List<double[]> ret = new ArrayList<>();
         /* x coordinates */
         double[] xVals = new double[vector.size() / 2];
         /* y coordinates */
@@ -646,10 +681,11 @@ public class MathUtils {
         return ret;
     }//end coordSplit
 
+
+
     /**
      * This returns the x values of the given vector.
      * These are assumed to be the even values of the vector.
-     *
      * @param vector the vector to getFromOrigin the values for
      * @return the x values of the given vector
      */
@@ -669,7 +705,6 @@ public class MathUtils {
 
     /**
      * This returns the odd indexed values for the given vector
-     *
      * @param vector the odd indexed values of rht egiven vector
      * @return the y values of the given vector
      */
@@ -682,6 +717,7 @@ public class MathUtils {
         }
         return y;
     }//end yVals
+
 
     /**
      * This returns the sum of squares for the given vector.
@@ -698,21 +734,22 @@ public class MathUtils {
 
     /**
      * This returns the determination coefficient of two vectors given a length
-     *
      * @param y1 the first vector
      * @param y2 the second vector
-     * @param n  the length of both vectors
+     * @param n the length of both vectors
      * @return the determination coefficient or r^2
      */
     public static double determinationCoefficient(double[] y1, double[] y2, int n) {
         return Math.pow(correlation(y1, y2), 2);
     }
 
+
+
     /**
      * Returns the logarithm of a for base 2.
      *
      * @param a a double
-     * @return the logarithm for base 2
+     * @return	the logarithm for base 2
      */
     public static double log2(double a) {
         if (a == 0)
@@ -721,30 +758,38 @@ public class MathUtils {
     }
 
     /**
+     * This returns the slope of the given points.
+     * @param x1 the first x to use
+     * @param x2 the end x to use
+     * @param y1 the begin y to use
+     * @param y2 the end y to use
+     * @return the slope of the given points
+     */
+    public double slope(double x1, double x2, double y1, double y2) {
+        return (y2 - y1) / (x2 - x1);
+    }//end slope
+
+    /**
      * This returns the root mean squared error of two data sets
-     *
-     * @param real      the realComponent values
+     * @param real the real values
      * @param predicted the predicted values
      * @return the root means squared error for two data sets
      */
     public static double rootMeansSquaredError(double[] real, double[] predicted) {
-        double ret = 1 / real.length;
+        double ret = 0.0;
         for (int i = 0; i < real.length; i++) {
             ret += Math.pow((real[i] - predicted[i]), 2);
         }
-        return Math.sqrt(ret);
+        return Math.sqrt(ret / real.length);
     }//end rootMeansSquaredError
 
     /**
      * This returns the entropy (information gain, or uncertainty of a random variable).
-     *
      * @param vector the vector of values to getFromOrigin the entropy for
      * @return the entropy of the given vector
      */
     public static double entropy(double[] vector) {
-        if (vector == null)
-            return 0;
-        else if (vector.length < 1)
+        if (vector == null || vector.length < 1)
             return 0;
         else {
             double ret = 0;
@@ -757,7 +802,6 @@ public class MathUtils {
 
     /**
      * This returns the kronecker delta of two doubles.
-     *
      * @param i the first number to compare
      * @param j the second number to compare
      * @return 1 if they are equal, 0 otherwise
@@ -769,14 +813,13 @@ public class MathUtils {
     /**
      * This calculates the adjusted r^2 including degrees of freedom.
      * Also known as calculating "strength" of a regression
-     *
-     * @param rSquared      the r squared value to calculate
+     * @param rSquared the r squared value to calculate
      * @param numRegressors number of variables
      * @param numDataPoints size of the data applyTransformToDestination
      * @return an adjusted r^2 for degrees of freedom
      */
     public static double adjustedrSquared(double rSquared, int numRegressors, int numDataPoints) {
-        double divide = (numDataPoints - 1) / (numDataPoints - numRegressors - 1);
+        double divide = (numDataPoints - 1.0) / (numDataPoints - numRegressors - 1.0);
         double rSquaredDiff = 1 - rSquared;
         return 1 - (rSquaredDiff * divide);
     }
@@ -807,8 +850,8 @@ public class MathUtils {
      * Normalizes the doubles in the array using the given value.
      *
      * @param doubles the array of double
-     * @param sum     the value by which the doubles are to be normalized
-     * @throws IllegalArgumentException if sum is zero or NaN
+     * @param sum the value by which the doubles are to be normalized
+     * @exception IllegalArgumentException if sum is zero or NaN
      */
     public static void normalize(double[] doubles, double sum) {
 
@@ -850,7 +893,6 @@ public class MathUtils {
 
     /**
      * This returns the entropy for a given vector of probabilities.
-     *
      * @param probabilities the probabilities to getFromOrigin the entropy for
      * @return the entropy of the given probabilities.
      */
@@ -863,6 +905,8 @@ public class MathUtils {
     }//end information
 
     /**
+     *
+     *
      * Returns index of maximum element in a given
      * array of doubles. First maximum is returned.
      *
@@ -886,7 +930,6 @@ public class MathUtils {
 
     /**
      * This will return the factorial of the given number n.
-     *
      * @param n the number to getFromOrigin the factorial for
      * @return the factorial for this number
      */
@@ -898,10 +941,12 @@ public class MathUtils {
         return n;
     }//end factorial
 
+
     /**
      * Returns the log-odds for a given probability.
      *
      * @param prob the probability
+     *
      * @return the log-odds after the probability has been mapped to
      * [Utils.SMALL, 1-Utils.SMALL]
      */
@@ -923,14 +968,11 @@ public class MathUtils {
      */
     public static /*@pure@*/ int round(double value) {
 
-        int roundedValue = value > 0 ? (int) (value + 0.5) : -(int) (Math.abs(value) + 0.5);
-
-        return roundedValue;
+        return value > 0 ? (int) (value + 0.5) : -(int) (Math.abs(value) + 0.5);
     }//end round
 
     /**
      * This returns the permutation of n choose r.
-     *
      * @param n the n to choose
      * @param r the number of elements to choose
      * @return the permutation of these numbers
@@ -941,9 +983,9 @@ public class MathUtils {
         return nFac / nMinusRFac;
     }//end permutation
 
+
     /**
      * This returns the combination of n choose r
-     *
      * @param n the number of elements overall
      * @param r the number of elements to choose
      * @return the amount of possible combinations for this applyTransformToDestination of elements
@@ -955,6 +997,7 @@ public class MathUtils {
 
         return nFac / (rFac * nMinusRFac);
     }//end combination
+
 
     /**
      * sqrt(a^2 + b^2) without under/overflow.
@@ -981,7 +1024,7 @@ public class MathUtils {
      * the original double.
      *
      * @param value the double value
-     * @param rand  the random number generator
+     * @param rand the random number generator
      * @return the resulting integer value
      */
     public static int probRound(double value, Random rand) {
@@ -1008,7 +1051,7 @@ public class MathUtils {
     /**
      * Rounds a double to the given number of decimal places.
      *
-     * @param value             the double value
+     * @param value the double value
      * @param afterDecimalPoint the number of digits after the decimal point
      * @return the double rounded to the given precision
      */
@@ -1019,10 +1062,12 @@ public class MathUtils {
         return (double) (Math.round(value * mask)) / mask;
     }//end roundDouble
 
+
+
     /**
      * Rounds a double to the given number of decimal places.
      *
-     * @param value             the double value
+     * @param value the double value
      * @param afterDecimalPoint the number of digits after the decimal point
      * @return the double rounded to the given precision
      */
@@ -1037,18 +1082,16 @@ public class MathUtils {
      * This will return the bernoulli trial for the given event.
      * A bernoulli trial is a mechanism for detecting the probability
      * of a given event occurring k times in n independent trials
-     *
-     * @param n           the number of trials
-     * @param k           the number of times the target event occurs
+     * @param n the number of trials
+     * @param k the number of times the target event occurs
      * @param successProb the probability of the event happening
      * @return the probability of the given event occurring k times.
      */
     public static double bernoullis(double n, double k, double successProb) {
 
         double combo = MathUtils.combination(n, k);
-        double p = successProb;
         double q = 1 - successProb;
-        return combo * Math.pow(p, k) * Math.pow(q, n - k);
+        return combo * Math.pow(successProb, k) * Math.pow(q, n - k);
     }//end bernoullis
 
     /**
@@ -1076,8 +1119,7 @@ public class MathUtils {
     /**
      * This will take a given string and separator and convert it to an equivalent
      * double array.
-     *
-     * @param data      the data to separate
+     * @param data the data to separate
      * @param separator the separator to use
      * @return the new double array based on the given data
      */
@@ -1110,9 +1152,24 @@ public class MathUtils {
     }//end mean
 
     /**
+     * This will return the cholesky decomposition of
+     * the given matrix
+     * @param m the matrix to convert
+     * @return the cholesky decomposition of the given
+     * matrix.
+     * See:
+     * http://en.wikipedia.org/wiki/Cholesky_decomposition
+     * @throws NonSquareMatrixException
+     */
+    public CholeskyDecomposition choleskyFromMatrix(RealMatrix m) throws Exception {
+        return new CholeskyDecomposition(m);
+    }//end choleskyFromMatrix
+
+
+
+    /**
      * This will convert the given binary string to a decimal based
      * integer
-     *
      * @param binary the binary string to convert
      * @return an equivalent base 10 number
      */
@@ -1129,20 +1186,19 @@ public class MathUtils {
                 return -1;
             }
         }
-        int i = Integer.parseInt(binary, 2);
-        return i;
+        return Integer.parseInt(binary, 2);
     }//end toDecimal
+
 
     /**
      * This will translate a vector in to an equivalent integer
-     *
      * @param vector the vector to translate
      * @return a z value such that the value is the interleaved lsd to msd for each
      * double in the vector
      */
     public static int distanceFinderZValue(double[] vector) {
         StringBuilder binaryBuffer = new StringBuilder();
-        List<String> binaryReps = new ArrayList<String>(vector.length);
+        List<String> binaryReps = new ArrayList<>(vector.length);
         for (int i = 0; i < vector.length; i++) {
             double d = vector[i];
             int j = (int) d;
@@ -1168,12 +1224,11 @@ public class MathUtils {
     }//end distanceFinderZValue
 
     /**
-     * This returns the euclidean distance of two vectors
+     * This returns the distance of two vectors
      * sum(i=1,n)   (q_i - p_i)^2
-     *
      * @param p the first vector
      * @param q the second vector
-     * @return the euclidean distance between two vectors
+     * @return the distance between two vectors
      */
     public static double euclideanDistance(double[] p, double[] q) {
 
@@ -1188,12 +1243,11 @@ public class MathUtils {
     }//end euclideanDistance
 
     /**
-     * This returns the euclidean distance of two vectors
+     * This returns the distance of two vectors
      * sum(i=1,n)   (q_i - p_i)^2
-     *
      * @param p the first vector
      * @param q the second vector
-     * @return the euclidean distance between two vectors
+     * @return the distance between two vectors
      */
     public static double euclideanDistance(float[] p, float[] q) {
 
@@ -1210,7 +1264,6 @@ public class MathUtils {
     /**
      * This will generate a series of uniformally distributed
      * numbers between l times
-     *
      * @param l the number of numbers to generate
      * @return l uniformally generated numbers
      */
@@ -1223,11 +1276,11 @@ public class MathUtils {
         return ret;
     }//end generateUniform
 
+
     /**
      * This will calculate the Manhattan distance between two sets of points.
      * The Manhattan distance is equivalent to:
      * 1_sum_n |p_i - q_i|
-     *
      * @param p the first point vector
      * @param q the second point vector
      * @return the Manhattan distance between two object
@@ -1242,6 +1295,8 @@ public class MathUtils {
         return ret;
     }//end manhattanDistance
 
+
+
     public static double[] sampleDoublesInInterval(double[][] doubles, int l) {
         double[] sample = new double[l];
         for (int i = 0; i < l; i++) {
@@ -1255,9 +1310,8 @@ public class MathUtils {
 
     /**
      * Generates a random integer between the specified numbers
-     *
      * @param begin the begin of the interval
-     * @param end   the end of the interval
+     * @param end the end of the interval
      * @return an int between begin and end
      */
     public static int randomNumberBetween(double begin, double end) {
@@ -1268,9 +1322,8 @@ public class MathUtils {
 
     /**
      * Generates a random integer between the specified numbers
-     *
      * @param begin the begin of the interval
-     * @param end   the end of the interval
+     * @param end the end of the interval
      * @return an int between begin and end
      */
     public static int randomNumberBetween(double begin, double end, RandomGenerator rng) {
@@ -1279,6 +1332,24 @@ public class MathUtils {
         return (int) begin + (int) (rng.nextDouble() * ((end - begin) + 1));
     }
 
+    /**
+     * Generates a random integer between the specified numbers
+     * @param begin the begin of the interval
+     * @param end the end of the interval
+     * @return an int between begin and end
+     */
+    public static int randomNumberBetween(double begin, double end, Random rng) {
+        if (begin > end)
+            throw new IllegalArgumentException("Begin must not be less than end");
+        return (int) begin + (int) (rng.nextDouble() * ((end - begin) + 1));
+    }
+
+    /**
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
     public static float randomFloatBetween(float begin, float end) {
         float rand = (float) Math.random();
         return begin + (rand * ((end - begin)));
@@ -1288,16 +1359,18 @@ public class MathUtils {
         return begin + (Math.random() * ((end - begin)));
     }
 
-    /**
-     * This returns the slope of the given points.
-     *
-     * @param x1 the first x to use
-     * @param x2 the end x to use
-     * @param y1 the begin y to use
-     * @param y2 the end y to use
-     * @return the slope of the given points
-     */
-    public double slope(double x1, double x2, double y1, double y2) {
-        return (y2 - y1) / (x2 - x1);
-    }//end slope
+
+    public static void shuffleArray(int[] array, long rngSeed) {
+        shuffleArray(array, new Random(rngSeed));
+    }
+
+    public static void shuffleArray(int[] array, Random rng) {
+        //https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
+        for (int i = array.length - 1; i > 0; i--) {
+            int j = rng.nextInt(i + 1);
+            int temp = array[j];
+            array[j] = array[i];
+            array[i] = temp;
+        }
+    }
 }
