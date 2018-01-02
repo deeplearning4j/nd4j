@@ -1760,7 +1760,7 @@ public class SameDiffTests {
                 .build();
 
         SDVariable out = sd.conv2d(vars, c);
-        out = sd.tan("out", out);
+        out = sd.tanh("out", out);
 
         INDArray outArr = sd.execAndEndResult();
         //Expected output size: out = (in - k + 2*p)/s + 1 = (28-2+0)/1+1 = 27
