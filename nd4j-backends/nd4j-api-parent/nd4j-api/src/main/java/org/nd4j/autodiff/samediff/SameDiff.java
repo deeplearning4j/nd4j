@@ -179,6 +179,7 @@ public class SameDiff {
         SDVariable oldVarNameRef = getVariable(varName);
         variableMap.remove(oldVarNameRef.getVarName());
         val oldVarName = varName;
+        oldVarNameRef.setVarName(withName);
         variableMap.put(withName,oldVarNameRef);
 
 
