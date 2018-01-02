@@ -170,8 +170,8 @@ public class Convolution {
                         .sx(sx)
                         .kw(kw)
                         .kh(kh)
-                        .dw(1)
-                        .dh(1)
+                        .dw(dw)
+                        .dh(dh)
                         .isSameMode(isSameMode)
                         .build()).build();
 
@@ -214,8 +214,8 @@ public class Convolution {
                         .sx(sx)
                         .kw(kw)
                         .kh(kh)
-                        .dw(dH)
-                        .dh(dW)
+                        .dw(dW)
+                        .dh(dH)
                         .isSameMode(isSameMode)
                         .build()).build();
 
