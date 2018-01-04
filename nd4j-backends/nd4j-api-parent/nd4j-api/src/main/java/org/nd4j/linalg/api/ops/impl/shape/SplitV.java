@@ -16,35 +16,32 @@ import java.util.Map;
 /**
  * SplitV op
  */
-public class Split extends DynamicCustomOp {
+public class SplitV extends DynamicCustomOp {
 
     private int numSplit;
     private int splitDim;
 
-
     @Override
     public String opName() {
-        return "split";
+        return "splitv";
     }
 
     @Override
     public String tensorflowName() {
-        return "Split";
+        return "SplitV";
     }
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
         val numSplits = (int) attributesForNode.get("num_split").getI();
         this.numSplit = numSplits;
-        addIArgument(numSplits);
-
         val splitDim = TFGraphMapper.getInstance().getArrayFrom(TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,nodeDef.getInput(0)),graph);
         if(splitDim != null) {
             this.splitDim = splitDim.getInt(0);
             addIArgument(splitDim.getInt(0));
         }
 
-
+        addIArgument(numSplits);
 
     }
 
@@ -64,7 +61,7 @@ public class Split extends DynamicCustomOp {
         Map<String,PropertyMapping> map = new HashMap<>();
 
         val splitDim = PropertyMapping.builder()
-                .tfInputPosition(0)
+                .tfInputPosition(-1)
                 .propertyNames(new String[]{"splitDim"})
                 .build();
 

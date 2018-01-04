@@ -200,6 +200,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_zeta.class,
         float_polygamma.class,
         float_fill.class,
+        float_split_v.class,
         float_split.class,
         float_adjust_hue.class,
         float_adjust_saturation.class,
@@ -414,6 +415,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_zeta.class,
         half_polygamma.class,
         half_fill.class,
+        half_split_v.class,
         half_split.class,
         half_adjust_hue.class,
         half_adjust_saturation.class,
@@ -628,6 +630,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_zeta.class,
         double_polygamma.class,
         double_fill.class,
+        double_split_v.class,
         double_split.class,
         double_adjust_hue.class,
         double_adjust_saturation.class,
@@ -24609,6 +24612,58 @@ private native void allocate();
          * Integer arguments:
          * 0 - optional axis
          * 
+         */
+        @Name("nd4j::ops::split_v<float>") public static class float_split_v extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_split_v(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_split_v(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_split_v position(long position) {
+                return (float_split_v)super.position(position);
+            }
+        public float_split_v() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::split_v<float16>") public static class half_split_v extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_split_v(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_split_v(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_split_v position(long position) {
+                return (half_split_v)super.position(position);
+            }
+        public half_split_v() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::split_v<double>") public static class double_split_v extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_split_v(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_split_v(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_split_v position(long position) {
+                return (double_split_v)super.position(position);
+            }
+        public double_split_v() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * This operation splits given NDArray into chunks of specific size, along given dimension
+         * 0 - input array
+         * 1 - optional axis
+         * 
+         * Integer arguments:
+         * 0 - number of splits
+         * 1 - optional axis
          */
         @Name("nd4j::ops::split<float>") public static class float_split extends FloatDeclarableCustomOp {
             static { Loader.load(); }
