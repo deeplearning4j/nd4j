@@ -13,6 +13,7 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -1994,9 +1995,163 @@ public class SameDiffTests {
         INDArray dLdIn = sd.grad("in").getArr();
 
         //If L = mean(in)
-        //then dL/dIn = 1/N * in
+        //then dL/dIn = 1/N
 
         assertEquals(Nd4j.valueArrayOf(arr.shape(), 1.0/arr.length()), dLdIn);
+    }
+
+    @Test
+    public void validateSumDiff() {
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray arr = Nd4j.rand(3, 4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable v = sd.var("in", arr);
+        SDVariable mean = sd.sum("sum", v);
+
+        INDArray out = sd.execAndEndResult();
+        assertEquals(out, arr.sum(Integer.MAX_VALUE));
+
+        sd.execBackwards();
+        INDArray dLdIn = sd.grad("in").getArr();
+
+        //If L = sum(in)
+        //then dL/dIn = 1
+
+        assertEquals(Nd4j.ones(arr.shape()), dLdIn);
+    }
+
+    @Test
+    public void validateStdevDiff(){
+        for(boolean biasCorrected : new boolean[]{true, false}) {
+            Nd4j.getRandom().setSeed(12345);
+
+            INDArray arr = Nd4j.rand(3, 4);
+
+            SameDiff sd = SameDiff.create();
+            SDVariable v = sd.var("in", arr);
+            SDVariable stdev = sd.standardDeviation("stdev", v, biasCorrected);
+
+            INDArray out = sd.execAndEndResult();
+            assertEquals(out, arr.std(biasCorrected, Integer.MAX_VALUE));
+
+            sd.execBackwards();
+            INDArray dLdIn = sd.grad("in").getArr();
+
+            //If L = stdev(in)
+            //then dL/dIn = 1/Stdev * (in-mean) / (N-1)
+            // or /N for non-bias corrected
+
+            double m = arr.meanNumber().doubleValue();
+            double s = arr.stdNumber(biasCorrected).doubleValue();
+            INDArray exp = arr.sub(m).div(s);
+            exp.divi(biasCorrected ? arr.length()-1 : arr.length());
+
+            assertEquals(exp, dLdIn);
+        }
+    }
+
+    @Test
+    public void validateVarDiff(){
+        for(boolean biasCorrected : new boolean[]{true, false}) {
+            Nd4j.getRandom().setSeed(12345);
+
+            INDArray arr = Nd4j.rand(3, 4);
+
+            SameDiff sd = SameDiff.create();
+            SDVariable v = sd.var("in", arr);
+            SDVariable var = sd.variance("var", v, biasCorrected);
+
+            INDArray out = sd.execAndEndResult();
+            assertEquals(out, arr.var(biasCorrected, Integer.MAX_VALUE));
+
+            sd.execBackwards();
+            INDArray dLdIn = sd.grad("in").getArr();
+
+            //If L = var(in)
+            //then dL/dIn = 2/(N-1) * (in-mean)
+            // or /N for non-bias corrected
+
+            double m = arr.meanNumber().doubleValue();
+            INDArray exp = arr.sub(m).mul(2);
+            exp.divi(biasCorrected ? arr.length()-1 : arr.length());
+
+            assertEquals(exp, dLdIn);
+        }
+    }
+
+    @Test
+    public void validateMinDiff(){
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray arr = Nd4j.rand(3, 4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable v = sd.var("in", arr);
+        SDVariable min = sd.min("min", v);
+
+        INDArray out = sd.execAndEndResult();
+        assertEquals(out, arr.min(Integer.MAX_VALUE));
+
+        sd.execBackwards();
+        INDArray dLdIn = sd.grad("in").getArr();
+
+        //If L = min(in)
+        //then dL/dIn = 1 if in_i == min(in) or 0 otherwise
+
+        //Note that we don't have an "IsMin" op, so use IsMax(neg(in)) which is equivalent
+        INDArray exp = Nd4j.getExecutioner().execAndReturn(new IsMax(arr.neg()));
+
+        assertEquals(exp, dLdIn);
+    }
+
+    @Test
+    public void validateMaxDiff(){
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray arr = Nd4j.rand(3, 4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable v = sd.var("in", arr);
+        SDVariable min = sd.max("max", v);
+
+        INDArray out = sd.execAndEndResult();
+        assertEquals(out, arr.max(Integer.MAX_VALUE));
+
+        sd.execBackwards();
+        INDArray dLdIn = sd.grad("in").getArr();
+
+        //If L = max(in)
+        //then dL/dIn = 1 if in_i == max(in) or 0 otherwise
+
+        INDArray exp = Nd4j.getExecutioner().execAndReturn(new IsMax(arr.dup()));
+
+        assertEquals(exp, dLdIn);
+    }
+
+    @Test
+    public void validateProdDiff(){
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray arr = Nd4j.rand(3, 4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable v = sd.var("in", arr);
+        SDVariable prod = sd.prod("prod", v);
+
+        double p = arr.prodNumber().doubleValue();
+        INDArray out = sd.execAndEndResult();
+        assertEquals(out, arr.prod(Integer.MAX_VALUE));
+
+        sd.execBackwards();
+        INDArray dLdIn = sd.grad("in").getArr();
+
+        //If L = prod(in)
+        //then dL/dIn = prod(in) / in       i.e., product of input *excluding* in_i as (d/dx(xyzabc) = yzabc
+
+        INDArray exp = arr.rdiv(p);
+        assertEquals(exp, dLdIn);
     }
 }
 

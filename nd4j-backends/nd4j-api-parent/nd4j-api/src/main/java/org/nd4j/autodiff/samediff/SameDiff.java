@@ -2986,7 +2986,6 @@ public class SameDiff {
                 biasCorrected ,
                 dimensions);
         return updateVariableNameAndReference(result,name);
-
     }
 
     /**
