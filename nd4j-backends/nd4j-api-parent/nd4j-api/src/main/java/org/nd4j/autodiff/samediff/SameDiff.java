@@ -2045,6 +2045,13 @@ public class SameDiff {
         return mean(null,iX);
     }
 
+
+    /**
+     *
+     * @param iX
+     * @param dimension
+     * @return
+     */
     public SDVariable mean(SDVariable iX, int... dimension){
         return mean(null, iX, dimension);
     }
