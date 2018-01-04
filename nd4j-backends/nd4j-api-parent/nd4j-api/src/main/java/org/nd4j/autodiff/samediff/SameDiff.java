@@ -3571,14 +3571,26 @@ public class SameDiff {
 
         SDVariable[] ret = new SDVariable[outputShape.size()];
 
+        // ownName/baseName will be used to get variables names
+        val ownName = function.getOwnName();
+        val rootName = baseName;
         for(int i = 0; i < ret.length; i++) {
             val shape = outputShape.get(i);
-            baseName = baseName + (i > 0 ? ":" +  i : "");
+            // it should be: rootName:index. i.e.: split:1, split:2, split:3, split:4 etc
+            baseName = rootName + (i > 0 ? ":" + i : "");
             SDVariable checkGet = getVariable(baseName);
-            if(checkGet == null) {
-                checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
-            }
-            else if(!importedVarName.contains(baseName)) {
+            if (checkGet == null) {
+                // obviously - there's no such var, just add it
+                checkGet = var(baseName, shape);
+            } else if (shape != null && !shapeAlreadyExistsForVarName(checkGet.getVarName())) {
+                // var exists, let's update its shape
+                putShapeForVarName(checkGet.getVarName(), shape);
+            } else if (shape != null && shapeAlreadyExistsForVarName(checkGet.getVarName())) {
+                // no-op.
+                // TODO: maybe we should check shapes equality here?
+                // it's either var that already exist, or something bad happening
+            } else if(!importedVarName.contains(baseName)) {
+                // FIXME: dead end.  it's impossble to get here with null as shape
                 //need to find a new name
                 int count = 1;
                 String name = baseName + "_" + count   + (i > 0 ? ":" +  i : "");
@@ -3594,9 +3606,6 @@ public class SameDiff {
 
                 checkGet = var(name,shape);
             }
-
-            else if(shape != null && !shapeAlreadyExistsForVarName(checkGet.getVarName()))
-                putShapeForVarName(checkGet.getVarName(),shape);
 
             if(checkGet == null) {
                 checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
