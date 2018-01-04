@@ -27,7 +27,7 @@ public class GradCheckReductions {
 
 
     @Test
-    public void testReductionGradientsFullArray(){
+    public void testReductionGradients1(){
 
         for (int i = 0; i < 7; i++) {
 
