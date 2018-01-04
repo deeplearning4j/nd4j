@@ -28898,7 +28898,7 @@ op {
     name: "T"
     type: "type"
   }
-  summary: "SplitV a `SparseTensor` into `num_split` tensors along one dimension."
+  summary: "Split a `SparseTensor` into `num_split` tensors along one dimension."
   description: "If the `shape[split_dim]` is not an integer multiple of `num_split`. Slices\n`[0 : shape[split_dim] % num_split]` gets one extra dimension.\nFor example, if `split_dim = 1` and `num_split = 2` and the input is\n\n    input_tensor = shape = [2, 7]\n    [    a   d e  ]\n    [b c          ]\n\nGraphically the output tensors are:\n\n    output_tensor[0] = shape = [2, 4]\n    [    a  ]\n    [b c    ]\n\n    output_tensor[1] = shape = [2, 3]\n    [ d e  ]\n    [      ]"
 }
 op {
@@ -30253,8 +30253,8 @@ op {
     }
     description: "A `bool`. If `True`, skip the empty strings from the result."
   }
-  summary: "SplitV elements of `input` based on `delimiter` into a `SparseTensor`."
-  description: "Let N be the size of source (typically N will be the batch size). SplitV each\nelement of `input` based on `delimiter` and return a `SparseTensor`\ncontaining the splitted tokens. Empty tokens are ignored.\n\n`delimiter` can be empty, or a string of split characters. If `delimiter` is an\n empty string, each element of `input` is split into individual single-byte\n character strings, including splitting of UTF-8 multibyte sequences. Otherwise\n every character of `delimiter` is a potential split point.\n\nFor example:\n  N = 2, input[0] is \'hello world\' and input[1] is \'a b c\', then the output\n  will be\n\n  indices = [0, 0;\n             0, 1;\n             1, 0;\n             1, 1;\n             1, 2]\n  shape = [2, 3]\n  values = [\'hello\', \'world\', \'a\', \'b\', \'c\']"
+  summary: "Split elements of `input` based on `delimiter` into a `SparseTensor`."
+  description: "Let N be the size of source (typically N will be the batch size). Split each\nelement of `input` based on `delimiter` and return a `SparseTensor`\ncontaining the splitted tokens. Empty tokens are ignored.\n\n`delimiter` can be empty, or a string of split characters. If `delimiter` is an\n empty string, each element of `input` is split into individual single-byte\n character strings, including splitting of UTF-8 multibyte sequences. Otherwise\n every character of `delimiter` is a potential split point.\n\nFor example:\n  N = 2, input[0] is \'hello world\' and input[1] is \'a b c\', then the output\n  will be\n\n  indices = [0, 0;\n             0, 1;\n             1, 0;\n             1, 1;\n             1, 2]\n  shape = [2, 3]\n  values = [\'hello\', \'world\', \'a\', \'b\', \'c\']"
 }
 op {
   name: "StringToHashBucket"
@@ -31621,7 +31621,7 @@ op {
     name: "T"
     type: "type"
   }
-  summary: "SplitV the data from the input value into TensorArray elements."
+  summary: "Split the data from the input value into TensorArray elements."
   description: "Assuming that `lengths` takes on values\n\n  ```(n0, n1, ..., n(T-1))```\n\nand that `value` has shape\n\n  ```(n0 + n1 + ... + n(T-1) x d0 x d1 x ...)```,\n\nthis splits values into a TensorArray with T tensors.\n\nTensorArray index t will be the subtensor of values with starting position\n\n  ```(n0 + n1 + ... + n(t-1), 0, 0, ...)```\n\nand having size\n\n  ```nt x d0 x d1 x ...```"
   is_stateful: true
 }
