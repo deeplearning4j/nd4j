@@ -78,25 +78,20 @@ public class StandardDeviation extends Variance {
         //Here: calculating dL/dIn given dL/dOut (i.e., i_v1) and input/output
         //If out = stdev(in) then:
         //dL/dIn = dL/dOut * dOut/dIn
-        //dOut/dIn_i = 1/(stdev * (n-1)) * (in_i-mean - 1/n * sum(in-mean))
-//        int n = f().getInputLength(arg());
+        //dOut/dIn_i = (in_i-mean)/(stdev * (n-1))
         int n = f().getReductionLength(this);
         SDVariable stdevOut = outputVariables()[0];
         SDVariable mean = f().mean(arg(), dimensions);
         SDVariable diff = arg().sub(mean);
-        SDVariable diffSumDivN = f().sum(diff,dimensions).div(n);
 
-        SDVariable diff2 = diff.sub(diffSumDivN);
-
-        SDVariable dOutdIn = diff2.div(stdevOut);
+        SDVariable dOutdIn = diff.div(stdevOut);
         if(this.biasCorrected){
             dOutdIn = dOutdIn.div(n-1);
         } else {
             dOutdIn = dOutdIn.div(n);
         }
 
-        SDVariable dLdIn = i_v1.get(0).mul(dOutdIn);
-
+        SDVariable dLdIn = dOutdIn.mul(i_v1.get(0));
         return Collections.singletonList(dLdIn);
     }
 

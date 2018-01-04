@@ -21,9 +21,9 @@ public class GradCheckUtil {
 
     private static final boolean DEFAULT_PRINT = true;
     private static final boolean DEFAULT_EXIT_FIRST_FAILURE = false;
-    private static final double DEFAULT_EPS = 1e-6;
+    private static final double DEFAULT_EPS = 1e-5;
     private static final double DEFAULT_MAX_REL_ERROR = 1e-6;
-    private static final double DEFAULT_MIN_ABS_ERROR = 1e-9;
+    private static final double DEFAULT_MIN_ABS_ERROR = 1e-6;
 
 
     /**
@@ -223,12 +223,18 @@ public class GradCheckUtil {
                 double numericalGrad = (scorePlus - scoreMinus) / (2 * eps);
                 double analyticGrad = grad.get(s.getVarName()).getDouble(i);
 
-                if (Double.isInfinite(numericalGrad) || Double.isNaN(numericalGrad))
+                if (Double.isInfinite(numericalGrad) || Double.isNaN(numericalGrad)) {
                     throw new IllegalStateException("Numerical gradient was " + numericalGrad + " for variable \"" + name
                             + "\", parameter " + i + " of " + n);
+                }
+                if (Double.isInfinite(analyticGrad) || Double.isNaN(analyticGrad)) {
+                    throw new IllegalStateException("Analytic (SameDiff) gradient was " + analyticGrad + " for variable \"" + name
+                            + "\", parameter " + i + " of " + n);
+                }
+
 
                 double relError;
-                if(numericalGrad == 0.0 && scoreMinus == 0.0){
+                if(numericalGrad == 0.0 && analyticGrad == 0.0){
                     relError = 0.0;
                 } else {
                     relError = Math.abs(analyticGrad - numericalGrad) / (Math.abs(Math.abs(analyticGrad) + Math.abs(numericalGrad)));
@@ -249,6 +255,7 @@ public class GradCheckUtil {
                         if (print)
                             log.info("Param " + i + " (" + name + ") FAILED: grad= " + analyticGrad
                                     + ", numericalGrad= " + numericalGrad + ", relError= " + relError
+                                    + ", absError=" + absError
                                     + ", scorePlus=" + scorePlus + ", scoreMinus= " + scoreMinus);
                         if (exitOnFirstFailure)
                             return false;

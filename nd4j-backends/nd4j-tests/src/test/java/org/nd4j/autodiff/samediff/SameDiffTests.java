@@ -2040,7 +2040,7 @@ public class SameDiffTests {
             INDArray dLdIn = sd.grad("in").getArr();
 
             //If L = stdev(in)
-            //then dL/dIn = 1/Stdev * (in-mean) / (N-1)
+            //then dL/dIn = (in-mean) / (s*(N-1))
             // or /N for non-bias corrected
 
             double m = arr.meanNumber().doubleValue();
