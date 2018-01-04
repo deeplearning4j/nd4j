@@ -1526,6 +1526,7 @@ public class ConvolutionTests extends BaseNd4jTest {
     @Test
     public void testPoolingEdgeCases(){
         //Average pooling with same mode: should we include the padded values, when deciding what to divide by?
+        ///*** Note: Mode 2 is the "DL4J always divide by kH*kW" approach ***
 
         /*
         Input:
@@ -1541,10 +1542,8 @@ public class ConvolutionTests extends BaseNd4jTest {
          leftPad = 0, rightPad = 1
          */
 
-//        for( char inputOrder : new char[]{'c', 'f'}) {
-//            for( char outputOrder : new char[]{'c', 'f'}) {
-        for( char inputOrder : new char[]{'c'}) {
-            for( char outputOrder : new char[]{'c'}) {
+        for( char inputOrder : new char[]{'c', 'f'}) {
+            for( char outputOrder : new char[]{'c', 'f'}) {
 
                 INDArray input = Nd4j.create(1, 1, 3, 3);
                 input.get(point(0), point(0), all(), all())
@@ -1579,7 +1578,7 @@ public class ConvolutionTests extends BaseNd4jTest {
                 });
 
                 INDArray expEnabled = sums.div(divEnabled);
-                INDArray expDefault = sums.div(4);
+                INDArray expDl4j = sums.div(4);
 
                 //https://github.com/deeplearning4j/libnd4j/blob/master/include/ops/declarable/generic/convo/pooling/avgpool2d.cpp
                 DynamicCustomOp op1 = DynamicCustomOp.builder("avgpool2d")
@@ -1589,7 +1588,7 @@ public class ConvolutionTests extends BaseNd4jTest {
                         .build();
 
                 DynamicCustomOp op2 = DynamicCustomOp.builder("avgpool2d")
-                        .addIntegerArguments(new int[]{2, 2, 1, 1, 0, 0, 1, 1, 1, 0, 0})   //ky, kx, sy, sx, py, px, dy, dx, isSameMode, ???, divisor, nchw
+                        .addIntegerArguments(new int[]{2, 2, 1, 1, 0, 0, 1, 1, 1, 2, 0})   //ky, kx, sy, sx, py, px, dy, dx, isSameMode, ???, divisor, nchw
                         .addInputs(input)
                         .addOutputs(Nd4j.create(new int[]{1, 1, 3, 3}, outputOrder))
                         .build();
@@ -1597,11 +1596,11 @@ public class ConvolutionTests extends BaseNd4jTest {
                 Nd4j.getExecutioner().exec(op1);
                 Nd4j.getExecutioner().exec(op2);
                 INDArray actEnabled = op1.getOutputArgument(0);
-                INDArray actDefault = op2.getOutputArgument(0);
+                INDArray actDl4j = op2.getOutputArgument(0);
 
 
                 String msg = "inOrder=" + inputOrder + ", outOrder=" + outputOrder;
-                assertEquals(msg, expDefault, actDefault.get(point(0), point(0), all(), all()));
+                assertEquals(msg, expDl4j, actDl4j.get(point(0), point(0), all(), all()));
                 assertEquals(msg, expEnabled, actEnabled.get(point(0), point(0), all(), all()));
             }
         }
