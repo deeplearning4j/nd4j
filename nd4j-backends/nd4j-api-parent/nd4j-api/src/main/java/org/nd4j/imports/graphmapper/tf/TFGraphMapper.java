@@ -14,6 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.*;
 
 import java.io.*;
@@ -210,7 +211,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         String ret = name;
         if(ret.startsWith("^"))
             ret = ret.substring(1);
-        ret = ret.indexOf(':') >= 0 ? ret.substring(0,ret.indexOf(':')) : ret;
         if(ret.endsWith("/read")) {
             ret = ret.replace("/read","");
         }
@@ -322,6 +322,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 for(int i = 0; i < tfNode.getInputCount(); i++) {
                     val name = getNodeName(tfNode.getInput(i));
                     args[i] = diff.getVariable(name);
+                    if(args[i] == null) {
+                        args[i] = diff.var(name,null,new ZeroInitScheme('f'));
+                        diff.addAsPlaceHolder(args[i].getVarName());
+                    }
 
                     /**
                      * Note here that we are associating
