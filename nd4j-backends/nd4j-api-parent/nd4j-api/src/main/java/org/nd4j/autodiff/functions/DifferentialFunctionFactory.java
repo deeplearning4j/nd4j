@@ -979,6 +979,18 @@ public class DifferentialFunctionFactory   {
         return ArrayUtil.prod(inputShape);
     }
 
+    public int getReductionLength(DifferentialFunction func){
+        int[] inputShape = func.arg().getShape();
+        if(Shape.isWholeArray(inputShape, func.getDimensions())){
+            return ArrayUtil.prod(inputShape);
+        }
+        int prod = 1;
+        for(int i : func.getDimensions()){
+            prod *= inputShape[i];
+        }
+        return prod;
+    }
+
 
 
 
