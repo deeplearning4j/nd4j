@@ -1031,8 +1031,6 @@ public class DifferentialFunctionFactory   {
         SDVariable resultRepeated = doRepeat(func.args()[0],input);
         SDVariable argMaxLocations = eq(input,resultRepeated);
         return div(mul(argMaxLocations,repeatedGrad),sum(argMaxLocations).outputVariables()[0]);
-
-
     }
 
 

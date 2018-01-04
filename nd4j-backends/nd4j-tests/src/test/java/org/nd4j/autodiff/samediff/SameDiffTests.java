@@ -181,8 +181,8 @@ public class SameDiffTests {
         SameDiff sameDiff = SameDiff.create();
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
         SDVariable x = sameDiff.var("x", arr);
-        SDVariable result = sameDiff.sum(x, 1);
-        assertArrayEquals(arr.shape(), result.getShape());
+        SDVariable result = sameDiff.sum(x, 1); //[1,4].sum(1) == [1,1]
+        assertArrayEquals(new int[]{1,1}, result.getShape());
     }
 
 
