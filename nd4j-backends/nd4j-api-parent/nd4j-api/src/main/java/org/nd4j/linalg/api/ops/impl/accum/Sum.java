@@ -81,8 +81,8 @@ public class Sum extends BaseAccumulation {
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         SDVariable repeat =  f().doRepeat(
-                i_v1.get(0),
-                arg());
+                outputVariables()[0],
+                i_v1.get(0));
         return Collections.singletonList(repeat);
     }
 

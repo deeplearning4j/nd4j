@@ -75,9 +75,11 @@ public class Mean extends Sum {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        SDVariable ret = f().div(f().doRepeat(outputVariables()[0],i_v1.get(0)),
-                f().mul(f().one(i_v1.get(0).getShape()),
-                        f().getInputLength(i_v1.get(0))));
+        //If out = mean(in), then dL/dIn = 1/N * dL/dOut  (broadcast to appropriate shape)
+        int n = f().getInputLength(arg());
+
+        SDVariable ret = f().one(arg().getShape()).div(n);      //1/N with shape equal to input
+        ret = ret.mul(i_v1.get(0));
 
         return Collections.singletonList(ret);
     }

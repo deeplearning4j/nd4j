@@ -4069,8 +4069,14 @@ public class SameDiff {
      */
     public INDArray execBackwardAndEndResult() {
         List<DifferentialFunction> backwards = execBackwards().getRight();
-        Op op = (Op) backwards.get(backwards.size() - 1);
-        return op.z();
+        DifferentialFunction df = backwards.get(backwards.size() - 1);
+        if(df instanceof Op) {
+            return ((Op) df).z();
+        } else if(df instanceof DynamicCustomOp){
+            return ((DynamicCustomOp) df).getOutputArgument(0);
+        } else {
+            return null;
+        }
     }
 
 
