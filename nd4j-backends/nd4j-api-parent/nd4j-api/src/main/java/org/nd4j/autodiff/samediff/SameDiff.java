@@ -23,6 +23,9 @@ import org.nd4j.linalg.api.memory.enums.LearningPolicy;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.*;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.api.ops.impl.accum.distances.CosineSimilarity;
+import org.nd4j.linalg.api.ops.impl.accum.distances.EuclideanDistance;
+import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
@@ -42,6 +45,7 @@ import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.collection.IntArrayKeyMap;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.lossfunctions.impl.*;
 import org.nd4j.linalg.primitives.AtomicBoolean;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -1537,7 +1541,6 @@ public class SameDiff {
                 .build();
 
         val outputVertexId = conv2D.outputVariables()[0];
-        updateVariableName(outputVertexId.getVarName(),generateVariableName(conv2D.opName(),false,inputs));
         return outputVertexId;
     }
 
@@ -1556,7 +1559,6 @@ public class SameDiff {
                 .build();
 
         val outputVars = conv3D.outputVariables();
-        updateVariableName(outputVars[0].getVarName(),generateVariableName(conv3D.opName(),false,inputs));
         return outputVars[0];
     }
 
@@ -1929,7 +1931,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable gradientBackwardsMarker(SDVariable iX) {
-        return gradientBackwardsMarker(generateVariableName(new GradientBackwardsMarker().opName(),true,iX),iX);
+        return gradientBackwardsMarker(generateNewVarName(new GradientBackwardsMarker().opName(),0),iX);
     }
 
 
@@ -2205,7 +2207,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable cosineSimilarity(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return cosineSimilarity(generateVariableName("cosineSimilarity",false,iX,i_y),iX,i_y,dimensions);
+        return cosineSimilarity(generateNewVarName(new CosineSimilarity().opName(),0),iX,i_y,dimensions);
     }
 
     /**
@@ -2216,7 +2218,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable euclideanDistance(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return euclideanDistance(generateVariableName("euclideandistance",false,iX,i_y),iX,i_y,dimensions);
+        return euclideanDistance(generateNewVarName(new EuclideanDistance().opName(),0),iX,i_y,dimensions);
     }
 
     /**
@@ -2227,7 +2229,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable manhattanDistance(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return manhattanDistance(generateVariableName("manhattanDistance",false,iX,i_y),iX,i_y,dimensions);
+        return manhattanDistance(generateNewVarName(new ManhattanDistance().opName(),0),iX,i_y,dimensions);
     }
 
     /**
@@ -2238,7 +2240,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossBinaryXENT(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossBinaryXENT(generateVariableName("lossBinaryXENT",false,iX,i_y),iX,i_y,dimensions);
+        return lossBinaryXENT(generateNewVarName(new LossBinaryXENT().opName(),0),iX,i_y,dimensions);
     }
 
     /**
@@ -2249,7 +2251,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossCosineSimilarity(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossCosineSimilarity(null,iX,i_y,dimensions);
+        return lossCosineSimilarity(generateNewVarName(new LossCosineProximity().opName(),0),iX,i_y,dimensions);
     }
 
     /**
@@ -2260,7 +2262,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossHinge(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossHinge(generateVariableName("lossHinge",false,iX,i_y),iX,i_y,dimensions);
+        return lossHinge(generateNewVarName(new LossHinge().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2272,7 +2274,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossKLD(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossKLD(generateVariableName("lossKKLD",false,iX,i_y),iX,i_y,dimensions);
+        return lossKLD(generateNewVarName(new LossKLD().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2284,7 +2286,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossL1(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossL1(generateVariableName("lossL1",false,iX),iX,i_y,dimensions);
+        return lossL1(generateNewVarName(new LossL1().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2296,7 +2298,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossL2(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossL2(generateVariableName("lossL2",false,iX),iX,i_y,dimensions);
+        return lossL2(generateNewVarName(new LossL2().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2308,7 +2310,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossMAE(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossMAE(generateVariableName("lossMAE",false,iX,i_y),iX,i_y,dimensions);
+        return lossMAE(generateNewVarName(new LossMAE().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2320,7 +2322,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossMSE(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossMSE(generateVariableName("lossMSE",false,iX,i_y),iX,i_y,dimensions);
+        return lossMSE(generateNewVarName(new LossMSE().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2332,7 +2334,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossMCXENT(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossMCXENT(generateVariableName("lossMCXENT",false,iX,i_y),iX,i_y,dimensions);
+        return lossMCXENT(generateNewVarName(new LossMCXENT().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2344,7 +2346,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossMSLE(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossMSLE(null,iX,i_y,dimensions);
+        return lossMSLE(generateNewVarName(new LossMSLE().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2356,7 +2358,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossNegativeLogLikelihood(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossNegativeLogLikelihood(generateVariableName("lossNegativeLogLikelihood",false,iX,i_y),iX,i_y,dimensions);
+        return lossNegativeLogLikelihood(generateNewVarName(new LossNegativeLogLikelihood().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2368,7 +2370,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossPoisson(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossPoisson(generateVariableName("lossPoisson",false,iX,i_y),iX,i_y,dimensions);
+        return lossPoisson(generateNewVarName(new LossPoisson().opName(),0),iX,i_y,dimensions);
 
     }
 
@@ -2381,7 +2383,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable lossSquaredHinge(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return lossSquaredHinge(generateVariableName("lossPoisson",false,iX,i_y),iX,i_y,dimensions);
+        return lossSquaredHinge(generateNewVarName(new LossSquaredHinge().opName(),0),iX,i_y,dimensions);
     }
 
 
@@ -3571,14 +3573,26 @@ public class SameDiff {
 
         SDVariable[] ret = new SDVariable[outputShape.size()];
 
+        // ownName/baseName will be used to get variables names
+        val ownName = function.getOwnName();
+        val rootName = baseName;
         for(int i = 0; i < ret.length; i++) {
             val shape = outputShape.get(i);
+            // it should be: rootName:index. i.e.: split:1, split:2, split:3, split:4 etc
+            baseName = rootName + (i > 0 ? ":" + i : "");
             SDVariable checkGet = getVariable(baseName);
-
-            if(checkGet == null) {
-                checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
-            }
-            else if(!importedVarName.contains(baseName)) {
+            if (checkGet == null) {
+                // obviously - there's no such var, just add it
+                checkGet = var(baseName, shape);
+            } else if (shape != null && !shapeAlreadyExistsForVarName(checkGet.getVarName())) {
+                // var exists, let's update its shape
+                putShapeForVarName(checkGet.getVarName(), shape);
+            } else if (shape != null && shapeAlreadyExistsForVarName(checkGet.getVarName())) {
+                // no-op.
+                // TODO: maybe we should check shapes equality here?
+                // it's either var that already exist, or something bad happening
+            } else if(!importedVarName.contains(baseName)) {
+                // FIXME: dead end.  it's impossble to get here with null as shape
                 //need to find a new name
                 int count = 1;
                 String name = baseName + "_" + count   + (i > 0 ? ":" +  i : "");
@@ -3594,9 +3608,6 @@ public class SameDiff {
 
                 checkGet = var(name,shape);
             }
-
-            else if(shape != null && !shapeAlreadyExistsForVarName(checkGet.getVarName()))
-                putShapeForVarName(checkGet.getVarName(),shape);
 
             if(checkGet == null) {
                 checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
@@ -3622,38 +3633,7 @@ public class SameDiff {
     }
 
 
-    /**
-     *
-     * @param funcName
-     * @param grad
-     * @param inputs
-     * @return
-     */
-    public String generateVariableName(String funcName,boolean grad,SDVariable...inputs) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(funcName).append("(");
-        if(inputs != null) {
-            for (SDVariable variable : inputs) {
-                if(variable == null) {
-                    throw new ND4JIllegalStateException("Found null variable when attempting to generate variable name for function " + funcName);
-                }
-                sb.append(variable.getVarName());
-                if (grad) {
-                    sb.append("-grad");
-                }
-
-                sb.append("-");
-
-
-                sb.append(",");
-            }
-        }
-
-
-        return sb.toString();
-
-    }
-
+  
 
 
 

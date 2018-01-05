@@ -59,14 +59,7 @@ public class SameDiffTests {
 
 
 
-    @Test
-    public void testNames() {
-        SameDiff sd = SameDiff.create();
-        SDVariable in1 = sd.var("in", new int[]{10,9,8});
-        SDVariable in2 = sd.var("in", new int[]{10,9,8});
 
-        sd.toString();
-    }
 
 
     @Test
@@ -1060,6 +1053,23 @@ public class SameDiffTests {
 
         assertArrayEquals(new int[]{9,8}, mA.shape());
         assertArrayEquals(new int[]{1,8}, mB.shape());
+    }
+
+    @Test
+    public void testNames() {
+        SameDiff sd = SameDiff.create();
+        SDVariable in1 = sd.var("in", new int[]{3, 2});
+        SDVariable in2 = sd.var("in", new int[]{3, 3});
+
+        val m = in1.add(1.0);
+        val f = m.add(2.0);
+        val s = in2.add(5.0);
+
+
+        val arr = sd.execAndEndResult();
+        log.info("Result M: {}", m.getArr());
+        log.info("Result F: {}", f.getArr());
+        log.info("Result S: {}", s.getArr());
     }
 
 
