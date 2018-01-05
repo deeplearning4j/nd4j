@@ -59,6 +59,15 @@ public class SameDiffTests {
 
 
 
+    @Test
+    public void testNames() {
+        SameDiff sd = SameDiff.create();
+        SDVariable in1 = sd.var("in", new int[]{10,9,8});
+        SDVariable in2 = sd.var("in", new int[]{10,9,8});
+
+        sd.toString();
+    }
+
 
     @Test
     public void testAddArgsAndOutput() {

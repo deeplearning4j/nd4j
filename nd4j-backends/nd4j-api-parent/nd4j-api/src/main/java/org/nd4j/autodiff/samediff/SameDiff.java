@@ -3573,8 +3573,8 @@ public class SameDiff {
 
         for(int i = 0; i < ret.length; i++) {
             val shape = outputShape.get(i);
-            baseName = baseName + (i > 0 ? ":" +  i : "");
             SDVariable checkGet = getVariable(baseName);
+
             if(checkGet == null) {
                 checkGet = var(baseName + (i > 0 ? ":" +  i : ""),shape);
             }
