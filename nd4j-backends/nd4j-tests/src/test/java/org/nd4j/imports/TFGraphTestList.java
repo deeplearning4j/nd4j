@@ -42,12 +42,12 @@ public class TFGraphTestList {
            // "expand_dim",
            // "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
          //   "g_01",
-            //"lstm_mnist",
+            "lstm_mnist",
            // "math_mul_order",
             //"mlp_00",
             //"mnist_00",i
           //  "node_multiple_out",// -> Need to map multiple out values to graph node output values
-            "primitive_lstm",
+          //  "primitive_lstm",
           //  "stack",
           //  "stack_1d",
             //"stack_scalar"

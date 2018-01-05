@@ -111,7 +111,6 @@ public class TFGraphTestAllHelper {
                 if (!inputs.containsKey(varName)) { //avoiding placeholders
                     INDArray tfValue = intermediateVars(modelName, baseDir, varName);
                     if(tfValue == null) {
-                        log.warn("Skipping null value with var name {}",varName);
                         continue;
                     }
                     assertEquals("Shape not equal on node " + varName, ArrayUtils.toString(tfValue.shape()), ArrayUtils.toString(graph.getVariable(varName).getShape()));
