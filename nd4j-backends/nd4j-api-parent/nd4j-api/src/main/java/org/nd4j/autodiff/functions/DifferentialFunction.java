@@ -422,7 +422,7 @@ public abstract class DifferentialFunction {
      * @return
      */
     public  DifferentialFunction dup() {
-        Cloner cloner = new Cloner();
+        Cloner cloner = SameDiff.newCloner();
         return cloner.deepClone(this);
     }
 

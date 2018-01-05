@@ -963,7 +963,6 @@ public class DifferentialFunctionFactory   {
         return new ScalarEquals(sameDiff(),iX,i_y).outputVariables()[0];
     }
 
-
     public SDVariable eqi(SDVariable iX, double i_y) {
         return new ScalarEquals(sameDiff(),iX,i_y,true).outputVariables()[0];
     }
@@ -978,6 +977,18 @@ public class DifferentialFunctionFactory   {
         validateDifferentialFunctionsameDiff(func);
         int[] inputShape = func.arg().getShape();
         return ArrayUtil.prod(inputShape);
+    }
+
+    public int getReductionLength(DifferentialFunction func){
+        int[] inputShape = func.arg().getShape();
+        if(Shape.isWholeArray(inputShape, func.getDimensions())){
+            return ArrayUtil.prod(inputShape);
+        }
+        int prod = 1;
+        for(int i : func.getDimensions()){
+            prod *= inputShape[i];
+        }
+        return prod;
     }
 
 
@@ -1032,8 +1043,6 @@ public class DifferentialFunctionFactory   {
         SDVariable resultRepeated = doRepeat(func.args()[0],input);
         SDVariable argMaxLocations = eq(input,resultRepeated);
         return div(mul(argMaxLocations,repeatedGrad),sum(argMaxLocations).outputVariables()[0]);
-
-
     }
 
 
@@ -1048,9 +1057,6 @@ public class DifferentialFunctionFactory   {
         validateDifferentialFunctionsameDiff(func);
         validateDifferentialFunctionsameDiff(input);
         return tile(func,input.getShape());
-
-
-
     }
 
 

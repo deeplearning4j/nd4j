@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.rits.cloning.Cloner;
+import com.rits.cloning.IFastCloner;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
@@ -12,6 +13,7 @@ import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
 import org.nd4j.autodiff.functions.FunctionProperties;
+import org.nd4j.autodiff.util.cloner.INDArrayFastCloner;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -140,7 +142,7 @@ public class SameDiff {
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
     private Set<String> placeHolderFunctions;
-    private static Cloner cloner = new Cloner();
+    private static Cloner cloner = newCloner();
     private static Map<String,Method> opMethods;
 
     private  Map<String,DifferentialFunction> functionInstancesById;
@@ -169,6 +171,18 @@ public class SameDiff {
                 opMethods.put(method.getName(),method);
             }
         }
+    }
+
+    public static Cloner newCloner(){
+        Cloner cloner = new Cloner();
+
+        //Implement custom cloning for INDArrays (default can have problems with off-heap and pointers)
+        //Sadly: the cloner library does NOT support interfaces here, hence we need to use the actual classes
+        //cloner.registerFastCloner(INDArray.class, new INDArrayFastCloner());  //Does not work due to interface
+        IFastCloner fc = new INDArrayFastCloner();
+        cloner.registerFastCloner(Nd4j.getBackend().getNDArrayClass(), fc);
+        cloner.registerFastCloner(Nd4j.getBackend().getComplexNDArrayClass(), fc);
+        return cloner;
     }
 
 
@@ -1187,7 +1201,7 @@ public class SameDiff {
      * @return
      */
     public SameDiff dup() {
-        Cloner cloner = new Cloner();
+        Cloner cloner = newCloner();
         return cloner.deepClone(this);
     }
 
@@ -2988,7 +3002,6 @@ public class SameDiff {
                 biasCorrected ,
                 dimensions);
         return updateVariableNameAndReference(result,name);
-
     }
 
     /**
@@ -4040,8 +4053,14 @@ public class SameDiff {
      */
     public INDArray execBackwardAndEndResult() {
         List<DifferentialFunction> backwards = execBackwards().getRight();
-        Op op = (Op) backwards.get(backwards.size() - 1);
-        return op.z();
+        DifferentialFunction df = backwards.get(backwards.size() - 1);
+        if(df instanceof Op) {
+            return ((Op) df).z();
+        } else if(df instanceof DynamicCustomOp){
+            return ((DynamicCustomOp) df).getOutputArgument(0);
+        } else {
+            return null;
+        }
     }
 
 
