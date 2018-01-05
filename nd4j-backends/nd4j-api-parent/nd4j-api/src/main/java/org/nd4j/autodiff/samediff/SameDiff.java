@@ -174,7 +174,6 @@ public class SameDiff {
 
         //Implement custom cloning for INDArrays (default can have problems with off-heap and pointers)
         //Sadly: the cloner library does NOT support interfaces here, hence we need to use the actual classes
-        //Could use reflection or services functionality to find INDArray classes, but that's probably overkill here
         //cloner.registerFastCloner(INDArray.class, new INDArrayFastCloner());  //Does not work due to interface
         IFastCloner fc = new INDArrayFastCloner();
         cloner.registerFastCloner(Nd4j.getBackend().getNDArrayClass(), fc);
