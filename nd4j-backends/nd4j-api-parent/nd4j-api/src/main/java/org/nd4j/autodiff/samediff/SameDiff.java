@@ -138,7 +138,7 @@ public class SameDiff {
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
     private Set<String> placeHolderFunctions;
-    private static Cloner cloner;
+    private static Cloner cloner = newCloner();
     private static Map<String,Method> opMethods;
 
     private  Map<String,DifferentialFunction> functionInstancesById;
@@ -167,8 +167,10 @@ public class SameDiff {
                 opMethods.put(method.getName(),method);
             }
         }
+    }
 
-        cloner = new Cloner();
+    public static Cloner newCloner(){
+        Cloner cloner = new Cloner();
 
         //Implement custom cloning for INDArrays (default can have problems with off-heap and pointers)
         //Sadly: the cloner library does NOT support interfaces here, hence we need to use the actual classes
@@ -177,6 +179,7 @@ public class SameDiff {
         IFastCloner fc = new INDArrayFastCloner();
         cloner.registerFastCloner(Nd4j.getBackend().getNDArrayClass(), fc);
         cloner.registerFastCloner(Nd4j.getBackend().getComplexNDArrayClass(), fc);
+        return cloner;
     }
 
 
@@ -1195,7 +1198,7 @@ public class SameDiff {
      * @return
      */
     public SameDiff dup() {
-        Cloner cloner = new Cloner();
+        Cloner cloner = newCloner();
         return cloner.deepClone(this);
     }
 
