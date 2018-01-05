@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
 import com.google.flatbuffers.FlatBufferBuilder;
 import com.rits.cloning.Cloner;
+import com.rits.cloning.IFastCloner;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.javacpp.BytePointer;
@@ -12,6 +13,7 @@ import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
 import org.nd4j.autodiff.functions.FunctionProperties;
+import org.nd4j.autodiff.util.cloner.INDArrayFastCloner;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -136,7 +138,7 @@ public class SameDiff {
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
     private Set<String> placeHolderFunctions;
-    private static Cloner cloner = new Cloner();
+    private static Cloner cloner; //new Cloner();
     private static Map<String,Method> opMethods;
 
     private  Map<String,DifferentialFunction> functionInstancesById;
@@ -163,6 +165,25 @@ public class SameDiff {
         for(Method method : methods) {
             if(method.getReturnType().equals(SDVariable.class)) {
                 opMethods.put(method.getName(),method);
+            }
+        }
+
+        cloner = new Cloner();
+
+        //Implement custom cloning for INDArrays (default can have problems with off-heap and pointers)
+        //Sadly: the cloner library does NOT support interfaces here, hence we need to use the actual classes
+        //Could use reflection or services functionality to find INDArray classes, but that's probably overkill here
+        //cloner.registerFastCloner(INDArray.class, new INDArrayFastCloner());  //Does not work due to interface
+        String[] indarrayClasses = new String[]{
+                "org.nd4j.linalg.cpu.nativecpu.NDArray",
+                "org.nd4j.linalg.jcublas.JCublasNDArray"};
+        IFastCloner fc = new INDArrayFastCloner();
+        for(String s : indarrayClasses){
+            try{
+                Class<?> c = Class.forName(s);
+                cloner.registerFastCloner(c, fc);
+            }catch (ClassNotFoundException e){
+                //OK, backend not on classpath
             }
         }
     }
