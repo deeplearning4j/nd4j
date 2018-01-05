@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Stack op conversion
+ * Gather op conversion
  *
  * @author raver119@gmail.com
  */
@@ -56,6 +56,7 @@ public class Gather extends DynamicCustomOp {
         val axis = PropertyMapping.builder()
                 .onnxAttrName("axis")
                 .propertyNames(new String[]{"axis"}).build();
+
         map.put("broadcast",broadcast);
         map.put("axis",axis);
 
