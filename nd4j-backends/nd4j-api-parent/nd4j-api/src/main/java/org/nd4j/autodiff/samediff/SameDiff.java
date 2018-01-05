@@ -138,7 +138,7 @@ public class SameDiff {
     private Map<String,SameDiffFunctionDefinition> sameDiffFunctionDefinitionMap;
     private Map<String,SameDiff> sameDiffFunctionInstances;
     private Set<String> placeHolderFunctions;
-    private static Cloner cloner; //new Cloner();
+    private static Cloner cloner;
     private static Map<String,Method> opMethods;
 
     private  Map<String,DifferentialFunction> functionInstancesById;
@@ -174,18 +174,9 @@ public class SameDiff {
         //Sadly: the cloner library does NOT support interfaces here, hence we need to use the actual classes
         //Could use reflection or services functionality to find INDArray classes, but that's probably overkill here
         //cloner.registerFastCloner(INDArray.class, new INDArrayFastCloner());  //Does not work due to interface
-        String[] indarrayClasses = new String[]{
-                "org.nd4j.linalg.cpu.nativecpu.NDArray",
-                "org.nd4j.linalg.jcublas.JCublasNDArray"};
         IFastCloner fc = new INDArrayFastCloner();
-        for(String s : indarrayClasses){
-            try{
-                Class<?> c = Class.forName(s);
-                cloner.registerFastCloner(c, fc);
-            }catch (ClassNotFoundException e){
-                //OK, backend not on classpath
-            }
-        }
+        cloner.registerFastCloner(Nd4j.getBackend().getNDArrayClass(), fc);
+        cloner.registerFastCloner(Nd4j.getBackend().getComplexNDArrayClass(), fc);
     }
 
 
