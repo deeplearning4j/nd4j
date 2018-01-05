@@ -20,7 +20,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -111,6 +110,10 @@ public class TFGraphTestAllHelper {
             for (String varName : graph.variableMap().keySet()) {
                 if (!inputs.containsKey(varName)) { //avoiding placeholders
                     INDArray tfValue = intermediateVars(modelName, baseDir, varName);
+                    if(tfValue == null) {
+                        log.warn("Skipping null value with var name {}",varName);
+                        continue;
+                    }
                     assertEquals("Shape not equal on node " + varName, ArrayUtils.toString(tfValue.shape()), ArrayUtils.toString(graph.getVariable(varName).getShape()));
                     assertEquals("Value not equal on node " + varName, tfValue, graph.getVariable(varName).getArr());
                     log.info("\n\tShapes equal for " + varName);

@@ -27,6 +27,8 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
+import static org.nd4j.linalg.indexing.NDArrayIndex.all;
+import static org.nd4j.linalg.indexing.NDArrayIndex.point;
 
 /**
  * Created by agibsonccc on 4/11/17.
@@ -1072,6 +1074,20 @@ public class SameDiffTests {
         log.info("Result S: {}", s.getArr());
     }
 
+
+    @Test
+    public void testBroadcast(){
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", Nd4j.rand(3,4));
+        SDVariable broadcast = sd.f().broadcast(in, 3,4,5);
+
+        INDArray out = sd.execAndEndResult();
+        assertArrayEquals(new int[]{3,4,5}, out.shape());
+
+        for( int i=0; i<5; i++ ){
+            assertEquals(in.getArr(), out.get(all(), all(), point(i)));
+        }
+    }
 
     @Test
     public void testRunLogisticRegression() {

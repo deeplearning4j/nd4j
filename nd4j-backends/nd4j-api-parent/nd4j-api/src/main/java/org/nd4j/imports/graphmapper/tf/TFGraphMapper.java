@@ -50,7 +50,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         add("Merge");
         add("Exit");
         add("NextIteration");
-        add("Identity");
         add("NoOp");
         add("Switch");
     }};
