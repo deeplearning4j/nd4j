@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
+import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -82,8 +84,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     }
 
     @Override
-    public String getTargetMappingForOp(DifferentialFunction function) {
-        return null;
+    public String getTargetMappingForOp(DifferentialFunction function, NodeDef node) {
+        return node.getOp();
     }
 
     @Override
@@ -96,6 +98,45 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
         return null;
     }
+
+    @Override
+    public void mapProperty(String name, DifferentialFunction on, NodeDef node, GraphDef graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappingsForFunction) {
+        val mapping = propertyMappingsForFunction.get(name).get(getTargetMappingForOp(on, node));
+
+        /**
+         * Map  ints and the like. Need to figure out how attribute mapping should work.
+         *
+         *
+         */
+
+        val propsForFunction = on.propertiesForFunction();
+
+        if(mapping.getTfAttrName() == null) {
+            int tfMappingIdx = mapping.getTfInputPosition();
+            if(tfMappingIdx < 0)
+                tfMappingIdx += node.getInputCount();
+
+            val input = node.getInput(tfMappingIdx);
+            val inputNode = TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,input);
+            INDArray arr = sameDiff.getArrForVarName(input);
+            /**
+             * Figure out whether it's an int array
+             * or a double array, or maybe a scalar.
+              */
+
+        }
+        else {
+            val tfMappingAttrName = mapping.getTfAttrName();
+            val attr = node.getAttrOrThrow(tfMappingAttrName);
+            /**
+             * Figure out how to resolve the attribute type.
+             */
+        }
+
+    }
+
+
+
 
     /**
      * {@inheritDoc}

@@ -28,11 +28,18 @@ import java.util.Set;
 public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
 
 
-    String getTargetMappingForOp(DifferentialFunction function);
+    /**
+     * Get the target mapping key (usually based on the node name)
+     * for the given function
+     * @param function the function
+     * @param node the node to derive the target mapping from
+     * @return
+     */
+    String getTargetMappingForOp(DifferentialFunction function, NODE_TYPE node);
+
 
 
     void mapProperties(DifferentialFunction on, NODE_TYPE node, GRAPH_TYPE graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappings);
-
 
 
     void mapProperty(String name, DifferentialFunction on, NODE_TYPE node, GRAPH_TYPE graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappingsForFunction);

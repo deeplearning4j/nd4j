@@ -7,8 +7,10 @@ import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
+import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
+import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -56,9 +58,26 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
 
     @Override
-    public String getTargetMappingForOp(DifferentialFunction function) {
-        return null;
+    public String getTargetMappingForOp(DifferentialFunction function, OnnxProto3.NodeProto node) {
+        return node.getOpType();
     }
+
+
+    @Override
+    public void mapProperty(String name, DifferentialFunction on, OnnxProto3.NodeProto node, OnnxProto3.GraphProto graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappingsForFunction) {
+        val mapping = propertyMappingsForFunction.get(name).get(getTargetMappingForOp(on, node));
+
+        /**
+         * Map  ints and the like. Need to figure out how attribute mapping should work.
+         *
+         *
+         */
+
+        val propsForFunction = on.propertiesForFunction();
+
+
+    }
+
 
     @Override
     public OnnxProto3.NodeProto getNodeWithNameFromGraph(OnnxProto3.GraphProto graph, String name) {

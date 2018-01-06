@@ -16,6 +16,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 import org.tensorflow.framework.OpDef;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -29,7 +30,17 @@ public class DifferentialFunctionClassHolder {
 
     private Map<String,OpDescriptor> onnxOpDescriptors;
     private Map<String,OpDef> tensorflowOpDescriptors;
+    private Map<String,Map<String,Field>> fieldsForFunction;
 
+
+    /**
+     * Get the fields for a given {@link DifferentialFunction}
+     * @param function the function to get the fields for
+     * @return the fields for a given function
+     */
+    public Map<String,Field> getFielsForFunction(DifferentialFunction function) {
+        return fieldsForFunction.get(function.opName());
+    }
 
     /**
      * Get the op definition of a given
@@ -88,6 +99,8 @@ public class DifferentialFunctionClassHolder {
 
         Set<Class<? extends DifferentialFunction>> clazzes = f.getSubTypesOf(DifferentialFunction.class);
 
+        fieldsForFunction = new LinkedHashMap<>();
+
         for (Class<? extends DifferentialFunction> clazz : clazzes) {
             if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isInterface())
                 continue;
@@ -118,6 +131,17 @@ public class DifferentialFunctionClassHolder {
                     }catch (NoOpNameFoundException e) {
                         log.trace("Skipping op " + name + " for onnx.");
                     }
+
+                    //accumulate the field names for a given function
+                    //this is mainly used in import
+                    Map<String,Field> fieldNames = new LinkedHashMap<>();
+                    for(val field : node.getClass().getDeclaredFields()) {
+                        field.setAccessible(true);
+                        fieldNames.put(field.getName(),field);
+                    }
+
+                    fieldsForFunction.put(node.opName(),fieldNames);
+
                 }
             } catch (NoOpNameFoundException e) {
                 log.trace("Skipping function  " + clazz);

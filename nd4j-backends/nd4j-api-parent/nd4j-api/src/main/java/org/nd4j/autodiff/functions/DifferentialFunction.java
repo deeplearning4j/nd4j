@@ -9,6 +9,7 @@ import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
@@ -18,6 +19,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -113,7 +115,32 @@ public abstract class DifferentialFunction {
      * @return
      */
     public Map<String,Object> propertiesForFunction() {
-        return Collections.emptyMap();
+        val fields = DifferentialFunctionClassHolder.getInstance().getFielsForFunction(this);
+        Map<String,Object> ret = new LinkedHashMap<>();
+
+        for(val entry : fields.entrySet()) {
+            try {
+                ret.put(entry.getKey(),fields.get(entry.getKey()).get(this));
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return ret;
+    }
+
+
+    /**
+     * Set the value for this function
+     * @param target the target field
+     * @param value the value to set
+     */
+    public void setValueFor(Field target, Object value) {
+        try {
+            target.set(value,this);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
 
