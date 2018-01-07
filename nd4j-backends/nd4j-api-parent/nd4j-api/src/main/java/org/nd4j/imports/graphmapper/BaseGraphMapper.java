@@ -44,10 +44,15 @@ public abstract class BaseGraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE
 
     @Override
     public void mapProperties(DifferentialFunction on, NODE_TYPE node, GRAPH_TYPE graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappings) {
-         val props = on.mappingsForFunction();
-         for(val entry : props.entrySet()) {
-             mapProperty(entry.getKey(),on,node,graph,sameDiff,propertyMappings);
-         }
+        val mappings = propertyMappings.get(getOpType(node));
+        if(mappings == null || mappings.isEmpty()) {
+            return;
+        }
+
+
+        for(val entry : mappings.entrySet()) {
+            mapProperty(entry.getKey(),on,node,graph,sameDiff,propertyMappings);
+        }
     }
 
 

@@ -32,13 +32,14 @@ public class DifferentialFunctionClassHolder {
     private Map<String,OpDef> tensorflowOpDescriptors;
     private Map<String,Map<String,Field>> fieldsForFunction;
 
+    private  Set<String>  fieldNamesOpsIgnore;
 
     /**
      * Get the fields for a given {@link DifferentialFunction}
      * @param function the function to get the fields for
      * @return the fields for a given function
      */
-    public Map<String,Field> getFielsForFunction(DifferentialFunction function) {
+    public Map<String,Field> getFieldsForFunction(DifferentialFunction function) {
         return fieldsForFunction.get(function.opName());
     }
 
@@ -90,6 +91,22 @@ public class DifferentialFunctionClassHolder {
     }
 
     private DifferentialFunctionClassHolder() {
+        fieldNamesOpsIgnore = new LinkedHashSet<String>(){{
+            add("extraArgs");
+            add("arrayInitialized");
+            add("log");
+            add("inputArguments");
+            add("outputArguments");
+            add("outputShapes");
+            add("outputVariables");
+            add("tArguments");
+            add("iArguments");
+            add("hash");
+            add("opName");
+            add("sameDiff");
+            add("ownName");
+        }};
+
         Reflections f = new Reflections(new ConfigurationBuilder().filterInputsBy(
                 new FilterBuilder().include(FilterBuilder.prefix("org.nd4j.*")).exclude("^(?!.*\\.class$).*$") //Consider only .class files (to avoid debug messages etc. on .dlls, etc
                 //Exclude any not in the ops directory
@@ -135,9 +152,19 @@ public class DifferentialFunctionClassHolder {
                     //accumulate the field names for a given function
                     //this is mainly used in import
                     Map<String,Field> fieldNames = new LinkedHashMap<>();
-                    for(val field : node.getClass().getDeclaredFields()) {
-                        field.setAccessible(true);
-                        fieldNames.put(field.getName(),field);
+                    Class<?> current = node.getClass();
+                    val fields = new ArrayList<Field>();
+                    while(current.getSuperclass() != null) {
+                        for(val field : current.getDeclaredFields()) {
+                            if(!fieldNamesOpsIgnore.contains(field.getName())) {
+                                fields.add(field);
+                                field.setAccessible(true);
+                                fieldNames.put(field.getName(),field);
+                            }
+                        }
+                        // do something with current's fields
+                        current = current.getSuperclass();
+
                     }
 
                     fieldsForFunction.put(node.opName(),fieldNames);

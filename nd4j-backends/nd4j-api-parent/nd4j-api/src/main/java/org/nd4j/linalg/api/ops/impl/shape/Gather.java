@@ -4,9 +4,9 @@ import lombok.NoArgsConstructor;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -36,7 +36,7 @@ public class Gather extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        throw new ND4JIllegalStateException("No tensorflow op name found for " + opName());
+        throw new NoOpNameFoundException("No tensorflow op name found for " + opName());
     }
 
     @Override
@@ -48,6 +48,7 @@ public class Gather extends DynamicCustomOp {
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
         super.initFromOnnx(node, initWith, attributesForNode, graph);
     }
+
 
     @Override
     public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {

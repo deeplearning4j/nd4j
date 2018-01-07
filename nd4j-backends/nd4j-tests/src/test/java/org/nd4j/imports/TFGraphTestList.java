@@ -42,7 +42,7 @@ public class TFGraphTestList {
            // "expand_dim",
            // "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
          //   "g_01",
-            "lstm_mnist",
+            //"lstm_mnist",
            // "math_mul_order",
             //"mlp_00",
             //"mnist_00",i
@@ -52,7 +52,7 @@ public class TFGraphTestList {
           //  "stack_1d",
             //"stack_scalar"
             //"transform_0",
-            //"transpose",
+            "transpose",
        //     "transpose_00",
           //  "unstack"
     };
