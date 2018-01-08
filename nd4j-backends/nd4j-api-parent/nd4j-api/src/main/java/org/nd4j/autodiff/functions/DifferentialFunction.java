@@ -398,6 +398,12 @@ public abstract class DifferentialFunction {
             if(currentFields.containsKey(property)) {
                 continue;
             }
+
+            /**
+             * Possible cause:
+             * Might be related to output name alignment.
+             *
+             */
             if(varArr == null) {
                 throw new ND4JIllegalStateException("Unable to set null array!");
             }

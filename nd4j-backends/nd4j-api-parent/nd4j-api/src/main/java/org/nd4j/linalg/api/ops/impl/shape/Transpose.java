@@ -64,7 +64,6 @@ public class Transpose extends DynamicCustomOp {
         val mapping = PropertyMapping.builder()
                 .onnxAttrName("perm")
                 .propertyNames(new String[]{"permuteDims"})
-                .tfAttrName("Tperm")
                 .tfInputPosition(1)
                 .build();
 
@@ -123,7 +122,7 @@ public class Transpose extends DynamicCustomOp {
 
         //handle once properly mapped
         if(arg().getShape() == null) {
-           return;
+            return;
         }
 
 
@@ -136,6 +135,9 @@ public class Transpose extends DynamicCustomOp {
 
         addInputArgument(arr);
 
+        if(arr != null && permuteDims == null) {
+            this.permuteDims = ArrayUtil.reverseCopy(ArrayUtil.range(0,arr.rank()));
+        }
 
         if(permuteDims != null && permuteDims.length < arg().getShape().length)
             throw new ND4JIllegalStateException("Illegal permute found. Not all dimensions specified");

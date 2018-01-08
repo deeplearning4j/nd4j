@@ -38,10 +38,26 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
     String getTargetMappingForOp(DifferentialFunction function, NODE_TYPE node);
 
 
-
+    /**
+     *
+     * @param on
+     * @param node
+     * @param graph
+     * @param sameDiff
+     * @param propertyMappings
+     */
     void mapProperties(DifferentialFunction on, NODE_TYPE node, GRAPH_TYPE graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappings);
 
 
+    /**
+     *
+     * @param name
+     * @param on
+     * @param node
+     * @param graph
+     * @param sameDiff
+     * @param propertyMappingsForFunction
+     */
     void mapProperty(String name, DifferentialFunction on, NODE_TYPE node, GRAPH_TYPE graph, SameDiff sameDiff, Map<String, Map<String, PropertyMapping>> propertyMappingsForFunction);
 
     /**
