@@ -20,6 +20,7 @@
 package org.nd4j.linalg.factory;
 
 
+import lombok.val;
 import org.nd4j.linalg.api.blas.*;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexDouble;
@@ -1761,6 +1762,22 @@ public abstract class BaseNDArrayFactory implements NDArrayFactory {
     @Override
     public INDArray scalar(double value, long offset) {
         return create(new double[] {value}, new int[] {1, 1}, new int[] {1, 1}, offset);
+    }
+
+    @Override
+    public INDArray trueScalar(Number value) {
+        val dtype = Nd4j.dataType();
+        switch (dtype) {
+            case DOUBLE:
+                return create(new double[] {value.doubleValue()}, new int[] {}, new int[] {}, 0);
+            case FLOAT:
+                return create(new float[] {value.floatValue()}, new int[] {}, new int[] {}, 0);
+            case HALF:
+                return create(new float[] {value.floatValue()}, new int[] {}, new int[] {}, 0);
+            default:
+                throw new UnsupportedOperationException("Unsupported data type: [" + dtype + "]");
+
+        }
     }
 
     /**

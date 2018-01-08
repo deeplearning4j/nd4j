@@ -1118,6 +1118,10 @@ public class Shape {
      * @return
      */
     public static int elementWiseStride(int[] shape, int[] stride, boolean isFOrder) {
+        // 0D edge case
+        if (shape.length == 0 && stride.length == 0)
+            return 1;
+
         int oldnd;
         int[] olddims = ArrayUtil.copy(shape);
         int[] oldstrides = ArrayUtil.copy(stride);

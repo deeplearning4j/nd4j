@@ -5619,6 +5619,22 @@ public class Nd4jTestsC extends BaseNd4jTest {
         val reshaped2 = score.reshape(2,1);
     }
 
+
+    @Test
+    public void testScalar_1() {
+        val scalar = Nd4j.create(new float[]{2.0f}, new int[]{});
+
+        assertTrue(scalar.isScalar());
+        assertEquals(1, scalar.length());
+        assertFalse(scalar.isMatrix());
+        assertFalse(scalar.isVector());
+        assertFalse(scalar.isRowVector());
+        assertFalse(scalar.isColumnVector());
+
+        assertEquals(2.0f, scalar.getFloat(0), 1e-5);
+    }
+
+
     @Override
     public char ordering() {
         return 'c';

@@ -405,8 +405,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     public BaseNDArray(DataBuffer data, int[] shape, int[] stride, long offset) {
         this.data = Nd4j.createBuffer(data, offset, ArrayUtil.prodLong(shape));
-        setShapeInformation(Nd4j.getShapeInfoProvider().createShapeInformation(shape, stride, offset,
-                        Shape.elementWiseStride(shape, stride, Nd4j.order() == 'f'), Nd4j.order()));
+        setShapeInformation(Nd4j.getShapeInfoProvider().createShapeInformation(shape, stride, offset, Shape.elementWiseStride(shape, stride, Nd4j.order() == 'f'), Nd4j.order()));
         init(shape, stride);
         //  Shape.setElementWiseStride(this.shapeInfo(),Shape.elementWiseStride(shape, stride, Nd4j.order() == 'f'));
 
@@ -1771,7 +1770,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isScalar() {
-        if (Shape.rank(javaShapeInformation) > 2) {
+        if (Shape.rank(javaShapeInformation) == 0) {
+            return true;
+        } else if (Shape.rank(javaShapeInformation) > 2) {
             return false;
         } else if (Shape.rank(javaShapeInformation) == 1) {
             return shapeOf().getInt(0) == 1;

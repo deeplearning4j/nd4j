@@ -3577,6 +3577,18 @@ public class Nd4j {
         return ret;
     }
 
+    /**
+     * This method creates new 0D INDArray, aka scalar.
+     *
+     * PLEASE NOTE: Temporary method, added to ensure backward compatibility
+     * @param scalar
+     * @return
+     */
+    public static INDArray trueScalar(Number scalar) {
+        val ret = INSTANCE.trueScalar(scalar);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
 
     /**
      * Create an ndrray with the specified shape
@@ -3586,6 +3598,10 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray create(float[] data, int[] shape) {
+        if (shape.length == 0 && data.length == 1) {
+            return trueScalar(data[0]);
+        }
+
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
