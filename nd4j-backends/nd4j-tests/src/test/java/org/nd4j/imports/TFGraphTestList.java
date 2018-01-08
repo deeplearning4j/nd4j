@@ -35,7 +35,7 @@ public class TFGraphTestList {
             // "conv_0",
             // "conv_1",
             // "conv_2",
-           //  "conv_3",
+             "conv_3",
            // "deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
           //  "deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
             // "expand_dim",
