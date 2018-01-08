@@ -110,8 +110,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         val fields = DifferentialFunctionClassHolder.getInstance().getFieldsForFunction(on);
 
 
-        val propsForFunction = on.propertiesForFunction();
-
         if(mapping.getTfInputPosition() != null && mapping.getTfInputPosition() < node.getInputCount()) {
             int tfMappingIdx = mapping.getTfInputPosition();
             if(tfMappingIdx < 0)

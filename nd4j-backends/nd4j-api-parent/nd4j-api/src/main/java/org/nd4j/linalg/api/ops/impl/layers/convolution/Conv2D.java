@@ -8,6 +8,7 @@ import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -220,8 +221,11 @@ public class Conv2D extends DynamicCustomOp {
         map.put("isSameMode",sameMode);
         map.put("ph", paddingWidthHeight);
         map.put("pw", paddingWidthHeight);
-
-        ret.put(onnxName(),map);
+        try {
+            ret.put(onnxName(), map);
+        }catch(NoOpNameFoundException e) {
+            //ignore
+        }
         ret.put(tensorflowName(),map);
         return ret;
     }
