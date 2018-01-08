@@ -91,37 +91,61 @@ public class GradCheckLoss {
     }
 
     @Test
-    public void testSquare(){
-        Nd4j.getRandom().setSeed(12345);
-
-        int mb = 5;
-        int nOut = 4;
+    public void testDebugMSE(){
 
         SameDiff sd = SameDiff.create();
-        SDVariable in = sd.var("in", Nd4j.rand(mb, nOut));
-        SDVariable label = sd.var("label", Nd4j.rand(mb, nOut));
-        SDVariable diff = in.sub(label);
-        SDVariable sqDiff = sd.square(diff);
 
-        INDArray expOut = in.getArr().sub(label.getArr());
-        expOut.muli(expOut);
+        int nOut = 4;
+        int minibatch = 10;
+        SDVariable predictions = sd.var("in", new int[]{-1, nOut});
+        SDVariable label = sd.var("labels", new int[]{-1, nOut});
+        SDVariable weights = sd.one("weights", new int[]{1,1});
 
-        System.out.println("About to exec");
-        INDArray out = sd.execAndEndResult();   //JVM crash
+        INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
+        INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
 
-        assertEquals(out, expOut);
+        sd.associateArrayWithVariable(inputArr, predictions);
+        sd.associateArrayWithVariable(labelsArr, label);
+
+        SDVariable diff = predictions.sub(label);
+        SDVariable preReduceLoss = sd.square(diff).mul(null, weights);
+
+
+        SDVariable present = sd.neq(weights, 0.0);
+        SDVariable presentBroadcast = sd.zerosLike("temp", label).add(present);
+        SDVariable nonZeroWeights = sd.sum(presentBroadcast);
+
+        SDVariable r = sd.mean(preReduceLoss, 1);
+        SDVariable out = r.div("out", nonZeroWeights);
+
+        INDArray outArr = sd.execAndEndResult();
     }
 
     @Test
-    public void testOnesBroadcast(){
+    public void testDebugMSE2(){
+
         SameDiff sd = SameDiff.create();
-        SDVariable in = sd.zero("in", new int[]{3,4});
-        SDVariable one = sd.one("one", new int[]{1,1});
 
-        SDVariable add = in.add(one);
+        int nOut = 4;
+        int minibatch = 10;
+        SDVariable predictions = sd.var("in", new int[]{-1, nOut});
+        SDVariable label = sd.var("labels", new int[]{-1, nOut});
+        SDVariable weights = sd.one("weights", new int[]{1,1});
 
-        INDArray out = sd.execAndEndResult();
-        assertEquals(Nd4j.ones(3,4), out);
+        INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
+        INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
+
+        sd.associateArrayWithVariable(inputArr, predictions);
+        sd.associateArrayWithVariable(labelsArr, label);
+
+        SDVariable diff = predictions.sub(label);
+//        SDVariable preReduceLoss = sd.square(diff).mul(null, weights);
+        SDVariable preReduceLoss = diff.mul(null, weights);
+
+        SDVariable r = sd.mean(preReduceLoss, 1);
+        SDVariable out = r.div("out", 4*10);
+
+        INDArray outArr = sd.execAndEndResult();
     }
 
 }
