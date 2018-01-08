@@ -5693,11 +5693,53 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
     @Test
     public void testReshapeVector() {
-        val scalar = Nd4j.trueVector(new float[]{1, 2, 3, 4, 5, 6});
-        val newShape = scalar.reshape(3, 2);
+        val vector = Nd4j.trueVector(new float[]{1, 2, 3, 4, 5, 6});
+        val newShape = vector.reshape(3, 2);
 
         assertEquals(2, newShape.rank());
         assertArrayEquals(new int[]{3, 2}, newShape.shape());
+    }
+
+    @Test
+    public void testTranspose1() {
+        val vector = Nd4j.trueVector(new float[]{1, 2, 3, 4, 5, 6});
+
+        assertArrayEquals(new int[]{6}, vector.shape());
+        assertArrayEquals(new int[]{1}, vector.stride());
+
+        val transposed = vector.transpose();
+
+        assertArrayEquals(vector.shape(), transposed.shape());
+    }
+
+    @Test
+    public void testTranspose2() {
+        val scalar = Nd4j.trueScalar(2.f);
+
+        assertArrayEquals(new int[]{}, scalar.shape());
+        assertArrayEquals(new int[]{}, scalar.stride());
+
+        val transposed = scalar.transpose();
+
+        assertArrayEquals(scalar.shape(), transposed.shape());
+    }
+
+    @Test
+    public void testScalarResult() {
+        val scalar = Nd4j.create(new float[]{2.0f}, new int[]{});
+        val output = Nd4j.trueScalar(0.0f);
+        val exp = Nd4j.trueScalar(2.0f);
+        val op = DynamicCustomOp.builder("squeeze")
+                .addInputs(scalar)
+                .addOutputs(output)
+                .build();
+
+        val shape = Nd4j.getExecutioner().calculateOutputShape(op).get(0);
+        log.info("Shape: {}", shape);
+
+        Nd4j.getExecutioner().exec(op);
+
+        assertEquals(exp, output);
     }
 
 
