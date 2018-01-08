@@ -3,6 +3,7 @@ package org.nd4j.autodiff.loss;
 import com.google.common.base.Preconditions;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.util.ArrayUtil;
 
 public class LossFunctions {
 
@@ -59,8 +60,8 @@ public class LossFunctions {
 
 
 
-    public Object lossMSE(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
-                          Reduction reduction, int... dimensions){
+    public static LossInfo mse(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
+                               Reduction reduction, int... dimensions){
         Preconditions.checkNotNull(predictions, "Predictions variable cannot be null");
         Preconditions.checkNotNull(label, "Label variable cannot be null");
         Preconditions.checkNotNull(reduction, "Reduction enumeration cannot be null");
@@ -74,9 +75,11 @@ public class LossFunctions {
 
         SDVariable diff = predictions.sub(label);
         String name = (reduction == Reduction.NONE ? outputName : null);
-        SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
+//        SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
+        SDVariable preReduceLoss = diff.mul(name, diff).mul(name, weights);
 
         LossInfo.Builder b = LossInfo.builder()
+                .lossName("mse")
                 .reduction(reduction)
                 .label(label)
                 .predictions(predictions);
@@ -101,13 +104,16 @@ public class LossFunctions {
                 b.loss(m2.div(outputName, weightSum));
                 break;
             case MEAN_BY_COUNT:
-                SDVariable m3 = sd.mean(preReduceLoss);
-                SDVariable nonZeroWeights = null;   //TODO
+                SDVariable m3 = sd.sum(preReduceLoss);
+                SDVariable nonZeroWeights = nonZeroCount(weights, label);
+                b.loss(m3.div(outputName, nonZeroWeights));
+//                b.loss(m3.div(outputName, 40));
                 break;
+            default:
+                throw new RuntimeException("Unknown reduction: " + reduction);
         }
 
-
-        return null;
+        return b.build();
     }
 
 
@@ -115,11 +121,9 @@ public class LossFunctions {
         SameDiff sd = weights.getSameDiff();
 
         SDVariable present = sd.neq(weights, 0.0);
-//        SDVariable presentBroadcast = sd.ones
+        SDVariable presentBroadcast = sd.zerosLike("temp", labels).add(present);
 
-        //TODO ones like
-
-        return null;
+        return sd.sum(presentBroadcast);
     }
 
 }
