@@ -4225,11 +4225,8 @@ public class Nd4j {
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
-                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
-                        + " doesn't match data length: " + data.length);
+            if (shape[0] != data.length)
+                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape) + " doesn't match data length: " + data.length);
         }
 
         checkShapeValues(data.length, shape);
@@ -4247,11 +4244,8 @@ public class Nd4j {
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
-                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
-                        + " doesn't match data length: " + data.length);
+            if (shape[0] != data.length)
+                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape) + " doesn't match data length: " + data.length);
         }
 
         checkShapeValues(data.length, shape);
@@ -5132,9 +5126,12 @@ public class Nd4j {
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
-        } else if (shape.length == 1) {
+        }
+        // now we allow 1D vectors
+        /*else if (shape.length == 1) {
             shape = new int[] {1, shape[0]};
         }
+        */
 
         checkShapeValues(shape);
 
@@ -5557,6 +5554,9 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray valueArrayOf(int[] shape, double value) {
+        if (shape.length == 0)
+            return trueScalar(value);
+
         checkShapeValues(shape);
 
         INDArray ret = INSTANCE.valueArrayOf(shape, value);
