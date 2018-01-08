@@ -939,7 +939,7 @@ public class SameDiff {
      * @return the resolve variable name if any
      */
     public String getVarNameForFieldAndFunction(DifferentialFunction function,String fieldName) {
-       return fieldVariableResolutionMapping.get(function.getOwnName(),fieldName);
+        return fieldVariableResolutionMapping.get(function.getOwnName(),fieldName);
     }
 
 
@@ -1309,7 +1309,7 @@ public class SameDiff {
 
     }
 
-    
+
     /**
      * Variable initialization
      * with a specified {@link WeightInitScheme}
@@ -1407,6 +1407,8 @@ public class SameDiff {
                     }
                 }))
                 .build();
+
+
         variableMap.put(arr.getVarName(),ret);
         return ret;
 
@@ -3446,12 +3448,16 @@ public class SameDiff {
      * @return the new generated name
      */
     public String generateNewVarName(String  baseName,int argIndex) {
+        if(getVariable(baseName) == null && argIndex == 0) {
+            return baseName;
+        }
+
         //need to find a new name
         int count = 1;
         String name = baseName + "_" + count   + (argIndex > 0 ? ":" + argIndex : "");
         while(getVariable(name) != null) {
-            count++;
             name = baseName + "_" + count   + (argIndex > 0 ? ":" + argIndex : "");
+            count++;
         }
 
         if(getVariable(name) != null) {
@@ -3579,7 +3585,7 @@ public class SameDiff {
                         if(checkGet == null) {
                             checkGet = var(generateNewVarName(baseName,i),null,new ZeroInitScheme(ordering));
                         }
-                        else if(!importedVarName.contains(baseName)) {
+                        else if(i > 0 && !importedVarName.contains(baseName)) {
                             //need to find a new name
                             String newName  = generateNewVarName(baseName,i);
                             checkGet = getVariable(newName);
@@ -4425,6 +4431,9 @@ public class SameDiff {
             if(differentialFunction instanceof SDVariable) {
                 continue;
             }
+
+
+            differentialFunction.resolvePropertiesFromSameDiffBeforeExecution();
 
             if(differentialFunction instanceof If) {
                 If ifOp = (If) differentialFunction;
