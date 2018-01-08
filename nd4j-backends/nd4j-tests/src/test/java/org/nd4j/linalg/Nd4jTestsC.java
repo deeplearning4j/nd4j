@@ -5743,6 +5743,27 @@ public class Nd4jTestsC extends BaseNd4jTest {
     }
 
     @Test
+    public void testScalarVectorSqueeze() {
+        val scalar = Nd4j.create(new float[]{2.0f}, new int[]{1});
+
+        assertArrayEquals(new int[]{1}, scalar.shape());
+
+        val output = Nd4j.trueScalar(0.0f);
+        val exp = Nd4j.trueScalar(2.0f);
+        val op = DynamicCustomOp.builder("squeeze")
+                .addInputs(scalar)
+                .addOutputs(output)
+                .build();
+
+        val shape = Nd4j.getExecutioner().calculateOutputShape(op).get(0);
+        assertArrayEquals(new int[]{}, shape);
+
+        Nd4j.getExecutioner().exec(op);
+
+        assertEquals(exp, output);
+    }
+
+    @Test
     public void testVectorSqueeze() {
         val vector = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6}, new int[]{1, 6});
         val output = Nd4j.trueVector(new float[] {0, 0, 0, 0, 0, 0});
