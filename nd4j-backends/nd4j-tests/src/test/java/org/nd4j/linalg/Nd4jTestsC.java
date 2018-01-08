@@ -5726,7 +5726,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
     @Test
     public void testScalarSqueeze() {
-        val scalar = Nd4j.create(new float[]{2.0f}, new int[]{});
+        val scalar = Nd4j.create(new float[]{2.0f}, new int[]{1, 1});
         val output = Nd4j.trueScalar(0.0f);
         val exp = Nd4j.trueScalar(2.0f);
         val op = DynamicCustomOp.builder("squeeze")
