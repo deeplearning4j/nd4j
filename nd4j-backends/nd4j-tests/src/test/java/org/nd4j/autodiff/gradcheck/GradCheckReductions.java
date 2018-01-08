@@ -158,9 +158,9 @@ public class GradCheckReductions {
         //Test reductions: NON-final function
         Nd4j.getRandom().setSeed(12345);
 
-        int d0 = 10;
+        int d0 = 3;
         int d1 = 4;
-        int d2 = 8;
+        int d2 = 5;
 
         for (int reduceDim : new int[]{0, 1, 2}) {
             for (int i = 0; i < 7; i++) {
@@ -181,6 +181,7 @@ public class GradCheckReductions {
                 }
 
                 SameDiff sd = SameDiff.create();
+                sd.setLogExecution(false);
 
 
                 SDVariable in = sd.var("in", new int[]{-1, d1, d2});
@@ -234,12 +235,12 @@ public class GradCheckReductions {
                 String msg = "test: " + i + " - " + name + ", dimension=" + reduceDim;
                 log.info("*** Starting test: " + msg);
 
-                INDArray inputArr = Nd4j.randn(new int[]{d0,d1,d2}).muli(100);
-                INDArray labelArr = Nd4j.randn(outShape).muli(100);
+                INDArray inputArr = Nd4j.randn(new int[]{d0,d1,d2}).muli(1000);
+                INDArray labelArr = Nd4j.randn(outShape).muli(1000);
                 sd.associateArrayWithVariable(inputArr, in);
                 sd.associateArrayWithVariable(labelArr, label);
 
-                boolean ok = GradCheckUtil.checkGradients(sd);
+                boolean ok = GradCheckUtil.checkGradients(sd, 1e-5, 1e-5, 1e-4, true, false);
 
                 assertTrue(msg, ok);
             }

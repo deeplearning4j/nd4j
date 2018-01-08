@@ -164,6 +164,7 @@ public class SameDiff {
     private boolean resolvedVariables = false;
 
 
+    @Getter @Setter boolean logExecution = true;
 
 
 
@@ -4596,6 +4597,8 @@ public class SameDiff {
      * @param differentialFunction the function to print
      */
     public void printFunction(DifferentialFunction differentialFunction) {
+        if(!logExecution)
+            return;
         if(differentialFunction instanceof SDVariable)
             return;
 
