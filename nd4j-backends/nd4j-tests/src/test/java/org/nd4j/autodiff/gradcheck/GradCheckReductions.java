@@ -20,7 +20,7 @@ public class GradCheckReductions {
     }
 
     @Test
-    public void testReductionGradientsSimple(){
+    public void testReductionGradientsSimple() {
         //Test reductions: final and only function
         Nd4j.getRandom().setSeed(12345);
 
@@ -81,11 +81,11 @@ public class GradCheckReductions {
     }
 
     @Test
-    public void testReductionGradients1(){
+    public void testReductionGradients1() {
         //Test reductions: final, but *not* the only function
         Nd4j.getRandom().setSeed(12345);
 
-        for(int dim : new int[]{0, Integer.MAX_VALUE}) {    //These two cases are equivalent here
+        for (int dim : new int[]{0, Integer.MAX_VALUE}) {    //These two cases are equivalent here
 
             for (int i = 0; i < 7; i++) {
 
@@ -166,12 +166,12 @@ public class GradCheckReductions {
             for (int i = 0; i < 7; i++) {
 
                 int[] outShape;
-                switch(reduceDim){
+                switch (reduceDim) {
                     case 0:
-                        outShape = new int[]{d1,d2};
+                        outShape = new int[]{d1, d2};
                         break;
                     case 1:
-                        outShape = new int[]{d0,d2};
+                        outShape = new int[]{d0, d2};
                         break;
                     case 2:
                         outShape = new int[]{d0, d1};
@@ -235,7 +235,7 @@ public class GradCheckReductions {
                 String msg = "test: " + i + " - " + name + ", dimension=" + reduceDim;
                 log.info("*** Starting test: " + msg);
 
-                INDArray inputArr = Nd4j.randn(new int[]{d0,d1,d2}).muli(1000);
+                INDArray inputArr = Nd4j.randn(new int[]{d0, d1, d2}).muli(1000);
                 INDArray labelArr = Nd4j.randn(outShape).muli(1000);
                 sd.associateArrayWithVariable(inputArr, in);
                 sd.associateArrayWithVariable(labelArr, label);
@@ -245,5 +245,43 @@ public class GradCheckReductions {
                 assertTrue(msg, ok);
             }
         }
+    }
+
+
+    @Test
+    public void testReductionDebug() {
+        Nd4j.getRandom().setSeed(12345);
+
+        int d0 = 3;
+        int d1 = 4;
+        int d2 = 5;
+
+        int reduceDim = 0;
+        int[] outShape = new int[]{d1, d2};
+
+        SameDiff sd = SameDiff.create();
+
+        SDVariable in = sd.var("in", new int[]{-1, d1, d2});
+        SDVariable label = sd.var("label", outShape);
+        SDVariable second = in.mul(2);
+
+        SDVariable reduced = sd.min("reduced", second, reduceDim);    //EXCEPTION
+//        SDVariable reduced = sd.mean("reduced", second, reduceDim); //OK
+//        SDVariable reduced = sd.standardDeviation("reduced", second, true, reduceDim);    //OK
+//        SDVariable reduced = sd.max("reduced", second, reduceDim);  //EXCEPTION
+
+        SDVariable add = reduced.add(1.0);
+
+        SDVariable diff = label.sub(add);
+        SDVariable sqDiff = diff.mul(diff);
+        SDVariable mseLoss = sd.mean("loss", sqDiff);
+
+        INDArray inputArr = Nd4j.rand(new int[]{d0, d1, d2});
+        INDArray labelArr = Nd4j.randn(outShape);
+        sd.associateArrayWithVariable(inputArr, in);
+        sd.associateArrayWithVariable(labelArr, label);
+
+        INDArray out = sd.execAndEndResult();
+        sd.execBackwards();
     }
 }
