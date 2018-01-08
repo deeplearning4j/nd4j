@@ -3821,6 +3821,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             throw new ND4JIllegalStateException(
                             "Can't reshape(int...) without shape arguments. Got empty shape instead.");
 
+        // TODO: maybe toFlatten() makes more sense here?
         // reshape(-1) special case
         if (newShape.length == 1 && newShape[0] == -1)
             newShape[0] = this.length();
