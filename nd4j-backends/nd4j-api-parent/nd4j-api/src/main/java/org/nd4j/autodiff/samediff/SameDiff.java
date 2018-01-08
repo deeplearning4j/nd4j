@@ -1304,7 +1304,6 @@ public class SameDiff {
 
     }
 
-
     /**
      * Variable initialization
      * with a specified {@link WeightInitScheme}
