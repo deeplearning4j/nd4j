@@ -35,7 +35,7 @@ public class TFGraphTestList {
             // "conv_0",
             // "conv_1",
             // "conv_2",
-             "conv_3",
+            // "conv_3",
            // "deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
           //  "deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
             // "expand_dim",
@@ -61,8 +61,8 @@ public class TFGraphTestList {
             //"norm_tests/norm_8",
             //"norm_tests/norm_10",
             //"norm_tests/norm_11",
-            //  "pool_0",
-           //   "pool_1",
+           //   "pool_0",
+              "pool_1",
             //  "primitive_gru",
            //   "primitive_gru_dynamic",
              // "primitive_lstm",
@@ -81,8 +81,6 @@ public class TFGraphTestList {
      * transpose
      * simple_cond
      * primitive_gru_dynamic (while loop related)
-     * pool_1 (attributes related)
-     * pool_0: (attributes related)
      * norm_tests: invalid test (missing resources)
      * g_05: Gather related
      * g_04: assertion failure
