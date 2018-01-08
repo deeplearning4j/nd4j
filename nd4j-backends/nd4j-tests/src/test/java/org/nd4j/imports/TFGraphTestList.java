@@ -43,10 +43,10 @@ public class TFGraphTestList {
             // "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
             //   "g_01",
             //   "g_01",
-            //   "g_02",
+               "g_02",
             //   "g_03",
-            //   "g_04",
-               "g_05",
+           //   "g_04",
+             //  "g_05",
            //   "gru_mnist",
             //"lstm_mnist",
             // "math_mul_order",
@@ -77,6 +77,8 @@ public class TFGraphTestList {
      * pool_1 (attributes related)
      * pool_0: (attributes related)
      * norm_tests: invalid test (missing resources)
+     * g_05: Gather related
+     * g_04: assertion failure
      */
 
     //change this to SAMEDIFF for samediff
