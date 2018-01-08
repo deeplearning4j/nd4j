@@ -3109,6 +3109,10 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             }
         }
 
+        // 1D edge case: reshape back to vector
+        if (other.rank() == 1)
+            result = result.reshape(result.length());
+
         if (Nd4j.ENFORCE_NUMERICAL_STABILITY)
             Nd4j.clearNans(result);
         return result;
@@ -3813,12 +3817,18 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     public INDArray reshape(char order, int... newShape) {
         Nd4j.getCompressor().autoDecompress(this);
 
-        if (newShape == null || newShape.length < 2)
+        if (newShape == null || newShape.length < 1)
             throw new ND4JIllegalStateException(
                             "Can't reshape(int...) without shape arguments. Got empty shape instead.");
 
+        // reshape(-1) special case
+        if (newShape.length == 1 && newShape[0] == -1)
+            newShape[0] = this.length();
+
         int numberNegativesOnes = 0;
         int[] shape = ArrayUtil.copy(newShape);
+
+
         for (int i = 0; i < shape.length; i++) {
             if (shape[i] < 0) {
                 if (numberNegativesOnes >= 1)
@@ -3849,8 +3859,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         long prod = ArrayUtil.prodLong(newShape);
         if(numberNegativesOnes > 0)
             prod = Math.abs(prod);
+
         if (prod != this.lengthLong())
-            throw new ND4JIllegalStateException("New shape length doesn't match original length");
+            throw new ND4JIllegalStateException("New shape length doesn't match original length: [" + prod + "] vs [" + this.lengthLong() + "]");
 
 
 

@@ -5788,15 +5788,27 @@ public class Nd4jTestsC extends BaseNd4jTest {
         val vectorN = Nd4j.create(new float[]{1, 2, 3}, new int[]{3});
         val matrix = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, new int[] {3, 3});
 
-
         log.info("vectorN: {}", vectorN);
         log.info("vectorL: {}", vectorL);
 
         val outN = matrix.mmul(vectorN);
         val outL = matrix.mmul(vectorL);
 
-
         assertEquals(outL, outN);
+
+        assertEquals(1, outN.rank());
+    }
+
+
+    @Test
+    public void testMatrixReshape() {
+        val matrix = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, new int[] {3, 3});
+        val exp = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, new int[] {9});
+
+        val reshaped = matrix.reshape(-1);
+
+        assertArrayEquals(exp.shape(), reshaped.shape());
+        assertEquals(exp, reshaped);
     }
 
 
