@@ -5634,6 +5634,42 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertEquals(2.0f, scalar.getFloat(0), 1e-5);
     }
 
+    @Test
+    public void testScalar_2() {
+        val scalar = Nd4j.trueScalar(2.0f);
+        val scalar2 = Nd4j.trueScalar(2.0f);
+        val scalar3 = Nd4j.trueScalar(3.0f);
+
+        assertTrue(scalar.isScalar());
+        assertEquals(1, scalar.length());
+        assertFalse(scalar.isMatrix());
+        assertFalse(scalar.isVector());
+        assertFalse(scalar.isRowVector());
+        assertFalse(scalar.isColumnVector());
+
+        assertEquals(2.0f, scalar.getFloat(0), 1e-5);
+
+        assertEquals(scalar, scalar2);
+        assertNotEquals(scalar, scalar3);
+    }
+
+    @Test
+    public void testVector_1() {
+        val vector = Nd4j.trueVector(new float[] {1, 2, 3, 4, 5});
+        val vector2 = Nd4j.trueVector(new float[] {1, 2, 3, 4, 5});
+        val vector3 = Nd4j.trueVector(new float[] {1, 2, 3, 4, 6});
+
+        assertFalse(vector.isScalar());
+        assertEquals(5, vector.length());
+        assertFalse(vector.isMatrix());
+        assertTrue(vector.isVector());
+        assertTrue(vector.isRowVector());
+        assertFalse(vector.isColumnVector());
+
+        assertEquals(vector, vector2);
+        assertNotEquals(vector, vector3);
+    }
+
 
     @Override
     public char ordering() {

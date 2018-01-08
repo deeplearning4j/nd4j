@@ -1122,6 +1122,9 @@ public class Shape {
         if (shape.length == 0 && stride.length == 0)
             return 1;
 
+        if (shape.length == 1 && stride.length == 1)
+            return 1;
+
         int oldnd;
         int[] olddims = ArrayUtil.copy(shape);
         int[] oldstrides = ArrayUtil.copy(stride);

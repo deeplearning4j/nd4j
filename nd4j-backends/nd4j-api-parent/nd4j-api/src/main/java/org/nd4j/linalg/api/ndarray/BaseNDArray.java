@@ -4930,6 +4930,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isVector() {
+        if (Shape.rank(javaShapeInformation) == 1)
+            return true;
+
         return isRowVector() || isColumnVector();
     }
 
@@ -4944,7 +4947,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isRowVector() {
-        return rank() == 2 && rows() == 1;
+        return (rank() == 2 && rows() == 1) || rank() == 1;
     }
 
     /**

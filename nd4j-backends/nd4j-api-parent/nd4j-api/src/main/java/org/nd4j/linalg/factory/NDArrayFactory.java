@@ -1314,6 +1314,9 @@ public interface NDArrayFactory {
 
     INDArray trueScalar(Number value);
 
+    INDArray trueVector(float[] data);
+    INDArray trueVector(double[] data);
+
     /**
      * Create a scalar nd array with the specified value and offset
      *

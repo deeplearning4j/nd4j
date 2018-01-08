@@ -3590,6 +3590,18 @@ public class Nd4j {
         return ret;
     }
 
+    public static INDArray trueVector(float[] data) {
+        val ret = INSTANCE.trueVector(data);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
+    public static INDArray trueVector(double[] data) {
+        val ret = INSTANCE.trueVector(data);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
     /**
      * Create an ndrray with the specified shape
      *

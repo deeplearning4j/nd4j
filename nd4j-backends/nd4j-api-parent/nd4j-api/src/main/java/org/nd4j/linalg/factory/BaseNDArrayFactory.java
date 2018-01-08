@@ -1780,6 +1780,15 @@ public abstract class BaseNDArrayFactory implements NDArrayFactory {
         }
     }
 
+    public INDArray trueVector(float[] data) {
+        return create(data, new int[] {data.length}, new int[]{1}, 0);
+    }
+
+    public INDArray trueVector(double[] data) {
+        return create(data, new int[] {data.length}, new int[]{1}, 0);
+    }
+
+
     /**
      * Create a scalar nd array with the specified value and offset
      *
