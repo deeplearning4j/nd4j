@@ -5670,6 +5670,36 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertNotEquals(vector, vector3);
     }
 
+    @Test
+    public void testVectorScalar_2() {
+        val vector = Nd4j.trueVector(new float[]{1, 2, 3, 4, 5});
+        val scalar = Nd4j.trueScalar(2.0f);
+        val exp = Nd4j.trueVector(new float[]{3, 4, 5, 6, 7});
+
+        vector.addi(scalar);
+
+        assertEquals(exp, vector);
+    }
+
+    @Test
+    public void testReshapeScalar() {
+        val scalar = Nd4j.trueScalar(2.0f);
+        val newShape = scalar.reshape(1, 1, 1, 1);
+
+        assertEquals(4, newShape.rank());
+        assertArrayEquals(new int[]{1, 1, 1, 1}, newShape.shape());
+    }
+
+
+    @Test
+    public void testReshapeVector() {
+        val scalar = Nd4j.trueVector(new float[]{1, 2, 3, 4, 5, 6});
+        val newShape = scalar.reshape(3, 2);
+
+        assertEquals(2, newShape.rank());
+        assertArrayEquals(new int[]{3, 2}, newShape.shape());
+    }
+
 
     @Override
     public char ordering() {
