@@ -1288,7 +1288,10 @@ public class SameDiff {
      */
     public SDVariable one(String name, int[] shape) {
         return var(name,shape,new ConstantInitScheme('f',1.0));
+    }
 
+    public SDVariable onesLike(String name, SDVariable input){
+        return f().onesLike(name, input);
     }
 
 
@@ -1301,7 +1304,10 @@ public class SameDiff {
      */
     public SDVariable zero(String name, int[] shape) {
         return var(name,shape,new ZeroInitScheme());
+    }
 
+    public SDVariable zerosLike(String name, SDVariable input){
+        return f().zerosLike(name, input);
     }
 
     /**

@@ -96,10 +96,22 @@ public class DifferentialFunctionFactory   {
         return sameDiff.zero("one-" + UUID.randomUUID().toString(),shape);
     }
 
+    public SDVariable zerosLike(String name, SDVariable input){
+        validateDifferentialFunctionsameDiff(input);
+        return new ZerosLike(name, sameDiff(),input).outputVariables()[0];
+    }
+
 
     public SDVariable one(int[] shape) {
         return sameDiff.one("one-" + UUID.randomUUID().toString(),shape);
     }
+
+    public SDVariable onesLike(String name, SDVariable input){
+        validateDifferentialFunctionsameDiff(input);
+        return new OnesLike(name, sameDiff(),input).outputVariables()[0];
+    }
+
+
 
 
     public SDVariable tile(SDVariable iX, int[] repeat) {
