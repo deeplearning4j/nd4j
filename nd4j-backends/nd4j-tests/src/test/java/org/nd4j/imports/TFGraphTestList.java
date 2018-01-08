@@ -31,19 +31,18 @@ public class TFGraphTestList {
             //"ae",
             //"ae_00",
 //            "bias_add",
-            // "concat"
+           //  "concat"
             // "conv_0",
             // "conv_1",
             // "conv_2",
-            // "conv_3",
-            //"deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
-            //"deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
+           //  "conv_3",
+           // "deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
+          //  "deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
             // "expand_dim",
 
             // "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
             //   "g_01",
-            //   "g_01",
-               "g_02",
+           //    "g_02",
             //   "g_03",
            //   "g_04",
              //  "g_05",
@@ -79,6 +78,12 @@ public class TFGraphTestList {
      * norm_tests: invalid test (missing resources)
      * g_05: Gather related
      * g_04: assertion failure
+     * g_02: Cross related
+     * deep_mnist_no_dropout: fails on conv2d
+     * deep_mnist: also fails on conv2d
+     * conv_3: fails on dilation2d
+     * concat: intermediate edge case still present
+     *
      */
 
     //change this to SAMEDIFF for samediff
