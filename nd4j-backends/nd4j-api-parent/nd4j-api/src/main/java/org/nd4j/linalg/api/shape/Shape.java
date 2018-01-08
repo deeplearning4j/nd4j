@@ -1543,6 +1543,8 @@ public class Shape {
      * @return the mapped indexes along each dimension
      */
     public static int[] ind2sub(INDArray arr, long index) {
+        if (arr.rank() == 1)
+            return new int[]{(int) index};
         return ind2sub(arr.shape(), index, ArrayUtil.prodLong(arr.shape()));
     }
 
@@ -1596,6 +1598,8 @@ public class Shape {
      * @return the mapped indexes along each dimension
      */
     public static int[] ind2subC(INDArray arr, long index) {
+        if (arr.rank() == 1)
+            return new int[]{(int) index};
         return ind2subC(arr.shape(), index, ArrayUtil.prodLong(arr.shape()));
     }
 

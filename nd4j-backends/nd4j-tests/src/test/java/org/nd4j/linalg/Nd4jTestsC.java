@@ -5782,6 +5782,23 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertEquals(exp, output);
     }
 
+    @Test
+    public void testVectorGemv() {
+        val vectorL = Nd4j.create(new float[]{1, 2, 3}, new int[]{3, 1});
+        val vectorN = Nd4j.create(new float[]{1, 2, 3}, new int[]{3});
+        val matrix = Nd4j.create(new float[]{1, 2, 3, 4, 5, 6, 7, 8, 9}, new int[] {3, 3});
+
+
+        log.info("vectorN: {}", vectorN);
+        log.info("vectorL: {}", vectorL);
+
+        val outN = matrix.mmul(vectorN);
+        val outL = matrix.mmul(vectorL);
+
+
+        assertEquals(outL, outN);
+    }
+
 
     @Override
     public char ordering() {

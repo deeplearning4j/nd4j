@@ -1742,7 +1742,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
                 indices[i] += rank();
         }
         if (indices.length == 1) {
-            if (isRowVector())
+            if (rank() == 1)
+                return Shape.getDouble(this, indices[0]);
+            else if (isRowVector())
                 return Shape.getDouble(this, 0, indices[0]);
             else if (isColumnVector())
                 return Shape.getDouble(this, indices[0], 0);
@@ -2850,7 +2852,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public INDArray mmul(INDArray other) {
-        int[] shape = {rows(), other.columns()};
+        // FIXME: for 1D case, we probably want vector output here?
+        int[] shape = {rows(), other.rank() == 1 ? 1 : other.columns()};
         INDArray result = createUninitialized(shape, 'f');
         if (result.isScalar())
             return Nd4j.scalar(Nd4j.getBlasWrapper().dot(this, other));
@@ -3041,7 +3044,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             INDArray temp = create(result.shape(), Nd4j.getStrides(result.shape(), 'f'));
             temp.setOrder('f');
 
-            if (other.columns() == 1) {
+            if (other.columns() == 1 || other.rank() == 1) {
                 Nd4j.getBlasWrapper().level2().gemv(BlasBufferUtil.getCharForTranspose(result),
                                 BlasBufferUtil.getCharForTranspose(this), 1.0, this, other, 0.0, temp);
             }
@@ -3079,7 +3082,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
                 gemmResultArr = result;
             }
 
-            if (other.columns() == 1) {
+            if (other.columns() == 1 || other.rank() == 1) {
                 Nd4j.getBlasWrapper().level2().gemv(
                         ordering(),
                         BlasBufferUtil.getCharForTranspose(other),
