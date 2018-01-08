@@ -32,7 +32,7 @@ public class TFGraphTestList {
             //"ae_00",
 //            "bias_add",
            //  "concat"
-            // "conv_0",
+             "conv_0",
             // "conv_1",
             // "conv_2",
             // "conv_3",
@@ -62,7 +62,7 @@ public class TFGraphTestList {
             //"norm_tests/norm_10",
             //"norm_tests/norm_11",
            //   "pool_0",
-              "pool_1",
+           //   "pool_1",
             //  "primitive_gru",
            //   "primitive_gru_dynamic",
              // "primitive_lstm",
