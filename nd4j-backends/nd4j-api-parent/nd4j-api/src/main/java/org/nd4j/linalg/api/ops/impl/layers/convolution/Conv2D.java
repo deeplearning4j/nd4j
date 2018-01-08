@@ -179,6 +179,7 @@ public class Conv2D extends DynamicCustomOp {
         val strideMapping = PropertyMapping.builder()
                 .tfAttrName("strides")
                 .onnxAttrName("strides")
+                .propertyNames(new String[]{"sx","sy"})
                 .build();
 
 
@@ -205,6 +206,7 @@ public class Conv2D extends DynamicCustomOp {
 
         val paddingWidthHeight = PropertyMapping.builder()
                 .onnxAttrName("padding")
+                .tfAttrName("padding")
                 .propertyNames(new String[]{"ph","pw"})
                 .build();
 
@@ -254,5 +256,10 @@ public class Conv2D extends DynamicCustomOp {
     @Override
     public String tensorflowName() {
         return "Conv2D";
+    }
+
+    @Override
+    public String[] tensorflowNames() {
+        return new String[] {"Conv2D","Dilation2D"};
     }
 }
