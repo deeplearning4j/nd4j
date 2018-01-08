@@ -391,6 +391,11 @@ public abstract class DifferentialFunction {
         val currentFields = this.propertiesForFunction();
 
         for(val property : properties) {
+            //property maybe a variable which is only an array
+            //just skip  if this is the case
+            if(!fields.containsKey(property))
+                continue;
+
             val var = sameDiff.getVarNameForFieldAndFunction(this,property);
             val fieldType = fields.get(property);
             val varArr = sameDiff.getArrForVarName(var);
@@ -405,7 +410,7 @@ public abstract class DifferentialFunction {
              *
              */
             if(varArr == null) {
-                throw new ND4JIllegalStateException("Unable to set null array!");
+                 throw new ND4JIllegalStateException("Unable to set null array!");
             }
 
             if(fieldType.getType().equals(int[].class)) {

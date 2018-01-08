@@ -176,7 +176,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
             }
 
-            on.setValueFor(field,valueToSet);
+            if(field != null && valueToSet != null)
+                on.setValueFor(field,valueToSet);
 
 
         }

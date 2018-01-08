@@ -4,7 +4,6 @@ import lombok.NoArgsConstructor;
 import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
@@ -15,18 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
-<<<<<<< HEAD
- * Stack op conversion
-=======
- * Gather op conversion
->>>>>>> 1f8f565053e71ee4ac4430ca176857959b0659d2
- *
- * @author raver119@gmail.com
+ * Gather op
  */
 @NoArgsConstructor
 public class Gather extends DynamicCustomOp {
 
-    private int broadcast,axis;
+    private int[] broadcast,axis;
 
 
     @Override
@@ -34,9 +27,10 @@ public class Gather extends DynamicCustomOp {
         return "Gather";
     }
 
+
     @Override
-    public String tensorflowName() {
-        throw new NoOpNameFoundException("No tensorflow op name found for " + opName());
+    public String[] tensorflowNames() {
+        return new String[]{"Gather","GatherV2","GatherNd"};
     }
 
     @Override
@@ -56,10 +50,12 @@ public class Gather extends DynamicCustomOp {
         Map<String,PropertyMapping> map = new HashMap<>();
         val broadcast = PropertyMapping.builder()
                 .onnxAttrName("broadcast")
+                 .tfInputPosition(1)
                 .propertyNames(new String[]{"broadcast"}).build();
 
         val axis = PropertyMapping.builder()
                 .onnxAttrName("axis")
+                .tfInputPosition(2)
                 .propertyNames(new String[]{"axis"}).build();
 
         map.put("broadcast",broadcast);

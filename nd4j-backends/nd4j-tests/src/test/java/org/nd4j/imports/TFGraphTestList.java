@@ -46,8 +46,8 @@ public class TFGraphTestList {
             //   "g_02",
             //   "g_03",
             //   "g_04",
-            //   "g_05",
-           //    "gru_mnist",
+               "g_05",
+           //   "gru_mnist",
             //"lstm_mnist",
             // "math_mul_order",
             //"mlp_00",
@@ -55,19 +55,30 @@ public class TFGraphTestList {
             //  "node_multiple_out",// -> Need to map multiple out values to graph node output values
             //  "norm_tests",
             //  "pool_0",
-            //  "pool_1",
+           //   "pool_1",
             //  "primitive_gru",
-            //  "primitive_gru_dynamic",
-            //  "primitive_lstm",
+           //   "primitive_gru_dynamic",
+             // "primitive_lstm",
             //  "stack",
             //  "stack_1d",
             //"stack_scalar",
-            // "simple_cond"
+          //   "simple_cond"
             //"transform_0",
             //"transpose",
             //"transpose_00",
-              "unstack"
+             // "unstack"
     };
+
+    /**
+     * Failures:
+     * transpose
+     * simple_cond
+     * primitive_gru_dynamic (while loop related)
+     * pool_1 (attributes related)
+     * pool_0: (attributes related)
+     * norm_tests: invalid test (missing resources)
+     */
+
     //change this to SAMEDIFF for samediff
     public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;
     //public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.LIBND4J;
