@@ -102,12 +102,12 @@ public class LossFunctions {
                 break;
             case MEAN_BY_COUNT:
                 SDVariable m3 = sd.mean(preReduceLoss);
-                SDVariable nonZeroWeights = weights.
+                SDVariable nonZeroWeights = null;   //TODO
                 break;
         }
 
 
-
+        return null;
     }
 
 
@@ -115,8 +115,11 @@ public class LossFunctions {
         SameDiff sd = weights.getSameDiff();
 
         SDVariable present = sd.neq(weights, 0.0);
+//        SDVariable presentBroadcast = sd.ones
 
+        //TODO ones like
 
+        return null;
     }
 
 }

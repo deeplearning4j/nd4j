@@ -43,6 +43,14 @@ public class ZerosLike extends DynamicCustomOp {
 
     public ZerosLike() {}
 
+    public ZerosLike(String name, SameDiff sameDiff, SDVariable input){
+        this(name, sameDiff, input, false);
+    }
+
+    public ZerosLike(String name, SameDiff sameDiff, SDVariable input, boolean inPlace){
+        super(name, sameDiff, new SDVariable[]{input}, inPlace);
+    }
+
 
     @Override
     public String opName() {
