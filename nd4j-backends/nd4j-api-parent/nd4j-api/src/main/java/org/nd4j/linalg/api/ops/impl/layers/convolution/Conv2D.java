@@ -226,7 +226,14 @@ public class Conv2D extends DynamicCustomOp {
         }catch(NoOpNameFoundException e) {
             //ignore
         }
-        ret.put(tensorflowName(),map);
+
+
+        try {
+            ret.put(tensorflowName(),map);
+        }catch(NoOpNameFoundException e) {
+            //ignore
+        }
+
         return ret;
     }
 
