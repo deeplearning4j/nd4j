@@ -36,10 +36,10 @@ public class GradCheckTransforms {
         List<String> allFailed = new ArrayList<>();
         for (int i = 0; i < 27; i++) {
 
-            if(i == 6 || i == 15 || i == 17 || i == 18){
-                System.out.println("************** SKIPPING " + i + "****************");
-                continue;
-            }
+//            if(i == 6 || i == 15 || i == 17 || i == 18){
+//                System.out.println("************** SKIPPING " + i + "****************");
+//                continue;
+//            }
 
             SameDiff sd = SameDiff.create();
 
@@ -78,14 +78,17 @@ public class GradCheckTransforms {
                     break;
                 case 6:
                     t = sd.pow(in, 2.5);
+                    ia = Nd4j.rand(minibatch, nOut);
                     expOut = Transforms.pow(ia, 2.5, true);
                     break;
                 case 7:
                     t = sd.sigmoid(in);
+                    ia = Nd4j.rand(minibatch, nOut).muli(2).subi(1.0);
                     expOut = Transforms.sigmoid(ia, true);
                     break;
                 case 8:
                     t = sd.tanh(in);
+                    ia = Nd4j.rand(minibatch, nOut).muli(2).subi(1.0);
                     expOut = Transforms.tanh(ia, true);
                     break;
                 case 9:
@@ -136,6 +139,7 @@ public class GradCheckTransforms {
                     break;
                 case 19:
                     t = sd.atanh(in);
+                    ia = Nd4j.rand(minibatch, nOut).muli(1.8).subi(0.9);
                     expOut = Transforms.atanh(ia, true);
                     break;
                 case 20:
@@ -152,6 +156,7 @@ public class GradCheckTransforms {
                     break;
                 case 23:
                     t = sd.softmax(in);
+                    ia = Nd4j.rand(minibatch, nOut);
                     expOut = Nd4j.getExecutioner().execAndReturn(new OldSoftMax(ia.dup()));
                     break;
                 case 24:
@@ -185,7 +190,7 @@ public class GradCheckTransforms {
             sd.exec();
             INDArray out = t.getArr();
 
-            assertEquals(expOut, out);
+            assertEquals(msg, expOut, out);
 
             boolean ok = GradCheckUtil.checkGradients(sd);
 
@@ -199,5 +204,67 @@ public class GradCheckTransforms {
             log.error("All failed transforms: " + allFailed);
             fail(allFailed.size() + " transforms failed");
         }
+    }
+
+    @Test
+    public void powDeriv(){
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", Nd4j.rand(3,4));
+        SDVariable pow2 = sd.pow("pow", in, 2.0);
+        SDVariable sum = sd.sum(pow2);
+        INDArray out = sd.execAndEndResult();
+
+        INDArray expPow2 = Transforms.pow(in.getArr(),2.0);
+        assertEquals(expPow2, pow2.getArr());
+
+        sd.execBackwards();
+
+        System.out.println(sd.grad("pow").getArr());
+
+        //If L = sum(x^2) then dL/dx^i = 2 * x_i
+        INDArray expGrad = in.getArr().mul(2);
+        assertEquals(expGrad, sd.grad("pow").getArr());
+    }
+
+    @Test
+    public void testSigmoidDerivative(){
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", Nd4j.rand(3,4));
+        SDVariable sigmoid = sd.sigmoid("sigmoid", in);
+        SDVariable sum = sd.sum(sigmoid);
+        INDArray out = sd.execAndEndResult();
+
+        INDArray expS = Transforms.sigmoid(in.getArr());
+        assertEquals(expS, sigmoid.getArr());
+
+        //If L = sum(sigmoid(x)) then dL/dx_i = s(x) * (1-s(x))
+        INDArray expDeriv = expS.mul(expS.rsub(1.0));
+
+        sd.execBackwards();
+
+        System.out.println(sd.grad("sigmoid").getArr());
+
+        assertEquals(expDeriv, sd.grad("sigmoid").getArr());
+    }
+
+    @Test
+    public void testTanhDerivative(){
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", Nd4j.rand(3,4)).muli(2).subi(1.0);
+        SDVariable tanh = sd.tanh("tanh", in);
+        SDVariable sum = sd.sum(tanh);
+        INDArray out = sd.execAndEndResult();
+
+        INDArray exp = Transforms.tanh(in.getArr());
+        assertEquals(exp, tanh.getArr());
+
+        //If L = sum(tanh(x)) then dL/dx_i = 1 - (tanh(x))^2
+        INDArray expDeriv = exp.mul(exp).rsub(1.0);
+
+        sd.execBackwards();
+
+        System.out.println(sd.grad("tanh").getArr());
+
+        assertEquals(expDeriv, sd.grad("tanh").getArr());
     }
 }
