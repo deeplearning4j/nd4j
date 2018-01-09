@@ -4217,6 +4217,7 @@ public class SameDiff {
 
             if(placeHolderOriginalShapes.containsKey(arrayEntry.getKey())) {
                 val originalShape = placeHolderOriginalShapes.get(arrayEntry.getKey());
+
                 for(int i = 0; i < originalShape.length; i++) {
                     if(originalShape[i] != arrayEntry.getValue().shape()[i] && originalShape[i] >= 1) {
                         throw new ND4JIllegalStateException("Incompatible shape passed for variable. " + Arrays.toString(arrayEntry.getValue().shape()));
