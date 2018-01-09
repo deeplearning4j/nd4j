@@ -228,10 +228,11 @@ public class LossFunctions {
                 SDVariable r;
                 if(isMean){
                     //Example: MSE (mean) + mean by count over examples
-                    r = sd.mean(preReduceLoss, dimensions);
+                    r = sd.sum(preReduceLoss);
                 } else {
                     //Example: L1 (sum) + mean by count over examples
-                    r = sd.sum(preReduceLoss, dimensions);
+                    SDVariable sum = sd.sum(preReduceLoss, dimensions);
+                    r = sd.mean(sum);
                 }
                 b.loss(r.div(outputName, nonZeroWeights));
                 break;

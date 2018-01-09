@@ -90,6 +90,7 @@ public class GradCheckLoss {
         }
     }
 
+
     @Test
     public void testDebugMSE(){
 
@@ -115,37 +116,15 @@ public class GradCheckLoss {
         SDVariable presentBroadcast = sd.zerosLike("temp", label).add(present);
         SDVariable nonZeroWeights = sd.sum(presentBroadcast);
 
-        SDVariable r = sd.mean(preReduceLoss, 1);
+        SDVariable r = sd.sum(preReduceLoss);
         SDVariable out = r.div("out", nonZeroWeights);
 
         INDArray outArr = sd.execAndEndResult();
-    }
 
-    @Test
-    public void testDebugMSE2(){
+        sd.execBackwards();
 
-        SameDiff sd = SameDiff.create();
+        //Checking expected gradients:
 
-        int nOut = 4;
-        int minibatch = 10;
-        SDVariable predictions = sd.var("in", new int[]{-1, nOut});
-        SDVariable label = sd.var("labels", new int[]{-1, nOut});
-        SDVariable weights = sd.one("weights", new int[]{1,1});
-
-        INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
-        INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
-
-        sd.associateArrayWithVariable(inputArr, predictions);
-        sd.associateArrayWithVariable(labelsArr, label);
-
-        SDVariable diff = predictions.sub(label);
-//        SDVariable preReduceLoss = sd.square(diff).mul(null, weights);
-        SDVariable preReduceLoss = diff.mul(null, weights);
-
-        SDVariable r = sd.mean(preReduceLoss, 1);
-        SDVariable out = r.div("out", 4*10);
-
-        INDArray outArr = sd.execAndEndResult();
     }
 
 }
