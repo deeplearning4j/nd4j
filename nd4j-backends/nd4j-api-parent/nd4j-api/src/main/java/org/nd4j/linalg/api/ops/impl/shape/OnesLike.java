@@ -54,7 +54,7 @@ public class OnesLike extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "oneslike";
+        return "ones_as";
     }
 
 
