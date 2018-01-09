@@ -132,7 +132,7 @@ public class DifferentialFunctionClassHolder {
                     //log.warn("Skipping derivative " + name);
                 }
                 if (nodeConverters.containsKey(name)) {
-//                    throw new ND4JIllegalStateException("OpName duplicate found: " + name);
+                    throw new ND4JIllegalStateException("OpName duplicate found: " + name);
                 } else {
                     //log.info("Adding converter for [" + name + "]");
                     nodeConverters.put(name, node);
