@@ -102,7 +102,7 @@ public class TFGraphTestList {
     private String modelName;
 
     @Parameterized.Parameters
-    public static Collection<Object[]> data() throws IOException {
+    public static Collection<Object[]> data() {
         List<Object[]> modelNamesParams = new ArrayList<>();
         for (int i = 0; i < modelNames.length; i++) {
             Object[] currentParams = new String[]{modelNames[i]};

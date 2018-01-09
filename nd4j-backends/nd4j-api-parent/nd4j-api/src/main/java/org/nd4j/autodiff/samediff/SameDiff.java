@@ -580,11 +580,6 @@ public class SameDiff {
      * @param shape the shape to associate with
      */
     public void updateShapeForVarName(String varName, int[] shape) {
-        if(shape == null || shape.length < 2) {
-            throw new ND4JIllegalStateException("Shape must not be null!");
-        }
-
-
         if(shape == null) {
             throw new ND4JIllegalStateException("Null shapes not allowed!");
         }
@@ -603,7 +598,7 @@ public class SameDiff {
      * @param shape the shape to associate with
      */
     public void putShapeForVarName(String varName, int[] shape) {
-        if(shape == null || shape.length < 2) {
+        if(shape == null) {
             throw new ND4JIllegalStateException("Shape must not be null!");
         }
 
