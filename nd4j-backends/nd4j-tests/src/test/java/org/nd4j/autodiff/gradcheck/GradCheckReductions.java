@@ -9,6 +9,7 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
 @Slf4j
@@ -283,5 +284,29 @@ public class GradCheckReductions {
 
         INDArray out = sd.execAndEndResult();
         sd.execBackwards();
+    }
+
+    @Test
+    public void testExpandDims(){
+        for( int i=0; i<=2; i++ ) {
+            SameDiff sd = SameDiff.create();
+            SDVariable in = sd.var("in", Nd4j.create(2, 3));
+            SDVariable expanded = sd.f().expandDims(in, 1);
+
+            INDArray out = sd.execAndEndResult();
+            switch (i){
+                case 0:
+                    assertArrayEquals(new int[]{1,2,3}, out.shape());
+                    break;
+                case 1:
+                    assertArrayEquals(new int[]{2,1,3}, out.shape());
+                    break;
+                case 2:
+                    assertArrayEquals(new int[]{2,3,1}, out.shape());
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
+        }
     }
 }
