@@ -30,19 +30,21 @@ public class TFGraphTestList {
 //            "add_n",
             //"ae",
             //"ae_00",
-//            "bias_add",
-           //  "concat"
-           //  "conv_0",
+            "bias_add",
+            //"norm_tests/norm_0",
+            // "concat"
+            // "conv_0",
             // "conv_1",
             // "conv_2",
             // "conv_3",
-           // "deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
-          //  "deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
-            // "expand_dim",
+            //"deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
+            //"deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
+             //"expand_dim",
 
-            // "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
+             //"g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
             //   "g_01",
-           //    "g_02",
+            //   "g_01",
+               //"g_02",
             //   "g_03",
            //   "g_04",
              //  "g_05",
@@ -52,27 +54,18 @@ public class TFGraphTestList {
             //"mlp_00",
             //"mnist_00",
             //  "node_multiple_out",// -> Need to map multiple out values to graph node output values
-            //"norm_tests/norm_0",
-            //"norm_tests/norm_1",
-            //"norm_tests/norm_3",
-            //"norm_tests/norm_4",
-            //"norm_tests/norm_6",
-            //"norm_tests/norm_7",
-            //"norm_tests/norm_8",
-            //"norm_tests/norm_10",
-            //"norm_tests/norm_11",
-           //   "pool_0",
+            //  "pool_0",
            //   "pool_1",
             //  "primitive_gru",
-              "primitive_gru_dynamic",
+           //   "primitive_gru_dynamic",
              // "primitive_lstm",
             //  "stack",
             //  "stack_1d",
             //"stack_scalar",
           //   "simple_cond"
             //"transform_0",
-            //"transpose",
-            //"transpose_00",
+            "transpose_00",
+            "non2d_0"
              // "unstack"
     };
 
@@ -81,15 +74,12 @@ public class TFGraphTestList {
      * transpose
      * simple_cond
      * primitive_gru_dynamic (while loop related)
-     * norm_tests: invalid test (missing resources)
+     * pool_1 (attributes related)
+     * pool_0: (attributes related)
      * g_05: Gather related
      * g_04: assertion failure
-     * g_02: Cross related
-     * deep_mnist_no_dropout: fails on conv2d
-     * deep_mnist: also fails on conv2d
-     * conv_3: fails on dilation2d
-     * concat: intermediate edge case still present
      *
+     * Note: norm_tests have to be run with "norm_tests/norm_0" or to run all the tests under a directory run with TFGraphTestSubDir
      */
 
     //change this to SAMEDIFF for samediff
