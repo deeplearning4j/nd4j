@@ -3,7 +3,6 @@ package org.nd4j.autodiff.loss;
 import com.google.common.base.Preconditions;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.util.ArrayUtil;
 
 public class LossFunctions {
 
@@ -58,25 +57,27 @@ public class LossFunctions {
     private LossFunctions(){ }
 
 
+    private static void validate(SDVariable predictions, SDVariable label, Reduction reduction){
+        Preconditions.checkNotNull(predictions, "Predictions variable cannot be null");
+        Preconditions.checkNotNull(label, "Label variable cannot be null");
+        Preconditions.checkNotNull(reduction, "Reduction enumeration cannot be null");
+    }
 
 
     public static LossInfo mse(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                                Reduction reduction, int... dimensions){
-        Preconditions.checkNotNull(predictions, "Predictions variable cannot be null");
-        Preconditions.checkNotNull(label, "Label variable cannot be null");
-        Preconditions.checkNotNull(reduction, "Reduction enumeration cannot be null");
+        validate(predictions, label, reduction);
         SameDiff sd = predictions.getSameDiff();
 
         if(weights == null){
-            weights = sd.one("weights", SCALAR);
+            weights = sd.one("mse_loss_weights", SCALAR);
         }
 
 
 
         SDVariable diff = predictions.sub(label);
         String name = (reduction == Reduction.NONE ? outputName : null);
-//        SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
-        SDVariable preReduceLoss = diff.mul(name, diff).mul(name, weights);
+        SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
 
         LossInfo.Builder b = LossInfo.builder()
                 .lossName("mse")
@@ -85,36 +86,59 @@ public class LossFunctions {
                 .predictions(predictions);
 
 
-        switch (reduction){
-            case NONE:
-                //Return same shape as predictions/labels
-                b.loss(preReduceLoss);
-                break;
-            case SPECIFIED_DIMS:
-                //Reduce along specified dimensions
-                b.loss(sd.mean(outputName, preReduceLoss, dimensions));
-            case SUM:
-                SDVariable m = sd.mean(preReduceLoss, dimensions);
-                b.loss(sd.sum(outputName, m));
-                break;
-            case MEAN_BY_WEIGHT:
-                //reduce along dims + reduce along remaining dims == reduce along *all* dims
-                SDVariable m2 = sd.mean(preReduceLoss);
-                SDVariable weightSum = sd.sum(weights);
-                b.loss(m2.div(outputName, weightSum));
-                break;
-            case MEAN_BY_COUNT:
-                SDVariable m3 = sd.sum(preReduceLoss);
-                SDVariable nonZeroWeights = nonZeroCount(weights, label);
-                b.loss(m3.div(outputName, nonZeroWeights));
-//                b.loss(m3.div(outputName, 40));
-                break;
-            default:
-                throw new RuntimeException("Unknown reduction: " + reduction);
-        }
-
+        doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
         return b.build();
     }
+
+
+    /**
+     * L1 loss - sum of absolute errors. L = sum_i abs(predicted_i - actual_i)
+     *
+     * @param outputName
+     * @param predictions
+     * @param label
+     * @param weights
+     * @param reduction
+     * @param dimensions
+     * @return
+     */
+    public static LossInfo l1(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
+                              Reduction reduction, int... dimensions){
+        validate(predictions, label, reduction);
+        SameDiff sd = predictions.getSameDiff();
+
+        if(weights == null){
+            weights = sd.one("l1_loss_weights", SCALAR);
+        }
+
+        String name = (reduction == Reduction.NONE ? outputName : null);
+        SDVariable preReduceLoss = sd.abs(predictions.sub(label)).mul(name, weights);
+
+        LossInfo.Builder b = LossInfo.builder()
+                .lossName("l1")
+                .reduction(reduction)
+                .label(label)
+                .predictions(predictions);
+
+
+        doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
+        return b.build();
+    }
+
+
+    public static LossInfo l2(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
+                              Reduction reduction, int... dimensions){
+
+        return null;
+    }
+
+    public static LossInfo mcxent(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
+                                  Reduction reduction, int... dimensions){
+
+        return null;
+    }
+
+
 
 
     private static SDVariable nonZeroCount(SDVariable weights, SDVariable labels){
@@ -124,6 +148,62 @@ public class LossFunctions {
         SDVariable presentBroadcast = sd.zerosLike("temp", labels).add(present);
 
         return sd.sum(presentBroadcast);
+    }
+
+    private static void doReduce(SameDiff sd, String outputName, boolean isMean, LossInfo.Builder b, Reduction reduction,
+                          SDVariable preReduceLoss, SDVariable label, SDVariable weights, int[] dimensions){
+        switch (reduction){
+            case NONE:
+                //Return same shape as predictions/labels
+                b.loss(preReduceLoss);
+                break;
+            case SPECIFIED_DIMS:
+                //Reduce along specified dimensions
+                if(isMean){
+                    //Example: MSE + mean along examples
+                    b.loss(sd.mean(outputName, preReduceLoss, dimensions));
+                } else {
+                    //Example: L1 loss (sum) + mean along examples
+                    b.loss(sd.sum(outputName, preReduceLoss, dimensions));
+                }
+            case SUM:
+                if(isMean){
+                    //Example: MSE (mean) + sum along examples
+                    SDVariable m = sd.mean(preReduceLoss, dimensions);
+                    b.loss(sd.sum(outputName, m));
+                } else {
+                    //Example: L1 loss (sum) + sum along examples -> sum along all dimensions
+                    b.loss(sd.sum(outputName, preReduceLoss));
+                }
+                break;
+            case MEAN_BY_WEIGHT:
+                SDVariable weightSum = sd.sum(weights);
+                if(isMean){
+                    //Example: MSE (mean) + mean by weights over examples
+                    //reduce along dims + reduce along remaining dims == reduce along *all* dims
+                    SDVariable m2 = sd.mean(preReduceLoss);
+                    b.loss(m2.div(outputName, weightSum));
+                } else {
+                    //Example: L1 (sum) + mean by weights over examples
+                    SDVariable sum = sd.sum(preReduceLoss, dimensions);
+                    b.loss(sum.div(outputName, weightSum));
+                }
+                break;
+            case MEAN_BY_COUNT:
+                SDVariable nonZeroWeights = nonZeroCount(weights, label);
+                SDVariable r;
+                if(isMean){
+                    //Example: MSE (mean) + mean by count over examples
+                    r = sd.mean(preReduceLoss, dimensions);
+                } else {
+                    //Example: L1 (sum) + mean by count over examples
+                    r = sd.sum(preReduceLoss, dimensions);
+                }
+                b.loss(r.div(outputName, nonZeroWeights));
+                break;
+            default:
+                throw new RuntimeException("Unknown reduction: " + reduction);
+        }
     }
 
 }

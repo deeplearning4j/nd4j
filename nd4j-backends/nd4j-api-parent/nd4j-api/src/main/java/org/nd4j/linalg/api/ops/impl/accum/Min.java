@@ -100,10 +100,25 @@ public class Min extends BaseAccumulation {
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         //TODO do we need to handle the "multiple equal minimums" case?
 
-        SDVariable repeatOut = f().doRepeat(outputVariables()[0], arg());
-        SDVariable argMaxLoc = f().eq(repeatOut, arg());
-        SDVariable out = argMaxLoc.mul(i_v1.get(0));
-        return Collections.singletonList(out);
+        SDVariable out = outputVariables()[0];
+
+        //TODO need to handle edge case - say reduce [3,4,5] on dims (0,1) gives [1,5] then expand([1,5],0,1) gives [1,1,1,5] NOT [1,1,5] as expected...
+        SDVariable expandedOut = out;
+        SDVariable expandedGrad = i_v1.get(0);
+        for( int d : dimensions){
+            expandedOut = sameDiff.expandDims(expandedOut, d);
+            expandedGrad = sameDiff.expandDims(expandedGrad, d);
+        }
+
+        SDVariable eq = sameDiff.eq(arg(), expandedOut);
+        SDVariable ret = eq.mul(expandedGrad);
+        return Collections.singletonList(ret);
+
+
+//        SDVariable repeatOut = f().doRepeat(outputVariables()[0], arg());
+//        SDVariable argMaxLoc = f().eq(repeatOut, arg());
+//        SDVariable out = argMaxLoc.mul(i_v1.get(0));
+//        return Collections.singletonList(out);
     }
 
 
