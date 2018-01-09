@@ -57,37 +57,32 @@ public class LossFunctions {
     private LossFunctions(){ }
 
 
-    private static void validate(SDVariable predictions, SDVariable label, Reduction reduction){
-        Preconditions.checkNotNull(predictions, "Predictions variable cannot be null");
-        Preconditions.checkNotNull(label, "Label variable cannot be null");
-        Preconditions.checkNotNull(reduction, "Reduction enumeration cannot be null");
+    private static LossInfo.Builder validate(String lossName, SDVariable predictions, SDVariable label, Reduction reduction){
+        Preconditions.checkNotNull(predictions, "Predictions variable cannot be null for loss function - " + lossName);
+        Preconditions.checkNotNull(label, "Label variable cannot be null for loss function - " + lossName);
+        Preconditions.checkNotNull(reduction, "Reduction enumeration cannot be null for loss function - " + lossName);
+        return LossInfo.builder()
+                .lossName(lossName)
+                .reduction(reduction)
+                .label(label)
+                .predictions(predictions);
     }
 
 
     public static LossInfo mse(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                                Reduction reduction, int... dimensions){
-        validate(predictions, label, reduction);
+        LossInfo.Builder b = validate("mse", predictions, label, reduction);
         SameDiff sd = predictions.getSameDiff();
 
         if(weights == null){
             weights = sd.one("mse_loss_weights", SCALAR);
         }
 
-
-
         SDVariable diff = predictions.sub(label);
         String name = (reduction == Reduction.NONE ? outputName : null);
         SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
 
-        LossInfo.Builder b = LossInfo.builder()
-                .lossName("mse")
-                .reduction(reduction)
-                .label(label)
-                .predictions(predictions);
-
-
-        doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
-        return b.build();
+        return doReduce(sd, outputName, true, b, reduction, preReduceLoss, label, weights, dimensions);
     }
 
 
@@ -104,7 +99,7 @@ public class LossFunctions {
      */
     public static LossInfo l1(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                               Reduction reduction, int... dimensions){
-        validate(predictions, label, reduction);
+        LossInfo.Builder b = validate("l1", predictions, label, reduction);
         SameDiff sd = predictions.getSameDiff();
 
         if(weights == null){
@@ -114,28 +109,67 @@ public class LossFunctions {
         String name = (reduction == Reduction.NONE ? outputName : null);
         SDVariable preReduceLoss = sd.abs(predictions.sub(label)).mul(name, weights);
 
-        LossInfo.Builder b = LossInfo.builder()
-                .lossName("l1")
-                .reduction(reduction)
-                .label(label)
-                .predictions(predictions);
-
-
-        doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
-        return b.build();
+        return doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
     }
 
 
+    /**
+     * L2 loss function: i.e., sum of squared errors, L = sum_i (actual_i - predicted)^2
+     *
+     * @param outputName
+     * @param predictions
+     * @param label
+     * @param weights
+     * @param reduction
+     * @param dimensions
+     * @return
+     */
     public static LossInfo l2(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                               Reduction reduction, int... dimensions){
+        LossInfo.Builder b = validate("l2", predictions, label, reduction);
+        SameDiff sd = predictions.getSameDiff();
 
-        return null;
+        if(weights == null){
+            weights = sd.one("l2_loss_weights", SCALAR);
+        }
+
+        SDVariable diff = predictions.sub(label);
+        String name = (reduction == Reduction.NONE ? outputName : null);
+        SDVariable preReduceLoss = sd.square(diff).mul(name, weights);
+
+        return doReduce(sd, outputName, false, b, reduction, preReduceLoss, label, weights, dimensions);
     }
 
+    public static LossInfo negativeLogLikelihood(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
+                                                 Reduction reduction, int... dimensions){
+        return mcxent(outputName, predictions, label, weights, reduction, dimensions);
+    }
+
+    /**
+     * Multi-Class Cross Entropy loss function:<br>
+     * L = sum_i actual_i * log( predicted_i )
+     *
+     * @param outputName
+     * @param predictions
+     * @param label
+     * @param weights
+     * @param reduction
+     * @param dimensions
+     * @return
+     */
     public static LossInfo mcxent(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                                   Reduction reduction, int... dimensions){
+        LossInfo.Builder b = validate("mcxent", predictions, label, reduction);
+        SameDiff sd = predictions.getSameDiff();
 
-        return null;
+        if(weights == null){
+            weights = sd.one("mcxent_loss_weights", SCALAR);
+        }
+
+        String name = (reduction == Reduction.NONE ? outputName : null);
+        SDVariable weightedLogProd = sd.log(predictions).mul(label).mul(name, weights);
+
+        return doReduce(sd, outputName, false, b, reduction, weightedLogProd, label, weights, dimensions);
     }
 
 
@@ -150,7 +184,7 @@ public class LossFunctions {
         return sd.sum(presentBroadcast);
     }
 
-    private static void doReduce(SameDiff sd, String outputName, boolean isMean, LossInfo.Builder b, Reduction reduction,
+    private static LossInfo doReduce(SameDiff sd, String outputName, boolean isMean, LossInfo.Builder b, Reduction reduction,
                           SDVariable preReduceLoss, SDVariable label, SDVariable weights, int[] dimensions){
         switch (reduction){
             case NONE:
@@ -204,6 +238,8 @@ public class LossFunctions {
             default:
                 throw new RuntimeException("Unknown reduction: " + reduction);
         }
+
+        return b.build();
     }
 
 }
