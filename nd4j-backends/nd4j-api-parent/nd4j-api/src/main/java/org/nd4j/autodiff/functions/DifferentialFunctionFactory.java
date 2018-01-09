@@ -365,7 +365,7 @@ public class DifferentialFunctionFactory   {
 
 
     public SDVariable pow(SDVariable iX, double i_y) {
-        return new ScalarMultiplication(  sameDiff(),iX,i_y).outputVariables()[0];
+        return new Pow(sameDiff(),iX,false,i_y).outputVariables()[0];
 
     }
 
