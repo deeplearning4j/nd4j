@@ -526,18 +526,20 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         val tfTensor = node.getAttrOrThrow("value").getTensor();
         // building shape first
         int dims = tfTensor.getTensorShape().getDimCount();
-        if(dims == 1) {
-            dimensions.add(1);
-            dimensions.add( (int) Math.max(1,tfTensor.getTensorShape().getDim(0).getSize()));
-        }
-        else {
-            for (int e = 0; e < dims; e++) {
-                // TODO: eventually we want long shapes :(
-                int dim = (int) tfTensor.getTensorShape().getDim(e).getSize();
 
-                dimensions.add(dim);
-            }
+        // we allow vectors now
+        //if(dims == 1) {
+        //    dimensions.add(1);
+        //    dimensions.add( (int) Math.max(1,tfTensor.getTensorShape().getDim(0).getSize()));
+       // }
+
+        for (int e = 0; e < dims; e++) {
+            // TODO: eventually we want long shapes :(
+            int dim = (int) tfTensor.getTensorShape().getDim(e).getSize();
+
+            dimensions.add(dim);
         }
+
 
 
         arrayShape = Ints.toArray(dimensions);
@@ -547,13 +549,13 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             if (tfTensor.getIntValCount() == 1 || ArrayUtil.prod(arrayShape) == 1) {
                 //straight zero case
                 if(tfTensor.getIntValCount() < 1)
-                    return Nd4j.scalar(0.0);
+                    return Nd4j.trueScalar(0.0);
 
                 //should be scalar otherwise
                 int val = tfTensor.getIntVal(0);
 
                 if (arrayShape == null || arrayShape.length == 0)
-                    arrayShape = new int[]{1, 1};
+                    arrayShape = new int[]{};
 
                 INDArray array = Nd4j.valueArrayOf(arrayShape, (double) val);
                 return array;
@@ -592,7 +594,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 float val = tfTensor.getFloatVal(0);
 
                 if (arrayShape == null || arrayShape.length == 0)
-                    arrayShape = new int[]{1, 1};
+                    arrayShape = new int[]{};
 
                 INDArray array = Nd4j.valueArrayOf(arrayShape, (double) val);
                 return array;
@@ -620,10 +622,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             if (tfTensor.getDoubleValCount() == 1 || ArrayUtil.prod(arrayShape) == 1) {
                 //straight zero case
                 if(tfTensor.getDoubleValCount() < 1)
-                    return Nd4j.scalar(0.0);
+                    return Nd4j.trueScalar(0.0);
 
                 double val = tfTensor.getDoubleVal(0);
-                INDArray array = Nd4j.scalar(val);
+                INDArray array = Nd4j.trueScalar(val);
                 return array;
             } else if (tfTensor.getDoubleValCount() > 0) {
                 double[] jArray = new double[tfTensor.getDoubleValCount()];
@@ -653,10 +655,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             if (tfTensor.getInt64ValCount() == 1 || ArrayUtil.prod(arrayShape) == 1) {
                 //straight zero case
                 if(tfTensor.getDoubleValCount() < 1)
-                    return Nd4j.scalar(0.0);
+                    return Nd4j.trueScalar(0.0);
 
                 double val = (double) tfTensor.getInt64Val(0);
-                INDArray array = Nd4j.scalar(val);
+                INDArray array = Nd4j.trueScalar(val);
                 return array;
             } else if (tfTensor.getInt64ValCount() > 0)  {
                 double[] jArray = new double[tfTensor.getInt64ValCount()];
