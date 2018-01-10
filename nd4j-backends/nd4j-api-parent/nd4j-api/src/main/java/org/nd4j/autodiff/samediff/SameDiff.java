@@ -4217,10 +4217,11 @@ public class SameDiff {
 
             if(placeHolderOriginalShapes.containsKey(arrayEntry.getKey())) {
                 val originalShape = placeHolderOriginalShapes.get(arrayEntry.getKey());
-
-                for(int i = 0; i < originalShape.length; i++) {
-                    if(originalShape[i] != arrayEntry.getValue().shape()[i] && originalShape[i] >= 1) {
-                        throw new ND4JIllegalStateException("Incompatible shape passed for variable. " + Arrays.toString(arrayEntry.getValue().shape()));
+                if(originalShape.length ==  arrayEntry.getValue().rank()) {
+                    for (int i = 0; i < originalShape.length; i++) {
+                        if (originalShape[i] != arrayEntry.getValue().shape()[i] && originalShape[i] >= 1) {
+                            throw new ND4JIllegalStateException("Incompatible shape passed for variable. " + Arrays.toString(arrayEntry.getValue().shape()));
+                        }
                     }
                 }
             }
@@ -4236,7 +4237,7 @@ public class SameDiff {
             val specifiedShape = getOriginalShapeForPlaceHolder(entry.getKey());
             //whole shape was specified: validate whether the input array shape is equal
             if(!Shape.isPlaceholderShape(specifiedShape)) {
-                if(!Arrays.equals(specifiedShape,entry.getValue().shape()))  {
+                if(!Shape.shapeEquals(specifiedShape,entry.getValue().shape()))  {
                     throw new ND4JIllegalStateException("Place holder shape specified was " + Arrays.toString(specifiedShape) + " but array shape was " + Arrays.toString(entry.getValue().shape()));
                 }
             }

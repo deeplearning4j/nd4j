@@ -60,7 +60,7 @@ public class Shape {
      * @return
      */
     public static boolean shapeIsScalar(int[] shape) {
-        return ArrayUtil.prod(shape) == 1;
+        return shape.length == 0 || ArrayUtil.prod(shape) == 1;
     }
 
     /**
@@ -1001,6 +1001,18 @@ public class Shape {
             int[] shape2Comp = squeeze(shape2);
             return Arrays.equals(shape1Comp, shape2Comp);
         }
+
+        //scalars
+        if(shape1.length == 0 || shape2.length == 0) {
+            if(shape1.length == 0 && shapeIsScalar(shape2)) {
+                return true;
+            }
+
+            if(shape2.length == 0 && shapeIsScalar(shape1)) {
+                return true;
+            }
+        }
+
 
         shape1 = squeeze(shape1);
         shape2 = squeeze(shape2);
