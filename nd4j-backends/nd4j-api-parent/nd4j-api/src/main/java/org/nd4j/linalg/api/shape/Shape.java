@@ -239,7 +239,7 @@ public class Shape {
      * {@link Integer#MAX_VALUE}
      */
     public static boolean isWholeArray(int rank, int... dimension){
-        return dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)
+        return rank == 0 || dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)
                 || dimension.length == rank;
     }
 
@@ -2422,5 +2422,19 @@ public class Shape {
             return Shape.toOffsetZeroCopyAnyOrder(input);
         else
             return input;
+    }
+
+    /**
+     * Return the rank for the given shape
+     *
+     * @param shape Shape to get the rank for
+     * @return Rank, of the array given the shape
+     * @throws ND4JIllegalStateException If shape array is null
+     */
+    public static int rankFromShape(int[] shape){
+        if(shape == null){
+            throw new ND4JIllegalStateException("Cannot get rank from null shape array");
+        }
+        return shape.length;
     }
 }

@@ -23,6 +23,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.Collections;
@@ -84,7 +85,8 @@ public class NormMax extends BaseAccumulation {
 
         SDVariable absIn = sameDiff.abs(arg());
         SDVariable maxnorm = outputVariables()[0];
-        SDVariable maxnormBc = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, maxnorm);    //TODO Is NPE possible on getShape()?
+        int origRank = Shape.rankFromShape(arg().getShape());   //TODO shape may not always be defined?
+        SDVariable maxnormBc = sameDiff.f().reductionBroadcastableWithOrigShape(origRank, dimensions, maxnorm);
         maxnormBc = sameDiff.onesLike(arg()).mul(maxnormBc);
         SDVariable eq = sameDiff.eq(absIn, maxnormBc);
         SDVariable dAbsXdX = sameDiff.sign(arg());

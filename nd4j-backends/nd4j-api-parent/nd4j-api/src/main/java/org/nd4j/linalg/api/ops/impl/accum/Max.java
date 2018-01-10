@@ -23,6 +23,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,10 +104,10 @@ public class Max extends BaseAccumulation {
         //TODO code duplication (min/max)
 
         SDVariable out = outputVariables()[0];
-        int[] argShape = arg().getShape();
-        SDVariable expandedOut = sameDiff.f().reductionBroadcastableWithOrigShape(argShape.length, dimensions, out);
+        int origRank = Shape.rankFromShape(arg().getShape());
+        SDVariable expandedOut = sameDiff.f().reductionBroadcastableWithOrigShape(origRank, dimensions, out);
         expandedOut = sameDiff.onesLike(arg()).mul(expandedOut);
-        SDVariable expandedGrad = sameDiff.f().reductionBroadcastableWithOrigShape(argShape.length, dimensions, i_v1.get(0));
+        SDVariable expandedGrad = sameDiff.f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0));
 
         SDVariable eq = sameDiff.eq(arg(), expandedOut);
         SDVariable ret = eq.mul(expandedGrad);

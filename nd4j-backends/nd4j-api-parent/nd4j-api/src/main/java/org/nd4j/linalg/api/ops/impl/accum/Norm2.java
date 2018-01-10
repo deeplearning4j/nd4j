@@ -23,6 +23,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.Collections;
@@ -83,7 +84,8 @@ public class Norm2 extends BaseAccumulation {
         //d norm2(in)/dx = x / norm2(in)
 
         SDVariable norm2 = outputVariables()[0];
-        SDVariable norm2bc = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, norm2);    //TODO Is NPE possible on getShape()??
+        int origRank = Shape.rankFromShape(arg().getShape());   //TODO shape may not always be defined?
+        SDVariable norm2bc = sameDiff.f().reductionBroadcastableWithOrigShape(origRank, dimensions, norm2);
         SDVariable ret = arg().div(norm2bc).mul(i_v1.get(0));
 
         return Collections.singletonList(ret);

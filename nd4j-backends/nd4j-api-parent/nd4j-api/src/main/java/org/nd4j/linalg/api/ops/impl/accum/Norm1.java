@@ -23,6 +23,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.Collections;
@@ -93,7 +94,8 @@ public class Norm1 extends BaseAccumulation {
         SDVariable signum = sameDiff.sign(arg());
 
         //Note that we need to expand the dimensions of the gradient - auto-broadcast won't work for all cases.
-        SDVariable bcGrad = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, i_v1.get(0));    //TODO Is NPE possible on getShape()??
+        int origRank = Shape.rankFromShape(arg().getShape());   //TODO shape may not always be defined?
+        SDVariable bcGrad = sameDiff.f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0));
         return Collections.singletonList(signum.mul(bcGrad));
     }
 }
