@@ -1987,6 +1987,24 @@ public class SameDiff {
         return softmax(null,iX);
     }
 
+    public SDVariable logSoftmax(SDVariable iX){
+        return logSoftmax(null, iX);
+    }
+
+    public SDVariable logSoftmax(String name, SDVariable iX){
+        SDVariable ret = f().logSoftmax(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable selu(SDVariable iX){
+        return selu(null, iX);
+    }
+
+    public SDVariable selu(String name, SDVariable iX){
+        SDVariable ret = f().selu(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX
@@ -2036,6 +2054,15 @@ public class SameDiff {
         return sigmoidDerivative(null,iX,wrt);
     }
 
+    public SDVariable logSigmoid(SDVariable iX){
+        return logSigmoid(null, iX);
+    }
+
+    public SDVariable logSigmoid(String name, SDVariable iX){
+        SDVariable ret = f().logSigmoid(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX
@@ -2070,6 +2097,15 @@ public class SameDiff {
      */
     public SDVariable softplus(SDVariable iX) {
         return softplus(null,iX);
+    }
+
+    public SDVariable swish(SDVariable iX){
+        return swish(null, iX);
+    }
+
+    public SDVariable swish(String name, SDVariable iX){
+        SDVariable ret = f().swish(iX);
+        return updateVariableNameAndReference(ret, name);
     }
 
     /**
@@ -3120,6 +3156,21 @@ public class SameDiff {
         SDVariable result = functionFactory.min(iX,dimensions);
         return updateVariableNameAndReference(result,name);
 
+    }
+
+    public SDVariable norm1(String name, SDVariable ix, int... dimensions){
+        SDVariable result = f().norm1(ix, dimensions);
+        return updateVariableNameAndReference(result,name);
+    }
+
+    public SDVariable norm2(String name, SDVariable ix, int... dimensions){
+        SDVariable result = f().norm2(ix, dimensions);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable normmax(String name, SDVariable ix, int... dimensions){
+        SDVariable result = f().normmax(ix, dimensions);
+        return updateVariableNameAndReference(result, name);
     }
 
 
@@ -4614,7 +4665,7 @@ public class SameDiff {
         }
 
 
-        log.info("Executing op " + differentialFunction.opName());
+//        log.info("Executing op " + differentialFunction.opName());
 
         StringBuilder realShapes = new StringBuilder();
         for(val arg: differentialFunction.args()) {
@@ -4628,7 +4679,7 @@ public class SameDiff {
         }
 
 
-        log.info(realShapes.toString());
+//        log.info(realShapes.toString());
     }
 
 

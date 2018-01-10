@@ -8,10 +8,7 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.impl.transforms.ACosh;
-import org.nd4j.linalg.api.ops.impl.transforms.OldSoftMax;
-import org.nd4j.linalg.api.ops.impl.transforms.SoftMax;
-import org.nd4j.linalg.api.ops.impl.transforms.Tan;
+import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
@@ -30,7 +27,7 @@ public class GradCheckTransforms {
 
     @Test
     public void testTransforms() {
-        //Test reductions: final and only function
+        //Test transforms (non-pairwise)
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
@@ -155,6 +152,7 @@ public class GradCheckTransforms {
                     expOut = Transforms.elu(ia, true);
                     break;
                 case 23:
+                    //TODO SHOULDN'T THIS HAVE A DIMENSION ARG???
                     t = sd.softmax(in);
                     ia = Nd4j.rand(minibatch, nOut);
                     expOut = Nd4j.getExecutioner().execAndReturn(new OldSoftMax(ia.dup()));
@@ -172,6 +170,95 @@ public class GradCheckTransforms {
                     t = sd.transpose(in);
                     expOut = ia.transpose().dup();
                     break;
+                case 27:
+                    t = sd.abs(in);
+                    expOut = Transforms.abs(ia, true);
+                    break;
+                case 28:
+                    t = sd.sinh(in);
+                    expOut = Transforms.sinh(ia, true);
+                    break;
+                case 29:
+                    t = sd.asinh(in);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new ASinh(ia.dup()));
+                    break;
+                case 30:
+                    t = sd.exp(in);
+                    expOut = Transforms.exp(ia, true);
+                    break;
+                case 31:
+                    t = sd.floor(in);
+                    expOut = Transforms.floor(ia, true);
+                    break;
+                case 32:
+                    t = sd.relu(in, 0.0);
+                    ia = Nd4j.rand(minibatch, nOut);
+                    expOut = Transforms.relu(ia, true);
+                    break;
+                case 33:
+                    t = sd.hardTanh(in);
+                    ia = Nd4j.rand(minibatch, nOut).muli(2).subi(1.0);
+                    expOut = Transforms.hardTanh(ia, true);
+                    break;
+                case 34:
+                    t = sd.logSigmoid(in);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new LogSigmoid(ia.dup()));
+                    break;
+                case 35:
+                    t = sd.swish(in);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new Swish(ia.dup()));
+                    break;
+                case 36:
+                    t = sd.sign(in);
+                    expOut = Transforms.sign(ia, true);
+                    break;
+                case 37:
+                    t = sd.softsign(in);
+                    expOut = Transforms.softsign(ia, true);
+                    break;
+                case 38:
+                    t = sd.leakyRelu(in, 0.0);
+                    ia = Nd4j.rand(minibatch, nOut);
+                    expOut = Transforms.leakyRelu(ia, true);
+                    break;
+                case 39:
+                    //TODO DIMENSION ARG???
+                    t = sd.logSoftmax(in);
+                    ia = Nd4j.rand(minibatch, nOut);
+                    expOut = Transforms.log(Transforms.softmax(ia, true));
+                    break;
+                case 40:
+                    t = sd.selu(in);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new SELU(ia.dup()));
+                    break;
+                case 41:
+                    t = sd.gt(in, 1.0);
+                    expOut = ia.gt(1.0);
+                    break;
+                case 42:
+                    t = sd.gte(in, 1.0);
+                    expOut = ia.gte(1.0);
+                    break;
+                case 43:
+                    t = sd.lt(in, 1.0);
+                    expOut = ia.lt(1.0);
+                    break;
+                case 44:
+                    t = sd.lte(in, 1.0);
+                    expOut = ia.lte(1.0);
+                    break;
+                case 45:
+                    t = sd.eq(in, 2.0);
+                    ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
+                    expOut = ia.eq(2.0);
+                    break;
+                case 46:
+                    t = sd.neq(in, 2.0);
+                    ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
+                    expOut = ia.neq(2.0);
+                    break;
+                case 47:
+
                 default:
                     throw new RuntimeException();
             }
@@ -192,7 +279,86 @@ public class GradCheckTransforms {
 
             assertEquals(msg, expOut, out);
 
-            boolean ok = GradCheckUtil.checkGradients(sd);
+            boolean ok;
+            try{
+                ok = GradCheckUtil.checkGradients(sd);
+            } catch (Exception e){
+                e.printStackTrace();
+                msg += " - EXCEPTION";
+                ok = false;
+            }
+
+//            assertTrue(msg, ok);
+            if(!ok){
+                allFailed.add(msg);
+            }
+        }
+
+        if(allFailed.size() > 0){
+            log.error("All failed transforms: " + allFailed);
+            fail(allFailed.size() + " transforms failed");
+        }
+    }
+
+    @Test
+    public void testPairwiseTransforms(){
+        /*
+        add, sub, mul, div, rsub, rdiv
+        or, eq, neq, gt, lt, gte, lte,
+        mmul
+        tensormmul
+
+         */
+        //Test transforms (pairwise)
+        Nd4j.getRandom().setSeed(12345);
+
+        List<String> allFailed = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+
+            SameDiff sd = SameDiff.create();
+
+            int nOut = 4;
+            int minibatch = 5;
+            SDVariable in = sd.var("in", new int[]{-1, nOut});
+
+            INDArray ia = Nd4j.randn(minibatch, nOut);
+
+            SDVariable t;
+            INDArray expOut;
+            switch (i) {
+                case 0:
+                    t = in.add(5.0);
+                    expOut = ia.add(5.0);
+                    break;
+
+                default:
+                    throw new RuntimeException();
+            }
+
+
+            DifferentialFunction[] funcs = sd.functions();
+            String name = funcs[0].opName();
+
+
+            String msg = "test: " + i + " - " + name;
+            log.info("*** Starting test: " + msg);
+
+            SDVariable loss = sd.mean("loss", t);
+
+            sd.associateArrayWithVariable(ia, in);
+            sd.exec();
+            INDArray out = t.getArr();
+
+            assertEquals(msg, expOut, out);
+
+            boolean ok;
+            try{
+                ok = GradCheckUtil.checkGradients(sd);
+            } catch (Exception e){
+                e.printStackTrace();
+                msg += " - EXCEPTION";
+                ok = false;
+            }
 
 //            assertTrue(msg, ok);
             if(!ok){

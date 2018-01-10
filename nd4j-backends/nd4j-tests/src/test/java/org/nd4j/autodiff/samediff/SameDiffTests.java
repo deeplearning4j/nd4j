@@ -2208,52 +2208,5 @@ public class SameDiffTests {
         INDArray out2 = sd.execAndEndResult();
         assertEquals(Nd4j.ones(4,5), out2);
     }
-
-
-    @Test
-    public void testExpandDims() {
-        for (int i = 0; i <= 2; i++) {
-            SameDiff sd = SameDiff.create();
-            SDVariable in = sd.var("in", Nd4j.create(2, 3));
-            SDVariable expanded = sd.f().expandDims(in, i);
-
-            INDArray out = sd.execAndEndResult();
-            switch (i) {
-                case 0:
-                    assertArrayEquals(new int[]{1, 2, 3}, out.shape());
-                    break;
-                case 1:
-                    assertArrayEquals(new int[]{2, 1, 3}, out.shape());
-                    break;
-                case 2:
-                    assertArrayEquals(new int[]{2, 3, 1}, out.shape());
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
-        }
-    }
-
-    @Test
-    public void testSquare(){
-        Nd4j.getRandom().setSeed(12345);
-
-        int mb = 5;
-        int nOut = 4;
-
-        SameDiff sd = SameDiff.create();
-        SDVariable in = sd.var("in", Nd4j.rand(mb, nOut));
-        SDVariable label = sd.var("label", Nd4j.rand(mb, nOut));
-        SDVariable diff = in.sub(label);
-        SDVariable sqDiff = sd.square(diff);
-
-        INDArray expOut = in.getArr().sub(label.getArr());
-        expOut.muli(expOut);
-
-        System.out.println("About to exec");
-        INDArray out = sd.execAndEndResult();   //JVM crash
-
-        assertEquals(out, expOut);
-    }
 }
 

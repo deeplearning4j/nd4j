@@ -382,24 +382,20 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable cube(SDVariable iX) {
         return new Cube(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
     public SDVariable cubeDerivative(SDVariable iX) {
         return new CubeDerivative(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
     public SDVariable floor(SDVariable iX) {
         return new Floor(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
     public SDVariable relu(SDVariable iX, double cutoff) {
         return new RectifedLinear(sameDiff(),iX,false,cutoff).outputVariables()[0];
-
     }
 
 
@@ -407,13 +403,11 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable softmax(SDVariable iX) {
         return new SoftMax(sameDiff(),new SDVariable[]{iX}).outputVariables()[0];
-
     }
 
 
     public SDVariable hardTanh(SDVariable iX) {
         return new HardTanh(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
@@ -421,13 +415,11 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable hardTanhDerivative(SDVariable iX) {
         return new HardTanhDerivative(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
     public SDVariable sigmoid(SDVariable iX) {
         return new Sigmoid(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 

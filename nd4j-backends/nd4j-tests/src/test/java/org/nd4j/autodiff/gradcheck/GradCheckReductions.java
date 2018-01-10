@@ -25,7 +25,7 @@ public class GradCheckReductions {
         //Test reductions: final and only function
         Nd4j.getRandom().setSeed(12345);
 
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 10; i++) {
 
             SameDiff sd = SameDiff.create();
 
@@ -64,6 +64,18 @@ public class GradCheckReductions {
                     loss = sd.prod("loss", input);
                     name = "prod";
                     break;
+                case 7:
+                    loss = sd.norm1("loss", input);
+                    name = "norm1";
+                    break;
+                case 8:
+                    loss = sd.norm2("loss", input);
+                    name = "norm2";
+                    break;
+                case 9:
+                    loss = sd.normmax("loss", input);
+                    name = "normmax";
+                    break;
                 default:
                     throw new RuntimeException();
             }
@@ -88,7 +100,7 @@ public class GradCheckReductions {
 
         for (int dim : new int[]{0, Integer.MAX_VALUE}) {    //These two cases are equivalent here
 
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 10; i++) {
 
                 SameDiff sd = SameDiff.create();
 
@@ -132,6 +144,18 @@ public class GradCheckReductions {
                         loss = sd.prod("loss", msePerEx, dim);
                         name = "prod";
                         break;
+                    case 7:
+                        loss = sd.norm1("loss", msePerEx, dim);
+                        name = "norm1";
+                        break;
+                    case 8:
+                        loss = sd.norm2("loss", msePerEx, dim);
+                        name = "norm2";
+                        break;
+                    case 9:
+                        loss = sd.normmax("loss", msePerEx, dim);
+                        name = "normmax";
+                        break;
                     default:
                         throw new RuntimeException();
                 }
@@ -164,7 +188,7 @@ public class GradCheckReductions {
         int d2 = 5;
 
         for (int reduceDim : new int[]{0, 1, 2}) {
-            for (int i = 0; i < 7; i++) {
+            for (int i = 0; i < 10; i++) {
 
                 int[] outShape;
                 switch (reduceDim) {
@@ -222,6 +246,18 @@ public class GradCheckReductions {
                         reduced = sd.prod("reduced", second, reduceDim);
                         name = "prod";
                         break;
+                    case 7:
+                        reduced = sd.norm1("reduced", second, reduceDim);
+                        name = "norm1";
+                        break;
+                    case 8:
+                        reduced = sd.norm2("reduced", second, reduceDim);
+                        name = "norm2";
+                        break;
+                    case 9:
+                        reduced = sd.normmax("reduced", second, reduceDim);
+                        name = "normmax";
+                        break;
                     default:
                         throw new RuntimeException();
                 }
@@ -246,6 +282,16 @@ public class GradCheckReductions {
                 assertTrue(msg, ok);
             }
         }
+    }
+
+
+    @Test
+    public void testPairwiseReductions(){
+        /*
+        cosineSimilarity
+        euclideanDistance
+        manhattanDistance
+         */
     }
 
 
