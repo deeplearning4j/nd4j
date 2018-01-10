@@ -79,8 +79,8 @@ public class Pooling2D extends DynamicCustomOp {
         addIArgument(config.getDh());
         addIArgument(config.getDw());
         addIArgument(ArrayUtil.fromBoolean(config.isSameMode()));
+        addIArgument(config.getDivisor().ordinal());    //TODO is it 0-2 or 1-3 here???
         addIArgument((int) config.getExtra());
-        addIArgument(config.getDivisor().ordinal());
     }
 
     @Override
