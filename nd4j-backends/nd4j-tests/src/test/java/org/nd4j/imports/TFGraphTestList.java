@@ -30,7 +30,7 @@ public class TFGraphTestList {
 //            "add_n",
             //"ae",
             //"ae_00",
-            "bias_add",
+          //  "bias_add",
             //"norm_tests/norm_0",
             // "concat"
             // "conv_0",
@@ -62,7 +62,7 @@ public class TFGraphTestList {
             //  "stack",
             //  "stack_1d",
             //"stack_scalar",
-          //   "simple_cond"
+             "simple_cond",
             //"transform_0",
             //"transpose_00",
             "non2d_0"

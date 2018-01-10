@@ -347,7 +347,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
             if (isConst || isVar || isPlaceholder) {
-                val var = scopeLoop.var(tfNode.getName(), null,new ZeroInitScheme('f'));
+                val var = scopeLoop.var(tfNode.getName(), null,new ZeroInitScheme());
                 log.info("Adding body var [{}]",var.getVarName());
 
             } else {
