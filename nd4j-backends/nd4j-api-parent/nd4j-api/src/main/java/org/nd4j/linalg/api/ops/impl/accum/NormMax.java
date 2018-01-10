@@ -79,7 +79,16 @@ public class NormMax extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        SDVariable ret = f().doNormGrad(outputVariables()[0],i_v1.get(0),"normmax",dimensions);
+        //maxnorm(in) = max_i |x_i|
+        //d maxnorm(in)/dx = 0 if x_i is not the max, or d|x|/dx otherwise
+
+        SDVariable absIn = sameDiff.abs(arg());
+        SDVariable maxnorm = outputVariables()[0];
+        SDVariable maxnormBc = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, maxnorm);    //TODO Is NPE possible on getShape()?
+        maxnormBc = sameDiff.onesLike(arg()).mul(maxnormBc);
+        SDVariable eq = sameDiff.eq(absIn, maxnormBc);
+        SDVariable dAbsXdX = sameDiff.sign(arg());
+        SDVariable ret = eq.mul(dAbsXdX);
 
         return Collections.singletonList(ret);
     }

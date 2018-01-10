@@ -80,7 +80,11 @@ public class Norm2 extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        SDVariable ret = f().doNormGrad(outputVariables()[0],i_v1.get(0),"norm2",dimensions);
+        //d norm2(in)/dx = x / norm2(in)
+
+        SDVariable norm2 = outputVariables()[0];
+        SDVariable norm2bc = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, norm2);    //TODO Is NPE possible on getShape()??
+        SDVariable ret = arg().div(norm2bc).mul(i_v1.get(0));
 
         return Collections.singletonList(ret);
     }

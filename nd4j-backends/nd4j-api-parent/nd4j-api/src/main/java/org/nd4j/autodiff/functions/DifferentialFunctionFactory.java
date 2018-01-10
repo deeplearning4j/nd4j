@@ -185,37 +185,31 @@ public class DifferentialFunctionFactory   {
     }
 
     /**
-     * Handls gradient calculation
-     * for all nor types
-     * @param func
-     * @param input
-     * @param type
-     * @param axes
+     * Example: if doing [a,b,c].sum(1), result is [a,c]. To 'undo' this in a way that can be auto-broadcast,
+     * we want to expand as required - i.e., [a,c] -> [a,1,c] which can be auto-broadcast with the original [a,b,c]
+     *
+     * @param origRank
+     * @param reduceDims
+     * @param toExpand
      * @return
      */
-    public SDVariable doNormGrad(SDVariable func,
-                                 SDVariable input,
-                                 String type,
-                                 int... axes) {
+    public SDVariable reductionBroadcastableWithOrigShape(int origRank, int[] reduceDims, SDVariable toExpand){
+        int[] temp = ArrayUtil.nTimes(origRank, 1);
 
-        validateDifferentialFunctionsameDiff(func);
-        validateDifferentialFunctionsameDiff(input);
-        SDVariable result;
-        if(Shape.isWholeArray(axes)) {
-            result = input;
-        }
-        else if(axes.length > 1) {
-            if(axes[0] > axes[1]) {
-                axes[0]--;
+        if(Shape.isWholeArray(temp, reduceDims)){
+            //Output is [1,1] which is already broadcastable
+            return toExpand;
+        } else if(origRank == 2 && reduceDims.length == 1){
+            //In this case: [a,b] -> [1,b] or [a,b] -> [a,1]
+            //both are already broadcastable
+            return toExpand;
+        } else {
+            //Example: [a,b,c].sum(1) -> [a,c]... want [a,1,c]
+            for(int d : reduceDims){
+                toExpand = sameDiff().expandDims(toExpand, d);
             }
-
-            result = expandDims(expandDims(mul(div(func,input),func.args()[0]),axes[0]),axes[1]);
+            return toExpand;
         }
-        else {
-            result = expandDims(mul(div(func,input),func.args()[0]),axes[0]);
-        }
-
-        return result;
     }
 
 

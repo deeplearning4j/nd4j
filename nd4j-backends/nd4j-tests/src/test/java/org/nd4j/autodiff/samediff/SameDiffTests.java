@@ -101,7 +101,6 @@ public class SameDiffTests {
     public void testAddArgsAndOutput() {
         SameDiff sameDiff = SameDiff.create();
         val varOne = sameDiff.var("one",Nd4j.ones(2));
-
     }
 
 

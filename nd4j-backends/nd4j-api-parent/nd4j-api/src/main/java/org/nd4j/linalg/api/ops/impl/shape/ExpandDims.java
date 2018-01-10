@@ -48,6 +48,9 @@ public class ExpandDims extends DynamicCustomOp {
 
     public ExpandDims(SameDiff sameDiff, SDVariable[] args, int axis) {
         super(null, sameDiff, args);
+        if(axis == Integer.MAX_VALUE){
+            throw new IllegalArgumentException("Cannot perform ExpandDims with axis == Integer.MAX_VALUE");
+        }
         this.axis = axis;
         addIArgument(this.axis);
     }
