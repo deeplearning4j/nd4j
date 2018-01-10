@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @Slf4j
@@ -354,5 +355,25 @@ public class GradCheckReductions {
                     throw new RuntimeException();
             }
         }
+    }
+
+    @Test
+    public void testEq(){
+        SameDiff sd = SameDiff.create();
+        SDVariable ones = sd.var("in1", Nd4j.ones(3,4));
+        SDVariable linspace = sd.var("in2", Nd4j.linspace(1,12,12).reshape('c',3,4));
+        SDVariable eq = sd.eq("out", ones, linspace);
+        SDVariable sum = sd.sum(eq);
+
+        INDArray out = sd.execAndEndResult();
+
+        INDArray expEq = ones.getArr().eq(linspace.getArr());
+
+        assertEquals(expEq, eq.getArr());
+        assertEquals(Nd4j.ones(1,1), out);
+
+
+        //Backprop:
+        sd.execBackwards();
     }
 }

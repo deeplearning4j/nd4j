@@ -2,7 +2,7 @@ package org.nd4j.autodiff.gradcheck;
 
 import org.junit.Test;
 
-public class GradientCheckMisc {
+public class GradCheckMisc {
 
     @Test
     public void testMiscFunctions(){

@@ -1291,6 +1291,10 @@ public class SameDiff {
         return var(name,shape,new ConstantInitScheme('f',1.0));
     }
 
+    public SDVariable onesLike(SDVariable input){
+        return onesLike(null, input);
+    }
+
     public SDVariable onesLike(String name, SDVariable input){
         return f().onesLike(name, input);
     }
