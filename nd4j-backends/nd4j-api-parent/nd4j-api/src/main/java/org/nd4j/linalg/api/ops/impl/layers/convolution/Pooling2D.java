@@ -34,6 +34,16 @@ public class Pooling2D extends DynamicCustomOp {
         MAX, AVG, PNORM,
     }
 
+    /**
+     * Divisor mode for average pooling only. 3 modes are supported:
+     * MODE_0:
+     * MODE_1:
+     * INCLUDE_PADDING: Always do sum(window) / (kH*kW) even if padding is present.
+     */
+    public enum Divisor {
+        MODE_0, MODE_1, INCLUDE_PADDING
+    }
+
     public Pooling2D() {}
 
     @Builder(builderMethodName = "builder")
@@ -70,7 +80,7 @@ public class Pooling2D extends DynamicCustomOp {
         addIArgument(config.getDw());
         addIArgument(ArrayUtil.fromBoolean(config.isSameMode()));
         addIArgument((int) config.getExtra());
-
+        addIArgument(config.getDivisor().ordinal());
     }
 
     @Override
