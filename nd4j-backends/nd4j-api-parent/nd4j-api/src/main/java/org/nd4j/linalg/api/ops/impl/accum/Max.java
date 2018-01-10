@@ -103,21 +103,10 @@ public class Max extends BaseAccumulation {
         //TODO code duplication (min/max)
 
         SDVariable out = outputVariables()[0];
-        SDVariable expandedOut;
-        SDVariable expandedGrad;
-
-        if(dimensions.length == 1 && dimensions[0] == Integer.MAX_VALUE){
-            expandedOut = sameDiff.onesLike(arg()).mul(outputVariables()[0]);
-            expandedGrad = sameDiff.onesLike(arg()).mul(i_v1.get(0));
-        } else {
-            //TODO need to handle edge case - say reduce [3,4,5] on dims (0,1) gives [1,5] then expand([1,5],0,1) gives [1,1,1,5] NOT [1,1,5] as expected...
-            expandedOut = out;
-            expandedGrad = i_v1.get(0);
-            for (int d : dimensions) {
-                expandedOut = sameDiff.expandDims(expandedOut, d);
-                expandedGrad = sameDiff.expandDims(expandedGrad, d);
-            }
-        }
+        int[] argShape = arg().getShape();
+        SDVariable expandedOut = sameDiff.f().reductionBroadcastableWithOrigShape(argShape.length, dimensions, out);
+        expandedOut = sameDiff.onesLike(arg()).mul(expandedOut);
+        SDVariable expandedGrad = sameDiff.f().reductionBroadcastableWithOrigShape(argShape.length, dimensions, i_v1.get(0));
 
         SDVariable eq = sameDiff.eq(arg(), expandedOut);
         SDVariable ret = eq.mul(expandedGrad);

@@ -31,12 +31,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 27; i++) {
-
-//            if(i == 6 || i == 15 || i == 17 || i == 18){
-//                System.out.println("************** SKIPPING " + i + "****************");
-//                continue;
-//            }
+        for (int i = 0; i < 47; i++) {
 
             SameDiff sd = SameDiff.create();
 
@@ -257,8 +252,6 @@ public class GradCheckTransforms {
                     ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
                     expOut = ia.neq(2.0);
                     break;
-                case 47:
-
                 default:
                     throw new RuntimeException();
             }

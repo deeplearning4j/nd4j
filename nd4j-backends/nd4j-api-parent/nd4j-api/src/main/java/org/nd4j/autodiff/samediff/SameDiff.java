@@ -1311,6 +1311,10 @@ public class SameDiff {
         return var(name,shape,new ZeroInitScheme());
     }
 
+    public SDVariable zerosLike(SDVariable input){
+        return zerosLike(null, input);
+    }
+
     public SDVariable zerosLike(String name, SDVariable input){
         return f().zerosLike(name, input);
     }

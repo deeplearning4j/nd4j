@@ -85,7 +85,8 @@ public class Sum extends BaseAccumulation {
         //        = dL/dOut * 1
         // But broadcast to shape of the input
 
-        SDVariable ret = f().one(arg().getShape()).mul(i_v1.get(0));
+        SDVariable broadcastable = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, i_v1.get(0));
+        SDVariable ret = sameDiff.onesLike(arg()).mul(broadcastable);
         return Collections.singletonList(ret);
     }
 

@@ -100,7 +100,11 @@ public class Prod extends BaseAccumulation {
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         SDVariable prod = outputVariables()[0];
-        SDVariable ret = prod.div(arg()).mul(i_v1.get(0));
+//        SDVariable ret = prod.div(arg()).mul(i_v1.get(0));
+        SDVariable broadcastableGrad = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, i_v1.get(0));
+        SDVariable broadcastableProd = sameDiff.f().reductionBroadcastableWithOrigShape(arg().getShape().length, dimensions, prod);
+        SDVariable mul = broadcastableGrad.div(broadcastableProd);
+        SDVariable ret = arg().mul(mul);
 
         return Collections.singletonList(ret);
     }

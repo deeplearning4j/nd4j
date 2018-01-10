@@ -127,7 +127,7 @@ public class ZerosLike extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        SDVariable ret = outputVariables()[0];
+        SDVariable ret = sameDiff.zerosLike(outputVariables()[0]);
         return Collections.singletonList(ret);
     }
 

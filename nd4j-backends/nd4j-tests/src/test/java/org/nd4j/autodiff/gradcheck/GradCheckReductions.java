@@ -9,9 +9,10 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @Slf4j
 public class GradCheckReductions {
@@ -99,6 +100,8 @@ public class GradCheckReductions {
         //Test reductions: final, but *not* the only function
         Nd4j.getRandom().setSeed(12345);
 
+        List<String> allFailed = new ArrayList<>();
+
         for (int dim : new int[]{0, Integer.MAX_VALUE}) {    //These two cases are equivalent here
 
             for (int i = 0; i < 10; i++) {
@@ -162,7 +165,7 @@ public class GradCheckReductions {
                 }
 
 
-                String msg = "test: " + i + " - " + name + ", dimension=" + dim;
+                String msg = "(test " + i + " - " + name + ", dimension=" + dim + ")";
                 log.info("*** Starting test: " + msg);
 
                 INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
@@ -171,12 +174,51 @@ public class GradCheckReductions {
                 sd.associateArrayWithVariable(inputArr, input);
                 sd.associateArrayWithVariable(labelArr, label);
 
-                boolean ok = GradCheckUtil.checkGradients(sd);
+                try {
+                    INDArray out = sd.execAndEndResult();
+                    assertNotNull(out);
+                    assertArrayEquals(new int[]{1, 1}, out.shape());
 
+//                    System.out.println(sd.asFlatPrint());
 
-                assertTrue(msg, ok);
+                    boolean ok = GradCheckUtil.checkGradients(sd);
+                    if(!ok){
+                        allFailed.add(msg);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    allFailed.add(msg + " - EXCEPTION");
+                }
             }
         }
+
+        assertEquals("Failed: " + allFailed, 0, allFailed.size());
+    }
+
+
+    @Test
+    public void testMinDebug(){
+
+        Nd4j.getExecutioner().enableDebugMode(true);
+        Nd4j.getExecutioner().enableVerboseMode(true);
+
+        SameDiff sd = SameDiff.create();
+
+        int nOut = 4;
+        int minibatch = 10;
+        SDVariable input = sd.var("in", Nd4j.randn(minibatch, nOut).muli(100));
+        SDVariable label = sd.var("label", Nd4j.randn(minibatch, nOut).muli(100));
+
+        SDVariable diff = input.sub(label);
+        SDVariable sqDiff = diff.mul(diff);
+        SDVariable msePerEx = sd.mean("msePerEx", sqDiff, 1);
+
+        SDVariable loss = sd.min("loss", msePerEx, 0);
+
+        INDArray outArr = sd.execAndEndResult();
+
+        sd.execBackwards();
+
     }
 
     @Test
@@ -188,8 +230,13 @@ public class GradCheckReductions {
         int d1 = 4;
         int d2 = 5;
 
+        List<String> allFailed = new ArrayList<>();
         for (int reduceDim : new int[]{0, 1, 2}) {
             for (int i = 0; i < 10; i++) {
+
+                if(i != 6){
+                    continue;
+                }
 
                 int[] outShape;
                 switch (reduceDim) {
@@ -270,7 +317,7 @@ public class GradCheckReductions {
                 SDVariable mseLoss = sd.mean("loss", sqDiff);
 
 
-                String msg = "test: " + i + " - " + name + ", dimension=" + reduceDim;
+                String msg = "(test " + i + " - " + name + ", dimension=" + reduceDim + ")";
                 log.info("*** Starting test: " + msg);
 
                 INDArray inputArr = Nd4j.randn(new int[]{d0, d1, d2}).muli(1000);
@@ -278,11 +325,19 @@ public class GradCheckReductions {
                 sd.associateArrayWithVariable(inputArr, in);
                 sd.associateArrayWithVariable(labelArr, label);
 
-                boolean ok = GradCheckUtil.checkGradients(sd, 1e-5, 1e-5, 1e-4, true, false);
-
-                assertTrue(msg, ok);
+                try {
+                    boolean ok = GradCheckUtil.checkGradients(sd, 1e-5, 1e-5, 1e-4, true, false);
+                    if(!ok){
+                        allFailed.add(msg);
+                    }
+                } catch (Exception e){
+                    e.printStackTrace();
+                    allFailed.add(msg + " - EXCEPTION");
+                }
             }
         }
+
+        assertEquals("Failed: " + allFailed, 0, allFailed.size());
     }
 
 
@@ -293,87 +348,9 @@ public class GradCheckReductions {
         euclideanDistance
         manhattanDistance
          */
+        fail("Not yet implemented");
     }
 
 
-    @Test
-    public void testReductionDebug() {
-        Nd4j.getRandom().setSeed(12345);
 
-        int d0 = 3;
-        int d1 = 4;
-        int d2 = 5;
-
-        int reduceDim = 0;
-        int[] outShape = new int[]{d1, d2};
-
-        SameDiff sd = SameDiff.create();
-
-        SDVariable in = sd.var("in", new int[]{-1, d1, d2});
-        SDVariable label = sd.var("label", outShape);
-        SDVariable second = in.mul(2);
-
-        SDVariable reduced = sd.min("reduced", second, reduceDim);    //EXCEPTION
-//        SDVariable reduced = sd.mean("reduced", second, reduceDim); //OK
-//        SDVariable reduced = sd.standardDeviation("reduced", second, true, reduceDim);    //OK
-//        SDVariable reduced = sd.max("reduced", second, reduceDim);  //EXCEPTION
-
-        SDVariable add = reduced.add(1.0);
-
-        SDVariable diff = label.sub(add);
-        SDVariable sqDiff = diff.mul(diff);
-        SDVariable mseLoss = sd.mean("loss", sqDiff);
-
-        INDArray inputArr = Nd4j.rand(new int[]{d0, d1, d2});
-        INDArray labelArr = Nd4j.randn(outShape);
-        sd.associateArrayWithVariable(inputArr, in);
-        sd.associateArrayWithVariable(labelArr, label);
-
-        INDArray out = sd.execAndEndResult();
-        sd.execBackwards();
-    }
-
-    @Test
-    public void testExpandDims(){
-        for( int i=0; i<=2; i++ ) {
-            SameDiff sd = SameDiff.create();
-            SDVariable in = sd.var("in", Nd4j.create(2, 3));
-            SDVariable expanded = sd.f().expandDims(in, 1);
-
-            INDArray out = sd.execAndEndResult();
-            switch (i){
-                case 0:
-                    assertArrayEquals(new int[]{1,2,3}, out.shape());
-                    break;
-                case 1:
-                    assertArrayEquals(new int[]{2,1,3}, out.shape());
-                    break;
-                case 2:
-                    assertArrayEquals(new int[]{2,3,1}, out.shape());
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
-        }
-    }
-
-    @Test
-    public void testEq(){
-        SameDiff sd = SameDiff.create();
-        SDVariable ones = sd.var("in1", Nd4j.ones(3,4));
-        SDVariable linspace = sd.var("in2", Nd4j.linspace(1,12,12).reshape('c',3,4));
-        SDVariable eq = sd.eq("out", ones, linspace);
-        SDVariable sum = sd.sum(eq);
-
-        INDArray out = sd.execAndEndResult();
-
-        INDArray expEq = ones.getArr().eq(linspace.getArr());
-
-        assertEquals(expEq, eq.getArr());
-        assertEquals(Nd4j.ones(1,1), out);
-
-
-        //Backprop:
-        sd.execBackwards();
-    }
 }

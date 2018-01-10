@@ -2207,5 +2207,20 @@ public class SameDiffTests {
         INDArray out2 = sd.execAndEndResult();
         assertEquals(Nd4j.ones(4,5), out2);
     }
+
+    @Test
+    public void testOnesLikeBackprop(){
+        SameDiff sd = SameDiff.create();
+        SDVariable var0 = sd.var("in", new int[]{3,4});
+        SDVariable ones = sd.onesLike("ones", var0);
+        SDVariable out = sd.sum("oun", ones);
+
+        INDArray outArr = sd.execAndEndResult();
+        assertEquals(Nd4j.valueArrayOf(1, 12.0), outArr);
+
+        sd.execBackwards();
+
+        assertEquals(Nd4j.create(3,4), sd.grad("in").getArr());
+    }
 }
 
