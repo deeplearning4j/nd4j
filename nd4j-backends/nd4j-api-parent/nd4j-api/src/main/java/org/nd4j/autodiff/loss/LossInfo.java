@@ -4,6 +4,11 @@ import lombok.Builder;
 import lombok.Getter;
 import org.nd4j.autodiff.samediff.SDVariable;
 
+/**
+ * Information and variables for a loss function. Used with {@link LossFunctions}
+ *
+ * @author Alex Black
+ */
 @Builder(builderClassName = "Builder")
 @Getter
 public class LossInfo {

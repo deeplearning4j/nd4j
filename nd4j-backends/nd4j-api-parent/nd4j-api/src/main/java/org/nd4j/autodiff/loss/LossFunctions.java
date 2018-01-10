@@ -4,6 +4,11 @@ import com.google.common.base.Preconditions;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 
+/**
+ * SameDiff loss functions
+ *
+ * @author Alex Black
+ */
 public class LossFunctions {
 
     private static final int[] SCALAR = new int[]{1,1};
@@ -69,6 +74,18 @@ public class LossFunctions {
     }
 
 
+    /**
+     * Mean squared error: L = mean( (predicted - label)^2)
+     *
+     * @param outputName  Name of the output SDVariable
+     * @param predictions Predictions variable
+     * @param label       Label variable
+     * @param weights     Weights array. May be null, or any broadcastable shape (with predictions/label arrays).
+     *                    Note that this is also used for masking (weight of 0 = 'masked out')
+     * @param reduction   Type of reduction to perform for the loss function
+     * @param dimensions  Dimension(s) to apply the loss function on
+     * @return LossInfo - bean with variables etc for the loss function
+     */
     public static LossInfo mse(String outputName, SDVariable predictions, SDVariable label, SDVariable weights,
                                Reduction reduction, int... dimensions){
         LossInfo.Builder b = validate("mse", predictions, label, reduction);
@@ -173,17 +190,36 @@ public class LossFunctions {
     }
 
 
-
-
+    /**
+     * Determine the number of weight entries that are non-zero, after broadcasting
+     *
+     * @param weights
+     * @param labels
+     * @return
+     */
     private static SDVariable nonZeroCount(SDVariable weights, SDVariable labels){
         SameDiff sd = weights.getSameDiff();
 
         SDVariable present = sd.neq(weights, 0.0);
-        SDVariable presentBroadcast = sd.zerosLike("temp", labels).add(present);
+        SDVariable presentBroadcast = sd.zerosLike(labels).add(present);
 
         return sd.sum(presentBroadcast);
     }
 
+    /**
+     * Perform the final reduction on the loss function
+     *
+     * @param sd
+     * @param outputName
+     * @param isMean
+     * @param b
+     * @param reduction
+     * @param preReduceLoss
+     * @param label
+     * @param weights
+     * @param dimensions
+     * @return
+     */
     private static LossInfo doReduce(SameDiff sd, String outputName, boolean isMean, LossInfo.Builder b, Reduction reduction,
                           SDVariable preReduceLoss, SDVariable label, SDVariable weights, int[] dimensions){
         switch (reduction){

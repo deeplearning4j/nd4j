@@ -224,8 +224,23 @@ public class Shape {
      * {@link Integer#MAX_VALUE}
      */
     public static boolean isWholeArray(int[] shape, int... dimension) {
+        return isWholeArray(shape.length, dimension);
+    }
+
+    /**
+     * Returns true if the dimension is null
+     * or the dimension length is 1 and the first entry
+     * is {@link Integer#MAX_VALUE}
+     * @param rank the rank of the input array
+     * @param dimension the dimensions specified
+     *
+     * @return true if the dimension length is equal to the rank,
+     * the dimension is null or the dimension length is 1 and the first entry is
+     * {@link Integer#MAX_VALUE}
+     */
+    public static boolean isWholeArray(int rank, int... dimension){
         return dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)
-                || dimension.length == shape.length;
+                || dimension.length == rank;
     }
 
     /**

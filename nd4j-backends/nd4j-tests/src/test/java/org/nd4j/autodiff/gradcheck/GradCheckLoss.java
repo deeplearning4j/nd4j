@@ -89,42 +89,4 @@ public class GradCheckLoss {
             assertTrue(msg, ok);
         }
     }
-
-
-    @Test
-    public void testDebugMSE(){
-
-        SameDiff sd = SameDiff.create();
-
-        int nOut = 4;
-        int minibatch = 10;
-        SDVariable predictions = sd.var("in", new int[]{-1, nOut});
-        SDVariable label = sd.var("labels", new int[]{-1, nOut});
-        SDVariable weights = sd.one("weights", new int[]{1,1});
-
-        INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
-        INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
-
-        sd.associateArrayWithVariable(inputArr, predictions);
-        sd.associateArrayWithVariable(labelsArr, label);
-
-        SDVariable diff = predictions.sub(label);
-        SDVariable preReduceLoss = sd.square(diff).mul(null, weights);
-
-
-        SDVariable present = sd.neq(weights, 0.0);
-        SDVariable presentBroadcast = sd.zerosLike("temp", label).add(present);
-        SDVariable nonZeroWeights = sd.sum(presentBroadcast);
-
-        SDVariable r = sd.sum(preReduceLoss);
-        SDVariable out = r.div("out", nonZeroWeights);
-
-        INDArray outArr = sd.execAndEndResult();
-
-        sd.execBackwards();
-
-        //Checking expected gradients:
-
-    }
-
 }

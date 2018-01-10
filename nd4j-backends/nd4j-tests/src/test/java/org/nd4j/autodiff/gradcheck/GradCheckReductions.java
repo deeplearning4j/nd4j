@@ -195,32 +195,6 @@ public class GradCheckReductions {
         assertEquals("Failed: " + allFailed, 0, allFailed.size());
     }
 
-
-    @Test
-    public void testMinDebug(){
-
-        Nd4j.getExecutioner().enableDebugMode(true);
-        Nd4j.getExecutioner().enableVerboseMode(true);
-
-        SameDiff sd = SameDiff.create();
-
-        int nOut = 4;
-        int minibatch = 10;
-        SDVariable input = sd.var("in", Nd4j.randn(minibatch, nOut).muli(100));
-        SDVariable label = sd.var("label", Nd4j.randn(minibatch, nOut).muli(100));
-
-        SDVariable diff = input.sub(label);
-        SDVariable sqDiff = diff.mul(diff);
-        SDVariable msePerEx = sd.mean("msePerEx", sqDiff, 1);
-
-        SDVariable loss = sd.min("loss", msePerEx, 0);
-
-        INDArray outArr = sd.execAndEndResult();
-
-        sd.execBackwards();
-
-    }
-
     @Test
     public void testReductionGradients2() {
         //Test reductions: NON-final function
@@ -342,7 +316,7 @@ public class GradCheckReductions {
 
 
     @Test
-    public void testPairwiseReductions(){
+    public void testReduce3(){
         /*
         cosineSimilarity
         euclideanDistance

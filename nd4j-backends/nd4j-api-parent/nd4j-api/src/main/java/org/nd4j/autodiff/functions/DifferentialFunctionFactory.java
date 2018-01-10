@@ -185,18 +185,19 @@ public class DifferentialFunctionFactory   {
     }
 
     /**
-     * Example: if doing [a,b,c].sum(1), result is [a,c]. To 'undo' this in a way that can be auto-broadcast,
-     * we want to expand as required - i.e., [a,c] -> [a,1,c] which can be auto-broadcast with the original [a,b,c]
+     * Add 1s as required to the array make an array possible to be broadcast with the original (pre-reduce) array.
      *
-     * @param origRank
-     * @param reduceDims
-     * @param toExpand
-     * @return
+     * Example: if doing [a,b,c].sum(1), result is [a,c]. To 'undo' this in a way that can be auto-broadcast,
+     * we want to expand as required - i.e., [a,c] -> [a,1,c] which can be auto-broadcast with the original [a,b,c].
+     * This is typically only used with reduction operations backprop.
+     *
+     * @param origRank   Rank of the original array, before the reduction was executed
+     * @param reduceDims Dimensions that the original array was reduced from
+     * @param toExpand   Array to add 1s to the shape to (such that it can be
+     * @return Reshaped array.
      */
     public SDVariable reductionBroadcastableWithOrigShape(int origRank, int[] reduceDims, SDVariable toExpand){
-        int[] temp = ArrayUtil.nTimes(origRank, 1);
-
-        if(Shape.isWholeArray(temp, reduceDims)){
+        if(Shape.isWholeArray(origRank, reduceDims)){
             //Output is [1,1] which is already broadcastable
             return toExpand;
         } else if(origRank == 2 && reduceDims.length == 1){

@@ -1,6 +1,6 @@
 /*-
  *
- *  * Copyright 2015 Skymind,Inc.
+ *  * Copyright 2017 Skymind,Inc.
  *  *
  *  *    Licensed under the Apache License, Version 2.0 (the "License");
  *  *    you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Reshape function
+ * OnesLike function - gives an output array with all values/entries being 1, with the same shape as the input.
  *
- * @author Adam Gibson
+ * @author Alex Black
  */
 @Slf4j
 public class OnesLike extends DynamicCustomOp {

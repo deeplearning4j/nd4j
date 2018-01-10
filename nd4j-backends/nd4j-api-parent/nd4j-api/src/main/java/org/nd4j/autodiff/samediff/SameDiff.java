@@ -1291,10 +1291,22 @@ public class SameDiff {
         return var(name,shape,new ConstantInitScheme('f',1.0));
     }
 
+    /**
+     * Return a variable of all 1s, with the same shape as the input
+     *
+     * @param input
+     * @return
+     */
     public SDVariable onesLike(SDVariable input){
         return onesLike(null, input);
     }
 
+    /**
+     * Return a variable of all 1s, with the same shape as the input
+     *
+     * @param input
+     * @return
+     */
     public SDVariable onesLike(String name, SDVariable input){
         return f().onesLike(name, input);
     }
@@ -1311,10 +1323,22 @@ public class SameDiff {
         return var(name,shape,new ZeroInitScheme());
     }
 
+    /**
+     * Return a variable of all 0s with the same shape as the input
+     *
+     * @param input
+     * @return
+     */
     public SDVariable zerosLike(SDVariable input){
         return zerosLike(null, input);
     }
 
+    /**
+     * Return a variable of all 0s, with the same shape as the input
+     *
+     * @param input
+     * @return
+     */
     public SDVariable zerosLike(String name, SDVariable input){
         return f().zerosLike(name, input);
     }
@@ -4673,7 +4697,7 @@ public class SameDiff {
         }
 
 
-//        log.info("Executing op " + differentialFunction.opName());
+        log.info("Executing op " + differentialFunction.opName());
 
         StringBuilder realShapes = new StringBuilder();
         for(val arg: differentialFunction.args()) {
@@ -4687,7 +4711,7 @@ public class SameDiff {
         }
 
 
-//        log.info(realShapes.toString());
+        log.info(realShapes.toString());
     }
 
 
