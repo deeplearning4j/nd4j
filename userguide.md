@@ -35,6 +35,7 @@ This user guide is designed to explain (and provide examples for) the main funct
   * Permute
   * sortRows/sortColumns
   * Directly accessing BLAS operations
+* <a href="#serialization">Serialization</a>
 * <a href="#quickref">Quick Reference: A Summary Overview of ND4J Methods</a>
 * <a href="#faq">FAQ: Frequently Asked Questions</a>
 
@@ -615,8 +616,15 @@ Nd4j also provides overloaded toFlattened methods with the default ordering. The
 
 ### Serialization
 
-[This section: Forthcoming.]
+Nd4j provides serialization of INDArrays through the Nd4j.write and Nd4j.read methods:
+```java
+        INDArray arr1 = Nd4j.linspace(1,10,10);
+        DataOutputStream sWrite = new DataOutputStream(new FileOutputStream(new File("tmp.bin")));
+        Nd4j.write(arr1,sWrite);
 
+        DataInputStream sRead = new DataInputStream(new FileInputStream(new File("tmp.bin")));
+        INDArray arr2 = Nd4j.read(sRead);
+```
 
 ## <a name="quickref">Quick Reference: A Summary Overview of ND4J Methods</a>
 
