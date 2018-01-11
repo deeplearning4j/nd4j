@@ -35,6 +35,7 @@ This user guide is designed to explain (and provide examples for) the main funct
   * Permute
   * sortRows/sortColumns
   * Directly accessing BLAS operations
+* <a href="#serialization">Serialization</a>
 * <a href="#quickref">Quick Reference: A Summary Overview of ND4J Methods</a>
 * <a href="#faq">FAQ: Frequently Asked Questions</a>
 
@@ -167,7 +168,114 @@ Two methods for combining NDArrays are `Nd4j.hstack(INDArray...)` and `Nd4j.vsta
 
 `hstack` (horizontal stack) takes as argument a number of matrices that have the same number of rows, and stacks them horizontally to produce a new array. The input NDArrays can have a different number of columns, however.
 
+Example:
+
+```
+int nRows = 2;
+int nColumns = 2;
+// Create INDArray of zeros
+INDArray zeros = Nd4j.zeros(nRows, nColumns);
+// Create one of all ones
+INDArray ones = Nd4j.ones(nRows, nColumns);
+//hstack
+INDArray hstack = Nd4j.hstack(ones,zeros);
+System.out.println("### HSTACK ####");
+System.out.println(hstack);
+
+```
+
+Output:
+
+```
+### HSTACK ####
+[[1.00, 1.00, 0.00, 0.00],
+[1.00, 1.00, 0.00, 0.00]]
+```
+
 `vstack` (vertical stack) is the vertical equivalent of hstack. The input arrays must have the same number of columns.
+
+Example:
+
+```
+int nRows = 2;
+int nColumns = 2;
+// Create INDArray of zeros
+INDArray zeros = Nd4j.zeros(nRows, nColumns);
+// Create one of all ones
+INDArray ones = Nd4j.ones(nRows, nColumns);
+//vstack
+INDArray vstack = Nd4j.vstack(ones,zeros);
+System.out.println("### VSTACK ####");
+System.out.println(vstack);
+```
+
+Output:
+
+```
+### VSTACK ####
+[[1.00, 1.00],
+ [1.00, 1.00],
+ [0.00, 0.00],
+ [0.00, 0.00]]
+```
+
+`ND4J.concat` combines arrays along a dimension. 
+
+Example:
+
+```
+int nRows = 2;
+int nColumns = 2;
+//INDArray of zeros
+INDArray zeros = Nd4j.zeros(nRows, nColumns);
+// Create one of all ones
+INDArray ones = Nd4j.ones(nRows, nColumns);
+// Concat on dimension 0
+INDArray combined = Nd4j.concat(0,zeros,ones);
+System.out.println("### COMBINED dimension 0####");
+System.out.println(combined);
+//Concat on dimension 1
+INDArray combined2 = Nd4j.concat(1,zeros,ones);
+System.out.println("### COMBINED dimension 1 ####");
+System.out.println(combined2);
+```
+
+Output:
+```
+### COMBINED dimension 0####
+[[0.00, 0.00],
+ [0.00, 0.00],
+ [1.00, 1.00],
+ [1.00, 1.00]]
+### COMBINED dimension 1 ####
+[[0.00, 0.00, 1.00, 1.00],
+ [0.00, 0.00, 1.00, 1.00]]
+```
+
+`ND4J.pad` is used to pad an array.
+
+Example:
+```
+int nRows = 2;
+int nColumns = 2;
+// Create INDArray of all ones
+INDArray ones = Nd4j.ones(nRows, nColumns);
+// pad the INDArray
+INDArray padded = Nd4j.pad(ones, new int[]{1,1}, Nd4j.PadMode.CONSTANT );
+System.out.println("### Padded ####");
+System.out.println(padded);
+```
+
+Output:
+
+
+```
+### Padded ####
+[[0.00, 0.00, 0.00, 0.00],
+ [0.00, 1.00, 1.00, 0.00],
+ [0.00, 1.00, 1.00, 0.00],
+ [0.00, 0.00, 0.00, 0.00]]
+```
 
 
 One other method that can occasionally be useful is `Nd4j.diag(INDArray in)`. This method has two uses, depending on the argument `in`:
@@ -428,7 +536,7 @@ Suppose this was executed on a 3x3 input array. Visually, this argmax/IAMax oper
 
 ![Argmax / IAMax](../img/argmax_dim0.png)
 
-As with the accumulation op described above, the output has shape `[1,3]`. Again, had we instead done the operation along dimension 1, we would get a column vector with shape `[3,1]`, with values `(2,0,2)`.
+As with the accumulation op described above, the output has shape `[1,3]`. Again, had we instead done the operation along dimension 1, we would get a column vector with shape `[3,1]`, with values `(1,0,2)`.
 
 
 ### <a name="opsbroadcast">Broadcast and Vector Ops</a>
@@ -460,18 +568,15 @@ As with other ops, there are inplace and copy versions. There are also column co
 
 ND4J currently allows INDArrays to be backed by either float or double-precision values. The default is single-precision (float). To set the order that ND4J uses for arrays globally to double precision, you can use:
 
-For 0.4-rc3.8 and earlier:
-
 ```java
-Nd4j.dtype = DataBuffer.Type.DOUBLE;
-NDArrayFactory factory = Nd4j.factory();
-factory.setDType(DataBuffer.Type.DOUBLE);
+Nd4j.setDataType(DataBuffer.Type.DOUBLE);
 ```
 
-For 0.4-rc3.9 and later:
+Note that this should be done before using ND4J operations or creating arrays.
 
-```java
-DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+Alternatively, you can set the property when launching the JVM:
+```
+-Ddtype=double
 ```
 
 
@@ -511,8 +616,15 @@ Nd4j also provides overloaded toFlattened methods with the default ordering. The
 
 ### Serialization
 
-[This section: Forthcoming.]
+Nd4j provides serialization of INDArrays through the Nd4j.write and Nd4j.read methods:
+```java
+        INDArray arr1 = Nd4j.linspace(1,10,10);
+        DataOutputStream sWrite = new DataOutputStream(new FileOutputStream(new File("tmp.bin")));
+        Nd4j.write(arr1,sWrite);
 
+        DataInputStream sRead = new DataInputStream(new FileInputStream(new File("tmp.bin")));
+        INDArray arr2 = Nd4j.read(sRead);
+```
 
 ## <a name="quickref">Quick Reference: A Summary Overview of ND4J Methods</a>
 
