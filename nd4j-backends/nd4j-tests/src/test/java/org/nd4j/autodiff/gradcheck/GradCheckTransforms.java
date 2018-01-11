@@ -314,12 +314,6 @@ public class GradCheckTransforms {
 
         List<String> allFailed = new ArrayList<>();
         for (int i = 0; i < 16; i++) {
-
-            if(i == 12){
-                System.out.println("********** SKIPPING " + i);
-                continue;
-            }
-
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;
