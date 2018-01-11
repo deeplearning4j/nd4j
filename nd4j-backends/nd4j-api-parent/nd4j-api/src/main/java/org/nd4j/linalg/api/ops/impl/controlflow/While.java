@@ -214,7 +214,7 @@ public class While extends DifferentialFunction implements CustomOp {
             val vars = new SDVariable[tfNode.getInputCount()];
             for (int e = 0; e < tfNode.getInputCount(); e++) {
                 val input = TFGraphMapper.getInstance().getNodeName(tfNode.getInput(e));
-                vars[e] = initWith.getVariable(input) == null ? initWith.var(input,null,new ZeroInitScheme('f')) : initWith.getVariable(input);
+                vars[e] = initWith.getVariable(input) == null ? initWith.var(input,null,new ZeroInitScheme()) : initWith.getVariable(input);
                 scopeCondition.var(vars[e]);
                 scopeLoop.var(vars[e]);
             }

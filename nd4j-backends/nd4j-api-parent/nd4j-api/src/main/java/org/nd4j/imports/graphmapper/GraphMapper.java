@@ -29,6 +29,15 @@ public interface GraphMapper<GRAPH_TYPE,NODE_TYPE,ATTR_TYPE,TENSOR_TYPE> {
 
 
     /**
+     * Get the nodes sorted by n ame
+     * from a given graph
+     * @param graph the graph to get the nodes for
+     * @return the map of the nodes by name
+     * for a given graph
+     */
+    Map<String,NODE_TYPE> nodesByName(GRAPH_TYPE graph);
+
+    /**
      * Get the target mapping key (usually based on the node name)
      * for the given function
      * @param function the function

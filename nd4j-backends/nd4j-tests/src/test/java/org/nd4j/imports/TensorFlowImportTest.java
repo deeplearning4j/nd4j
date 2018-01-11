@@ -46,6 +46,17 @@ public class TensorFlowImportTest {
 
 
 
+    @Test
+    public void testIfStatementNodes() throws Exception {
+        // /home/agibsonccc/code/dl4j-test-resources/src/main/resources/tf_graphs/examples/simple_cond/frozen_graph.pbtxt
+        val resourceInputStream = new ClassPathResource("/tf_graphs/examples/simple_cond/frozen_model.pb").getInputStream();
+        val mapper = TFGraphMapper.getInstance();
+        val readGraph = TFGraphMapper.getInstance().parseGraphFrom(resourceInputStream);
+        val nodes = mapper.nodesByName(readGraph);
+        val firstInput = nodes.get("cond5/pred_id");
+        mapper.nodesForIf(firstInput,readGraph);
+    }
+
 
     @Test
     public void testHashEquality1() {

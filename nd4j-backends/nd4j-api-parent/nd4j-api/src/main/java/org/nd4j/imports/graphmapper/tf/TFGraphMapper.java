@@ -13,6 +13,7 @@ import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.impl.controlflow.IfImportState;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -146,7 +147,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         else {
             val tfMappingAttrName = mapping.getTfAttrName();
             if(tfMappingAttrName == null) {
-               return;
+                return;
             }
 
             if(!node.containsAttr(tfMappingAttrName)) {
@@ -531,7 +532,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         //if(dims == 1) {
         //    dimensions.add(1);
         //    dimensions.add( (int) Math.max(1,tfTensor.getTensorShape().getDim(0).getSize()));
-       // }
+        // }
 
         for (int e = 0; e < dims; e++) {
             // TODO: eventually we want long shapes :(
@@ -726,6 +727,58 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         }
 
         return shape;
+    }
+
+
+
+    public IfImportState nodesForIf(NodeDef from, GraphDef graph) {
+        val nodesByName = nodesByName(graph);
+        int currNodeIndex = graph.getNodeList().indexOf(from);
+        List<NodeDef> condNodes = new ArrayList<>();
+
+        //The first node should be pred_id. This is the condition.
+        //Any inputs (and inputs inputs all the way to the top of the tree)
+        //should be considered as part of the condition scope
+        NodeDef current = from;
+        addNodesForInput(nodesByName,condNodes,current);
+        Collections.reverse(condNodes);
+
+        List<NodeDef> trueBodyNodes =  new ArrayList<>();
+        val trueBodyScope = graph.getNodeList().get(currNodeIndex + 1);
+        addNodesForInput(nodesByName,trueBodyNodes,trueBodyScope);
+        Collections.reverse(trueBodyNodes);
+
+        List<NodeDef> falseBodyNodes = new ArrayList<>();
+        val falseBodyScope = graph.getNodeList().get(currNodeIndex + 2);
+        addNodesForInput(nodesByName,falseBodyNodes,falseBodyScope);
+        Collections.reverse(falseBodyNodes);
+
+
+        return IfImportState.builder().condNodes(condNodes).falseNodes(falseBodyNodes).trueNodes(trueBodyNodes).build();
+    }
+
+
+    private void addNodesForInput(Map<String,NodeDef> nodesByName,List<NodeDef> nodes,NodeDef current) {
+        if(!nodes.contains(current))
+            nodes.add(current);
+
+
+        for(int i = 0; i < current.getInputCount(); i++) {
+            val node = nodesByName.get(current.getInput(i));
+            if(node.getInputCount() > 0)  {
+                addNodesForInput(nodesByName,nodes,node);
+            }
+
+            if(!nodes.contains(node))
+                nodes.add(node);
+
+
+
+
+
+        }
+
+
     }
 
 }

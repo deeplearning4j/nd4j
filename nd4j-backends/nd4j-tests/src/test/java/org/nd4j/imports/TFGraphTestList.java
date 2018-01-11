@@ -65,7 +65,7 @@ public class TFGraphTestList {
              "simple_cond",
             //"transform_0",
             //"transpose_00",
-            "non2d_0"
+            //"non2d_0"
              // "unstack"
     };
 
