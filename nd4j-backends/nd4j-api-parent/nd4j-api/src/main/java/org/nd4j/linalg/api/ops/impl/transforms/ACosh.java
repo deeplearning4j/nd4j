@@ -91,7 +91,6 @@ public class ACosh extends BaseTransformOp {
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
         //dacosh(x)/dx = 1/(sqrt(x-1)*sqrt(x+1)) -- note that domain is x >= 1
-
         SDVariable first = f().sqrt(arg().sub(1.0));
         SDVariable second = f().sqrt(arg().add(1.0));
         SDVariable ret = i_v.get(0).div(first.mul(second));
