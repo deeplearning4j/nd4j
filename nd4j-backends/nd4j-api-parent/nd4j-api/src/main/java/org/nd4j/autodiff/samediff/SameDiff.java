@@ -3062,12 +3062,9 @@ public class SameDiff {
      * @param cutoff
      * @return
      */
-    public SDVariable leakyReluDerivative(String name,SDVariable iX, SDVariable wrt,double cutoff) {
-        SDVariable result = functionFactory.leakyReluDerivative(iX,
-                wrt,
-                cutoff);
+    public SDVariable leakyReluDerivative(String name,SDVariable iX,double cutoff) {
+        SDVariable result = functionFactory.leakyReluDerivative(iX, cutoff);
         return updateVariableNameAndReference(result,name);
-
     }
 
 

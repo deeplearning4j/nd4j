@@ -318,9 +318,6 @@ public class DifferentialFunctionFactory   {
         return new Log(sameDiff(),iX,null).outputVariables()[0];
     }
 
-
-
-
     public SDVariable or(SDVariable iX, SDVariable i_y) {
         return new Or(sameDiff(),iX,i_y).outputVariables()[0];
     }
@@ -335,33 +332,24 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable neq(SDVariable iX, double i_y) {
         return new ScalarNotEquals(sameDiff(),iX,i_y).outputVariables()[0];
-
     }
 
 
     public SDVariable neqi(SDVariable iX, double i_y) {
         return new ScalarNotEquals(sameDiff(),iX,i_y,true).outputVariables()[0];
-
     }
-
 
 
     public SDVariable neqi(SDVariable iX, SDVariable i_y) {
         return new NotEqualTo(sameDiff(),new SDVariable[]{iX,i_y},true).outputVariables()[0];
-
     }
 
     public SDVariable neq(SDVariable iX, SDVariable i_y) {
         return new NotEqualTo(sameDiff(),new SDVariable[]{iX,i_y},false).outputVariables()[0];
-
     }
-
-
-
 
     public SDVariable pow(SDVariable iX, double i_y) {
         return new Pow(sameDiff(),iX,false,i_y).outputVariables()[0];
-
     }
 
 
@@ -394,8 +382,6 @@ public class DifferentialFunctionFactory   {
     }
 
 
-
-
     public SDVariable softmax(SDVariable iX) {
         return new SoftMax(sameDiff(),new SDVariable[]{iX}).outputVariables()[0];
     }
@@ -425,7 +411,6 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable logSigmoid(SDVariable iX) {
         return new LogSigmoid(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
@@ -440,19 +425,17 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable swish(SDVariable iX) {
         return new Swish(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
-    public SDVariable swishDerivative(SDVariable iX, SDVariable wrt) {
-        return new SwishDerivative(sameDiff(),iX,wrt).outputVariables()[0];
+    public SDVariable swishDerivative(SDVariable iX) {
+        return new SwishDerivative(sameDiff(),iX,false).outputVariables()[0];
     }
 
 
 
     public SDVariable sign(SDVariable iX) {
         return new Sign(sameDiff(),iX,null).outputVariables()[0];
-
     }
 
 
@@ -485,10 +468,6 @@ public class DifferentialFunctionFactory   {
     }
 
 
-
-
-
-
     public SDVariable softplus(SDVariable iX) {
         return new SoftPlus(sameDiff(),iX,null).outputVariables()[0];
 
@@ -502,15 +481,10 @@ public class DifferentialFunctionFactory   {
     }
 
 
-
-
     public SDVariable eluDerivative(SDVariable iX) {
         return new ELUDerivative(sameDiff(),iX,null).outputVariables()[0];
 
     }
-
-
-
 
 
     public SDVariable leakyRelu(SDVariable iX, double cutoff) {
@@ -518,12 +492,8 @@ public class DifferentialFunctionFactory   {
 
     }
 
-
-
-
-    public SDVariable leakyReluDerivative(SDVariable iX, SDVariable iY, double cutoff) {
-        return new LeakyReLUDerivative(sameDiff(),iX,iY,cutoff).outputVariables()[0];
-
+    public SDVariable leakyReluDerivative(SDVariable iX, double cutoff) {
+        return new LeakyReLUDerivative(sameDiff(),iX,false,cutoff).outputVariables()[0];
     }
 
 
