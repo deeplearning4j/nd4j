@@ -270,7 +270,10 @@ public class GradCheckTransforms {
             sd.exec();
             INDArray out = t.getArr();
 
-            assertEquals(msg, expOut, out);
+            if(!expOut.equals(out)){
+                allFailed.add(msg + " - FAILED ON FORWARD");
+                continue;
+            }
 
             boolean ok;
             try{
