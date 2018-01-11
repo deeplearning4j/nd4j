@@ -151,19 +151,26 @@ public class DifferentialFunctionFactory   {
                                boolean biasCorrected,
                                int... dimensions) {
         return new  Variance(sameDiff(),i_x,dimensions,biasCorrected).outputVariables()[0];
-
     }
 
 
     public SDVariable max(SDVariable i_x, int... dimensions) {
         return new Max(sameDiff(),i_x,dimensions).outputVariables()[0];
+    }
 
+    public SDVariable max(SDVariable first, SDVariable second){
+        return new org.nd4j.linalg.api.ops.impl.transforms.comparison.Max(sameDiff(), first, second)
+                .outputVariables()[0];
     }
 
 
     public SDVariable min(SDVariable i_x, int... dimensions) {
         return new Min(sameDiff(),i_x,dimensions).outputVariables()[0];
+    }
 
+    public SDVariable min(SDVariable first, SDVariable second){
+        return new org.nd4j.linalg.api.ops.impl.transforms.comparison.Min(sameDiff(), first, second)
+                .outputVariables()[0];
     }
 
 

@@ -11,6 +11,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.GreaterThanOrEqual;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMax;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMin;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
@@ -302,7 +304,8 @@ public class GradCheckTransforms {
     public void testPairwiseTransforms(){
         /*
         add, sub, mul, div, rsub, rdiv
-        or, eq, neq, gt, lt, gte, lte,
+        eq, neq, gt, lt, gte, lte, or,
+        min, max
         mmul
         tensormmul
          */
@@ -310,7 +313,12 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 13; i++) {
+        for (int i = 0; i < 16; i++) {
+
+            if(i == 12){
+                System.out.println("********** SKIPPING " + i);
+                continue;
+            }
 
             SameDiff sd = SameDiff.create();
 
@@ -346,8 +354,8 @@ public class GradCheckTransforms {
                     expOut = ia.rsub(ib);
                     break;
                 case 5:
-                    t = sd.or(in1, in2);
-                    expOut = Transforms.or(ia, ib);
+                    t = in1.rdiv(in2);
+                    expOut = ia.rdiv(ib);
                     break;
                 case 6:
                     t = sd.eq(in1, in2);
@@ -376,9 +384,21 @@ public class GradCheckTransforms {
                     Nd4j.getExecutioner().exec(new LessThanOrEqual(new INDArray[]{ia, ib}, new INDArray[]{expOut}));
                     break;
                 case 12:
+                    t = sd.or(in1, in2);
+                    expOut = Transforms.or(ia, ib);
+                    break;
+                case 13:
                     ib = Nd4j.randn(nOut, nOut);
                     t = sd.mmul(in1, in2);
                     expOut = ia.mmul(ib);
+                    break;
+                case 14:
+                    t = sd.max(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMax(ia, ib, ia.dup(), ia.length()));
+                    break;
+                case 15:
+                    t = sd.min(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMin(ia, ib, ia.dup(), ia.length()));
                     break;
                 default:
                     throw new RuntimeException();
