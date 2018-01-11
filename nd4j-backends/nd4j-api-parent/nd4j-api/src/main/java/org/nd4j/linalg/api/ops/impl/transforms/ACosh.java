@@ -90,10 +90,10 @@ public class ACosh extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        val shape = outputVariables()[0].getShape();
-        SDVariable ret = f().div(f().one(shape),
-                f().mul(f().sqrt(f().sub(arg(),f().one(shape))),f()
-                        .sqrt(f().add(arg(),f().one(shape)))));
+        //dacosh(x)/dx = 1/sqrt(x^2-1) -- note that domain is x >= 1
+
+        SDVariable xSqSub1 = f().square(arg()).sub(1.0);
+        SDVariable ret = xSqSub1.rdiv(1.0).mul(i_v.get(0));
 
         return Collections.singletonList(ret);
     }
