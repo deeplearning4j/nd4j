@@ -2026,7 +2026,7 @@ public class ConvolutionTests extends BaseNd4jTest {
          padLeft = 1, padRight = 1
 
         [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]
-        [ 0,  6]    [ 6,  8]    [ 7,  9]    [ 8, 10]    [ 9,  0]
+        [ 0,  7]    [ 6,  8]    [ 7,  9]    [ 8, 10]    [ 9,  0]
 
         [ 0   2]    [ 1,  3]    [ 2,  4]    [ 3,  5]    [ 4,  0]
         [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
@@ -2036,16 +2036,17 @@ public class ConvolutionTests extends BaseNd4jTest {
 
         [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
         [ 0,  0],   [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]
-
-
-
          */
+
+        INDArray origInput = Nd4j.create(inputShape);
+        origInput.get(point(0), point(0), all(), all()).assign(
+                Nd4j.linspace(1,20,20).reshape('c',4,5));
 
 
         INDArray expMax = Nd4j.create(1,1,4,5);
         expMax.get(point(0), point(0), all(), all()).assign(
                 Nd4j.create(new double[][]{
-                        { 6,  8,  9, 10,  9},
+                        { 7,  8,  9, 10,  9},
                         {12, 13, 14, 15, 14},
                         {17, 18, 19, 20, 19},
                         {12, 13, 14, 15, 14}}));
@@ -2053,7 +2054,7 @@ public class ConvolutionTests extends BaseNd4jTest {
         INDArray sum = Nd4j.create(1,1,4,5);
         sum.get(point(0), point(0), all(), all()).assign(
                 Nd4j.create(new double[][]{
-                        { 6,     (6+8),       (7+9),       (8+10),       9},
+                        { 7,     (6+8),       (7+9),       (8+10),       9},
                         {(2+12), (1+3+11+13), (2+4+12+14), (3+5+13+15),  (4+14)},
                         {(7+17), (6+8+16+18), (7+9+17+19), (9+10+18+20), (9+19)},
                         {12,     (11+13),     (12+14),     (13+15),      14}}));
@@ -2067,13 +2068,14 @@ public class ConvolutionTests extends BaseNd4jTest {
         INDArray expAvg_2 = sum.div(4.0);
 
 
+        int testNum = 0;
         for( int i=0; i<3; i++ ){
 
 
             List<Pair<INDArray, String>> inputs = NDArrayCreationUtil.getAll4dTestArraysWithShape(12345, inputShape);
 
             for(Pair<INDArray,String> pIn : inputs){
-                INDArray input = pIn.getFirst();
+                INDArray input = pIn.getFirst().assign(origInput);
 
                 INDArray out = Nd4j.create(input.shape(), 'c');
 
@@ -2081,31 +2083,36 @@ public class ConvolutionTests extends BaseNd4jTest {
                 input = input.dup('c');
 
                 INDArray exp;
+                String mode;
                 switch (i){
                     case 0: //Max
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.MAX, Pooling2D.Divisor.INCLUDE_PADDING,
                                 0.0, outH, outW, out);
                         exp = expMax;
+                        mode = "max";
                         break;
                     case 1: //Avg + mode 0
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.MODE_0,
                                 0.0, outH, outW, out);
                         exp = expAvg_0;
+                        mode = "avg_0";
                         break;
                     case 2: //Avg + mode 2
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
                                 0.0, outH, outW, out);
                         exp = expAvg_2;
+                        mode = "avg_2";
                         break;
                     default:
                         throw new RuntimeException();
                 }
 
-                String msg = pIn.getSecond();
+                String msg = "TestNum=" + testNum + ", Mode: " + mode + ", " + pIn.getSecond();
                 assertEquals(msg, exp, out);
+                testNum++;
             }
         }
     }

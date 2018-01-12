@@ -424,7 +424,7 @@ public class ConvolutionTestsC extends BaseNd4jTest {
 
                         //First: work out the *original* position for this kernel...
                         int kTLy = y*s[0] - topPad;
-                        int kTLx = x*s[0] - leftPad;
+                        int kTLx = x*s[1] - leftPad;
 
                         int[] maxPos = {kTLy,kTLx};
                         double max = -Double.MAX_VALUE;
