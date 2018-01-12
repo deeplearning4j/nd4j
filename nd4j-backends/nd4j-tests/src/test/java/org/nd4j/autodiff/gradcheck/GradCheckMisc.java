@@ -92,6 +92,80 @@ public class GradCheckMisc {
     }
 
     @Test
+    public void testExpandDimsGradient(){
+        int[] origShape = new int[]{3,4};
+
+        for( int i=0; i<3; i++ ) {
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAllTestMatricesWithShape(origShape[0], origShape[1], 12345)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable expand = sd.f().expandDims(in, i);
+                //Using stdev here: mean/sum would backprop the same gradient for each input...
+                SDVariable stdev = sd.standardDeviation("out", expand, true);
+
+                INDArray out = sd.execAndEndResult();
+                INDArray expOut = in.getArr().std(true, Integer.MAX_VALUE);
+                assertEquals(expOut, out);
+
+                String msg = "expandDim=" + i + ", source=" + p.getSecond();
+                boolean ok = GradCheckUtil.checkGradients(sd);
+                assertTrue(msg, ok);
+            }
+        }
+    }
+
+    @Test
+    public void testSqueezeGradient(){
+        int[] origShape = new int[]{3,4,5};
+
+        for( int i=0; i<3; i++ ) {
+
+            int[] shape = origShape.clone();
+            shape[i] = 1;
+
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, shape)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable squeeze = sd.f().squeeze(in, i);
+                //Using stdev here: mean/sum would backprop the same gradient for each input...
+                SDVariable stdev = sd.standardDeviation("out", squeeze, true);
+
+                int[] expShapePostSqueeze;
+                switch(i){
+                    case 0:
+                        expShapePostSqueeze = new int[]{4,5};
+                        break;
+                    case 1:
+                        expShapePostSqueeze = new int[]{3,5};
+                        break;
+                    case 2:
+                        expShapePostSqueeze = new int[]{3,4};
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                sd.execAndEndResult();
+
+                INDArray squeezed = squeeze.getArr();
+                assertArrayEquals(expShapePostSqueeze, squeezed.shape());
+
+                INDArray out = sd.execAndEndResult();
+                INDArray expOut = in.getArr().std(true, Integer.MAX_VALUE);
+                assertEquals(expOut, out);
+
+                String msg = "squeezeDim=" + i + ", source=" + p.getSecond();
+                boolean ok = GradCheckUtil.checkGradients(sd);
+                assertTrue(msg, ok);
+            }
+        }
+    }
+
+    @Test
     public void testGradientAutoBroadcast1(){
 
         Nd4j.getRandom().setSeed(12345);
