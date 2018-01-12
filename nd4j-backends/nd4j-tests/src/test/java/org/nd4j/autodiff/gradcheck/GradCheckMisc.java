@@ -7,7 +7,9 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.Pair;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,12 +46,49 @@ public class GradCheckMisc {
         int[] origShape = new int[]{3,4,5};
 
         for( int[] toShape : new int[][]{{3,4*5}, {3*4,5}, {1,3*4*5}, {3*4*5,1}}){
-            for( char order : new char[]{'c','f'}){
+            for(Pair<INDArray,String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, origShape)){
+                INDArray inArr = p.getFirst().muli(100);
 
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable reshape = sd.reshape(in, toShape);
+                //Using stdev here: mean/sum would backprop the same gradient for each input...
+                SDVariable stdev = sd.standardDeviation("out", reshape,true );
+
+                INDArray out = sd.execAndEndResult();
+                INDArray expOut = in.getArr().std(true, Integer.MAX_VALUE);
+                assertEquals(expOut, out);
+
+                String msg = "toShape=" + Arrays.toString(toShape) + ", source=" + p.getSecond();
+                boolean ok = GradCheckUtil.checkGradients(sd);
+                assertTrue(msg, ok);
             }
         }
+    }
 
-        fail();
+    @Test
+    public void testPermuteGradient(){
+        int[] origShape = new int[]{3,4,5};
+
+        for( int[] perm : new int[][]{{0,1,2}, {0,2,1}, {1,0,2}, {1,2,0}, {2,0,1}, {2,1,0}}){
+            for(Pair<INDArray,String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, origShape)){
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable permute = sd.f().permute(in, perm);
+                //Using stdev here: mean/sum would backprop the same gradient for each input...
+                SDVariable stdev = sd.standardDeviation("out", permute,true );
+
+                INDArray out = sd.execAndEndResult();
+                INDArray expOut = in.getArr().std(true, Integer.MAX_VALUE);
+                assertEquals(expOut, out);
+
+                String msg = "permute=" + Arrays.toString(perm) + ", source=" + p.getSecond();
+                boolean ok = GradCheckUtil.checkGradients(sd);
+                assertTrue(msg, ok);
+            }
+        }
     }
 
     @Test
