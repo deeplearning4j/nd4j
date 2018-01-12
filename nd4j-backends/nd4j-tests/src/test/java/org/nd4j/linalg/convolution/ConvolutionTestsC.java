@@ -29,6 +29,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.AllocUtil;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Pooling2D;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -331,6 +332,118 @@ public class ConvolutionTestsC extends BaseNd4jTest {
         INDArray col2im = Convolution.col2im(im2col, stride, padding, height, width);
         assertEquals(assertcol2im, col2im);
     }
+
+
+    @Test
+    public void testMaxPoolBackprop(){
+        Nd4j.getRandom().setSeed(12345);
+
+        for( int i=0; i<5; i++ ) {
+
+            int[] inputShape = {1, 1, 4, 3};
+
+            int[] kernel = {2, 2};
+            int[] strides = {1, 1};
+            int[] pad = {0, 0};
+            int[] dilation = {1, 1};        //TODO non 1-1 dilation
+            boolean same = true;
+
+
+            String fn = "maxpool2d_bp";
+            int nIArgs = 11;
+
+            int[] a = new int[nIArgs];
+            a[0] = kernel[0];
+            a[1] = kernel[1];
+            a[2] = strides[0];
+            a[3] = strides[1];
+            a[4] = pad[0];
+            a[5] = pad[1];
+            a[6] = dilation[0];
+            a[7] = dilation[1];
+            a[8] = same ? 1 : 0;
+            //a[9]: Not used with max pooling
+            a[10] = 0;  //For NCHW
+
+            INDArray input = Nd4j.rand(inputShape);
+            INDArray epsNext = Nd4j.create(inputShape, 'c');
+
+            int[] outShapeHW = getOutputSize(input, kernel, strides, pad, same);
+            INDArray epsilon = Nd4j.rand(new int[]{inputShape[0], inputShape[1], outShapeHW[0], outShapeHW[1]});
+
+            DynamicCustomOp op = DynamicCustomOp.builder(fn)
+                    .addInputs(input, epsilon)
+                    .addOutputs(epsNext)
+                    .addIntegerArguments(a)
+                    .build();
+
+            Nd4j.getExecutioner().exec(op);
+
+            INDArray expEpsNext = expGradMaxPoolBackPropSame(input, epsilon, kernel, strides, same);
+
+            assertEquals(expEpsNext, epsNext);
+        }
+    }
+
+    public static INDArray expGradMaxPoolBackPropSame(INDArray input, INDArray gradient, int[] k, int[] s, boolean same){
+        if(!same){
+            throw new UnsupportedOperationException("non-Same mode not yet supported here");
+        }
+
+        int outH = (int)Math.ceil(input.size(2)/(double)s[0]);
+        int outW = (int)Math.ceil(input.size(3)/(double)s[1]);
+        int totalPadH = (outH-1)*s[0] + k[0] - input.size(2);
+        int totalPadW = (outW-1)*s[1] + k[1] - input.size(3);
+
+        int topPad = totalPadH/2;
+        int bottomPad = totalPadH - topPad;
+        int leftPad = totalPadW/2;
+        int rightPad = totalPadW - leftPad;
+
+        INDArray outGrad = Nd4j.create(input.shape());
+
+        for( int m=0; m<input.size(0); m++ ){
+            for( int d=0; d<input.size(1); d++ ){
+                for( int y=0; y<outH; y++ ){
+                    for( int x=0; x<outW; x++){
+
+                        //First: work out the *original* position for this kernel...
+                        int kTLy = y*s[0] - topPad;
+                        int kTLx = x*s[0] - leftPad;
+
+                        int[] maxPos = {kTLy,kTLx};
+                        double max = -Double.MAX_VALUE;
+                        for( int kY=0; kY<k[0]; kY++){
+                            for( int kX=0; kX<k[1]; kX++){
+                                if(kTLy + kY < 0 || kTLy + kY >= input.size(2) || kTLx + kX < 0 || kTLx + kX >= input.size(3)){
+                                    //Is padding
+                                    continue;
+                                }
+                                double v = input.getDouble(m, d, kTLy + kY, kTLx + kX);
+                                if(v > max){
+                                    max = v;
+                                    maxPos = new int[]{kTLy + kY, kTLx + kX};
+                                }
+                            }
+                        }
+                        if(max == -Double.MAX_VALUE){
+                            //All input values are padding, so can skip this input (should rarely happen)
+                            continue;
+                        }
+
+                        //Now that we know *where* the max is from: add the gradient
+                        double v = outGrad.getDouble(m, d, maxPos[0], maxPos[1]);
+                        double toAdd = gradient.getDouble(m,d,y,x);
+                        outGrad.putScalar(m, d, maxPos[0], maxPos[1], v + toAdd);
+                    }
+                }
+            }
+        }
+
+        return outGrad;
+    }
+
+
 
     protected static int[] getOutputSize(INDArray inputData, int[] kernel, int[] strides, int[] padding, boolean convolutionModeSame) {
         int inH = inputData.size(2);
