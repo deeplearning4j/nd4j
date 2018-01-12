@@ -77,7 +77,8 @@ public class TFGraphTestList {
      * pool_1 (attributes related)
      * pool_0: (attributes related)
      * g_05: Gather related
-     * g_04: assertion failure
+     * g_04: assertion failure related to concat and reshape f ordering being requested in java
+     * all tensorflow orders are c not f
      *
      * Note: norm_tests have to be run with "norm_tests/norm_0" or to run all the tests under a directory run with TFGraphTestSubDir
      */
