@@ -29,12 +29,16 @@ import org.nd4j.linalg.api.buffer.util.AllocUtil;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.Pooling2D;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.primitives.Pair;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -1977,6 +1981,132 @@ public class ConvolutionTests extends BaseNd4jTest {
             INDArray out = op.getOutputArgument(0);
 
             assertEquals("Output order: " + outputOrder, exp, out);
+        }
+    }
+
+
+
+    @Test
+    public void testPoolingDilation(){
+
+        int[] inputShape = {1, 1, 4, 5};
+        int outH = inputShape[2];
+        int outW = inputShape[3];
+
+        int[] kernel = {2, 2};
+        int[] strides = {1, 1};
+        int[] pad = {0, 0};
+        int[] dilation = {2, 2};
+        boolean same = true;
+
+        /*
+        Input:
+        [ 1,  2,  3,  4,  5
+          6,  7,  8,  9, 10
+         11, 12, 13, 14, 15
+         16, 17, 18, 19, 20 ]
+
+        Input with SAME padding:
+        [ 0,  0,  0,  0,  0,  0,  0
+          0,  1,  2,  3,  4,  5,  0
+          0,  6,  7,  8,  9, 10,  0
+          0, 11, 12, 13, 14, 15,  0
+          0, 16, 17, 18, 19, 20,  0
+          0,  0,  0,  0,  0,  0,  0]
+
+         4x5 in
+         Same mode, stride 1, dilation 2, kernel 2
+         kHEffective = (2 + (2-1)*(2-1)) = 3
+         oH = ceil(iH/sH) = 4
+         oW = ceil(iW/sW) = 5
+         totalPadH = (oH-1)*sH + kH - inH = (4-1)*1 + 3 - 4 = 2
+         padTop = 1, padBottom = 1
+
+         totalPadW = (oW-1)*sW + kW - inW = (5-1)*1 + 3 - 5 = 2
+         padLeft = 1, padRight = 1
+
+        [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]
+        [ 0,  6]    [ 6,  8]    [ 7,  9]    [ 8, 10]    [ 9,  0]
+
+        [ 0   2]    [ 1,  3]    [ 2,  4]    [ 3,  5]    [ 4,  0]
+        [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
+
+        [ 0,  7]    [ 6,  8]    [ 7,  9]    [ 9, 10]    [ 9,  0]
+        [ 0, 17]    [16, 18]    [17, 19]    [18, 20]    [19,  0]
+
+        [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
+        [ 0,  0],   [ 0,  0]    [ 0,  0]    [ 0,  0]    [ 0,  0]
+
+
+
+         */
+
+
+        INDArray expMax = Nd4j.create(1,1,4,5);
+        expMax.get(point(0), point(0), all(), all()).assign(
+                Nd4j.create(new double[][]{
+                        { 6,  8,  9, 10,  9},
+                        {12, 13, 14, 15, 14},
+                        {17, 18, 19, 20, 19},
+                        {12, 13, 14, 15, 14}}));
+
+        INDArray sum = Nd4j.create(1,1,4,5);
+        sum.get(point(0), point(0), all(), all()).assign(
+                Nd4j.create(new double[][]{
+                        { 6,     (6+8),       (7+9),       (8+10),       9},
+                        {(2+12), (1+3+11+13), (2+4+12+14), (3+5+13+15),  (4+14)},
+                        {(7+17), (6+8+16+18), (7+9+17+19), (9+10+18+20), (9+19)},
+                        {12,     (11+13),     (12+14),     (13+15),      14}}));
+        INDArray expAvg_0 = sum.get(point(0), point(0), all(), all()).div(
+                Nd4j.create(new double[][]{
+                        { 1,  2,  2,  2,  1},
+                        { 2,  4,  4,  4,  2},
+                        { 2,  4,  4,  4,  2},
+                        { 1,  2,  2,  2,  1}}));
+
+        INDArray expAvg_2 = sum.div(4.0);
+
+
+        for( int i=0; i<3; i++ ){
+
+
+            List<Pair<INDArray, String>> inputs = NDArrayCreationUtil.getAll4dTestArraysWithShape(12345, inputShape);
+
+            for(Pair<INDArray,String> pIn : inputs){
+                INDArray input = pIn.getFirst();
+
+                INDArray out = Nd4j.create(input.shape(), 'c');
+
+                //TODO Test on weird strides also (i.e., remove the dup here)
+                input = input.dup('c');
+
+                INDArray exp;
+                switch (i){
+                    case 0: //Max
+                        Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
+                                same, Pooling2D.Pooling2DType.MAX, Pooling2D.Divisor.INCLUDE_PADDING,
+                                0.0, outH, outW, out);
+                        exp = expMax;
+                        break;
+                    case 1: //Avg + mode 0
+                        Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
+                                same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.MODE_0,
+                                0.0, outH, outW, out);
+                        exp = expAvg_0;
+                        break;
+                    case 2: //Avg + mode 2
+                        Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
+                                same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
+                                0.0, outH, outW, out);
+                        exp = expAvg_2;
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                String msg = pIn.getSecond();
+                assertEquals(msg, exp, out);
+            }
         }
     }
 
