@@ -31,14 +31,18 @@ import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Pooling2D;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
 import org.nd4j.linalg.ops.transforms.Transforms;
+import org.nd4j.linalg.primitives.Pair;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.nd4j.linalg.checkutil.NDArrayCreationUtil.getAll4dTestArraysWithShape;
 
 /**
  * Created by agibsonccc on 9/6/14.
@@ -365,23 +369,34 @@ public class ConvolutionTestsC extends BaseNd4jTest {
             //a[9]: Not used with max pooling
             a[10] = 0;  //For NCHW
 
-            INDArray input = Nd4j.rand(inputShape);
-            INDArray epsNext = Nd4j.create(inputShape, 'c');
+            List<Pair<INDArray, String>> inputs = NDArrayCreationUtil.getAll4dTestArraysWithShape(12345, inputShape);
 
-            int[] outShapeHW = getOutputSize(input, kernel, strides, pad, same);
-            INDArray epsilon = Nd4j.rand(new int[]{inputShape[0], inputShape[1], outShapeHW[0], outShapeHW[1]});
+            for(Pair<INDArray,String> pIn : inputs){
+                INDArray input = pIn.getFirst();
+                int[] outShapeHW = getOutputSize(input, kernel, strides, pad, same);
+                List<Pair<INDArray, String>> eps = NDArrayCreationUtil.getAll4dTestArraysWithShape(12345, inputShape[0], inputShape[1], outShapeHW[0], outShapeHW[1]);
+                for(Pair<INDArray,String> pEps : eps){
+                    INDArray epsilon = pEps.getFirst();
+                    INDArray epsNext = Nd4j.create(inputShape, 'c');
 
-            DynamicCustomOp op = DynamicCustomOp.builder(fn)
-                    .addInputs(input, epsilon)
-                    .addOutputs(epsNext)
-                    .addIntegerArguments(a)
-                    .build();
+                    //Runs fine with dups:
+//                    input = input.dup('c');
+//                    epsilon = epsilon.dup('c');
 
-            Nd4j.getExecutioner().exec(op);
+                    DynamicCustomOp op = DynamicCustomOp.builder(fn)
+                            .addInputs(input, epsilon)
+                            .addOutputs(epsNext)
+                            .addIntegerArguments(a)
+                            .build();
 
-            INDArray expEpsNext = expGradMaxPoolBackPropSame(input, epsilon, kernel, strides, same);
+                    Nd4j.getExecutioner().exec(op);
 
-            assertEquals(expEpsNext, epsNext);
+                    INDArray expEpsNext = expGradMaxPoolBackPropSame(input, epsilon, kernel, strides, same);
+
+                    String msg = "input=" + pIn.getSecond() + ", eps=" + pEps.getSecond();
+                    assertEquals(msg, expEpsNext, epsNext);
+                }
+            }
         }
     }
 
