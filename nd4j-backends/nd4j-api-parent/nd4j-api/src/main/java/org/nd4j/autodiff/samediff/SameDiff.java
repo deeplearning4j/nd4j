@@ -1683,7 +1683,6 @@ public class SameDiff {
      */
     public SDVariable lte(SDVariable iX, double iy) {
         return lte(null,iX,iy);
-
     }
 
 
@@ -1695,8 +1694,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable gt(SDVariable iX, double iy) {
-        return lt(null,iX,iy);
-
+        return gt(null,iX,iy);
     }
 
     /**
@@ -1706,7 +1704,6 @@ public class SameDiff {
      */
     public SDVariable lt(SDVariable iX, double iy) {
         return lt(null,iX,iy);
-
     }
 
 
@@ -1729,12 +1726,6 @@ public class SameDiff {
         return eq(null,iX,iy);
     }
 
-
-
-
-
-
-
     /**
      *
      * @param iX
@@ -1742,7 +1733,6 @@ public class SameDiff {
      */
     public SDVariable gte(SDVariable iX, SDVariable iy) {
         return gte(null,iX,iy);
-
     }
 
     /**
@@ -1752,10 +1742,7 @@ public class SameDiff {
      */
     public SDVariable lte(SDVariable iX, SDVariable iy) {
         return lte(null,iX,iy);
-
     }
-
-
 
 
     /**
@@ -1764,7 +1751,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable gt(SDVariable iX, SDVariable iy) {
-        return lt(null,iX,iy);
+        return gt(null,iX,iy);
 
     }
 
@@ -1775,9 +1762,7 @@ public class SameDiff {
      */
     public SDVariable lt(SDVariable iX, SDVariable iy) {
         return lt(null,iX,iy);
-
     }
-
 
 
     /**
@@ -1923,7 +1908,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable asinh(SDVariable iX) {
-        return asin(null,iX);
+        return asinh(null,iX);
     }
 
     /**
@@ -2045,8 +2030,6 @@ public class SameDiff {
     public SDVariable gradientBackwardsMarker(SDVariable iX) {
         return gradientBackwardsMarker(generateNewVarName(new GradientBackwardsMarker().opName(),0),iX);
     }
-
-
 
 
     /**
@@ -2245,7 +2228,15 @@ public class SameDiff {
      */
     public SDVariable max(SDVariable iX, int...dimensions) {
         return max(null,iX,dimensions);
+    }
 
+    public SDVariable max(SDVariable first, SDVariable second){
+        return max(null, first, second);
+    }
+
+    public SDVariable max(String name, SDVariable first, SDVariable second){
+        SDVariable result = f().max(first, second);
+        return updateVariableNameAndReference(result, name);
     }
 
 
@@ -2255,9 +2246,17 @@ public class SameDiff {
      * @param dimensions
      * @return
      */
-    public SDVariable min(SDVariable iX,
-                          int...dimensions) {
+    public SDVariable min(SDVariable iX, int...dimensions) {
         return min(null,iX,dimensions);
+    }
+
+    public SDVariable min(SDVariable first, SDVariable second){
+        return min(null, first, second);
+    }
+
+    public SDVariable min(String name, SDVariable first, SDVariable second){
+        SDVariable result = f().min(first, second);
+        return updateVariableNameAndReference(result, name);
     }
 
 
@@ -3079,12 +3078,9 @@ public class SameDiff {
      * @param cutoff
      * @return
      */
-    public SDVariable leakyReluDerivative(String name,SDVariable iX, SDVariable wrt,double cutoff) {
-        SDVariable result = functionFactory.leakyReluDerivative(iX,
-                wrt,
-                cutoff);
+    public SDVariable leakyReluDerivative(String name,SDVariable iX,double cutoff) {
+        SDVariable result = functionFactory.leakyReluDerivative(iX, cutoff);
         return updateVariableNameAndReference(result,name);
-
     }
 
 
