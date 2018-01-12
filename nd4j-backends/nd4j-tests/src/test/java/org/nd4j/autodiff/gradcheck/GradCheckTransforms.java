@@ -314,7 +314,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 16; i++) {
+        for (int i = 0; i < 18; i++) {
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;
