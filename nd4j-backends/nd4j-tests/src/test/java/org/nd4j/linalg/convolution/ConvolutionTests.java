@@ -34,7 +34,6 @@ import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
 import org.nd4j.linalg.indexing.INDArrayIndex;
-import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.primitives.Pair;
 
 import java.util.Arrays;
@@ -42,7 +41,6 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.nd4j.linalg.api.ops.executioner.OpStatus.ND4J_STATUS_OK;
 import static org.nd4j.linalg.indexing.NDArrayIndex.all;
 import static org.nd4j.linalg.indexing.NDArrayIndex.point;
 
@@ -1995,7 +1993,7 @@ public class ConvolutionTests extends BaseNd4jTest {
 
         int[] kernel = {2, 2};
         int[] strides = {1, 1};
-        int[] pad = {0, 0};
+        int[] pad = {1, 1};         //From same mode
         int[] dilation = {2, 2};
         boolean same = true;
 
@@ -2031,7 +2029,7 @@ public class ConvolutionTests extends BaseNd4jTest {
         [ 0   2]    [ 1,  3]    [ 2,  4]    [ 3,  5]    [ 4,  0]
         [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
 
-        [ 0,  7]    [ 6,  8]    [ 7,  9]    [ 9, 10]    [ 9,  0]
+        [ 0,  7]    [ 6,  8]    [ 7,  9]    [ 8, 10]    [ 9,  0]
         [ 0, 17]    [16, 18]    [17, 19]    [18, 20]    [19,  0]
 
         [ 0, 12]    [11, 13]    [12, 14]    [13, 15]    [14,  0]
@@ -2056,9 +2054,10 @@ public class ConvolutionTests extends BaseNd4jTest {
                 Nd4j.create(new double[][]{
                         { 7,     (6+8),       (7+9),       (8+10),       9},
                         {(2+12), (1+3+11+13), (2+4+12+14), (3+5+13+15),  (4+14)},
-                        {(7+17), (6+8+16+18), (7+9+17+19), (9+10+18+20), (9+19)},
+                        {(7+17), (6+8+16+18), (7+9+17+19), (8+10+18+20), (9+19)},
                         {12,     (11+13),     (12+14),     (13+15),      14}}));
-        INDArray expAvg_0 = sum.get(point(0), point(0), all(), all()).div(
+        INDArray expAvg_1 = sum.dup();
+        expAvg_1.get(point(0), point(0), all(), all()).divi(
                 Nd4j.create(new double[][]{
                         { 1,  2,  2,  2,  1},
                         { 2,  4,  4,  4,  2},
@@ -2092,14 +2091,21 @@ public class ConvolutionTests extends BaseNd4jTest {
                         exp = expMax;
                         mode = "max";
                         break;
-                    case 1: //Avg + mode 0
+                    case 1: //Avg + mode 0 (include padding) - same as mode 2 in this particular case
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.MODE_0,
                                 0.0, outH, outW, out);
-                        exp = expAvg_0;
+                        exp = expAvg_2;
                         mode = "avg_0";
                         break;
-                    case 2: //Avg + mode 2
+                    case 2: //Avg + mode 1 (exclude padding)
+                        Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
+                                same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.EXCLUDE_PADDING,
+                                0.0, outH, outW, out);
+                        exp = expAvg_1;
+                        mode = "avg_1";
+                        break;
+                    case 3: //Avg + mode 2
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
                                 0.0, outH, outW, out);

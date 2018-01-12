@@ -381,7 +381,7 @@ public class ConvolutionTestsC extends BaseNd4jTest {
 
                     //Runs fine with dups:
 //                    input = input.dup('c');
-//                    epsilon = epsilon.dup('c');
+                    epsilon = epsilon.dup('c');
 
                     DynamicCustomOp op = DynamicCustomOp.builder(fn)
                             .addInputs(input, epsilon)
@@ -401,6 +401,7 @@ public class ConvolutionTestsC extends BaseNd4jTest {
     }
 
     public static INDArray expGradMaxPoolBackPropSame(INDArray input, INDArray gradient, int[] k, int[] s, boolean same){
+        input = input.dup();
         if(!same){
             throw new UnsupportedOperationException("non-Same mode not yet supported here");
         }
