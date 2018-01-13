@@ -190,7 +190,7 @@ public class ConvolutionTestsC extends BaseNd4jTest {
     }
 
     @Test
-    public void testPooling2D_1() throws Exception {
+    public void testPooling2D_Same() {
         int[] miniBatches = {1, 3, 5};
         int[] depths = {1, 3, 5};
         int[] inHeights = {5, 21};
@@ -201,9 +201,9 @@ public class ConvolutionTestsC extends BaseNd4jTest {
         int[] sizeH = {1, 2, 3};
         int[] padH = {0};
         int[] padW = {0};
-        Pooling2D.Pooling2DType[] types = new Pooling2D.Pooling2DType[]{Pooling2D.Pooling2DType.AVG,  Pooling2D.Pooling2DType.PNORM, Pooling2D.Pooling2DType.MAX,};
+        Pooling2D.Pooling2DType[] types = new Pooling2D.Pooling2DType[]{Pooling2D.Pooling2DType.AVG, Pooling2D.Pooling2DType.PNORM, Pooling2D.Pooling2DType.MAX,};
 
-        for (Pooling2D.Pooling2DType type: types) {
+        for (Pooling2D.Pooling2DType type : types) {
             log.info("Trying pooling type: [{}]", type);
             for (int m : miniBatches) {
                 for (int d : depths) {
@@ -213,59 +213,60 @@ public class ConvolutionTestsC extends BaseNd4jTest {
                                 for (int sw : strideW) {
                                     for (int kh : sizeH) {
                                         for (int kw : sizeW) {
-                                            for (int ph : padH) {
-                                                for (int pw : padW) {
-                                                    INDArray in = Nd4j.rand(new int[]{m, d, h, w});
 
-                                                    int[] outSize = getOutputSize(in, new int[]{kh, kw}, new int[]{sh, sw}, null, true);
+                                            INDArray in = Nd4j.rand(new int[]{m, d, h, w});
 
+                                            int[] outSize = getOutputSize(in, new int[]{kh, kw}, new int[]{sh, sw}, null, true);
 
-                                                    INDArray col = Nd4j.createUninitialized(new int[]{m, d, outSize[0], outSize[1], kh, kw}, 'c');
-                                                    INDArray col2 = col.permute(0, 1, 4, 5, 2, 3);
+                                            //Calculate padding for same mode:
+                                            int pHTotal = (outSize[0]-1)*sh + kh - h;
+                                            int pWTotal = (outSize[1]-1)*sw + kw - w;
+                                            int padTop = pHTotal / 2;
+                                            int padLeft = pWTotal / 2;
 
-                                                    Convolution.im2col(in, kh, kw, sh, sw, ph, pw, true, col2);
+                                            INDArray col = Nd4j.createUninitialized(new int[]{m, d, outSize[0], outSize[1], kh, kw}, 'c');
+                                            INDArray col2 = col.permute(0, 1, 4, 5, 2, 3);
 
-                                                    INDArray col2d = col.reshape('c', m * d * outSize[0] * outSize[1], kh * kw);
+                                            Convolution.im2col(in, kh, kw, sh, sw, padTop, padLeft, true, col2);
 
-                                                    INDArray output = Nd4j.create(m * d * outSize[0] * outSize[1]);
+                                            INDArray col2d = col.reshape('c', m * d * outSize[0] * outSize[1], kh * kw);
 
-                                                    INDArray reduced = null;
-                                                    switch (type) {
-                                                        case PNORM:
-                                                            int pnorm = 3;
+                                            INDArray output = Nd4j.create(m * d * outSize[0] * outSize[1]);
 
-                                                            Transforms.abs(col2d, false);
-                                                            Transforms.pow(col2d, pnorm, false);
-                                                            reduced = col2d.sum(1);
-                                                            Transforms.pow(reduced, (1.0 / pnorm), false);
+                                            INDArray reduced = null;
+                                            switch (type) {
+                                                case PNORM:
+                                                    int pnorm = 3;
 
-                                                            Convolution.pooling2D(in, kh, kw, sh, sw, ph, pw, 1, 1,
-                                                                    true, Pooling2D.Pooling2DType.PNORM, Pooling2D.Divisor.INCLUDE_PADDING,
-                                                                    (double) pnorm, outSize[0], outSize[1], output);
+                                                    Transforms.abs(col2d, false);
+                                                    Transforms.pow(col2d, pnorm, false);
+                                                    reduced = col2d.sum(1);
+                                                    Transforms.pow(reduced, (1.0 / pnorm), false);
 
-                                                            break;
-                                                        case MAX:
-                                                            Convolution.pooling2D(in, kh, kw, sh, sw, ph, pw,1, 1,
-                                                                    true, Pooling2D.Pooling2DType.MAX, Pooling2D.Divisor.INCLUDE_PADDING,
-                                                                    0.0, outSize[0], outSize[1], output);
+                                                    Convolution.pooling2D(in, kh, kw, sh, sw, padTop, padLeft, 1, 1,
+                                                            true, Pooling2D.Pooling2DType.PNORM, Pooling2D.Divisor.INCLUDE_PADDING,
+                                                            (double) pnorm, outSize[0], outSize[1], output);
 
-                                                            reduced = col2d.max(1);
-                                                            break;
-                                                        case AVG:
+                                                    break;
+                                                case MAX:
+                                                    Convolution.pooling2D(in, kh, kw, sh, sw, padTop, padLeft, 1, 1,
+                                                            true, Pooling2D.Pooling2DType.MAX, Pooling2D.Divisor.INCLUDE_PADDING,
+                                                            0.0, outSize[0], outSize[1], output);
 
-                                                            Convolution.pooling2D(in, kh, kw, sh, sw, ph, pw, 1, 1,
-                                                                    true, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
-                                                                    0.0, outSize[0], outSize[1], output);
+                                                    reduced = col2d.max(1);
+                                                    break;
+                                                case AVG:
 
-                                                            reduced = col2d.mean(1);
-                                                            break;
-                                                    }
+                                                    Convolution.pooling2D(in, kh, kw, sh, sw, padTop, padLeft, 1, 1,
+                                                            true, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
+                                                            0.0, outSize[0], outSize[1], output);
 
-
-
-                                                    assertEquals("Failed opType: " + type, reduced, output);
-                                                }
+                                                    reduced = col2d.mean(1);
+                                                    break;
                                             }
+
+
+                                            assertEquals("Failed opType: " + type, reduced, output);
                                         }
                                     }
                                 }
