@@ -12,4 +12,5 @@ public class IfImportState {
     private List<NodeDef> condNodes;
     private List<NodeDef> trueNodes;
     private List<NodeDef> falseNodes;
+    private String falseBodyScopeName,trueBodyScopeName,conditionBodyScopeName;
 }

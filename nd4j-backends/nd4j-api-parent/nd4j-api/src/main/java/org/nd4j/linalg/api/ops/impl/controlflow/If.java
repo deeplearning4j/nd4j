@@ -7,6 +7,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.CustomOpDescriptor;
@@ -18,7 +19,6 @@ import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Equivalent to tensorflow's conditional op.
@@ -275,31 +275,12 @@ public class If extends DifferentialFunction implements CustomOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        doImport(nodeDef,initWith,attributesForNode,graph,new LinkedHashSet<String>(),new AtomicInteger(0));
-    }
-
-
-    private  void doImport(NodeDef nodeDef,SameDiff initWith,Map<String,AttrValue> attributesForNode,GraphDef graph,Set<String> skipSet,AtomicInteger currIndex) {
-        val uniqueId = java.util.UUID.randomUUID().toString();
-
-        val scopeCondition = SameDiff.create();
-        val trueBody = SameDiff.create();
-        val falseBody = SameDiff.create();
-
-        initWith.putSubFunction("condition-" + uniqueId,scopeCondition);
-        initWith.putSubFunction("truebody-" + uniqueId,trueBody);
-        initWith.putSubFunction("falsebody-" + uniqueId,falseBody);
-        this.loopBodyExecution = trueBody;
-        this.predicateExecution = scopeCondition;
-
-        log.info("Adding 2 new scopes for IF {}");
-
-
-        val nodes = graph.getNodeList();
-
+         //usually should be a merge node for a conditional
+        val ifNodes = TFGraphMapper.getInstance().nodesForIf(nodeDef,graph);
 
 
     }
+
 
     @Override
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {

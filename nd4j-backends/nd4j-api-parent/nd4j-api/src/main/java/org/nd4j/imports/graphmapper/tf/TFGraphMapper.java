@@ -733,10 +733,14 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
     public IfImportState nodesForIf(NodeDef from, GraphDef graph) {
         //Assume we start with a switch statement
-        val nodesByName = nodesByName(graph);
         int currNodeIndex = graph.getNodeList().indexOf(from);
         val trueDefName = from.getInput(1);
         val falseDefName = from.getInput(0);
+        val scopeName = trueDefName.substring(0,trueDefName.indexOf("/"));
+        val trueDefScopeName = scopeName + "-true-scope";
+        val falseDefScopeName = scopeName + "-false-scope";
+
+
         boolean onFalseDefinition = true;
         //start with the true
         boolean onTrueDefinition = false;
@@ -802,7 +806,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         Collections.reverse(conditionNodes);
 
 
-        return IfImportState.builder().condNodes(conditionNodes).falseNodes(falseBodyNodes).trueNodes(trueBodyNodes).build();
+        return IfImportState.builder()
+                .condNodes(conditionNodes)
+                .falseNodes(falseBodyNodes)
+                .trueNodes(trueBodyNodes)
+                .conditionBodyScopeName(falseDefScopeName)
+                .falseBodyScopeName(falseDefScopeName)
+                .trueBodyScopeName(trueDefScopeName)
+                .conditionBodyScopeName(scopeName)
+                .build();
     }
 
 
