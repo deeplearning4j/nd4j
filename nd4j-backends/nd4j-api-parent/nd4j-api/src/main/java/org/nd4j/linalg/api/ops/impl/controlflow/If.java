@@ -311,6 +311,10 @@ public class If extends DifferentialFunction implements CustomOp {
         initWith.putSubFunction(ifNodes.getTrueBodyScopeName(),trueScope);
         initWith.putSubFunction(ifNodes.getFalseBodyScopeName(),falseScope);
         initWith.putSubFunction(ifNodes.getConditionBodyScopeName(),condScope);
+
+        this.loopBodyExecution = trueScope;
+        this.falseBodyExecution = falseScope;
+        this.predicateExecution = condScope;
     }
 
 

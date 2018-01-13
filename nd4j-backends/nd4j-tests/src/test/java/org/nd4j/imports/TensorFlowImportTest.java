@@ -16,6 +16,7 @@ import org.nd4j.graph.FlatGraph;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.util.HashUtil;
@@ -71,6 +72,13 @@ public class TensorFlowImportTest {
         assertEquals(5,ifNodesTwo.getTrueNodes().size());
         assertEquals(6,ifNodesTwo.getCondNodes().size());
 
+
+        val parentContext = SameDiff.create();
+        val ifStatement = new If();
+        ifStatement.initFromTensorFlow(firstInput,parentContext,Collections.emptyMap(),readGraph);
+        assertNotNull(ifStatement.getLoopBodyExecution());
+        assertNotNull(ifStatement.getFalseBodyExecution());
+        assertNotNull(ifStatement.getPredicateExecution());
 
     }
 
