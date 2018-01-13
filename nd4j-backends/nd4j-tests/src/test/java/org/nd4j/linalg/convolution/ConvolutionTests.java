@@ -2056,15 +2056,15 @@ public class ConvolutionTests extends BaseNd4jTest {
                         {(2+12), (1+3+11+13), (2+4+12+14), (3+5+13+15),  (4+14)},
                         {(7+17), (6+8+16+18), (7+9+17+19), (8+10+18+20), (9+19)},
                         {12,     (11+13),     (12+14),     (13+15),      14}}));
-        INDArray expAvg_1 = sum.dup();
-        expAvg_1.get(point(0), point(0), all(), all()).divi(
+        INDArray expAvgExclude = sum.dup();
+        expAvgExclude.get(point(0), point(0), all(), all()).divi(
                 Nd4j.create(new double[][]{
                         { 1,  2,  2,  2,  1},
                         { 2,  4,  4,  4,  2},
                         { 2,  4,  4,  4,  2},
                         { 1,  2,  2,  2,  1}}));
 
-        INDArray expAvg_2 = sum.div(4.0);
+        INDArray expAvgInclude = sum.div(4.0);
 
 
         int testNum = 0;
@@ -2091,25 +2091,18 @@ public class ConvolutionTests extends BaseNd4jTest {
                         exp = expMax;
                         mode = "max";
                         break;
-                    case 1: //Avg + mode 0 (include padding) - same as mode 2 in this particular case
-                        Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
-                                same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.MODE_0,
-                                0.0, outH, outW, out);
-                        exp = expAvg_2;
-                        mode = "avg_0";
-                        break;
-                    case 2: //Avg + mode 1 (exclude padding)
+                    case 1: //Avg + mode 0 (exclude padding)
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.EXCLUDE_PADDING,
                                 0.0, outH, outW, out);
-                        exp = expAvg_1;
-                        mode = "avg_1";
+                        exp = expAvgExclude;
+                        mode = "avg_0";
                         break;
-                    case 3: //Avg + mode 2
+                    case 2: //Avg + mode 1 (include padding)
                         Convolution.pooling2D(input, kernel[0], kernel[1], strides[0], strides[1], pad[0], pad[1], dilation[0], dilation[1],
                                 same, Pooling2D.Pooling2DType.AVG, Pooling2D.Divisor.INCLUDE_PADDING,
                                 0.0, outH, outW, out);
-                        exp = expAvg_2;
+                        exp = expAvgInclude;
                         mode = "avg_2";
                         break;
                     default:

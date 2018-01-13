@@ -41,7 +41,7 @@ public class Pooling2D extends DynamicCustomOp {
      * INCLUDE_PADDING: Always do sum(window) / (kH*kW) even if padding is present.
      */
     public enum Divisor {
-        MODE_0, EXCLUDE_PADDING, INCLUDE_PADDING
+        EXCLUDE_PADDING, INCLUDE_PADDING
     }
 
     public Pooling2D() {}
