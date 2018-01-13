@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.accum.distances;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -77,6 +76,11 @@ public class ManhattanDistance extends BaseAccumulation {
     public ManhattanDistance(INDArray x, INDArray y, boolean allDistances) {
         this(x, y);
         this.isComplex = allDistances;
+    }
+
+    public ManhattanDistance(INDArray x, INDArray y, int[] dimensions){
+        this(x,y);
+        this.dimensions = dimensions;
     }
 
     public ManhattanDistance(INDArray x, INDArray y, INDArray z, boolean allDistances) {
