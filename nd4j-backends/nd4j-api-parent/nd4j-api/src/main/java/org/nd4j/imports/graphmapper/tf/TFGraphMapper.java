@@ -805,6 +805,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         return IfImportState.builder().condNodes(conditionNodes).falseNodes(falseBodyNodes).trueNodes(trueBodyNodes).build();
     }
 
-    
+
 
 }

@@ -98,7 +98,19 @@ public class TensorFlowImportTest {
          */
 
         val firstInput = nodes.get("cond5/Merge");
-        mapper.nodesForIf(firstInput,readGraph);
+        val ifNodes = mapper.nodesForIf(firstInput,readGraph);
+        assertEquals(6,ifNodes.getFalseNodes().size());
+        assertEquals(5,ifNodes.getTrueNodes().size());
+        assertEquals(10,ifNodes.getCondNodes().size());
+
+
+        val secondInput = nodes.get("cond6/Merge");
+        val ifNodesTwo = mapper.nodesForIf(secondInput,readGraph);
+        assertEquals(6,ifNodesTwo.getFalseNodes().size());
+        assertEquals(5,ifNodesTwo.getTrueNodes().size());
+        assertEquals(6,ifNodesTwo.getCondNodes().size());
+
+
     }
 
 
@@ -402,7 +414,7 @@ public class TensorFlowImportTest {
         assertEquals(2, graph.nodes(0).inputPairedLength());
         assertEquals(2, graph.nodes(1).inputPairedLength());
 
-     //   tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/nested_while.fb"));
+        //   tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/nested_while.fb"));
     }
 
 
@@ -503,7 +515,7 @@ public class TensorFlowImportTest {
      /*   assertEquals("strided_slice", graph.nodes(0).name());
         assertEquals("TensorArray", graph.nodes(1).name());
 */
-     //   assertEquals(4, graph.nodes(0).inputPairedLength());
+        //   assertEquals(4, graph.nodes(0).inputPairedLength());
 
         //tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/tensor_array.fb"));
     }
