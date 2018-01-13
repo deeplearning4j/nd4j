@@ -329,6 +329,13 @@ public class DifferentialFunctionFactory   {
         return new Or(sameDiff(),iX,i_y).outputVariables()[0];
     }
 
+    public SDVariable and(SDVariable ix, SDVariable iy){
+        return new And(sameDiff(),ix,iy).outputVariables()[0];
+    }
+
+    public SDVariable xor(SDVariable ix, SDVariable iy){
+        return new Xor(sameDiff(),ix,iy).outputVariables()[0];
+    }
 
 
     public SDVariable eq(SDVariable iX, SDVariable i_y) {
@@ -449,6 +456,10 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable expandDims(SDVariable iX,int axis) {
         return new ExpandDims(sameDiff(),new SDVariable[]{iX},axis).outputVariables()[0];
+    }
+
+    public SDVariable squeeze(SDVariable iX, int... axis){
+        return new Squeeze(sameDiff(), iX, axis).outputVariables()[0];
     }
 
 

@@ -229,12 +229,12 @@ public class While extends DifferentialFunction implements CustomOp {
             val tfNode = nodes.get(currIndex.get());
 
             if (!tfNode.getOp().equalsIgnoreCase("merge")) {
-                scopeLoop.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'));
+                scopeLoop.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme());
                 break;
             }
 
             skipSet.add(tfNode.getName());
-            val var = scopeLoop.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme('f'));
+            val var = scopeLoop.var(TFGraphMapper.getInstance().getNodeName(tfNode.getName()),null,new ZeroInitScheme());
             scopeCondition.var(var);
             initWith.var(var);
             mergedCnt++;
@@ -258,7 +258,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
 
             if (isConst || isVar || isPlaceholder) {
-                val var = scopeCondition.var(tfNode.getName(),null,new ZeroInitScheme('f'));
+                val var = scopeCondition.var(tfNode.getName(),null,new ZeroInitScheme());
                 scopeLoop.var(var);
                 initWith.var(var);
                 log.info("Adding condition var [{}]", var.getVarName());
@@ -297,6 +297,8 @@ public class While extends DifferentialFunction implements CustomOp {
             val func = DifferentialFunctionClassHolder.getInstance().getInstance(TFGraphMapper.getInstance().getMappedOp(tfNode.getOp()).opName());
             func.initFromTensorFlow(tfNode,initWith,nodeDef.getAttrMap(),graph);
             func.setSameDiff(scopeLoop);
+
+
             val variables = new SDVariable[tfNode.getInputCount()];
             for(int i = 0; i < tfNode.getInputCount(); i++) {
                 val testVar = initWith.getVariable(TFGraphMapper.getInstance().getNodeName(tfNode.getInput(i)));
@@ -404,7 +406,7 @@ public class While extends DifferentialFunction implements CustomOp {
             skipSet.add(tfNode.getName());
 
             val inputName = TFGraphMapper.getInstance().getNodeName(tfNode.getName());
-            val input = initWith.getVariable(inputName) == null ? initWith.var(inputName,null,new ZeroInitScheme('f')) : initWith.getVariable(inputName) ;
+            val input = initWith.getVariable(inputName) == null ? initWith.var(inputName,null,new ZeroInitScheme()) : initWith.getVariable(inputName) ;
             returnInputs.add(input);
         }
 
@@ -426,7 +428,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
             skipSet.add(tfNode.getName());
             val inputName = TFGraphMapper.getInstance().getNodeName(tfNode.getName());
-            val input = initWith.getVariable(inputName) == null ? initWith.var(inputName,null,new ZeroInitScheme('f')) : initWith.getVariable(inputName) ;
+            val input = initWith.getVariable(inputName) == null ? initWith.var(inputName,null,new ZeroInitScheme()) : initWith.getVariable(inputName) ;
         }
 
 

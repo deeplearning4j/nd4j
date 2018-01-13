@@ -732,53 +732,79 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
 
     public IfImportState nodesForIf(NodeDef from, GraphDef graph) {
+        //Assume we start with a switch statement
         val nodesByName = nodesByName(graph);
         int currNodeIndex = graph.getNodeList().indexOf(from);
-        List<NodeDef> condNodes = new ArrayList<>();
-
-        //The first node should be pred_id. This is the condition.
-        //Any inputs (and inputs inputs all the way to the top of the tree)
-        //should be considered as part of the condition scope
-        NodeDef current = from;
-        addNodesForInput(nodesByName,condNodes,current);
-        Collections.reverse(condNodes);
-
-        List<NodeDef> trueBodyNodes =  new ArrayList<>();
-        val trueBodyScope = graph.getNodeList().get(currNodeIndex + 1);
-        addNodesForInput(nodesByName,trueBodyNodes,trueBodyScope);
-        Collections.reverse(trueBodyNodes);
+        val trueDefName = from.getInput(1);
+        val falseDefName = from.getInput(0);
+        boolean onFalseDefinition = true;
+        //start with the true
+        boolean onTrueDefinition = false;
 
         List<NodeDef> falseBodyNodes = new ArrayList<>();
-        val falseBodyScope = graph.getNodeList().get(currNodeIndex + 2);
-        addNodesForInput(nodesByName,falseBodyNodes,falseBodyScope);
-        Collections.reverse(falseBodyNodes);
-
-
-        return IfImportState.builder().condNodes(condNodes).falseNodes(falseBodyNodes).trueNodes(trueBodyNodes).build();
-    }
-
-
-    private void addNodesForInput(Map<String,NodeDef> nodesByName,List<NodeDef> nodes,NodeDef current) {
-        if(!nodes.contains(current))
-            nodes.add(current);
-
-
-        for(int i = 0; i < current.getInputCount(); i++) {
-            val node = nodesByName.get(current.getInput(i));
-            if(node.getInputCount() > 0)  {
-                addNodesForInput(nodesByName,nodes,node);
+        List<NodeDef> trueBodyNodes = new ArrayList<>();
+        List<NodeDef> conditionNodes = new ArrayList<>();
+        Set<String> seenNames = new LinkedHashSet<>();
+        /**
+         * Accumulate a list backwards to get proper ordering.
+         *
+         */
+        for(int i = currNodeIndex; i >= 0; i--) {
+            //switch to false names
+            if(graph.getNode(i).getName().equals(trueDefName)) {
+                onFalseDefinition = false;
+                onTrueDefinition = true;
             }
 
-            if(!nodes.contains(node))
-                nodes.add(node);
+            //on predicate now
+            if(graph.getNode(i).getName().contains("pred_id")) {
+                onTrueDefinition = false;
+            }
+
+            if(onTrueDefinition) {
+                trueBodyNodes.add(graph.getNode(i));
+            }
+            else if(onFalseDefinition) {
+                falseBodyNodes.add(graph.getNode(i));
+            }
+            //condition scope now
+            else {
+                val currNode = graph.getNode(i);
+                //break only after bootstrapping the first node (the predicate id node)
+                if(!seenNames.contains(graph.getNode(i).getName()) && !graph.getNode(i).getName().contains("pred_id")) {
+                    break;
+                }
+
+                /**
+                 * Continuously add inputs seen for each node in the sub graph that occurs.
+                 * Starting from the predicate id, any node that has inputs in the condition scope
+                 * are by definition within the scope. Any node not encountered after that is considered out of scope.
+                 * This means we break.
+                 */
+                for(int inputIdx = 0; inputIdx < currNode.getInputCount(); inputIdx++) {
+                    seenNames.add(currNode.getInput(inputIdx));
+                }
 
 
 
-
-
+                //ensure the "current node" is added as well
+                seenNames.add(graph.getNode(i).getName());
+                conditionNodes.add(graph.getNode(i));
+            }
         }
 
+        /**
+         * Since we are going over the graph backwards,
+         * we need to reverse the nodes to ensure proper ordering.
+         */
+        Collections.reverse(falseBodyNodes);
+        Collections.reverse(trueBodyNodes);
+        Collections.reverse(conditionNodes);
 
+
+        return IfImportState.builder().condNodes(conditionNodes).falseNodes(falseBodyNodes).trueNodes(trueBodyNodes).build();
     }
+
+    
 
 }

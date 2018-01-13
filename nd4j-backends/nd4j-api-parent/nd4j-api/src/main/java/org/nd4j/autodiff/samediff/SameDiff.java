@@ -1792,6 +1792,24 @@ public class SameDiff {
         return or(null,iX,iy);
     }
 
+    public SDVariable and(SDVariable iX, SDVariable iY){
+        return and(null, iX, iY);
+    }
+
+    public SDVariable and(String name, SDVariable ix, SDVariable iy){
+        SDVariable result = f().and(ix, iy);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable xor(SDVariable ix, SDVariable iy){
+        return xor(null, ix, iy);
+    }
+
+    public SDVariable xor(String name, SDVariable ix, SDVariable iy){
+        SDVariable result = f().xor(ix, iy);
+        return updateVariableNameAndReference(result, name);
+    }
+
     public SDVariable abs(SDVariable ix){
         return abs(null, ix);
     }
@@ -3485,6 +3503,15 @@ public class SameDiff {
 
     public SDVariable expandDims(String name, SDVariable ix, int axis){
         SDVariable result = f().expandDims(ix, axis);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable squeeze(SDVariable ix, int axis){
+        return squeeze(null, ix, axis);
+    }
+
+    public SDVariable squeeze(String name, SDVariable ix, int axis){
+        SDVariable result = f().squeeze(ix, axis);
         return updateVariableNameAndReference(result, name);
     }
 

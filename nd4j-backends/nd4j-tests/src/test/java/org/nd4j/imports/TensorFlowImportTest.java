@@ -53,7 +53,51 @@ public class TensorFlowImportTest {
         val mapper = TFGraphMapper.getInstance();
         val readGraph = TFGraphMapper.getInstance().parseGraphFrom(resourceInputStream);
         val nodes = mapper.nodesByName(readGraph);
-        val firstInput = nodes.get("cond5/pred_id");
+        /**
+         * Work backwards starting fom the conditon id (usually a name containing condid/pred_id:
+         *
+         *
+         *
+         *  node {
+         name: "Sum"
+         op: "Sum"
+         input: "sub"
+         input: "Const"
+         attr {
+         key: "T"
+         value {
+         type: DT_DOUBLE
+         }
+         }
+         attr {
+         key: "Tidx"
+         value {
+         type: DT_INT32
+         }
+         }
+         attr {
+         key: "keep_dims"
+         value {
+         b: false
+         }
+         }
+         }
+         *
+         * node {
+         name: "Less"
+         op: "Less"
+         input: "Sum"
+         input: "Less/y"
+         attr {
+         key: "T"
+         value {
+         type: DT_DOUBLE
+         }
+         }
+         }
+         */
+
+        val firstInput = nodes.get("cond5/Merge");
         mapper.nodesForIf(firstInput,readGraph);
     }
 
