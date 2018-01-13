@@ -275,10 +275,42 @@ public class If extends DifferentialFunction implements CustomOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-         //usually should be a merge node for a conditional
+        //usually should be a merge node for a conditional
         val ifNodes = TFGraphMapper.getInstance().nodesForIf(nodeDef,graph);
 
 
+        val trueScopeGraphDefBuilder = GraphDef.newBuilder();
+        for(val node : ifNodes.getTrueNodes())  {
+            trueScopeGraphDefBuilder.addNode(node);
+        }
+
+
+        val trueScope = TFGraphMapper.getInstance().importGraph(trueScopeGraphDefBuilder.build());
+
+
+        val falseScopeGraphDefBuilder = GraphDef.newBuilder();
+        for(val node : ifNodes.getFalseNodes())  {
+            falseScopeGraphDefBuilder.addNode(node);
+
+        }
+
+        val falseScope = TFGraphMapper.getInstance().importGraph(falseScopeGraphDefBuilder.build());
+
+
+        val condScopeGraphDefBuilder = GraphDef.newBuilder();
+        for(val node : ifNodes.getCondNodes())  {
+            condScopeGraphDefBuilder.addNode(node);
+
+        }
+
+
+        val condScope = TFGraphMapper.getInstance().importGraph(condScopeGraphDefBuilder.build());
+
+
+
+        initWith.putSubFunction(ifNodes.getTrueBodyScopeName(),trueScope);
+        initWith.putSubFunction(ifNodes.getFalseBodyScopeName(),falseScope);
+        initWith.putSubFunction(ifNodes.getConditionBodyScopeName(),condScope);
     }
 
 
@@ -318,6 +350,6 @@ public class If extends DifferentialFunction implements CustomOp {
 
     @Override
     public String tensorflowName() {
-            return "Cond";
+        return "Cond";
     }
 }
