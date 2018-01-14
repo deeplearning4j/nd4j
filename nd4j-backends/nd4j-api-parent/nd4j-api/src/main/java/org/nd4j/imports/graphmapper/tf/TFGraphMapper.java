@@ -50,6 +50,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
          * public interface ImportOpHandler
          */
         add("LoopCond");
+        /**
+         * We should skip this for the sake of while..but not if.
+         * Need to be a bit more flexible here.
+         */
         add("Merge");
         add("Exit");
         add("NextIteration");
@@ -82,6 +86,19 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isOpIgnoreException(NodeDef node) {
+        //if statements should not be ignored
+        if(node.getOp().equals("Merge")) {
+            for(int i = 0; i < node.getInputCount(); i++) {
+                //while loop
+                if(node.getInput(i).endsWith("/Enter") || node.getInput(i).endsWith("/NextIteration"))
+                    return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -730,7 +747,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     }
 
 
-
+    /**
+     * Returns the node for an if statement
+     * @param from the starting node (a merge node that represents a conditional)
+     * @param graph the graph to search
+     * @return an import state representing the nodes for each scope
+     */
     public IfImportState nodesForIf(NodeDef from, GraphDef graph) {
         //Assume we start with a switch statement
         int currNodeIndex = graph.getNodeList().indexOf(from);

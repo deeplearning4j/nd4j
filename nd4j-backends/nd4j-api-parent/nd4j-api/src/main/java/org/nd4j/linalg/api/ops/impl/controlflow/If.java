@@ -275,6 +275,9 @@ public class If extends DifferentialFunction implements CustomOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
+        //cond is only part of while loops
+        if(nodeDef.getName().contains("/cond/"))
+            return;
         //usually should be a merge node for a conditional
         val ifNodes = TFGraphMapper.getInstance().nodesForIf(nodeDef,graph);
 
@@ -354,6 +357,6 @@ public class If extends DifferentialFunction implements CustomOp {
 
     @Override
     public String tensorflowName() {
-        return "Cond";
+        return "Merge";
     }
 }

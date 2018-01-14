@@ -82,6 +82,30 @@ public class TensorFlowImportTest {
 
     }
 
+    @Test
+    public void testIfIgnoreWhileMerge() throws Exception {
+        val resourceInputStream = new ClassPathResource("/tf_graphs/examples/simple_while/frozen_model.pb").getInputStream();
+        val mapper = TFGraphMapper.getInstance();
+        val readGraph = TFGraphMapper.getInstance().parseGraphFrom(resourceInputStream);
+        val nodes = mapper.nodesByName(readGraph);
+        val firstInput = nodes.get("output/Merge");
+        assertNotNull(firstInput);
+        assertFalse(mapper.isOpIgnoreException(firstInput));
+
+        val resourceInputStreamIf = new ClassPathResource("/tf_graphs/examples/simple_cond/frozen_model.pb").getInputStream();
+        val readGraphIf = TFGraphMapper.getInstance().parseGraphFrom(resourceInputStreamIf);
+        val nodesif = mapper.nodesByName(readGraphIf);
+        /**
+         * Work backwards starting fom the condition id (usually a name containing condid/pred_id:
+
+         */
+
+        val secondInput = nodesif.get("cond5/Merge");
+        assertNotNull(secondInput);
+        assertTrue(mapper.isOpIgnoreException(secondInput));
+
+    }
+
 
     @Test
     public void testHashEquality1() {
