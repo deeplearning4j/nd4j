@@ -101,6 +101,18 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
             return ret;
         }
+
+        else if(node.getOp().equals("Switch")) {
+            boolean ret = false;
+            for(int i = 0; i < node.getInputCount(); i++) {
+                //while loop
+                ret = ret || !node.getInput(i).endsWith("/Merge") || !node.getInput(i).endsWith("/LoopCond");
+
+            }
+
+            return ret;
+        }
+
         return false;
     }
 
@@ -219,13 +231,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
             if(field != null && valueToSet != null)
                 on.setValueFor(field,valueToSet);
-
-
         }
-
     }
-
-
 
 
     /**

@@ -68,7 +68,7 @@ public class If extends DifferentialFunction implements CustomOp {
         this.trueBodyExecuted = ifStatement.trueBodyExecuted;
         this.dummyResult = ifStatement.dummyResult;
         this.inputVars = ifStatement.inputVars;
-        this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme('f'));
+        this.dummyResult =  this.sameDiff.var("dummyresult-" + UUID.randomUUID().toString(),new int[]{1,1},new ZeroInitScheme());
         if(sameDiff.getShapeForVarName(dummyResult.getVarName()) == null)
             sameDiff.putShapeForVarName(dummyResult.getVarName(),new int[]{1,1});
 
