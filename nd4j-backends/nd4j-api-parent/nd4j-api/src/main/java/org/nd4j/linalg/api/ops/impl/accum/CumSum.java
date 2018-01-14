@@ -19,7 +19,7 @@ public class CumSum extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        return "CumSum";
+        return "Cumsum";
     }
 
     @Override

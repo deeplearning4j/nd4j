@@ -1,4 +1,4 @@
-package org.nd4j.linalg.api.ops.impl.accum;
+package org.nd4j.linalg.api.ops.impl.shape;
 
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -9,17 +9,17 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.Map;
 
-public class CumProd extends DynamicCustomOp {
+public class DiagPart extends DynamicCustomOp {
     @Override
     public String opName() {
-        return "cumprod";
+        return "diag_part";
     }
 
 
 
     @Override
     public String tensorflowName() {
-        return "Cumprod";
+        return "DiagPart";
     }
 
     @Override
@@ -31,4 +31,5 @@ public class CumProd extends DynamicCustomOp {
     public void initFromOnnx(OnnxProto3.NodeProto node, SameDiff initWith, Map<String, OnnxProto3.AttributeProto> attributesForNode, OnnxProto3.GraphProto graph) {
         super.initFromOnnx(node, initWith, attributesForNode, graph);
     }
+
 }

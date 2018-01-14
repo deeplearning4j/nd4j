@@ -44,7 +44,7 @@ public class DepthToSpace extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "depthtospace";
+        return "depth_to_space";
     }
 
     @Override
