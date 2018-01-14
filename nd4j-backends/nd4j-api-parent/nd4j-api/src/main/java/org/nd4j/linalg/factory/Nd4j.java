@@ -95,7 +95,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
-import org.nd4j.context.PropertyParser;
+import org.nd4j.tools.PropertyParser;
 
 /**
  * Creation of ndarrays via classpath discovery.
