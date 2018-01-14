@@ -47,6 +47,7 @@ import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUConfiguration;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.collection.IntArrayKeyMap;
+import org.nd4j.linalg.exception.ND4JIllegalArgumentException;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.lossfunctions.impl.*;
@@ -589,6 +590,14 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Already found an existing array!");
         }
 
+        for(int i = 0; i < shape.length; i++) {
+            if(shape[i] < 1) {
+                addAsPlaceHolder(varName);
+                placeHolderOriginalShapes.put(varName,shape);
+                return;
+            }
+        }
+
         variableNameToShape.put(varName,shape);
     }
 
@@ -605,6 +614,14 @@ public class SameDiff {
 
         if(variableNameToShape.containsKey(varName)) {
             throw new ND4JIllegalStateException("Shape for " + varName + " already exists!");
+        }
+
+        for(int i = 0; i < shape.length; i++) {
+            if(shape[i] < 1) {
+                addAsPlaceHolder(varName);
+                placeHolderOriginalShapes.put(varName,shape);
+                return;
+            }
         }
 
         variableNameToShape.put(varName,shape);
@@ -651,6 +668,14 @@ public class SameDiff {
      * @param variable the variable to associate
      */
     public void associateArrayWithVariable(INDArray arr, SDVariable variable) {
+        if(variable == null) {
+            throw new ND4JIllegalArgumentException("Variable must not be null!");
+        }
+
+        if(arr == null) {
+            throw new ND4JIllegalArgumentException("Array must not be null");
+        }
+
         reverseArrayLookup.put(arr,variable);
         variableNameToArr.put(variable.getVarName(),arr);
         if(!shapeAlreadyExistsForVarName(variable.getVarName()))

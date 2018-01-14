@@ -27,47 +27,46 @@ import static org.nd4j.imports.TFGraphTestAllHelper.*;
 public class TFGraphTestList {
 
     public static String[] modelNames = new String[]{
-//            "add_n",
-            //"ae",
-            //"ae_00",
-          //  "bias_add",
-            //"norm_tests/norm_0",
-            // "concat"
-            // "conv_0",
-            // "conv_1",
-            // "conv_2",
-            // "conv_3",
-            //"deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
-            //"deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
-             //"expand_dim",
-
-             //"g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
-            //   "g_01",
-            //   "g_01",
-               //"g_02",
-            //   "g_03",
-           //   "g_04",
-             //  "g_05",
-           //   "gru_mnist",
-            //"lstm_mnist",
-            // "math_mul_order",
-            //"mlp_00",
-            //"mnist_00",
-            //  "node_multiple_out",// -> Need to map multiple out values to graph node output values
-            //  "pool_0",
-           //   "pool_1",
-            //  "primitive_gru",
-           //   "primitive_gru_dynamic",
-             // "primitive_lstm",
-            //  "stack",
-            //  "stack_1d",
-            //"stack_scalar",
+            "add_n",
+            "ae",
+            "ae_00",
+            "bias_add",
+            "norm_tests/norm_0",
+             "concat",
+             "conv_0",
+             "conv_1",
+             "conv_2",
+             "conv_3",
+            "deep_mnist", //NOTE THIS ONE WILL FAIL because it is expecting a placeholder value for dropout % which we tie to 1.0 in inference
+            "deep_mnist_no_dropout", //Takes way too long since there are a lot of nodes, would skip for now
+             "expand_dim",
+            "g_00", //This has no placeholders in the graph - not sure how to exec as it gives a NPE
+               "g_01",
+               "g_01",
+               "g_02",
+               "g_03",
+              "g_04",
+               "g_05",
+              "gru_mnist",
+            "lstm_mnist",
+             "math_mul_order",
+            "mlp_00",
+            "mnist_00",
+              "node_multiple_out", //-> Need to map multiple out values to graph node output values
+              "pool_0",
+              "pool_1",
+              "primitive_gru",
+              "primitive_gru_dynamic",
+              "primitive_lstm",
+              "stack",
+              "stack_1d",
+            "stack_scalar",
              "simple_cond",
-            //"simple_while",
-            //"transform_0",
-            //"transpose_00",
-            //"non2d_0"
-             // "unstack"
+            "simple_while",
+            "transform_0",
+            "transpose_00",
+            "non2d_0",
+              "unstack"
     };
 
     /**
@@ -87,7 +86,7 @@ public class TFGraphTestList {
     //change this to SAMEDIFF for samediff
     public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;
     //public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.LIBND4J;
-    //public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.JUST_PRINT;
+   // public static TFGraphTestAllHelper.ExecuteWith executeWith = TFGraphTestAllHelper.ExecuteWith.JUST_PRINT;
 
     public static String modelDir = TFGraphTestAllHelper.COMMON_BASE_DIR; //this is for later if we want to check in models separately for samediff and libnd4j
 

@@ -768,7 +768,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         int currNodeIndex = graph.getNodeList().indexOf(from);
         val trueDefName = from.getInput(1);
         val falseDefName = from.getInput(0);
-        val scopeName = trueDefName.substring(0,trueDefName.indexOf("/"));
+        val scopeId = UUID.randomUUID().toString();
+        val scopeName = scopeId + "-" + trueDefName.substring(0,trueDefName.indexOf("/"));
         val trueDefScopeName = scopeName + "-true-scope";
         val falseDefScopeName = scopeName + "-false-scope";
 

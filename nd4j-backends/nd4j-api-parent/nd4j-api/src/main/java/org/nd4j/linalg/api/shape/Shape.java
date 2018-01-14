@@ -300,8 +300,19 @@ public class Shape {
             if(right[i] < 1)
                 throw new ND4JIllegalStateException("Right shape contained value < 0 at index " + i);
         }
-        if (left[1] != right[0])
+
+
+        if (left.length > 1 && left[1] != right[0])
             throw new IllegalArgumentException("Columns of left not equal to rows of right");
+
+        if(left.length < right.length) {
+            if(left[0] == right[0]) {
+                return new int[] {right[1]};
+            }
+        }
+
+
+
 
         int[] shape = {left[0], right[1]};
         return shape;

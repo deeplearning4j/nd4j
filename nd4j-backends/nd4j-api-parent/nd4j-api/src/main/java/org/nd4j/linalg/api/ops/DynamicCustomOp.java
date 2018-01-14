@@ -235,10 +235,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             arr = var.getArr();
         }
 
-        if(arr != null)
+        if(arr != null) {
+            sameDiff.associateArrayWithVariable(arr,var);
             addOutputArgument(arr);
+        }
 
-        sameDiff.associateArrayWithVariable(arr,var);
+
         return arr;
     }
 
