@@ -61,14 +61,14 @@ public class TensorFlowImportTest {
 
         val firstInput = nodes.get("cond5/Merge");
         val ifNodes = mapper.nodesForIf(firstInput,readGraph);
-        assertEquals(6,ifNodes.getFalseNodes().size());
+        assertEquals(5,ifNodes.getFalseNodes().size());
         assertEquals(5,ifNodes.getTrueNodes().size());
         assertEquals(10,ifNodes.getCondNodes().size());
 
 
         val secondInput = nodes.get("cond6/Merge");
         val ifNodesTwo = mapper.nodesForIf(secondInput,readGraph);
-        assertEquals(6,ifNodesTwo.getFalseNodes().size());
+        assertEquals(5,ifNodesTwo.getFalseNodes().size());
         assertEquals(5,ifNodesTwo.getTrueNodes().size());
         assertEquals(6,ifNodesTwo.getCondNodes().size());
 

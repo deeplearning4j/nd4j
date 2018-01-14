@@ -92,13 +92,16 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     public boolean isOpIgnoreException(NodeDef node) {
         //if statements should not be ignored
         if(node.getOp().equals("Merge")) {
+            boolean ret = false;
             for(int i = 0; i < node.getInputCount(); i++) {
                 //while loop
-                if(node.getInput(i).endsWith("/Enter") || node.getInput(i).endsWith("/NextIteration"))
-                    return false;
+                ret = ret || !node.getInput(i).endsWith("/Enter") || !node.getInput(i).endsWith("/NextIteration");
+
             }
+
+            return ret;
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -786,16 +789,19 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             if(graph.getNode(i).getName().contains("pred_id")) {
                 onTrueDefinition = false;
             }
-
-            if(onTrueDefinition) {
+            //don't readd the same node, this causes a stackoverflow
+            if(onTrueDefinition  && !graph.getNode(i).equals(from)) {
                 trueBodyNodes.add(graph.getNode(i));
             }
-            else if(onFalseDefinition) {
+            else if(onFalseDefinition && !graph.getNode(i).equals(from)) {
                 falseBodyNodes.add(graph.getNode(i));
             }
             //condition scope now
             else {
                 val currNode = graph.getNode(i);
+                if(currNode.equals(from))
+                    continue;
+
                 //break only after bootstrapping the first node (the predicate id node)
                 if(!seenNames.contains(graph.getNode(i).getName()) && !graph.getNode(i).getName().contains("pred_id")) {
                     break;

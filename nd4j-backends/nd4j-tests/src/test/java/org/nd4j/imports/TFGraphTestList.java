@@ -63,6 +63,7 @@ public class TFGraphTestList {
             //  "stack_1d",
             //"stack_scalar",
              "simple_cond",
+            //"simple_while",
             //"transform_0",
             //"transpose_00",
             //"non2d_0"
