@@ -590,6 +590,7 @@ public class SameDiff {
             throw new ND4JIllegalStateException("Already found an existing array!");
         }
 
+
         for(int i = 0; i < shape.length; i++) {
             if(shape[i] < 1) {
                 addAsPlaceHolder(varName);
@@ -597,6 +598,7 @@ public class SameDiff {
                 return;
             }
         }
+
 
         variableNameToShape.put(varName,shape);
     }
