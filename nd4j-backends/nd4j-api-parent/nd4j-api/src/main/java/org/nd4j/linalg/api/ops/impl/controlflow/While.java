@@ -13,6 +13,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.CustomOpDescriptor;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.exception.ND4JIllegalArgumentException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
 import org.tensorflow.framework.AttrValue;
@@ -175,7 +176,7 @@ public class While extends DifferentialFunction implements CustomOp {
 
     private  void doImport(NodeDef nodeDef,SameDiff initWith,Map<String,AttrValue> attributesForNode,GraphDef graph,Set<String> skipSet,AtomicInteger currIndex) {
         val uniqueId = java.util.UUID.randomUUID().toString();
-
+        skipSet.add(nodeDef.getName());
         val scopeCondition = SameDiff.create();
         val scopeLoop = SameDiff.create();
         initWith.putSubFunction("condition-" + uniqueId,scopeCondition);
@@ -262,6 +263,12 @@ public class While extends DifferentialFunction implements CustomOp {
                 scopeLoop.var(var);
                 initWith.var(var);
                 log.info("Adding condition var [{}]", var.getVarName());
+
+            }
+            else if(!skipSet.contains(tfNode.getName())) {
+                val func = DifferentialFunctionClassHolder.getInstance().getInstance(TFGraphMapper.getInstance().getMappedOp(tfNode.getOp()).opName());
+                func.initFromTensorFlow(tfNode,scopeCondition,nodeDef.getAttrMap(),graph);
+                func.setSameDiff(scopeLoop);
 
             }
 
@@ -431,6 +438,14 @@ public class While extends DifferentialFunction implements CustomOp {
             val input = initWith.getVariable(inputName) == null ? initWith.var(inputName,null,new ZeroInitScheme()) : initWith.getVariable(inputName) ;
         }
 
+
+        //the output of the condition should always be a singular scalar
+        //this is a safe assumption
+        val conditionVars = scopeCondition.functions();
+        if(conditionVars.length < 1) {
+            throw new ND4JIllegalArgumentException("No functions found!");
+        }
+        this.targetBoolean = conditionVars[conditionVars.length - 1].outputVariables()[0];
 
         log.info("-------------------------------------------");
 
