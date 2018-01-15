@@ -41,6 +41,8 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class CosineSimilarity extends BaseAccumulation {
+    public static final String OP_NAME = "cosinesimilarity";
+
     private Number constantNormalizedByNorm2X, constantNormalizedByNorm2Y;
 
     public CosineSimilarity(SameDiff sameDiff, SDVariable i_v, int[] dimensions) {
@@ -110,7 +112,7 @@ public class CosineSimilarity extends BaseAccumulation {
 
     @Override
     public String opName() {
-        return "cosinesimilarity";
+        return OP_NAME;
     }
 
     @Override

@@ -35,18 +35,10 @@ import java.util.List;
  * @author raver119@gmail.com
  */
 public class HammingDistance extends BaseAccumulation {
-    private Number constantNormalizedByNorm2X, constantNormalizedByNorm2Y;
 
-    public HammingDistance(SameDiff sameDiff, SDVariable i_v, int[] dimensions, Number constantNormalizedByNorm2X, Number constantNormalizedByNorm2Y) {
-        super(sameDiff, i_v, dimensions);
-        this.constantNormalizedByNorm2X = constantNormalizedByNorm2X;
-        this.constantNormalizedByNorm2Y = constantNormalizedByNorm2Y;
-    }
 
-    public HammingDistance(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int[] dimensions, Number constantNormalizedByNorm2X, Number constantNormalizedByNorm2Y) {
+    public HammingDistance(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int... dimensions) {
         super(sameDiff, i_v, i_v2, dimensions);
-        this.constantNormalizedByNorm2X = constantNormalizedByNorm2X;
-        this.constantNormalizedByNorm2Y = constantNormalizedByNorm2Y;
     }
 
     public HammingDistance() {

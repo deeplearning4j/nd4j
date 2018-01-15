@@ -38,18 +38,13 @@ import java.util.List;
  * @author raver119@gmail.com
  */
 public class CosineDistance extends BaseAccumulation {
-    private Number constantNormalizedByNorm2X, constantNormalizedByNorm2Y;
 
     public CosineDistance(SameDiff sameDiff, SDVariable i_v, int[] dimensions, Number constantNormalizedByNorm2X, Number constantNormalizedByNorm2Y) {
         super(sameDiff, i_v, dimensions);
-        this.constantNormalizedByNorm2X = constantNormalizedByNorm2X;
-        this.constantNormalizedByNorm2Y = constantNormalizedByNorm2Y;
     }
 
-    public CosineDistance(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int[] dimensions, Number constantNormalizedByNorm2X, Number constantNormalizedByNorm2Y) {
+    public CosineDistance(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int... dimensions) {
         super(sameDiff, i_v, i_v2, dimensions);
-        this.constantNormalizedByNorm2X = constantNormalizedByNorm2X;
-        this.constantNormalizedByNorm2Y = constantNormalizedByNorm2Y;
     }
 
     public CosineDistance() {
@@ -112,17 +107,6 @@ public class CosineDistance extends BaseAccumulation {
     @Override
     public String opName() {
         return "cosinedistance";
-    }
-
-
-
-    @Override
-    public void exec() {
-        this.constantNormalizedByNorm2X = x.norm2Number();
-        this.constantNormalizedByNorm2Y = y.norm2Number();
-        this.extraArgs = new Object[] {0.0, constantNormalizedByNorm2X, constantNormalizedByNorm2Y};
-        double dot = Nd4j.getBlasWrapper().dot(x, y);
-        this.finalResult = dot / (constantNormalizedByNorm2X.doubleValue() * constantNormalizedByNorm2Y.doubleValue());
     }
 
 

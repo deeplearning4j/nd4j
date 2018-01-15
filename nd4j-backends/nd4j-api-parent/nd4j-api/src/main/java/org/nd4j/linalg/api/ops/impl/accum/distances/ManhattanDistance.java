@@ -36,6 +36,8 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class ManhattanDistance extends BaseAccumulation {
+    public static final String OP_NAME = "manhattan";
+
     public ManhattanDistance(SameDiff sameDiff, SDVariable i_v, int[] dimensions) {
         super(sameDiff, i_v, dimensions);
     }
@@ -97,7 +99,7 @@ public class ManhattanDistance extends BaseAccumulation {
 
     @Override
     public String opName() {
-        return "manhattan";
+        return OP_NAME;
     }
 
 

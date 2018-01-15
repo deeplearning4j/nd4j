@@ -2354,7 +2354,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable cosineSimilarity(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return cosineSimilarity(generateNewVarName(new CosineSimilarity().opName(),0),iX,i_y,dimensions);
+        return cosineSimilarity(generateNewVarName(CosineSimilarity.OP_NAME,0),iX,i_y,dimensions);
     }
 
     /**
@@ -2365,7 +2365,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable euclideanDistance(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return euclideanDistance(generateNewVarName(new EuclideanDistance().opName(),0),iX,i_y,dimensions);
+        return euclideanDistance(generateNewVarName(EuclideanDistance.OP_NAME,0),iX,i_y,dimensions);
     }
 
     /**
@@ -2376,7 +2376,34 @@ public class SameDiff {
      * @return
      */
     public SDVariable manhattanDistance(SDVariable iX, SDVariable i_y, int...dimensions) {
-        return manhattanDistance(generateNewVarName(new ManhattanDistance().opName(),0),iX,i_y,dimensions);
+        return manhattanDistance(generateNewVarName(ManhattanDistance.OP_NAME,0),iX,i_y,dimensions);
+    }
+
+    public SDVariable cosineDistance(SDVariable ix, SDVariable iy, int... dimensions){
+        return cosineDistance(null, ix, iy, dimensions);
+    }
+
+    public SDVariable cosineDistance(String name, SDVariable ix, SDVariable iy, int... dimensions){
+        SDVariable result = functionFactory.cosineDistance(ix, iy, dimensions);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable hammingDistance(SDVariable ix, SDVariable iy, int... dimensions){
+        return hammingDistance(null, ix, iy, dimensions);
+    }
+
+    public SDVariable hammingDistance(String name, SDVariable ix, SDVariable iy, int... dimensions){
+        SDVariable result = functionFactory.hammingDistance(ix, iy, dimensions);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable jaccardDistance(SDVariable ix, SDVariable iy, int... dimensions){
+        return jaccardDistance(null, ix, iy, dimensions);
+    }
+
+    public SDVariable jaccardDistance(String name, SDVariable ix, SDVariable iy, int... dimensions){
+        SDVariable result = functionFactory.jaccardDistance(ix, iy, dimensions);
+        return updateVariableNameAndReference(result, name);
     }
 
     /**
