@@ -374,6 +374,14 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return inputArguments.get(index);
     }
 
+    public void setInputArgument(int index,INDArray input) {
+        inputArguments.set(index,input);
+    }
+
+    public void setOutputArgument(int index,INDArray output) {
+        outputArguments.set(index,output);
+    }
+
     @Override
     public int numInputArguments() {
         return inputArguments.size();
