@@ -37,6 +37,11 @@ public class Conv2DDerivative extends Conv2D {
     }
 
     @Override
+    public String[] tensorflowNames() {
+        throw new NoOpNameFoundException("No op name found for backwards");
+    }
+
+    @Override
     public String opName() {
         return "conv2d_bp";
     }
