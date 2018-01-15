@@ -307,7 +307,7 @@ public class Shape {
 
         if(left.length < right.length) {
             if(left[0] == right[0]) {
-                return new int[] {right[1]};
+                return new int[] {1, right[1]};
             }
         }
 
