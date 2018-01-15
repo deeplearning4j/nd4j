@@ -25,7 +25,6 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
@@ -118,24 +117,6 @@ public class Mmul extends DynamicCustomOp {
     @Override
     public String opName() {
         return "mmul";
-    }
-
-    @Override
-    public void resolvePropertiesFromSameDiffBeforeExecution() {
-        super.resolvePropertiesFromSameDiffBeforeExecution();
-
-        if (numInputArguments() == 2) {
-            INDArray firstInput = getInputArgument(0);
-            INDArray secondInput = getInputArgument(1);
-            if(firstInput.rank() == 1) {
-                firstInput = firstInput.reshape(firstInput.length(),1);
-                setInputArgument(0,firstInput);
-                val firstOutput = getOutputArgument(0);
-                if(firstOutput.rank() == 1)
-                    setOutputArgument(0,firstOutput.reshape(firstOutput.length(),1));
-            }
-        }
-
     }
 
 
