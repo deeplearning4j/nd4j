@@ -19,6 +19,7 @@
 
 package org.nd4j.linalg.api.ops.impl.shape;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
@@ -45,10 +46,13 @@ import java.util.Map;
 @Slf4j
 public class Slice extends DynamicCustomOp {
 
-    private int begin,size;
-
-
     public Slice() {}
+
+    public Slice(SameDiff sameDiff, @NonNull SDVariable input, @NonNull int[] begin, @NonNull int[] size){
+        super(null, sameDiff, new SDVariable[]{input});
+        addIArgument(begin);
+        addIArgument(size);
+    }
 
 
     @Override
@@ -72,10 +76,6 @@ public class Slice extends DynamicCustomOp {
     public void assertValidForExecution() {
         if(numInputArguments() != 1 && numInputArguments() != 3 && numInputArguments() != 4) {
             throw new ND4JIllegalStateException("Num input arguments must be 1 3 or 4.");
-        }
-
-        if(numIArguments() < 5) {
-            throw new ND4JIllegalStateException("Number of integer arguments must >= 5");
         }
     }
 
