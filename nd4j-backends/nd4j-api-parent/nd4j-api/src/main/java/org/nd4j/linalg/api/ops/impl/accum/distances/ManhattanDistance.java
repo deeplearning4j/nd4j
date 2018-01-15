@@ -25,6 +25,7 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
 import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.indexing.SpecifiedIndex;
 
 import java.util.Arrays;
 import java.util.List;
@@ -114,7 +115,7 @@ public class ManhattanDistance extends BaseAccumulation {
             gradBroadcastable = f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0));
         }
 
-        SDVariable gradX = difference.mul(gradBroadcastable);
+        SDVariable gradX = sameDiff.sign(difference).mul(gradBroadcastable);
         SDVariable gradY = f().neg(gradX);
         return Arrays.asList(gradX, gradY);
     }

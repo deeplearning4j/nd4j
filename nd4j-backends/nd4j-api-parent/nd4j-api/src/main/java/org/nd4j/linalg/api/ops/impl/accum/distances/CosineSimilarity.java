@@ -25,9 +25,11 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -111,25 +113,33 @@ public class CosineSimilarity extends BaseAccumulation {
         return "cosinesimilarity";
     }
 
-
-    @Override
-    public void exec() {
-        this.constantNormalizedByNorm2X = x.norm2Number();
-        this.constantNormalizedByNorm2Y = y.norm2Number();
-        this.extraArgs = new Object[] {0.0, constantNormalizedByNorm2X, constantNormalizedByNorm2Y};
-        double dot = Nd4j.getBlasWrapper().dot(x, y);
-        this.finalResult = dot / (constantNormalizedByNorm2X.doubleValue() * constantNormalizedByNorm2Y.doubleValue());
-    }
-
-
-
-
-
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        SDVariable numerator = f().mul(larg(),rarg());
-        SDVariable denom = f().sqrt(f().mul(f().pow(larg(),2),f().pow(rarg(),2)));
-        return Arrays.asList(f().div(numerator,denom));
+        //Let cosine(x,y) = a / b
+        //a = sum_i (x_i * y_i)
+        //b = sqrt(sum_i x_i^2) * sqrt(sum_i y_i^2) = l2(x) * l2(y)
+        //Then:
+        // dc(x,y)/dx_i = 1/b * (y - x * a / (l2(x))^2)
+
+        SDVariable x = larg();
+        SDVariable y = rarg();
+
+        SDVariable a = sameDiff.sum(x.mul(y),dimensions);
+        SDVariable l2x = f().norm2(larg(), dimensions);
+        SDVariable l2y = f().norm2(rarg(), dimensions);
+        SDVariable b = l2x.mul(l2y);
+
+        int origRank = Shape.rankFromShape(x.getShape());
+        SDVariable broadcastableA = f().reductionBroadcastableWithOrigShape(origRank, dimensions, a);
+        SDVariable broadcastableB = f().reductionBroadcastableWithOrigShape(origRank, dimensions, b);
+        SDVariable broadcastableL2xSq = f().reductionBroadcastableWithOrigShape(origRank, dimensions, sameDiff.square(l2x));
+        SDVariable broadcastableL2ySq = f().reductionBroadcastableWithOrigShape(origRank, dimensions, sameDiff.square(l2y));
+        SDVariable broadcastableGrad = f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0));
+
+        SDVariable dcdx = y.sub(x.mul(broadcastableA).div(broadcastableL2xSq)).div(broadcastableB);
+        SDVariable dcdy = x.sub(y.mul(broadcastableA).div(broadcastableL2ySq)).div(broadcastableB);
+
+        return Arrays.asList(dcdx.mul(broadcastableGrad), dcdy.mul(broadcastableGrad));
     }
 
     @Override
