@@ -46,10 +46,15 @@ import java.util.Map;
 @Slf4j
 public class Slice extends DynamicCustomOp {
 
+    private int[] begin;
+    private int[] size;
+
     public Slice() {}
 
     public Slice(SameDiff sameDiff, @NonNull SDVariable input, @NonNull int[] begin, @NonNull int[] size){
         super(null, sameDiff, new SDVariable[]{input});
+        this.begin = begin;
+        this.size = size;
         addIArgument(begin);
         addIArgument(size);
     }
@@ -167,9 +172,8 @@ public class Slice extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        SDVariable ret = outputVariables()[0];
-
-        return Collections.singletonList(ret);
+        //TODO need to implement backprop ops for slice: https://github.com/deeplearning4j/libnd4j/issues/710
+        throw new UnsupportedOperationException("Not yet implemented/supported");
     }
 
 }
