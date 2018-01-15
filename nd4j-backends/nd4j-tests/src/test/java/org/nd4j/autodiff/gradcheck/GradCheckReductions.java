@@ -8,6 +8,7 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -313,11 +314,6 @@ public class GradCheckReductions {
 
     @Test
     public void testReduce3(){
-        /*
-        cosineSimilarity
-        euclideanDistance
-        manhattanDistance
-         */
 
         Nd4j.getRandom().setSeed(12345);
 
@@ -326,8 +322,9 @@ public class GradCheckReductions {
         int d2 = 5;
 
         List<String> allFailed = new ArrayList<>();
-        for (int[] reduceDims : new int[][]{{0}, {1}, {2}, {Integer.MAX_VALUE}, {0,1}, {0,2}, {1,2}, {0,1,2}}) {
-            for (int i = 1; i < 2; i++) {
+//        for (int[] reduceDims : new int[][]{{Integer.MAX_VALUE}, {0,1,2}, {0}, {1}, {2}, {0,1}, {0,2}, {1,2}}) {
+        for (int[] reduceDims : new int[][]{{Integer.MAX_VALUE}}) {
+            for (int i = 0; i < 6; i++) {
 
                 SameDiff sd = SameDiff.create();
                 sd.setLogExecution(false);
@@ -351,10 +348,23 @@ public class GradCheckReductions {
                         reduced = sd.cosineSimilarity(in, in2, reduceDims);
                         name = "cosine";
                         break;
+                    case 3:
+                        reduced = sd.cosineDistance(in, in2, reduceDims);
+                        name = "cosinedistance";
+                        break;
+                    case 4:
+                        reduced = sd.hammingDistance(in, in2, reduceDims);
+                        name = "hamming";
+                        break;
+                    case 5:
+                        reduced = sd.jaccardDistance(in, in2, reduceDims);
+                        name = "jaccard";
+                        break;
                     default:
                         throw new RuntimeException();
                 }
 
+                //Sum: note that this should be a no-op for the full array cases
                 SDVariable sum = sd.sum(reduced, Integer.MAX_VALUE);
 
 

@@ -25,8 +25,10 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -112,8 +114,12 @@ public class CosineDistance extends BaseAccumulation {
 
 
     @Override
-    public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException();
+    public List<SDVariable> doDiff(List<SDVariable> i_v1) {
+        //Cosine distance = 1 - cosine similarity
+        //Therefore: just need to negate gradients from cosine similarity...
+
+        List<SDVariable> diff = CosineSimilarity.doDiff(sameDiff, f(), larg(), rarg(), i_v1.get(0), dimensions);
+        return Arrays.asList(f().neg(diff.get(0)), f().neg(diff.get(1)));
     }
 
     @Override
