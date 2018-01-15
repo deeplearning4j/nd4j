@@ -94,6 +94,10 @@ public class DifferentialFunctionFactory   {
         return sameDiff.zero("one-" + UUID.randomUUID().toString(),shape);
     }
 
+    public SDVariable zerosLike(SDVariable input){
+        return zerosLike(null, input);
+    }
+
     public SDVariable zerosLike(String name, SDVariable input){
         validateDifferentialFunctionsameDiff(input);
         return new ZerosLike(name, sameDiff(),input).outputVariables()[0];

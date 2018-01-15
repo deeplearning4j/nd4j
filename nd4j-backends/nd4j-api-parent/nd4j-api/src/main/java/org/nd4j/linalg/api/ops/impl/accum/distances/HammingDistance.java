@@ -27,6 +27,7 @@ import org.nd4j.linalg.api.ops.BaseAccumulation;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.factory.Nd4j;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -100,7 +101,11 @@ public class HammingDistance extends BaseAccumulation {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        return null;
+        //Hamming distance: "the Hamming distance between two strings of equal length is the number of positions at
+        // which the corresponding symbols are different."
+        //Consequently: it's not continuously differentiable, and gradients are 0 almost everywhere (but undefined
+        // when x_i == y_i)
+        return Arrays.asList(sameDiff.zerosLike(larg()), sameDiff.zerosLike(rarg()));
     }
 
 
