@@ -27,7 +27,8 @@ public class Conv3DConfig {
     private int aW;
     private int aH;
     private boolean biasUsed;
-
+    @Builder.Default
+    private String dataFormat = "NDHWC";
 
     public Map<String,Object> toProperties() {
         Map<String,Object> ret = new LinkedHashMap<>();
@@ -44,6 +45,7 @@ public class Conv3DConfig {
         ret.put("aW",aW);
         ret.put("aH",aH);
         ret.put("biasUsed",biasUsed);
+        ret.put("dataFormat",dataFormat);
         return ret;
     }
 

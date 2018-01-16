@@ -12,6 +12,9 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.tensorflow.framework.AttrValue;
+import org.tensorflow.framework.GraphDef;
+import org.tensorflow.framework.NodeDef;
 
 import java.util.*;
 
@@ -43,7 +46,9 @@ public class Conv3D extends DynamicCustomOp {
 
 
     private void addArgs() {
-        addIArgument(new int[]{getConfig().getDT(),
+        addIArgument(new int[]{
+                ArrayUtil.fromBoolean(getConfig().isBiasUsed()),
+                getConfig().getDT(),
                 getConfig().getDW(),
                 getConfig().getDH(),
                 getConfig().getPT(),
@@ -51,13 +56,11 @@ public class Conv3D extends DynamicCustomOp {
                 getConfig().getPH(),
                 getConfig().getDilationT(),
                 getConfig().getDilationW(),
-                getConfig().getDilationH(),
-                getConfig().getAT(),
-                getConfig().getAW(),
-                getConfig().getAH(),
-                ArrayUtil.fromBoolean(getConfig().isBiasUsed())});
+                getConfig().getDilationH()});
 
     }
+
+
 
     @Override
     public Map<String, Object> propertiesForFunction() {
@@ -111,6 +114,12 @@ public class Conv3D extends DynamicCustomOp {
                 .propertyNames(new String[]{"ph","pw"})
                 .build();
 
+        val dataFormat = PropertyMapping.builder()
+                .onnxAttrName("data_format")
+                .tfAttrName("data_format")
+                .propertyNames(new String[]{"dataFormat"})
+                .build();
+
 
         map.put("sx", strideMapping);
         map.put("sy", strideMapping);
@@ -121,13 +130,19 @@ public class Conv3D extends DynamicCustomOp {
         map.put("isSameMode",sameMode);
         map.put("ph", paddingWidthHeight);
         map.put("pw", paddingWidthHeight);
-
+        map.put("dataFormat",dataFormat);
         ret.put(onnxName(),map);
         ret.put(tensorflowName(),map);
         return ret;
     }
 
 
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
+
+
+        super.initFromTensorFlow(nodeDef, initWith, attributesForNode, graph);
+    }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
