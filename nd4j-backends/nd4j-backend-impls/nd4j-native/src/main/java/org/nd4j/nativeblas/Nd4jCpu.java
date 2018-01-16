@@ -7013,6 +7013,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void setIdentity();
 
         /**
+        *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
+        *  shape - contains new shape to broadcast array to 
+        */
+        public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape);
+
+        /**
         *  default destructor
         */ 
 
@@ -8036,6 +8044,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void setIdentity();
 
         /**
+        *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
+        *  shape - contains new shape to broadcast array to 
+        */
+        public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape);
+
+        /**
         *  default destructor
         */ 
 
@@ -9057,6 +9073,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  makes array to be identity matrix (not necessarily square), that is set all diagonal elements = 1, rest = 0
         */
         public native void setIdentity();
+
+        /**
+        *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
+        *  shape - contains new shape to broadcast array to 
+        */
+        public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape);
 
         /**
         *  default destructor
