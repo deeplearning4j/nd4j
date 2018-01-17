@@ -210,6 +210,12 @@ public class Conv3D extends DynamicCustomOp {
         if(numIArguments() < 1) {
             addArgs();
         }
+
+        if(numInputArguments() < getDescriptor().getNumIArgs()) {
+            populateInputsAndOutputsFromSameDiff();
+        }
+
+
     }
 
     @Override
