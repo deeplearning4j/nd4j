@@ -13,6 +13,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.graph.FlatGraph;
+import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
@@ -45,6 +46,11 @@ public class TensorFlowImportTest {
     public void setUp() throws Exception {
     }
 
+
+    @Test
+    public void testClassHolder() {
+        DifferentialFunctionClassHolder.getInstance();
+    }
 
 
     @Test

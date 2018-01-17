@@ -7,6 +7,7 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.onnx.OnnxDescriptorParser;
 import org.nd4j.imports.descriptors.onnx.OpDescriptor;
 import org.nd4j.imports.descriptors.tensorflow.TensorflowDescriptorParser;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.*;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.reflections.Reflections;
@@ -33,7 +34,16 @@ public class DifferentialFunctionClassHolder {
     private Map<String,Map<String,Field>> fieldsForFunction;
 
     private  Set<String>  fieldNamesOpsIgnore;
-
+    private Set<String> classesWithConfig = new LinkedHashSet<String>(){{
+        add(AvgPooling2D.class.getName());
+        add(Conv2D.class.getName());
+        add(Conv3D.class.getName());
+        add(FullConv3D.class.getName());
+        add(LocalResponseNormalization.class.getName());
+        add(MaxPooling2D.class.getName());
+        add(Pooling2D.class.getName());
+        add(Pooling3D.class.getName());
+    }};
     /**
      * Get the fields for a given {@link DifferentialFunction}
      * @param function the function to get the fields for
@@ -155,13 +165,17 @@ public class DifferentialFunctionClassHolder {
                     Class<? extends DifferentialFunction> current = node.getClass();
                     val fields = new ArrayList<Field>();
                     while(current.getSuperclass() != null) {
-                        if(Modifier.isInterface(current.getModifiers()) || Modifier.isAbstract(current.getModifiers()) || current.equals(Object.class))
-                            continue;
+                        if(classesWithConfig.contains(current.getName())) {
 
-                        val sampleInstance = (DifferentialFunction) current.newInstance();
-                        if(sampleInstance.isConfigProperties()) {
-                            val fieldName = sampleInstance.configFieldName();
-                            val configFieldClass = sampleInstance.getClass().getDeclaredField(fieldName).getType();
+                            val fieldName = "config";
+
+                            val configField = current.getDeclaredField(fieldName);
+                            if(configField ==  null) {
+                                continue;
+                            }
+
+                            val configFieldClass = configField.getType();
+
                             for(val field : configFieldClass.getDeclaredFields()) {
                                 if(!fieldNamesOpsIgnore.contains(field.getName())) {
                                     fields.add(field);

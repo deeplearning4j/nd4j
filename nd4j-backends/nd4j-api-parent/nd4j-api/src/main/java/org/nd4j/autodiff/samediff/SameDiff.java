@@ -1668,7 +1668,7 @@ public class SameDiff {
         Conv2D conv2D = Conv2D.builder()
                 .inputFunctions(inputs)
                 .sameDiff(this)
-                .conv2DConfig(conv2DConfig)
+                .config(conv2DConfig)
                 .build();
 
         val outputVertexId = conv2D.outputVariables()[0];

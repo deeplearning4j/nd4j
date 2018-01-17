@@ -525,7 +525,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 }
                 if(attributeAdapters != null) {
                     val mappers = attributeAdapters.get(on.tensorflowName());
-                    val adapterFor = mappers.get(tfAttrName);
+                    val adapterFor = mappers.get(entry.getKey());
                     adapter = adapterFor;
                 }
 
@@ -573,7 +573,11 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                             val setList = attr.getList();
                             if(!setList.getIList().isEmpty()) {
                                 val intList = Ints.toArray(setList.getIList());
-                                on.setValueFor(currentField,intList);
+                                if(adapter != null) {
+                                    adapter.mapAttributeFor(intList,currentField,on);
+                                }
+                                else
+                                    on.setValueFor(currentField,intList);
                             }
                             else if(!setList.getBList().isEmpty()) {
                                 break;

@@ -33,7 +33,7 @@ public class TFGraphTestList {
 //            "bias_add",
 //            "norm_tests/norm_0",
 //             "concat",
-//             "conv_0",
+ //            "conv_0",
              "conv_1",
 //             "conv_2",
 //             "conv_3",

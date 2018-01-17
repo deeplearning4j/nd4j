@@ -39,7 +39,7 @@ public class SConv2D extends Conv2D {
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         SConv2DDerivative conv2DDerivative = SConv2DDerivative.sDerviativeBuilder()
-                .conv2DConfig(conv2DConfig)
+                .conv2DConfig(config)
                 .inputFunctions(inputs.toArray(new SDVariable[inputs.size()]))
                 .build();
         ret.addAll(Arrays.asList(conv2DDerivative.outputVariables()));
@@ -59,7 +59,7 @@ public class SConv2D extends Conv2D {
 
     @Override
     public void setValueFor(Field target, Object value) {
-        conv2DConfig.setValueFor(target,value);
+        config.setValueFor(target,value);
     }
 
 
