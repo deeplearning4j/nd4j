@@ -16,6 +16,11 @@ import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.GreaterThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMax;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMin;
+import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -2489,4 +2494,91 @@ public class SameDiffTests {
         assertEquals(inArr.get(point(1),point(2), interval(1,5)), slice3.getArr());
     }
 
+    @Test
+    public void testPairwiseBooleanTransforms(){
+        /*
+        eq, neq, gt, lt, gte, lte, or, and, xor
+         */
+        //Test transforms (pairwise)
+        Nd4j.getRandom().setSeed(12345);
+
+        for (int i = 0; i < 11; i++) {
+            SameDiff sd = SameDiff.create();
+
+            int nOut = 4;
+            int minibatch = 5;
+
+            INDArray ia = Nd4j.randn(minibatch, nOut);
+            INDArray ib = Nd4j.randn(minibatch, nOut);
+
+            SDVariable in1 = sd.var("in1", ia);
+            SDVariable in2 = sd.var("in2", ib);
+
+
+
+            SDVariable t;
+            INDArray expOut;
+            switch (i) {
+                case 0:
+                    t = sd.eq(in1, in2);
+                    expOut = ia.eq(ib);
+                    break;
+                case 1:
+                    t = sd.neq(in1, in2);
+                    expOut = ia.neq(ib);
+                    break;
+                case 2:
+                    t = sd.gt(in1, in2);
+                    expOut = ia.gt(ib);
+                    break;
+                case 3:
+                    t = sd.lt(in1, in2);
+                    expOut = ia.lt(ib);
+                    break;
+                case 4:
+                    t = sd.gte(in1, in2);
+                    expOut = ia.dup();
+                    Nd4j.getExecutioner().exec(new GreaterThanOrEqual(new INDArray[]{ia, ib}, new INDArray[]{expOut}));
+                    break;
+                case 5:
+                    t = sd.lte(in1, in2);
+                    expOut = ia.dup();
+                    Nd4j.getExecutioner().exec(new LessThanOrEqual(new INDArray[]{ia, ib}, new INDArray[]{expOut}));
+                    break;
+                case 6:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.or(in1, in2);
+                    expOut = Transforms.or(ia, ib);
+                    break;
+                case 7:
+                    t = sd.max(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMax(ia, ib, ia.dup(), ia.length()));
+                    break;
+                case 8:
+                    t = sd.min(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMin(ia, ib, ia.dup(), ia.length()));
+                    break;
+                case 9:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.and(in1, in2);
+                    expOut = Transforms.and(ia, ib);
+                    break;
+                case 10:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.xor(in1, in2);
+                    expOut = Transforms.xor(ia, ib);
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
+
+            log.info("Executing: " + i);
+            INDArray out = sd.execAndEndResult();
+
+            assertEquals(expOut, out);
+        }
+    }
 }
