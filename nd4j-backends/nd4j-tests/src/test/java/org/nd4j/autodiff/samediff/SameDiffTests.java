@@ -21,6 +21,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMax;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMin;
 import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.NDArrayIndex;
@@ -2579,6 +2580,133 @@ public class SameDiffTests {
             INDArray out = sd.execAndEndResult();
 
             assertEquals(expOut, out);
+        }
+    }
+
+
+    @Test
+    public void testExpandDims2d(){
+        int[] origShape = new int[]{3,4};
+
+        for( int i=0; i<3; i++ ) {
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAllTestMatricesWithShape(origShape[0], origShape[1], 12345)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable expand = sd.f().expandDims(in, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                INDArray expOut;
+                switch (i){
+                    case 0:
+                        expOut = inArr.dup('c').reshape('c', 1,origShape[0], origShape[1]);
+                        break;
+                    case 1:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], 1, origShape[1]);
+                        break;
+                    case 2:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[1], 1);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                String msg = "expandDim=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, expOut);
+            }
+        }
+    }
+
+    @Test
+    public void testSqueezeDims(){
+        int[] origShape = new int[]{3,4,5};
+
+        for( int i=0; i<3; i++ ) {
+
+            int[] shape = origShape.clone();
+            shape[i] = 1;
+
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, shape)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable squeeze = sd.f().squeeze(in, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                INDArray expOut;
+                switch (i){
+                    case 0:
+                        expOut = inArr.dup('c').reshape('c', origShape[1], origShape[2]);
+                        break;
+                    case 1:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[2]);
+                        break;
+                    case 2:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[1]);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                String msg = "squeezeDim=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, expOut);
+            }
+        }
+    }
+
+    @Test
+    public void testExpandSqueezeChain(){
+
+        int[] origShape = new int[]{3,4};
+
+        for( int i=0; i<3; i++ ) {
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAllTestMatricesWithShape(origShape[0], origShape[1], 12345)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable expand = sd.expandDims(in, i);
+                SDVariable squeeze = sd.squeeze(expand, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                String msg = "expand/Squeeze=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, inArr);  //expand -> squeeze: should be opposite ops
+            }
+        }
+    }
+
+    @Test
+    public void testSqueezeExpandChain(){
+
+        int[] origShape = new int[]{3,4,5};
+
+        for( int i=0; i<3; i++ ) {
+
+            int[] shape = origShape.clone();
+            shape[i] = 1;
+
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, shape)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable squeeze = sd.squeeze(in, i);
+                SDVariable expand = sd.expandDims(squeeze, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                String msg = "expand/Squeeze=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, inArr);  //squeeze -> expand: should be opposite ops
+            }
         }
     }
 }
