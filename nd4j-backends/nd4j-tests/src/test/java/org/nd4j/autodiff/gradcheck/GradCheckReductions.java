@@ -234,6 +234,7 @@ public class GradCheckReductions {
                 SDVariable second = in.mul(2);
 
                 double maxRelError = 1e-5;
+                double minAbsError = 1e-4;
                 INDArray inputArr = Nd4j.randn(new int[]{d0, d1, d2}).muli(1000);
                 INDArray labelArr = Nd4j.randn(outShape).muli(1000);
                 SDVariable reduced;
@@ -262,12 +263,15 @@ public class GradCheckReductions {
                     case 5:
                         //Variance is a bit finniky for gradient checks, due to huge score/output...
                         maxRelError = 1e-3;
+                        minAbsError = 1;        //Most gradients ane in the range 1k to >100k
                         inputArr.divi(10);
                         labelArr.divi(100);
                         reduced = sd.variance("reduced", second, true, reduceDim);
                         name = "variance";
                         break;
                     case 6:
+                        inputArr.divi(1000);
+                        labelArr.divi(1000);
                         reduced = sd.prod("reduced", second, reduceDim);
                         name = "prod";
                         break;
@@ -280,6 +284,8 @@ public class GradCheckReductions {
                         name = "norm2";
                         break;
                     case 9:
+                        inputArr = Nd4j.rand(new int[]{d0, d1, d2});
+                        labelArr = Nd4j.rand(outShape);
                         reduced = sd.normmax("reduced", second, reduceDim);
                         name = "normmax";
                         break;
@@ -301,7 +307,7 @@ public class GradCheckReductions {
                 sd.associateArrayWithVariable(labelArr, label);
 
                 try {
-                    boolean ok = GradCheckUtil.checkGradients(sd, 1e-5, maxRelError, 1e-4, true, false);
+                    boolean ok = GradCheckUtil.checkGradients(sd, 1e-5, maxRelError, minAbsError, true, false);
                     if (!ok) {
                         allFailed.add(msg);
                     }
