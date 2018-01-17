@@ -1,5 +1,7 @@
 package org.nd4j.autodiff.gradcheck;
 
+import lombok.Builder;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.nd4j.autodiff.samediff.SDVariable;
@@ -10,6 +12,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
+import org.nd4j.linalg.primitives.Triple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -320,12 +323,111 @@ public class GradCheckMisc {
 
     @Test
     public void testSlice(){
-        SameDiff sd = SameDiff.create();
-        SDVariable in = sd.var("in", Nd4j.linspace(1,12,12).reshape('c',3,4));
-        SDVariable slice = sd.slice(in, new int[]{0,1}, new int[]{3,2});
-        SDVariable stdev = sd.standardDeviation(slice, true);
+        Nd4j.getRandom().setSeed(12345);
 
-        GradCheckUtil.checkGradients(sd);
+        //Order here: original shape, begin, size
+        List<Triple<int[],int[], int[]>> testCases = new ArrayList<>();
+        testCases.add(new Triple<>(new int[]{3,4},new int[]{0,0}, new int[]{3,4}));
+        testCases.add(new Triple<>(new int[]{3,4},new int[]{1,1}, new int[]{3,4}));
+        testCases.add(new Triple<>(new int[]{3,4},new int[]{1,2}, new int[]{2,3}));
+        testCases.add(new Triple<>(new int[]{3,4,5},new int[]{0,0,0}, new int[]{3,4,5}));
+        testCases.add(new Triple<>(new int[]{3,4,5},new int[]{1,1,1}, new int[]{2,3,4}));
+        testCases.add(new Triple<>(new int[]{3,4,5},new int[]{1,0,2}, new int[]{3,3,4}));
+
+        for( int i=0; i<testCases.size(); i++ ){
+            Triple<int[],int[], int[]> t = testCases.get(i);
+            int[] os = t.getFirst();
+            int[] b = t.getSecond();
+            int[] e = t.getThird();
+            INDArray arr = Nd4j.rand(os);
+
+            SameDiff sd = SameDiff.create();
+            SDVariable in = sd.var("in", arr);
+            SDVariable slice = sd.slice(in, b, e);
+            SDVariable stdev = sd.standardDeviation(slice, true);
+
+            String msg = "i=" + i + ": inShape=" + Arrays.toString(os) + ", begin=" + Arrays.toString(b) + ", end=" + Arrays.toString(e);
+            log.info("Starting test: " + msg);
+            GradCheckUtil.checkGradients(sd);
+        }
     }
 
+
+    @Builder(builderClassName = "Builder")
+    @Data
+    private static class SSCase {
+        private int[] shape;
+        private int[] begin;
+        private int[] end;
+        private int[] strides;
+        private int beginMask;
+        private int endMask;
+        private int ellipsisMask;
+        private int newAxisMask;
+        private int shrinkAxisMask;
+
+        public static class Builder {
+
+            public Builder shape(int... shape){
+                this.shape = shape;
+                return this;
+            }
+
+            public Builder begin(int... begin){
+                this.begin = begin;
+                return this;
+            }
+
+            public Builder end(int... end){
+                this.end = end;
+                return this;
+            }
+
+            public Builder strides(int... strides){
+                this.strides = strides;
+                return this;
+            }
+        }
+    }
+
+    @Test
+    public void testStridedSlice(){
+        Nd4j.getRandom().setSeed(12345);
+
+        //Order here: original shape, begin, size
+        List<SSCase> testCases = new ArrayList<>();
+        testCases.add(SSCase.builder().shape(3,4).begin(0,0).end(3,4).strides(1,1).build());
+        testCases.add(SSCase.builder().shape(3,4).begin(1,1).end(2,3).strides(1,1).build());
+        testCases.add(SSCase.builder().shape(3,4).begin(-999,0).end(3,4).strides(1,1).beginMask(1).build());
+        testCases.add(SSCase.builder().shape(3,4).begin(1,1).end(3,-999).strides(1,1).endMask(1<<1).build());
+        testCases.add(SSCase.builder().shape(3,4).begin(-999,0).end(-999,4).strides(1,1).beginMask(1).endMask(1).build());
+        testCases.add(SSCase.builder().shape(3,4).begin(-999,0,0).end(-999,3,4).strides(1,1).newAxisMask(1).build());
+
+        testCases.add(SSCase.builder().shape(3,4,5).begin(0,0,0).end(3,4,5).strides(1,1,1).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,2,3).end(3,4,5).strides(1,1,1).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(0,0,0).end(3,3,5).strides(1,2,2).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,-999,1).end(3,3,4).strides(1,1,1).beginMask(1<<1).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,-999,1).end(3,3,-999).strides(1,1,1).beginMask(1<<1).endMask(1<<2).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,2).end(3,4).strides(1,1).ellipsisMask(1<<1).build());   //[1:3,...,2:4]
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,-999,1,2).end(3,-999,3,4).strides(1,-999,1,2).newAxisMask(1<<1).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,0,1).end(3,-999,4).strides(1,1,1).shrinkAxisMask(1<<1).build());
+        testCases.add(SSCase.builder().shape(3,4,5).begin(1,1,1).end(3,-999,4).strides(1,1,1).shrinkAxisMask(1<<1).build());
+
+
+
+        for( int i=0; i<testCases.size(); i++ ){
+            SSCase t = testCases.get(i);
+            INDArray arr = Nd4j.rand(t.getShape());
+
+            SameDiff sd = SameDiff.create();
+            SDVariable in = sd.var("in", arr);
+            SDVariable slice = sd.stridedSlice(in, t.getBegin(), t.getEnd(), t.getStrides(), t.getBeginMask(),
+                    t.getEndMask(), t.getEllipsisMask(), t.getNewAxisMask(), t.getShrinkAxisMask());
+            SDVariable stdev = sd.standardDeviation(slice, true);
+
+            String msg = "i=" + i + ": " + t;
+            log.info("Starting test: " + msg);
+            GradCheckUtil.checkGradients(sd);
+        }
+    }
 }
