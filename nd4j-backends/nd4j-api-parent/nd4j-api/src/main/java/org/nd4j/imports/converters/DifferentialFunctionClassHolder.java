@@ -152,18 +152,36 @@ public class DifferentialFunctionClassHolder {
                     //accumulate the field names for a given function
                     //this is mainly used in import
                     Map<String,Field> fieldNames = new LinkedHashMap<>();
-                    Class<?> current = node.getClass();
+                    Class<? extends DifferentialFunction> current = node.getClass();
                     val fields = new ArrayList<Field>();
                     while(current.getSuperclass() != null) {
-                        for(val field : current.getDeclaredFields()) {
-                            if(!fieldNamesOpsIgnore.contains(field.getName())) {
-                                fields.add(field);
-                                field.setAccessible(true);
-                                fieldNames.put(field.getName(),field);
+                        if(Modifier.isInterface(current.getModifiers()) || Modifier.isAbstract(current.getModifiers()) || current.equals(Object.class))
+                            continue;
+
+                        val sampleInstance = (DifferentialFunction) current.newInstance();
+                        if(sampleInstance.isConfigProperties()) {
+                            val fieldName = sampleInstance.configFieldName();
+                            val configFieldClass = sampleInstance.getClass().getDeclaredField(fieldName).getType();
+                            for(val field : configFieldClass.getDeclaredFields()) {
+                                if(!fieldNamesOpsIgnore.contains(field.getName())) {
+                                    fields.add(field);
+                                    field.setAccessible(true);
+                                    fieldNames.put(field.getName(),field);
+                                }
                             }
                         }
+                        else {
+                            for(val field : current.getDeclaredFields()) {
+                                if(!fieldNamesOpsIgnore.contains(field.getName())) {
+                                    fields.add(field);
+                                    field.setAccessible(true);
+                                    fieldNames.put(field.getName(),field);
+                                }
+                            }
+                        }
+
                         // do something with current's fields
-                        current = current.getSuperclass();
+                        current = (Class<? extends DifferentialFunction>) current.getSuperclass();
 
                     }
 
@@ -174,7 +192,7 @@ public class DifferentialFunctionClassHolder {
                 log.trace("Skipping function  " + clazz);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
-            } catch (InstantiationException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

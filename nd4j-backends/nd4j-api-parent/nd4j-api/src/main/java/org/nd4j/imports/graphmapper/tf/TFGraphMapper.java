@@ -1,5 +1,6 @@
 package org.nd4j.imports.graphmapper.tf;
 
+import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
 import com.google.protobuf.Message;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
+import org.nd4j.imports.descriptors.properties.AttributeAdapter;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.BaseGraphMapper;
 import org.nd4j.imports.graphmapper.ImportState;
@@ -503,6 +505,112 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         }
     }
 
+    /**
+     * Init a function's attributes
+     * @param on the function to map
+     * @param attributesForNode the attributes for the node
+     */
+    public void initFunctionFromProperties(DifferentialFunction on,Map<String,AttrValue> attributesForNode) {
+        val properties = on.mappingsForFunction();
+        val tfProperties = properties.get(on.tensorflowName());
+        val fields = DifferentialFunctionClassHolder.getInstance().getFieldsForFunction(on);
+        val attributeAdapters = on.attributeAdaptersForFunction();
+        for(val entry : tfProperties.entrySet()) {
+            val tfAttrName = entry.getValue().getTfAttrName();
+            AttributeAdapter adapter = null;
+            if(tfAttrName != null) {
+                val currentField = fields.get(entry.getKey());
+                if(currentField == null) {
+                    continue;
+                }
+                if(attributeAdapters != null) {
+                    val mappers = attributeAdapters.get(on.tensorflowName());
+                    val adapterFor = mappers.get(tfAttrName);
+                    adapter = adapterFor;
+                }
+
+
+                if(attributesForNode.containsKey(tfAttrName)) {
+                    val attr = attributesForNode.get(tfAttrName);
+                    switch (attr.getValueCase()) {
+                        case B:
+                            break;
+                        case F: break;
+                        case FUNC: break;
+                        case S:
+                            val setString = attr.getS().toStringUtf8();
+                            if(adapter != null) {
+                                adapter.mapAttributeFor(setString,currentField,on);
+                            }
+                            else
+                                on.setValueFor(currentField,setString);
+                            break;
+                        case I:
+                            val setInt = (int) attr.getI();
+                            if(adapter != null) {
+                                adapter.mapAttributeFor(setInt,currentField,on);
+                            }
+                            else
+                                on.setValueFor(currentField,setInt);
+                            break;
+                        case SHAPE:
+                            val shape = attr.getShape().getDimList();
+                            int[] dimsToSet = new int[shape.size()];
+                            for(int i = 0; i < dimsToSet.length; i++) {
+                                dimsToSet[i] = (int) shape.get(i).getSize();
+                            }
+
+                            if(adapter != null) {
+                                adapter.mapAttributeFor(dimsToSet,currentField,on);
+                            }
+
+                            else
+                                on.setValueFor(currentField,dimsToSet);
+                            break;
+                        case VALUE_NOT_SET:break;
+                        case PLACEHOLDER: break;
+                        case LIST:
+                            val setList = attr.getList();
+                            if(!setList.getIList().isEmpty()) {
+                                val intList = Ints.toArray(setList.getIList());
+                                on.setValueFor(currentField,intList);
+                            }
+                            else if(!setList.getBList().isEmpty()) {
+                                break;
+                            }
+                            else if(!setList.getFList().isEmpty()) {
+                                val floats = Floats.toArray(setList.getFList());
+                                if(adapter != null) {
+                                    adapter.mapAttributeFor(floats,currentField,on);
+                                }
+
+                                else
+                                    on.setValueFor(currentField,floats);
+                                break;
+                            }
+                            else if(!setList.getFuncList().isEmpty()) {
+                                break;
+                            }
+                            else if(!setList.getTensorList().isEmpty()) {
+                                break;
+                            }
+                            break;
+                        case TENSOR:
+                            val tensorToGet = TFGraphMapper.getInstance().mapTensorProto(attr.getTensor());
+                            if(adapter != null) {
+                                adapter.mapAttributeFor(tensorToGet,currentField,on);
+                            }
+                            else
+                                on.setValueFor(currentField,tensorToGet);
+                            break;
+                        case TYPE: break;
+                    }
+                }
+            }
+        }
+    }
+
+
     @Override
     public DataBuffer.Type dataTypeForTensor(NodeDef tensorProto) {
         if(!tensorProto.containsAttr("dtype") && !tensorProto.containsAttr("Tidx") && !tensorProto.containsAttr("T"))
@@ -545,16 +653,22 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
     @Override
     public  INDArray getNDArrayFromTensor(String tensorName, NodeDef node, GraphDef graph) {
-        int[] arrayShape = null;
-        List<Integer> dimensions = new ArrayList<>();
         //placeholder of some kind
         if(!node.getAttrMap().containsKey("value")) {
             return null;
         }
+
         val tfTensor = node.getAttrOrThrow("value").getTensor();
+        return mapTensorProto(tfTensor);
+    }
+
+
+
+    public INDArray mapTensorProto(TensorProto tfTensor) {
         // building shape first
         int dims = tfTensor.getTensorShape().getDimCount();
-
+        int[] arrayShape = null;
+        List<Integer> dimensions = new ArrayList<>();
         // we allow vectors now
         //if(dims == 1) {
         //    dimensions.add(1);

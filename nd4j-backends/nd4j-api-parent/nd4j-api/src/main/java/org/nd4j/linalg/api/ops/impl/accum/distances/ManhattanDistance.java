@@ -19,13 +19,15 @@
 
 package org.nd4j.linalg.api.ops.impl.accum.distances;
 
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
+import org.nd4j.linalg.indexing.SpecifiedIndex;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,6 +36,8 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class ManhattanDistance extends BaseAccumulation {
+    public static final String OP_NAME = "manhattan";
+
     public ManhattanDistance(SameDiff sameDiff, SDVariable i_v, int[] dimensions) {
         super(sameDiff, i_v, dimensions);
     }
@@ -90,14 +94,27 @@ public class ManhattanDistance extends BaseAccumulation {
 
     @Override
     public String opName() {
-        return "manhattan";
+        return OP_NAME;
     }
 
 
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        throw new UnsupportedOperationException();
+        //ddist(x,y)/dxi = sign(xi-yi)
+        SDVariable difference = larg().sub(rarg());
+        SDVariable gradBroadcastable;
+        int origRank = Shape.rankFromShape(arg().getShape());   //TODO shape may not always be defined?
+        if(!(dimensions.length == 1 && dimensions[0] == Integer.MAX_VALUE) ){
+            //1x1 output case
+            gradBroadcastable = i_v1.get(0);
+        } else {
+            gradBroadcastable = f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0));
+        }
+
+        SDVariable gradX = sameDiff.sign(difference).mul(gradBroadcastable);
+        SDVariable gradY = f().neg(gradX);
+        return Arrays.asList(gradX, gradY);
     }
 
     @Override

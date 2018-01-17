@@ -19,6 +19,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -58,6 +59,11 @@ public class Conv2D extends DynamicCustomOp {
                 ArrayUtil.fromBoolean(conv2DConfig.isSameMode()),
                 ArrayUtil.fromBoolean(conv2DConfig.isNHWC())});
 
+    }
+
+    @Override
+    public void setValueFor(Field target, Object value) {
+        conv2DConfig.setValueFor(target,value);
     }
 
     @Override
@@ -128,6 +134,16 @@ public class Conv2D extends DynamicCustomOp {
         addArgs();
 
 
+    }
+
+    @Override
+    public boolean isConfigProperties() {
+        return true;
+    }
+
+    @Override
+    public String configFieldName() {
+        return "conv2DConfig";
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,22 @@ public class SConv2D extends Conv2D {
                 .build();
         ret.addAll(Arrays.asList(conv2DDerivative.outputVariables()));
         return ret;
+    }
+
+
+    @Override
+    public boolean isConfigProperties() {
+        return true;
+    }
+
+    @Override
+    public String configFieldName() {
+        return "config";
+    }
+
+    @Override
+    public void setValueFor(Field target, Object value) {
+        conv2DConfig.setValueFor(target,value);
     }
 
 

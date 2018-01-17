@@ -13,16 +13,20 @@ import java.util.Map;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Conv3DConfig {
+public class Conv3DConfig extends BaseConvolutionConfig {
+    //strides
     private int dT;
     private int dW;
     private int dH;
+    //padding
     private int pT;
     private int pW;
     private int pH;
+    //dilations
     private int dilationT;
     private int dilationW;
     private int dilationH;
+    //output padding
     private int aT;
     private int aW;
     private int aH;
@@ -48,5 +52,8 @@ public class Conv3DConfig {
         ret.put("dataFormat",dataFormat);
         return ret;
     }
+
+
+
 
 }
