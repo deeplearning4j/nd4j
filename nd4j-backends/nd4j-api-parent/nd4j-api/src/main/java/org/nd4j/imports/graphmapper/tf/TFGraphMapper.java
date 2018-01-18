@@ -523,7 +523,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 if(currentField == null) {
                     continue;
                 }
-                if(attributeAdapters != null) {
+                if(attributeAdapters != null && !attributeAdapters.isEmpty()) {
                     val mappers = attributeAdapters.get(on.tensorflowName());
                     val adapterFor = mappers.get(entry.getKey());
                     adapter = adapterFor;

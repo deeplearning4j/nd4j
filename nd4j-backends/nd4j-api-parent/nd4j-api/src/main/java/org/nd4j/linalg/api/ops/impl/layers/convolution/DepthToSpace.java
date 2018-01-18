@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 import lombok.val;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -13,13 +14,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DepthToSpace extends DynamicCustomOp {
-    private String dataFormat;
+    private String dataFormat = "NHWC";
     private int blockSize;
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        super.initFromTensorFlow(nodeDef, initWith, attributesForNode, graph);
+        TFGraphMapper.getInstance().initFunctionFromProperties(this,attributesForNode);
+        boolean isNHWC = dataFormat.equals("NWHC");
+        addIArgument(blockSize,isNHWC ? 1 : 0);
     }
+
+
 
     @Override
     public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {
@@ -41,6 +46,9 @@ public class DepthToSpace extends DynamicCustomOp {
         ret.put(tensorflowName(),attrs);
         return ret;
     }
+
+
+
 
     @Override
     public String opName() {
