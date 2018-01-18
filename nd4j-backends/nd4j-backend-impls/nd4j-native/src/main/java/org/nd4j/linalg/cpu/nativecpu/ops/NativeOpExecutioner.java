@@ -302,12 +302,24 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 ret = Nd4j.create(xT, yT);
             } else {
                 if (op.y() != null) {
-                    val xT = op.x().lengthLong() / op.x().tensorssAlongDimension(dimension);
-                    val yT = op.y().lengthLong() / op.y().tensorssAlongDimension(dimension);
 
-                    if (xT != yT)
-                        throw new ND4JIllegalStateException("Size of TADs along dimension don't match: (x TAD size = " +
-                                xT + ", y TAD size = " + yT);
+                    //2 options here: either pairwise, equal sizes - OR every X TAD vs. entirety of Y
+                    if(op.x().lengthLong() == op.y().lengthLong()){
+                        //Pairwise
+                        if (op.x().tensorssAlongDimension(dimension) != op.y().tensorssAlongDimension(dimension)) {
+                            throw new ND4JIllegalStateException("Number of TADs along dimension don't match: (x shape = " +
+                                    Arrays.toString(op.x().shape()) + ", y shape = " + Arrays.toString(op.y().shape()) +
+                                    ", dimension = " + Arrays.toString(dimension) + ")");
+                        }
+                    } else {
+                        //Every X TAD vs. entirety of Y
+                        val xTADSize = op.x().lengthLong() / op.x().tensorssAlongDimension(dimension);
+
+                        if (xTADSize != op.y().length()) {
+                            throw new ND4JIllegalStateException("Size of TADs along dimension don't match for pairwise execution:" +
+                                    " (x TAD size = " + xTADSize + ", y size = " + op.y().lengthLong());
+                        }
+                    }
                 }
 
                 if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
