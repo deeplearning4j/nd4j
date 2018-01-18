@@ -39,6 +39,16 @@ public class GradCheckMisc {
     doRepeat
      */
 
+    @Test
+    public void testConcat(){
+
+        int[] concatDim = new int[]{0,0,0,1,1,1,2,2,2};
+        List<List<int[]>> origShapes = new ArrayList<>();
+        origShapes.add(Arrays.asList(new int[]{3,4}, new int[]{5,4}));
+
+
+        fail("not yet implemented");
+    }
 
     @Test
     public void testReshapeGradient() {

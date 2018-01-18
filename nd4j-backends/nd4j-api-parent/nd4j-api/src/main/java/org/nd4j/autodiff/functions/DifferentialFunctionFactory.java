@@ -558,6 +558,10 @@ public class DifferentialFunctionFactory   {
         return new RollAxis(sameDiff(),iX,axis).outputVariables()[0];
     }
 
+    public SDVariable concat(int dimension, SDVariable... inputs){
+        return new Concat(sameDiff(), dimension, inputs).outputVariables()[0];
+    }
+
 
     public SDVariable cosineSimilarity(SDVariable iX, SDVariable i_y, int... dimensions) {
         return new CosineSimilarity(sameDiff(),iX,i_y,dimensions).outputVariables()[0];
