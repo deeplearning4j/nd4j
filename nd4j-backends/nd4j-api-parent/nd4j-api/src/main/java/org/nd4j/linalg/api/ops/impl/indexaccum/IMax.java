@@ -38,22 +38,14 @@ public class IMax extends BaseIndexAccumulation {
         super(sameDiff, i_v, dimensions);
     }
 
-    public IMax(SameDiff sameDiff, SDVariable i_v, SDVariable i_v2, int[] dimensions) {
-        super(sameDiff, i_v, i_v2, dimensions);
-    }
-
     public IMax() {}
 
     public IMax(INDArray x, INDArray y, long n) {
-        super(x, y, n);
+        super(x, y, null, n);
     }
 
     public IMax(INDArray x) {
-        super(x);
-    }
-
-    public IMax(INDArray x, INDArray y) {
-        super(x, y);
+        super(x, null, null, x.length());
     }
 
 

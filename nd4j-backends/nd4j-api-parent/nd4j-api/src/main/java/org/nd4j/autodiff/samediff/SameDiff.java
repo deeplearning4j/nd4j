@@ -583,8 +583,6 @@ public class SameDiff {
             return variableNameToArr.get(varName).shape();
         }
 
-
-
         return variableNameToShape.get(varName);
     }
 
@@ -2276,7 +2274,6 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
-
     /**
      *
      * @param iX
@@ -2296,6 +2293,23 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
+    public SDVariable argmax(SDVariable in, int... dimensions){
+        return argmax(null, in, dimensions);
+    }
+
+    public SDVariable argmax(String name, SDVariable in, int... dimensions){
+        SDVariable ret = f().argmax(in, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable argmin(SDVariable in, int... dimensions){
+        return argmin(null, in, dimensions);
+    }
+
+    public SDVariable argmin(String name, SDVariable in, int... dimensions){
+        SDVariable ret = f().argmin(in, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
 
     /**
      *
@@ -4252,9 +4266,7 @@ public class SameDiff {
                             grads.add(grad);
                         }
 
-                        currFunction.diff(grads);
-
-
+                        List<SDVariable> currFnGrads = currFunction.diff(grads);
                     }
 
 

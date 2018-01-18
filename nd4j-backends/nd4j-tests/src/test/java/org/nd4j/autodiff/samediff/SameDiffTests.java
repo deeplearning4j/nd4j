@@ -2709,4 +2709,43 @@ public class SameDiffTests {
             }
         }
     }
+
+    @Test
+    public void testArgMax(){
+        Nd4j.getRandom().setSeed(12345);
+
+        for( int[] dim : new int[][]{{0},{1},{Integer.MAX_VALUE},{0,1}, {}}) {
+            INDArray inArr = Nd4j.rand(3, 4);
+            SameDiff sd = SameDiff.create();
+
+            SDVariable in = sd.var("in", inArr);
+            SDVariable argmax = sd.argmax("argmax", in, dim);
+
+            INDArray out = sd.execAndEndResult();
+
+            INDArray exp = Nd4j.argMax(inArr, dim);
+
+            assertEquals(exp, out);
+        }
+    }
+
+    @Test
+    public void testArgMin(){
+
+        Nd4j.getRandom().setSeed(12345);
+
+        for( int[] dim : new int[][]{{0},{1},{Integer.MAX_VALUE},{0,1}, {}}) {
+            INDArray inArr = Nd4j.rand(3, 4);
+            SameDiff sd = SameDiff.create();
+
+            SDVariable in = sd.var("in", inArr);
+            SDVariable argmin = sd.argmin("argmin", in, dim);
+
+            INDArray out = sd.execAndEndResult();
+
+            INDArray exp = Nd4j.argMax(inArr.neg(), dim);
+
+            assertEquals(exp, out);
+        }
+    }
 }
