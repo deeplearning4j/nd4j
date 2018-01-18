@@ -4585,12 +4585,18 @@ public class SameDiff {
      * @return the passed in variable
      */
     public SDVariable updateVariableNameAndReference(SDVariable varToUpdate,String newVarName) {
-        if(newVarName == null || varToUpdate.getVarName().equals(newVarName)) {
-            return varToUpdate;
+        if(varToUpdate == null) {
+            throw new NullPointerException("Null input: No variable found for updating!");
         }
 
-        if(varToUpdate == null) {
-            throw new ND4JIllegalStateException("No variable found for updating!");
+        if(newVarName == null && variableMap.containsKey(varToUpdate.getVarName())){
+            //Edge case: suppose we do m1=sd.mean(in), m2=sd.mean(m1) -> both initially have the name
+            // "mean" and consequently a new variable name needs to be generated
+            newVarName = generateNewVarName(varToUpdate.getVarName(), 0);
+        }
+
+        if(newVarName == null || varToUpdate.getVarName().equals(newVarName)) {
+            return varToUpdate;
         }
 
         val oldVarName = varToUpdate.getVarName();

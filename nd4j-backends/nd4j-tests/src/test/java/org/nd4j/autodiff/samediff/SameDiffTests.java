@@ -1859,7 +1859,7 @@ public class SameDiffTests {
 
             sd.exec();
             INDArray outAct = sd.getVariable("out").getArr();
-            assertEquals(outExp, outAct);
+            assertEquals(a.toString(), outExp, outAct);
 
             // L = sum_i (label - out)^2
             //dL/dOut = 2(out - label)
