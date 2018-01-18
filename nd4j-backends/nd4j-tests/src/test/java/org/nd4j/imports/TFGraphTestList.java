@@ -34,17 +34,17 @@ public class TFGraphTestList {
             "norm_tests/norm_0",
              "concat",
              "conv_0",
-             "conv_1",
-             "conv_2",
-             "conv_3",
-            "deep_mnist",
+             "conv_1", //Raver is working on this
+             "conv_2", //missing SpaceToBatchND
+             "conv_3", //fails due to 4d input: this seems to be related to Conv2d being mapped to Dilation2D which takes 3d input
+            "deep_mnist", //broadcast bug? double check with raver
             "deep_mnist_no_dropout",
              "expand_dim",
             "g_00",
                "g_01",
                "g_01",
                "g_02",
-               "g_03",
+               "g_03", //op missing?
               "g_04",
                "g_05",
               "gru_mnist",
@@ -56,13 +56,13 @@ public class TFGraphTestList {
               "pool_0",
               "pool_1",
               "primitive_gru",
-              "primitive_gru_dynamic",
+              "primitive_gru_dynamic", //while loop related NullPointer, double check import here
               "primitive_lstm",
               "stack",
               "stack_1d",
             "stack_scalar",
-             "simple_cond",
-            "simple_while",
+           //  "simple_cond", //JVM crash
+            "simple_while",  //Functions not being added: Need to finish while import
             "transform_0",
             "transpose_00",
             "non2d_0",

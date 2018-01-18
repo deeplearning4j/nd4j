@@ -4748,6 +4748,16 @@ public class SameDiff {
                 DynamicCustomOp customOp = (DynamicCustomOp) differentialFunction;
                 customOp.populateInputsAndOutputsFromSameDiff();
                 customOp.assertValidForExecution();
+                StringBuilder sb = new StringBuilder();
+                for(val arg : customOp.inputArguments()) {
+                    sb.append("Arg " + Arrays.toString(arg.shape()) + "\n");
+                }
+
+                for(val arg : customOp.args()) {
+                    sb.append("Input shape for arg " + Arrays.toString(arg.getShape()) + "\n");
+                }
+
+                log.info(sb.toString());
                 Nd4j.getExecutioner().exec(customOp);
 
                 ops.add(customOp);
