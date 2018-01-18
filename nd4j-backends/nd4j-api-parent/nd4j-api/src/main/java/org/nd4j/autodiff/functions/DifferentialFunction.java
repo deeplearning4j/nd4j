@@ -452,6 +452,10 @@ public abstract class DifferentialFunction {
      */
     public List<SDVariable> diff(List<SDVariable> i_v1) {
         List<SDVariable> vals = doDiff(i_v1);
+        if(vals == null){
+            throw new IllegalStateException("Error executing diff operation: doDiff returned null for op: " + this.opName());
+        }
+
         val outputVars = args();
         for(int i = 0; i < vals.size(); i++) {
             SDVariable var = outputVars[i];

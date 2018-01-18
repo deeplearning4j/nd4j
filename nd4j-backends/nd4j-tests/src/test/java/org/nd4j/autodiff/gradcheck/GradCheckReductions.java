@@ -11,6 +11,8 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.BooleanIndexing;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 
@@ -213,7 +215,7 @@ public class GradCheckReductions {
 
         List<String> allFailed = new ArrayList<>();
         for (int reduceDim : new int[]{0, 1, 2}) {
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 12; i++) {
 
                 int[] outShape;
                 switch (reduceDim) {
@@ -271,6 +273,7 @@ public class GradCheckReductions {
                         minAbsError = 1;        //Most gradients ane in the range 1k to >100k
                         inputArr.divi(10);
                         labelArr.divi(100);
+                        BooleanIndexing.replaceWhere(inputArr, Nd4j.rand(inputArr.shape()).muli(100).addi(100), Conditions.absLessThan(1.0));
                         reduced = sd.variance("reduced", second, true, reduceDim);
                         name = "variance";
                         break;
@@ -293,6 +296,14 @@ public class GradCheckReductions {
                         labelArr = Nd4j.rand(outShape);
                         reduced = sd.normmax("reduced", second, reduceDim);
                         name = "normmax";
+                        break;
+                    case 10:
+                        reduced = sd.argmax("reduced", second, reduceDim);
+                        name = "argmax";
+                        break;
+                    case 11:
+                        reduced = sd.argmin("reduced", second, reduceDim);
+                        name = "argmin";
                         break;
                     default:
                         throw new RuntimeException();

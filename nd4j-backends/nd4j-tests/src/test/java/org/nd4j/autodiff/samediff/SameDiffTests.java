@@ -2743,7 +2743,7 @@ public class SameDiffTests {
 
             INDArray out = sd.execAndEndResult();
 
-            INDArray exp = Nd4j.argMax(inArr.neg(), dim);
+            INDArray exp = Nd4j.argMax(inArr.neg(), dim);   //argmin(x) == argmax(-x)
 
             assertEquals(exp, out);
         }
