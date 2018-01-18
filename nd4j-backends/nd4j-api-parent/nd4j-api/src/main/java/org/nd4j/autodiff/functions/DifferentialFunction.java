@@ -56,6 +56,7 @@ public abstract class DifferentialFunction {
 
     @Getter
     @Setter
+    @JsonIgnore
     private String ownName;
 
     public DifferentialFunction() {
