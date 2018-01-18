@@ -874,7 +874,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             super.exec(op);
 
         } else {
-            if(op.z() == op.x()) {
+            if(op.z() == op.x() || op.z() == null) {
                 op.setZ(Nd4j.scalar(0.0));
             }
 
