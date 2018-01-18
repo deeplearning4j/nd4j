@@ -17,6 +17,8 @@ import org.nd4j.linalg.api.ops.impl.shape.*;
 import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
+import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByNorm;
+import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByValue;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
@@ -412,6 +414,10 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable clipByValue(SDVariable x, double clipValueMin, double clipValueMax){
         return new ClipByValue(sameDiff(), x, clipValueMin, clipValueMax).outputVariables()[0];
+    }
+
+    public SDVariable clipByNorm(SDVariable x, double clipValue){
+        return new ClipByNorm(sameDiff(), x, clipValue).outputVariables()[0];
     }
 
 

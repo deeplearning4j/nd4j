@@ -38,8 +38,11 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 49; i++) {
+        for (int i = 0; i < 50; i++) {
 
+            if(i < 49){
+                continue;
+            }
 
             SameDiff sd = SameDiff.create();
 
@@ -270,6 +273,27 @@ public class GradCheckTransforms {
                     expOut = ia.dup();
                     BooleanIndexing.replaceWhere(expOut, -3, Conditions.lessThan(-3));
                     BooleanIndexing.replaceWhere(expOut, 2, Conditions.greaterThan(2));
+                    break;
+                case 49:
+                    //Clip by norm, dimension 0, some below threshold, some above
+                    double clip = 2.0;
+                    ia = Nd4j.rand(ia.shape());
+                    ia.muliRowVector(ia.norm2(0).rdiv(clip));  //Exactly at threshold...
+                    System.out.println(ia.norm2(0));
+                    ia.muliRowVector(Nd4j.linspace(0.9,1.1, ia.size(1)));
+                    System.out.println(ia.norm2(0));
+
+                    expOut = Nd4j.create(ia.shape());
+                    for( int j=0; j<ia.columns(); j++ ){
+                        INDArray origCol = ia.getColumn(j);
+                        if(origCol.norm2Number().doubleValue() < clip){
+                            expOut.putColumn(j, origCol);
+                        } else {
+                            expOut.putColumn(j, origCol.mul(clip / origCol.norm2Number().doubleValue()));
+                        }
+                    }
+
+                    t = sd.clipByNorm(in, clip);
                     break;
                 default:
                     throw new RuntimeException();

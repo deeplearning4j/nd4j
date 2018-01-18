@@ -1,4 +1,4 @@
-package org.nd4j.linalg.api.ops.impl.transforms;
+package org.nd4j.linalg.api.ops.impl.transforms.clip;
 
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;

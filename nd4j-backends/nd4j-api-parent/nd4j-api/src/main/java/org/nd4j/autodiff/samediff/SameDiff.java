@@ -2048,6 +2048,15 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable clipByNorm(SDVariable x, double clipValue){
+        return clipByNorm(null, x, clipValue);
+    }
+
+    public SDVariable clipByNorm(String name, SDVariable x, double clipValue){
+        SDVariable ret = f().clipByNorm(x, clipValue);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX
