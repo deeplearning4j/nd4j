@@ -1727,10 +1727,10 @@ public class SameDiffTests {
     @Test
     public void testScalarAdd() {
         SameDiff sameDiff = SameDiff.create();
-        SDVariable twoByTwo = sameDiff.var("first",Nd4j.linspace(1,4,4).reshape(2,2));
+        SDVariable twoByTwo = sameDiff.var("first",Nd4j.linspace(1,4,4).reshape('c',2,2));
         SDVariable add = twoByTwo.add(1.0);
         INDArray test = sameDiff.execAndEndResult();
-        INDArray assertion = Nd4j.linspace(1,4,4).reshape('f',2,2).add(1.0);
+        INDArray assertion = Nd4j.linspace(1,4,4).reshape('c',2,2).add(1.0);
         assertEquals(assertion,test);
     }
 
@@ -1820,7 +1820,7 @@ public class SameDiffTests {
                     outExp = Transforms.hardTanh(inArr, true);
                     break;
                 case LEAKYRELU:
-                    out = sd.leakyRelu("out", in, 0.0);
+                    out = sd.leakyRelu("out", in, 0.01);
                     outExp = Transforms.leakyRelu(inArr, true);
                     break;
                 case RELU:
@@ -2248,8 +2248,8 @@ public class SameDiffTests {
                 SameDiff sd = SameDiff.create();
                 sd.setLogExecution(false);
 
-                INDArray a = Nd4j.rand(d0, d1, d2);
-                INDArray b = Nd4j.rand(d0, d1, d2);
+                INDArray a = Nd4j.rand(new int[]{d0, d1, d2});
+                INDArray b = Nd4j.rand(new int[]{d0, d1, d2});
 
 
                 SDVariable in = sd.var("in", a);
