@@ -83,8 +83,6 @@ public class ATan2 extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-//        SDVariable ret = f().div(f().one(shape),
-//                f().sqrt(f().sub(f().one(shape),f().pow(arg(),2))));
         //Let z=atan2(r), with r=y/x
         //dz/dr = 1/(r^2+1), dr/dy = 1/x, dr/dx = -y/x^2
         SDVariable y = rarg();

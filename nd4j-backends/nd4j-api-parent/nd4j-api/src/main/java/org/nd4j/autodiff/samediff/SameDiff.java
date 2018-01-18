@@ -2030,6 +2030,24 @@ public class SameDiff {
         return floor(null,iX);
     }
 
+    public SDVariable ceil(SDVariable x){
+        return ceil(null, x);
+    }
+
+    public SDVariable ceil(String name, SDVariable x){
+        SDVariable ret = f().ceil(x);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable clipByValue(SDVariable x, double clipValueMin, double clipValueMax){
+        return clipByValue(null, x, clipValueMin, clipValueMax);
+    }
+
+    public SDVariable clipByValue(String name, SDVariable x, double clipValueMin, double clipValueMax){
+        SDVariable ret = f().clipByValue(x, clipValueMin, clipValueMax);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX

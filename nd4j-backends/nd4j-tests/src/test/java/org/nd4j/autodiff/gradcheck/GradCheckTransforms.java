@@ -15,6 +15,8 @@ import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMax;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMin;
 import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.BooleanIndexing;
+import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.ArrayList;
@@ -36,7 +38,8 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 47; i++) {
+        for (int i = 0; i < 49; i++) {
+
 
             SameDiff sd = SameDiff.create();
 
@@ -256,6 +259,17 @@ public class GradCheckTransforms {
                     t = sd.neq(in, 2.0);
                     ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
                     expOut = ia.neq(2.0);
+                    break;
+                case 47:
+                    t = sd.ceil(in);
+                    expOut = Transforms.ceil(ia, true);
+                    break;
+                case 48:
+                    ia = Nd4j.randn(ia.shape()).muli(2);
+                    t = sd.clipByValue(in, -3, 2);
+                    expOut = ia.dup();
+                    BooleanIndexing.replaceWhere(expOut, -3, Conditions.lessThan(-3));
+                    BooleanIndexing.replaceWhere(expOut, 2, Conditions.greaterThan(2));
                     break;
                 default:
                     throw new RuntimeException();

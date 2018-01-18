@@ -406,6 +406,14 @@ public class DifferentialFunctionFactory   {
         return new Floor(sameDiff(),iX,null).outputVariables()[0];
     }
 
+    public SDVariable ceil(SDVariable x){
+        return new Ceil(sameDiff(), x).outputVariables()[0];
+    }
+
+    public SDVariable clipByValue(SDVariable x, double clipValueMin, double clipValueMax){
+        return new ClipByValue(sameDiff(), x, clipValueMin, clipValueMax).outputVariables()[0];
+    }
+
 
     public SDVariable relu(SDVariable iX, double cutoff) {
         return new RectifedLinear(sameDiff(),iX,false,cutoff).outputVariables()[0];
