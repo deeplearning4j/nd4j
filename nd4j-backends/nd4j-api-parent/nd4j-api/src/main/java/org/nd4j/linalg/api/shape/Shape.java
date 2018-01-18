@@ -252,7 +252,7 @@ public class Shape {
      */
     public static int[] getReducedShape(int[] wholeShape, int[] dimensions) {
         if (isWholeArray(wholeShape, dimensions))
-            return new int[] {1, 1};
+            return new int[] {};
         else if (dimensions.length == 1 && wholeShape.length == 2) {
             int[] ret = new int[2];
             if (dimensions[0] == 1) {

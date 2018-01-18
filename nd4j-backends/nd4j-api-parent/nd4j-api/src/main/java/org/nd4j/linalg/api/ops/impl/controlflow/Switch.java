@@ -7,6 +7,9 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class Switch extends DynamicCustomOp {
@@ -14,6 +17,16 @@ public class Switch extends DynamicCustomOp {
     @Override
     public String opName() {
         return "switch";
+    }
+
+
+    @Override
+    public List<int[]> calculateOutputShape() {
+        if(args()[0].getArr() != null) {
+            return Arrays.asList(args()[0].getShape(),args()[0].getShape());
+        }
+        else
+            return Collections.emptyList();
     }
 
 

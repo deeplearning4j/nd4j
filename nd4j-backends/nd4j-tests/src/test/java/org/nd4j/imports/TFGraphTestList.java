@@ -65,7 +65,7 @@ public class TFGraphTestList {
             "stack",
             "stack_1d",
             "stack_scalar",
-            //  "simple_cond", //JVM crash
+              "simple_cond", //JVM crash
             "simple_while",  //Functions not being added: Need to finish while import
             "transform_0",
             "transpose_00",
