@@ -13,6 +13,7 @@ import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -25,73 +26,77 @@ public class GradCheckLoss {
     }
 
     @Test
-    public void testLossSimple2d(){
+    public void testLossSimple2d() {
         Nd4j.getRandom().setSeed(12345);
 
         for (String fn : new String[]{"mse", "l1", "l2", "mcxent"}) {
 
-            SameDiff sd = SameDiff.create();
+            for (LossFunctions.Reduction reduction : new LossFunctions.Reduction[]{
+                    LossFunctions.Reduction.MEAN_BY_COUNT, LossFunctions.Reduction.MEAN_BY_WEIGHT, LossFunctions.Reduction.SUM}) {
 
-            int nOut = 4;
-            int minibatch = 10;
-            SDVariable input = sd.var("in", new int[]{-1, nOut});
-            SDVariable labels = sd.var("labels", new int[]{-1, nOut});
+                SameDiff sd = SameDiff.create();
 
-            INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
-            INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
+                int nOut = 4;
+                int minibatch = 10;
+                SDVariable input = sd.var("in", new int[]{-1, nOut});
+                SDVariable labels = sd.var("labels", new int[]{-1, nOut});
 
-            LossInfo lossInfo;
-            INDArray expOut;
-            switch (fn) {
-                case "mse":
-                    lossInfo = LossFunctions.mse("out", input, labels, null, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                    expOut = inputArr.sub(labelsArr);
-                    expOut.muli(expOut);
-                    expOut = expOut.mean(Integer.MAX_VALUE);
-                    break;
-                case "l1":
-                    lossInfo = LossFunctions.l1("out", input, labels, null, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                    //L1 = sum abs error
-                    expOut = Transforms.abs(inputArr.sub(labelsArr)).sum(1);
-                    expOut = expOut.mean(Integer.MAX_VALUE);
-                    break;
-                case "l2":
-                    lossInfo = LossFunctions.l2("out", input, labels, null, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                    //L2 = sum squared error
-                    expOut = Transforms.pow(inputArr.sub(labelsArr),2.0).sum(1).mean(Integer.MAX_VALUE);
-                    break;
-                case "mcxent":
-                    lossInfo = LossFunctions.mcxent("out", input, labels, null, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                    //mcxent = sum label * log(prob)
-                    expOut = labelsArr.mul(Transforms.log(inputArr)).sum(1).mean(Integer.MAX_VALUE);
-                    break;
-                default:
-                    throw new RuntimeException();
-            }
+                INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
+                INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
 
-
-            String msg = "test: " + lossInfo.getLossName();
-            log.info("*** Starting test: " + msg);
+                LossInfo lossInfo;
+                INDArray expOut;
+                switch (fn) {
+                    case "mse":
+                        lossInfo = LossFunctions.mse("out", input, labels, null, reduction, 1);
+                        expOut = inputArr.sub(labelsArr);
+                        expOut.muli(expOut);
+                        expOut = expOut.mean(Integer.MAX_VALUE);
+                        break;
+                    case "l1":
+                        lossInfo = LossFunctions.l1("out", input, labels, null, reduction, 1);
+                        //L1 = sum abs error
+                        expOut = Transforms.abs(inputArr.sub(labelsArr)).sum(1);
+                        expOut = expOut.mean(Integer.MAX_VALUE);
+                        break;
+                    case "l2":
+                        lossInfo = LossFunctions.l2("out", input, labels, null, reduction, 1);
+                        //L2 = sum squared error
+                        expOut = Transforms.pow(inputArr.sub(labelsArr), 2.0).sum(1).mean(Integer.MAX_VALUE);
+                        break;
+                    case "mcxent":
+                        lossInfo = LossFunctions.mcxent("out", input, labels, null, reduction, 1);
+                        //mcxent = sum label * log(prob)
+                        expOut = labelsArr.mul(Transforms.log(inputArr)).sum(1).mean(Integer.MAX_VALUE);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
 
 
-            sd.associateArrayWithVariable(inputArr, input);
-            sd.associateArrayWithVariable(labelsArr, labels);
+                String msg = "test: " + lossInfo.getLossName() + ", reduction=" + reduction;
+                log.info("*** Starting test: " + msg);
+
+
+                sd.associateArrayWithVariable(inputArr, input);
+                sd.associateArrayWithVariable(labelsArr, labels);
 
 //            System.out.println(sd.asFlatPrint());
 
-            INDArray out = sd.execAndEndResult();
+                INDArray out = sd.execAndEndResult();
 
-            assertEquals(msg, expOut, out);
+                assertEquals(msg, expOut, out);
 
-            System.out.println("STARTING GRADIENT CHECK");
-            boolean ok = GradCheckUtil.checkGradients(sd);
+                System.out.println("STARTING GRADIENT CHECK");
+                boolean ok = GradCheckUtil.checkGradients(sd);
 
-            assertTrue(msg, ok);
+                assertTrue(msg, ok);
+            }
         }
     }
 
     @Test
-    public void testLossWeights2d(){
+    public void testLossWeights2d() {
 
         String[] weightTypes = new String[]{"none", "per-example", "per-output", "per-example-output"};
 
@@ -100,12 +105,12 @@ public class GradCheckLoss {
         int nOut = 4;
         int minibatch = 10;
 
-        for(String weightType : weightTypes) {
+        for (String weightType : weightTypes) {
 
-            for(boolean binary : new boolean[]{true, false}) {  //Binary mask (like DL4J) or arbitrary weights?
+            for (boolean binary : new boolean[]{true, false}) {  //Binary mask (like DL4J) or arbitrary weights?
 
                 int[] weightShape;
-                switch(weightType){
+                switch (weightType) {
                     case "none":
                         weightShape = null;
                         break;
@@ -123,7 +128,7 @@ public class GradCheckLoss {
                 }
 
                 INDArray weightArr = null;
-                if(!"none".equals(weightType)) {
+                if (!"none".equals(weightType)) {
                     if (binary) {
                         weightArr = Nd4j.getExecutioner().exec(new BernoulliDistribution(Nd4j.createUninitialized(weightShape), 0.5));
                     } else {
@@ -131,58 +136,62 @@ public class GradCheckLoss {
                     }
                 }
 
+                for (LossFunctions.Reduction reduction : new LossFunctions.Reduction[]{
+                        LossFunctions.Reduction.MEAN_BY_COUNT, LossFunctions.Reduction.MEAN_BY_WEIGHT, LossFunctions.Reduction.SUM}) {
 
-                for (String fn : new String[]{"mse", "l1", "l2", "mcxent"}) {
+                    for (String fn : new String[]{"mse", "l1", "l2", "mcxent"}) {
 
-                    SameDiff sd = SameDiff.create();
+                        SameDiff sd = SameDiff.create();
 
 
-                    SDVariable input = sd.var("in", new int[]{-1, nOut});
-                    SDVariable labels = sd.var("labels", new int[]{-1, nOut});
-                    SDVariable weight = null;
-                    if(!"none".equals(weightType)){
-                        weight = sd.var("weights", weightArr);
+                        SDVariable input = sd.var("in", new int[]{-1, nOut});
+                        SDVariable labels = sd.var("labels", new int[]{-1, nOut});
+                        SDVariable weight = null;
+                        if (!"none".equals(weightType)) {
+                            weight = sd.var("weights", weightArr);
+                        }
+
+                        INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
+                        INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
+
+                        LossInfo lossInfo;
+                        switch (fn) {
+                            case "mse":
+                                lossInfo = LossFunctions.mse("out", input, labels, weight, reduction, 1);
+                                break;
+                            case "l1":
+                                lossInfo = LossFunctions.l1("out", input, labels, weight, reduction, 1);
+                                //L1 = sum abs error
+                                break;
+                            case "l2":
+                                lossInfo = LossFunctions.l2("out", input, labels, weight, reduction, 1);
+                                //L2 = sum squared error
+                                break;
+                            case "mcxent":
+                                lossInfo = LossFunctions.mcxent("out", input, labels, weight, reduction, 1);
+                                //mcxent = sum label * log(prob)
+                                break;
+                            default:
+                                throw new RuntimeException();
+                        }
+
+
+                        String msg = "lossFn=" + fn + ", reduction=" + reduction + ", weightType=" + weightType + ", binaryWeight=" + binary;
+                        log.info("*** Starting test: " + msg);
+
+                        sd.associateArrayWithVariable(inputArr, input);
+                        sd.associateArrayWithVariable(labelsArr, labels);
+                        if (weight != null) {
+                            sd.associateArrayWithVariable(weightArr, weight);
+                        }
+
+                        INDArray out = sd.execAndEndResult();
+                        assertEquals(1, out.length());
+
+                        boolean ok = GradCheckUtil.checkGradients(sd);
+
+                        assertTrue(msg, ok);
                     }
-
-                    INDArray inputArr = Nd4j.randn(minibatch, nOut).muli(100);
-                    INDArray labelsArr = Nd4j.randn(minibatch, nOut).muli(100);
-
-                    LossInfo lossInfo;
-                    switch (fn) {
-                        case "mse":
-                            lossInfo = LossFunctions.mse("out", input, labels, weight, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                            break;
-                        case "l1":
-                            lossInfo = LossFunctions.l1("out", input, labels, weight, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                            //L1 = sum abs error
-                            break;
-                        case "l2":
-                            lossInfo = LossFunctions.l2("out", input, labels, weight, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                            //L2 = sum squared error
-                            break;
-                        case "mcxent":
-                            lossInfo = LossFunctions.mcxent("out", input, labels, weight, LossFunctions.Reduction.MEAN_BY_COUNT, 1);
-                            //mcxent = sum label * log(prob)
-                            break;
-                        default:
-                            throw new RuntimeException();
-                    }
-
-
-                    String msg = "lossFn=" + fn + ", weightType=" + weightType + ", binaryWeight=" + binary;
-                    log.info("*** Starting test: " + msg);
-
-                    sd.associateArrayWithVariable(inputArr, input);
-                    sd.associateArrayWithVariable(labelsArr, labels);
-                    if(weight != null){
-                        sd.associateArrayWithVariable(weightArr, weight);
-                    }
-
-                    INDArray out = sd.execAndEndResult();
-
-                    boolean ok = GradCheckUtil.checkGradients(sd);
-
-                    assertTrue(msg, ok);
                 }
             }
         }
