@@ -27,61 +27,49 @@ import static org.nd4j.imports.TFGraphTestAllHelper.*;
 public class TFGraphTestList {
 
     public static String[] modelNames = new String[]{
-//            "add_n",
-//            "ae",
-//            "ae_00",
-//            "bias_add",
-//            "norm_tests/norm_0",
-//             "concat",
- //            "conv_0",
+            "add_n",
+            "ae",
+            "ae_00",
+            "bias_add",
+            "norm_tests/norm_0",
+             "concat",
+             "conv_0",
              "conv_1",
-//             "conv_2",
-//             "conv_3",
-//            "deep_mnist",
-//            "deep_mnist_no_dropout",
-//             "expand_dim",
-//            "g_00",
-//               "g_01",
-//               "g_01",
-//               "g_02",
-//               "g_03",
-//              "g_04",
-//               "g_05",
-//              "gru_mnist",
-//            "lstm_mnist",
-//             "math_mul_order",
-//            "mlp_00",
-//            "mnist_00",
-//              "node_multiple_out",
-//              "pool_0",
-//              "pool_1",
-//              "primitive_gru",
-//              "primitive_gru_dynamic",
-//              "primitive_lstm",
-//              "stack",
-//              "stack_1d",
-//            "stack_scalar",
-//             "simple_cond",
-//            "simple_while",
-//            "transform_0",
-//            "transpose_00",
-//            "non2d_0",
-//              "unstack"
+             "conv_2",
+             "conv_3",
+            "deep_mnist",
+            "deep_mnist_no_dropout",
+             "expand_dim",
+            "g_00",
+               "g_01",
+               "g_01",
+               "g_02",
+               "g_03",
+              "g_04",
+               "g_05",
+              "gru_mnist",
+            "lstm_mnist",
+             "math_mul_order",
+            "mlp_00",
+            "mnist_00",
+              "node_multiple_out",
+              "pool_0",
+              "pool_1",
+              "primitive_gru",
+              "primitive_gru_dynamic",
+              "primitive_lstm",
+              "stack",
+              "stack_1d",
+            "stack_scalar",
+             "simple_cond",
+            "simple_while",
+            "transform_0",
+            "transpose_00",
+            "non2d_0",
+              "unstack"
     };
 
-    /**
-     * Failures:
-     * transpose
-     * simple_cond
-     * primitive_gru_dynamic (while loop related)
-     * pool_1 (attributes related)
-     * pool_0: (attributes related)
-     * g_05: Gather related
-     * g_04: assertion failure related to concat and reshape f ordering being requested in java
-     * all tensorflow orders are c not f
-     *
-     * Note: norm_tests have to be run with "norm_tests/norm_0" or to run all the tests under a directory run with TFGraphTestSubDir
-     */
+
 
     //change this to SAMEDIFF for samediff
     public static TFGraphTestAllHelper.ExecuteWith executeWith = ExecuteWith.SAMEDIFF;

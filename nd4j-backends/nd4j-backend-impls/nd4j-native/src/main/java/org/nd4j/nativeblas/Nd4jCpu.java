@@ -6817,6 +6817,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tile(@StdVector IntPointer repeats, @ByRef FloatNDArray target);
         public native void tile(@StdVector IntBuffer repeats, @ByRef FloatNDArray target);
         public native void tile(@StdVector int[] repeats, @ByRef FloatNDArray target);
+
+        /**
+        *  change an array by repeating it the number of times to acquire the new shape which is the same as target shape        
+        *  target - where to store result
+        */
+        public native void tile(@ByRef FloatNDArray target);
         
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
@@ -7014,10 +7020,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
-        *  shape - contains new shape to broadcast array to 
+        *
+        *  shape  - contains new shape to broadcast array to 
+        *  target - optional argument, if target != nullptr the resulting array will be placed it target, in opposite case tile operation is done in place
         */
+        public native void tileToShape(@StdVector IntPointer shape, FloatNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape, FloatNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape, FloatNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector int[] shape);
 
         /**
@@ -7848,6 +7859,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tile(@StdVector IntPointer repeats, @ByRef HalfNDArray target);
         public native void tile(@StdVector IntBuffer repeats, @ByRef HalfNDArray target);
         public native void tile(@StdVector int[] repeats, @ByRef HalfNDArray target);
+
+        /**
+        *  change an array by repeating it the number of times to acquire the new shape which is the same as target shape        
+        *  target - where to store result
+        */
+        public native void tile(@ByRef HalfNDArray target);
         
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
@@ -8045,10 +8062,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
-        *  shape - contains new shape to broadcast array to 
+        *
+        *  shape  - contains new shape to broadcast array to 
+        *  target - optional argument, if target != nullptr the resulting array will be placed it target, in opposite case tile operation is done in place
         */
+        public native void tileToShape(@StdVector IntPointer shape, HalfNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape, HalfNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape, HalfNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector int[] shape);
 
         /**
@@ -8879,6 +8901,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tile(@StdVector IntPointer repeats, @ByRef DoubleNDArray target);
         public native void tile(@StdVector IntBuffer repeats, @ByRef DoubleNDArray target);
         public native void tile(@StdVector int[] repeats, @ByRef DoubleNDArray target);
+
+        /**
+        *  change an array by repeating it the number of times to acquire the new shape which is the same as target shape        
+        *  target - where to store result
+        */
+        public native void tile(@ByRef DoubleNDArray target);
         
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
@@ -9076,10 +9104,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
-        *  shape - contains new shape to broadcast array to 
+        *
+        *  shape  - contains new shape to broadcast array to 
+        *  target - optional argument, if target != nullptr the resulting array will be placed it target, in opposite case tile operation is done in place
         */
+        public native void tileToShape(@StdVector IntPointer shape, DoubleNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntPointer shape);
+        public native void tileToShape(@StdVector IntBuffer shape, DoubleNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector IntBuffer shape);
+        public native void tileToShape(@StdVector int[] shape, DoubleNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector int[] shape);
 
         /**
