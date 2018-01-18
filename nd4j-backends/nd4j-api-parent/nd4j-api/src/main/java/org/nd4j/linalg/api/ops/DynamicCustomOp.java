@@ -567,7 +567,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
+        throw new UnsupportedOperationException("Please extend DynamicCustomOp.doDiff to run samediff graph operations.");
     }
 
     @Override

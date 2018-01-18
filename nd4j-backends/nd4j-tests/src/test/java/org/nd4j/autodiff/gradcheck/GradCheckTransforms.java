@@ -314,7 +314,8 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 19; i++) {
+        for (int i = 0; i < 20; i++) {
+
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;
@@ -412,6 +413,10 @@ public class GradCheckTransforms {
                 case 18:
                     t = sd.assign(in1,in2);
                     expOut = ib;
+                    break;
+                case 19:
+                    t = sd.atan2(in1, in2);
+                    expOut = Transforms.atan2(ib, ia);    //Note: y,x order for samediff; x,y order for transforms
                     break;
                 default:
                     throw new RuntimeException();

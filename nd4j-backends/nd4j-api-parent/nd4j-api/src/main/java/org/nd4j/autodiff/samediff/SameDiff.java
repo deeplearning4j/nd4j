@@ -1901,6 +1901,15 @@ public class SameDiff {
         return atan(null,iX);
     }
 
+    public SDVariable atan2(SDVariable y, SDVariable x){
+        return atan2(null, y, x);
+    }
+
+    public SDVariable atan2(String name, SDVariable y, SDVariable x){
+        SDVariable ret = f().atan2(y, x);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX
@@ -4821,7 +4830,7 @@ public class SameDiff {
         }
 
 
-        log.info("Executing op " + differentialFunction.opName());
+//        log.info("Executing op " + differentialFunction.opName());
 
         StringBuilder realShapes = new StringBuilder();
         for(val arg: differentialFunction.args()) {
@@ -4835,7 +4844,7 @@ public class SameDiff {
         }
 
 
-        log.info(realShapes.toString());
+//        log.info(realShapes.toString());
     }
 
 

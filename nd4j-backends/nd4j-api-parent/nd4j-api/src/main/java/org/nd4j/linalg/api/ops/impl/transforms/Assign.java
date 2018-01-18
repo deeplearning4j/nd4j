@@ -9,6 +9,8 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -53,5 +55,11 @@ public class Assign extends DynamicCustomOp {
     @Override
     public Op.Type opType() {
         return Op.Type.CUSTOM;
+    }
+
+    @Override
+    public List<SDVariable> doDiff(List<SDVariable> f1){
+        //TODO replace with assign backprop op from libnd4j (that handles the broadcast case properly)
+        return Arrays.asList(f().zerosLike(larg()), f1.get(0));
     }
 }

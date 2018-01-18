@@ -290,6 +290,10 @@ public class DifferentialFunctionFactory   {
 
     }
 
+    public SDVariable atan2(SDVariable y, SDVariable x){
+        return new ATan2(sameDiff(), y, x).outputVariables()[0];
+    }
+
 
     public SDVariable cosh(SDVariable iX) {
         return new Cosh(sameDiff(),iX,null).outputVariables()[0];
