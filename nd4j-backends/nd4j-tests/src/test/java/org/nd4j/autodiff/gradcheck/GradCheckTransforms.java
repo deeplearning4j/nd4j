@@ -314,7 +314,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 18; i++) {
+        for (int i = 0; i < 19; i++) {
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;
@@ -408,6 +408,10 @@ public class GradCheckTransforms {
                     ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
                     t = sd.xor(in1, in2);
                     expOut = Transforms.xor(ia, ib);
+                    break;
+                case 18:
+                    t = sd.assign(in1,in2);
+                    expOut = ib;
                     break;
                 default:
                     throw new RuntimeException();

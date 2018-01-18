@@ -485,6 +485,10 @@ public class DifferentialFunctionFactory   {
 
     }
 
+    public SDVariable assign(SDVariable x, SDVariable y){
+        return new Assign(sameDiff(),x,y).outputVariables()[0];
+    }
+
 
     public SDVariable softsign(SDVariable iX) {
         return new SoftSign(sameDiff(),iX,null).outputVariables()[0];

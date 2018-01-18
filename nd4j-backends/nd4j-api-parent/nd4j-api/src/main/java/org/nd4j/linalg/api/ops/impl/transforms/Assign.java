@@ -1,6 +1,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import onnx.OnnxProto3;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
@@ -10,7 +11,18 @@ import org.tensorflow.framework.NodeDef;
 
 import java.util.Map;
 
+/**
+ * Assign op: x = y, with broadcast as required
+ */
 public class Assign extends DynamicCustomOp {
+
+    public Assign(){
+
+    }
+
+    public Assign(SameDiff sameDiff, SDVariable x, SDVariable y){
+        super(null, sameDiff, new SDVariable[]{x,y});
+    }
 
 
     @Override

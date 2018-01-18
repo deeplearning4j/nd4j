@@ -2322,6 +2322,15 @@ public class SameDiff {
         return reshape(null,iX,shape);
     }
 
+    public SDVariable assign(SDVariable x, SDVariable y){
+        return assign(null, x, y);
+    }
+
+    public SDVariable assign(String name, SDVariable x, SDVariable y){
+        SDVariable ret = f().assign(x,y);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      *
      * @param iX
