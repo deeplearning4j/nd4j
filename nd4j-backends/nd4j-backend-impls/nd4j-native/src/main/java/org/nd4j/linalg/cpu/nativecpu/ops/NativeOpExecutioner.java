@@ -302,11 +302,12 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 ret = Nd4j.create(xT, yT);
             } else {
                 if (op.y() != null) {
-                    val xT = op.x().tensorAlongDimension(0, dimension).lengthLong();
-                    val yT = op.y().lengthLong();
+                    val xT = op.x().lengthLong() / op.x().tensorssAlongDimension(dimension);
+                    val yT = op.y().lengthLong() / op.y().tensorssAlongDimension(dimension);
 
                     if (xT != yT)
-                        throw new ND4JIllegalStateException("Number of TADs along dimension doesn't match");
+                        throw new ND4JIllegalStateException("Size of TADs along dimension don't match: (x TAD size = " +
+                                xT + ", y TAD size = " + yT);
                 }
 
                 if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
