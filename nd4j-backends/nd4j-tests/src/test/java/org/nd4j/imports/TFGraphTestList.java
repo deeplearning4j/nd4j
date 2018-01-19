@@ -61,16 +61,16 @@ public class TFGraphTestList {
             "primitive_gru",
             "primitive_gru_dynamic", //while loop related NullPointer, double check import here
             "primitive_lstm",
-            "ssd_mobilenet_v1_coco",
+          //  "ssd_mobilenet_v1_coco",
             "stack",
             "stack_1d",
             "stack_scalar",
-              "simple_cond", //JVM crash
+         //     "simple_cond", //JVM crash
             "simple_while",  //Functions not being added: Need to finish while import
             "transform_0",
             "transpose_00",
             "unstack",
-            "yolov2_608x608"
+           // "yolov2_608x608"
     };
 
 

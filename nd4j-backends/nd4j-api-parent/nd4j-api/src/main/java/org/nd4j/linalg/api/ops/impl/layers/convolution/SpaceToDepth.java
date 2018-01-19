@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 import lombok.val;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -23,7 +24,9 @@ public class SpaceToDepth extends DynamicCustomOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        super.initFromTensorFlow(nodeDef, initWith, attributesForNode, graph);
+        TFGraphMapper.getInstance().initFunctionFromProperties(this,attributesForNode);
+        boolean isNHWC = dataFormat.equals("NHWC");
+        addIArgument(blockSize,isNHWC ? 1 : 0);
     }
 
     @Override
