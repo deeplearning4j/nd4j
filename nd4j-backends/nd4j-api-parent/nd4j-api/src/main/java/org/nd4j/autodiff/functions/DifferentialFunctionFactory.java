@@ -18,6 +18,9 @@ import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.AddBpOp;
+import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.DivBpOp;
+import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.FloorDivBpOp;
+import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.FloorModBpOp;
 import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByNorm;
 import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByValue;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
@@ -405,6 +408,22 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable floor(SDVariable iX) {
         return new Floor(sameDiff(),iX,null).outputVariables()[0];
+    }
+
+    public SDVariable floorDiv(SDVariable x, SDVariable y){
+        return new FloorDivOp(sameDiff(), x, y).outputVariables()[0];
+    }
+
+    public List<SDVariable> floorDivBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new FloorDivBpOp(sameDiff(), x, y, grad).outputVariables());
+    }
+
+    public SDVariable floorMod(SDVariable x, SDVariable y){
+        return new FModOp(sameDiff(), x, y).outputVariables()[0];
+    }
+
+    public List<SDVariable> floorModBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new FloorModBpOp(sameDiff(), x, y, grad).outputVariables());
     }
 
     public SDVariable ceil(SDVariable x){
@@ -805,6 +824,10 @@ public class DifferentialFunctionFactory   {
     public SDVariable div(SDVariable differentialFunction, SDVariable i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new DivOp(sameDiff(),new SDVariable[]{differentialFunction,i_v},false).outputVariables()[0];
+    }
+
+    public List<SDVariable> divBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new DivBpOp(sameDiff(),x,y,grad).outputVariables());
     }
 
 

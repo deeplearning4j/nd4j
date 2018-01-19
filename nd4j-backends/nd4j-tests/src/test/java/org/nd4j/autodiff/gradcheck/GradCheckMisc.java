@@ -208,7 +208,7 @@ public class GradCheckMisc {
             int[] in2Shape = {3, 4, 5};
             in2Shape[dim_sz1] = 1;
 
-            for (int i = 0; i < 6; i++) {
+            for (int i = 7; i < 8; i++) {
 
                 SameDiff sd = SameDiff.create();
 
@@ -234,6 +234,12 @@ public class GradCheckMisc {
                         break;
                     case 5:
                         bcOp = in3.rdiv(in2);
+                        break;
+                    case 6:
+                        bcOp = sd.f().floorDiv(in3, in2);
+                        break;
+                    case 7:
+                        bcOp = sd.f().floorMod(in3, in2);
                         break;
                     default:
                         throw new RuntimeException();
