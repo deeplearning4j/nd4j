@@ -157,9 +157,13 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 arr = sameDiff.getArrForVarName(input);
             }
 
-            if(arr == null) {
+            if(arr == null && inputNode != null) {
                 sameDiff.addPropertyToResolve(on,name);
                 sameDiff.addVariableMappingForField(on,name,inputNode.getName());
+                return;
+            }
+            else if(inputNode == null) {
+                sameDiff.addAsPlaceHolder(input);
                 return;
             }
 
@@ -314,6 +318,10 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
     @Override
     public INDArray getArrayFrom(NodeDef nodeDef, GraphDef graph) {
+        if(nodeDef == null) {
+            return null;
+        }
+
         return getNDArrayFromTensor(nodeDef.getName(),nodeDef, graph);
     }
 
@@ -630,8 +638,13 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             }
 
             else if(entry.getValue().getTfInputPosition() != null) {
-                val inputFromNode = TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,node.getInput(entry.getValue().getTfInputPosition()));
-                val tensor = TFGraphMapper.getInstance().getNDArrayFromTensor("value",inputFromNode,graph);
+                int position = entry.getValue().getTfInputPosition();
+                if(position < 0) {
+                    position += node.getInputCount();
+                }
+
+                val inputFromNode = TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,node.getInput(position));
+                val tensor = inputFromNode != null ? TFGraphMapper.getInstance().getNDArrayFromTensor("value",inputFromNode,graph) : null;
                 if(tensor != null) {
                     if(currentField.getType().equals(int[].class)) {
                         on.setValueFor(currentField,tensor.data().asInt());
