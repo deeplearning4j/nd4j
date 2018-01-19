@@ -7,6 +7,8 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.util.ArrayUtil;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -20,7 +22,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class Gather extends DynamicCustomOp {
 
-    private int[] broadcast,axis;
+    private int[] broadcast;
+    private int axis = 0;
 
 
     @Override
@@ -37,6 +40,7 @@ public class Gather extends DynamicCustomOp {
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
         TFGraphMapper.getInstance().initFunctionFromProperties(nodeDef.getOp(), this, attributesForNode,nodeDef, graph);
+
     }
 
     @Override
@@ -46,21 +50,46 @@ public class Gather extends DynamicCustomOp {
 
 
     @Override
+    public void resolvePropertiesFromSameDiffBeforeExecution() {
+        super.resolvePropertiesFromSameDiffBeforeExecution();
+        if(broadcast != null && numInputArguments() < 2) {
+            if(numInputArguments() == 0) {
+                addInputArgument(args()[0].getArr(),Nd4j.create( ArrayUtil.toFloats(broadcast)).reshape(broadcast.length));
+
+            }
+            else if(numInputArguments() == 1) {
+                addInputArgument(Nd4j.create( ArrayUtil.toFloats(broadcast)));
+            }
+
+        }
+
+        if(numIArguments() < 1) {
+            addIArgument(axis);
+        }
+
+        if(numOutputArguments() < getDescriptor().getNumOutputs()) {
+            val outputs = outputVariables();
+            for(int i = 0; i < outputs.length; i++) {
+                addOutputArgument(outputs[i].getArr());
+            }
+        }
+
+
+
+    }
+
+    @Override
     public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {
         Map<String, Map<String, PropertyMapping>> ret = new HashMap<>();
         Map<String,PropertyMapping> map = new HashMap<>();
         val broadcast = PropertyMapping.builder()
                 .onnxAttrName("broadcast")
-                 .tfInputPosition(1)
+                .tfInputPosition(1)
                 .propertyNames(new String[]{"broadcast"}).build();
 
-        val axis = PropertyMapping.builder()
-                .onnxAttrName("axis")
-                .tfInputPosition(2)
-                .propertyNames(new String[]{"axis"}).build();
+
 
         map.put("broadcast",broadcast);
-        map.put("axis",axis);
 
 
         ret.put(tensorflowNames()[0],map);
@@ -77,7 +106,7 @@ public class Gather extends DynamicCustomOp {
         val axis2 = PropertyMapping.builder()
                 .tfInputPosition(2)
                 .propertyNames(new String[]{"axis"}).build();
-         map2.put("axis",axis2);
+        map2.put("axis",axis2);
 
         ret.put("GatherV2",map2);
 
