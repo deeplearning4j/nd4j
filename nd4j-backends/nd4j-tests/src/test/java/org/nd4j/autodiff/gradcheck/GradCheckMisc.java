@@ -208,7 +208,7 @@ public class GradCheckMisc {
             int[] in2Shape = {3, 4, 5};
             in2Shape[dim_sz1] = 1;
 
-            for (int i = 7; i < 8; i++) {
+            for (int i = 0; i < 8; i++) {
 
                 SameDiff sd = SameDiff.create();
 
@@ -216,30 +216,39 @@ public class GradCheckMisc {
                 SDVariable in2 = sd.var("in2", in2Shape);
 
                 SDVariable bcOp;
+                String name;
                 switch (i) {
                     case 0:
                         bcOp = in3.add(in2);
+                        name = "add";
                         break;
                     case 1:
                         bcOp = in3.sub(in2);
+                        name = "sub";
                         break;
                     case 2:
                         bcOp = in3.mul(in2);
+                        name = "mul";
                         break;
                     case 3:
                         bcOp = in3.div(in2);
+                        name = "div";
                         break;
                     case 4:
                         bcOp = in3.rsub(in2);
+                        name = "rsub";
                         break;
                     case 5:
                         bcOp = in3.rdiv(in2);
+                        name = "rdiv";
                         break;
                     case 6:
                         bcOp = sd.f().floorDiv(in3, in2);
+                        name = "floordiv";
                         break;
                     case 7:
                         bcOp = sd.f().floorMod(in3, in2);
+                        name = "floormod";
                         break;
                     default:
                         throw new RuntimeException();
@@ -247,7 +256,7 @@ public class GradCheckMisc {
 
                 SDVariable outVar = sd.sum(bcOp);
 
-                String msg = "(test " + i + ", dimension=" + dim_sz1 + ")";
+                String msg = "(test " + i + ": " + name + ", dimension=" + dim_sz1 + ")";
                 log.info("*** Starting test: " + msg);
 
                 INDArray in3Arr = Nd4j.randn(new int[]{3, 4, 5}).muli(100);

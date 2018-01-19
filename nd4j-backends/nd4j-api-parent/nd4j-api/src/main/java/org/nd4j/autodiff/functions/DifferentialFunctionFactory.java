@@ -17,10 +17,7 @@ import org.nd4j.linalg.api.ops.impl.shape.*;
 import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
-import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.AddBpOp;
-import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.DivBpOp;
-import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.FloorDivBpOp;
-import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.FloorModBpOp;
+import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp.*;
 import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByNorm;
 import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByValue;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
@@ -753,11 +750,18 @@ public class DifferentialFunctionFactory   {
         return new RSubOp(sameDiff(),differentialFunction,i_v).outputVariables()[0];
     }
 
+    public List<SDVariable> rsubBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new RSubBpOp(sameDiff(), x, y, grad).outputVariables());
+    }
+
 
     public SDVariable rdiv(SDVariable differentialFunction, SDVariable i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new RDivOp(sameDiff(),new SDVariable[]{differentialFunction,i_v},false).outputVariables()[0];
+    }
 
+    public List<SDVariable> rdivBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new RDivBpOp(sameDiff(),x,y,grad).outputVariables());
     }
 
 
@@ -796,7 +800,10 @@ public class DifferentialFunctionFactory   {
     public SDVariable sub(SDVariable differentialFunction, SDVariable i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new SubOp(sameDiff(),new SDVariable[]{differentialFunction,i_v},false).outputVariables()[0];
+    }
 
+    public List<SDVariable> subBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new SubBpOp(sameDiff(), x,y,grad).outputVariables());
     }
 
 
@@ -810,7 +817,10 @@ public class DifferentialFunctionFactory   {
     public SDVariable mul(SDVariable differentialFunction, SDVariable i_v) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new MulOp(sameDiff(),new SDVariable[]{differentialFunction,i_v},false).outputVariables()[0];
+    }
 
+    public List<SDVariable> mulBp(SDVariable x, SDVariable y, SDVariable grad){
+        return Arrays.asList(new MulBpOp(sameDiff(),x,y,grad).outputVariables());
     }
 
 
