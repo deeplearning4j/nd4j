@@ -52,7 +52,7 @@ public class MergeAddOp extends BaseDynamicTransformOp {
 
     @Override
     public String onnxName() {
-        return "Add";
+        return "mergeadd";
     }
 
     @Override
