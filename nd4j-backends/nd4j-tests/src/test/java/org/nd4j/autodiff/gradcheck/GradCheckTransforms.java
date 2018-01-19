@@ -40,10 +40,6 @@ public class GradCheckTransforms {
         List<String> allFailed = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
 
-            if(i < 49){
-                continue;
-            }
-
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;

@@ -4857,7 +4857,7 @@ public class SameDiff {
         }
 
 
-//        log.info("Executing op " + differentialFunction.opName());
+        log.info("Executing op " + differentialFunction.opName());
 
         StringBuilder realShapes = new StringBuilder();
         for(val arg: differentialFunction.args()) {
@@ -4871,7 +4871,7 @@ public class SameDiff {
         }
 
 
-//        log.info(realShapes.toString());
+        log.info(realShapes.toString());
     }
 
 
