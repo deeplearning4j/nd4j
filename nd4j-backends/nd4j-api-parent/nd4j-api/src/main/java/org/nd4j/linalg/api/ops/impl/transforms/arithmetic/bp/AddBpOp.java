@@ -17,7 +17,7 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
+package org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -29,45 +29,20 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Addition operation
+ * Addition backprop operation. Supports 'undoing' of auto broadcast as applied in add op forward pass
  *
- * @author Adam Gibson
+ * @author Alex Black
  */
-public class AddOp extends BaseDynamicTransformOp {
+public class AddBpOp extends BaseArithmeticBackpropOp {
 
-    public AddOp() {}
+    public AddBpOp() {}
 
-    public AddOp( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
-    }
-
-    public AddOp( INDArray[] inputs, INDArray[] outputs) {
-        super(inputs, outputs);
+    public AddBpOp(SameDiff sameDiff, SDVariable x, SDVariable y, SDVariable eps) {
+        super(sameDiff, x,y,eps);
     }
 
     @Override
     public String opName() {
-        return "add";
+        return "add_bp";
     }
-
-
-    @Override
-    public String onnxName() {
-        return "Add";
-    }
-
-    @Override
-    public String tensorflowName() {
-        return "Add";
-    }
-
-
-
-
-    @Override
-    public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return f().addBp(larg(), rarg(), i_v.get(0));
-    }
-
-
 }

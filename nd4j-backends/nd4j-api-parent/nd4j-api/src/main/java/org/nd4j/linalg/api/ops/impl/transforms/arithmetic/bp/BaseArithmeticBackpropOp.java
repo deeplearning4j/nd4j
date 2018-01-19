@@ -17,57 +17,36 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
+package org.nd4j.linalg.api.ops.impl.transforms.arithmetic.bp;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * Addition operation
+ * Base arithmetic backprop operation
  *
- * @author Adam Gibson
+ * @author Alex Black
  */
-public class AddOp extends BaseDynamicTransformOp {
+public abstract class BaseArithmeticBackpropOp extends BaseDynamicTransformOp {
 
-    public AddOp() {}
+    public BaseArithmeticBackpropOp() {}
 
-    public AddOp( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
+    public BaseArithmeticBackpropOp(SameDiff sameDiff, SDVariable x, SDVariable y, SDVariable eps) {
+        super(sameDiff, new SDVariable[]{x,y,eps}, false);
     }
-
-    public AddOp( INDArray[] inputs, INDArray[] outputs) {
-        super(inputs, outputs);
-    }
-
-    @Override
-    public String opName() {
-        return "add";
-    }
-
-
-    @Override
-    public String onnxName() {
-        return "Add";
-    }
-
-    @Override
-    public String tensorflowName() {
-        return "Add";
-    }
-
-
-
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return f().addBp(larg(), rarg(), i_v.get(0));
+        throw new UnsupportedOperationException("Not supported");
     }
 
+    @Override
+    public List<int[]> calculateOutputShape(){
+        return Nd4j.getExecutioner().calculateOutputShape(this);
+    }
 
 }
