@@ -70,7 +70,8 @@ public class Gather extends DynamicCustomOp {
         if(numOutputArguments() < getDescriptor().getNumOutputs()) {
             val outputs = outputVariables();
             for(int i = 0; i < outputs.length; i++) {
-                addOutputArgument(outputs[i].getArr());
+                val output = outputs[i].getArr();
+                addOutputArgument(output);
             }
         }
 
