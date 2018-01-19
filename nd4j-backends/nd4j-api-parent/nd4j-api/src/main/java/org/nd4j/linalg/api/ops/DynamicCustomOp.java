@@ -213,6 +213,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         if(Shape.isPlaceholderShape(var.getShape())) {
             if(var.getShape() == null) {
                 val shape = calculateOutputShape();
+
                 if(!shape.isEmpty()) {
                     if(currShape != null && !Shape.isPlaceholderShape(currShape)) {
                         sameDiff.putShapeForVarName(var.getVarName(),currShape);
@@ -234,10 +235,12 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             arr = var.getArr();
         }
 
-        if(arr != null)
+        if(arr != null) {
+            sameDiff.associateArrayWithVariable(arr,var);
             addOutputArgument(arr);
+        }
 
-        sameDiff.associateArrayWithVariable(arr,var);
+
         return arr;
     }
 
@@ -371,6 +374,14 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
         return inputArguments.get(index);
     }
 
+    public void setInputArgument(int index,INDArray input) {
+        inputArguments.set(index,input);
+    }
+
+    public void setOutputArgument(int index,INDArray output) {
+        outputArguments.set(index,output);
+    }
+
     @Override
     public int numInputArguments() {
         return inputArguments.size();
@@ -424,6 +435,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public List<int[]> calculateOutputShape() {
+        val descriptor = getDescriptor();
         for(val arg : args()) {
             if(sameDiff.isPlaceHolder(arg.getVarName()) && !sameDiff.shapeAlreadyExistsForVarName(arg.getVarName()))
                 return Collections.emptyList();
@@ -431,6 +443,18 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
         if(outputShapes != null)
             return outputShapes;
+
+
+        //not fully initialized
+        if(descriptor.getNumIArgs() >= 0 && numIArguments() < descriptor.getNumIArgs()) {
+            return Collections.emptyList();
+        }
+
+
+        //not fully initialized
+        if(descriptor.getNumTArgs() >= 0 && numTArguments() < descriptor.getNumTArgs()) {
+            return Collections.emptyList();
+        }
 
 
         /**
@@ -457,7 +481,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of inputs is invalid for execution. Specified " + numInputArguments() + " but should be " + descriptor.getNumInputs());
 
         if(descriptor.getNumOutputs() > 0 && numOutputArguments() < descriptor.getNumOutputs())
-            throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumInputs());
+            throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumOutputs());
 
         //< 0 means dynamic size
         if(descriptor.getNumIArgs() >= 0 && numIArguments() < descriptor.getNumIArgs())
@@ -499,18 +523,22 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
                 //clear just in case
                 val args = args();
                 inputArguments.clear();
+                boolean nullArr = false;
                 for(val arg : args()) {
                     //we should not attempt to resolve
                     //outputs when null inputs exist
                     if(arg.getArr() == null) {
+                        nullArr = true;
                         log.warn("No input found for " + arg.getVarName() + " and op name " + opName());
-                        return;
+                        continue;
                     }
                 }
 
 
-                for(val arg : args) {
-                    inputArguments.add(arg.getArr());
+                if(!nullArr) {
+                    for (val arg : args) {
+                        inputArguments.add(arg.getArr());
+                    }
                 }
             }
 
@@ -542,9 +570,6 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
             }
         }
 
-        //ensure that properties are resolved as well
-        super.resolvePropertiesFromSameDiffBeforeExecution();
-
     }
 
 
@@ -565,7 +590,7 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException("Please extend DynamicCustomOp to run samediff graph operations.");
+        throw new UnsupportedOperationException("Please extend DynamicCustomOp.doDiff to run samediff graph operations.");
     }
 
     @Override

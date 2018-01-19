@@ -3,6 +3,7 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
@@ -20,6 +21,15 @@ import java.util.Map;
 @Slf4j
 public class Concat extends DynamicCustomOp {
     private int concatDimension;
+
+    public Concat(){
+
+    }
+
+    public Concat(SameDiff sameDiff, int concatDimension, SDVariable... inputs){
+        super(null, sameDiff, inputs);
+        addIArgument(concatDimension);
+    }
 
     @Override
     public String opName() {
@@ -62,7 +72,7 @@ public class Concat extends DynamicCustomOp {
             throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of inputs is invalid for execution. Specified " + numInputArguments() + " but should be " + descriptor.getNumInputs());
 
         if(descriptor.getNumOutputs() > 0 && numOutputArguments() != descriptor.getNumOutputs())
-            throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumInputs());
+            throw new ND4JIllegalStateException("Op failure for " + opName() + " Number of outputs is invalid for execution. Specified " + numOutputArguments() + " but should be " + descriptor.getNumOutputs());
 
         //< 0 means dynamic size
         if(descriptor.getNumIArgs() >= 0 && numIArguments() != descriptor.getNumIArgs())

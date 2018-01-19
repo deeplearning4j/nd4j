@@ -64,12 +64,7 @@ public class SubOp extends BaseDynamicTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        SDVariable gradWrtX = i_v.get(0);
-        SDVariable gradWrtY = f().neg(i_v.get(0));
-        List<SDVariable> ret = new ArrayList<>();
-        ret.add(gradWrtX);
-        ret.add(gradWrtY);
-        return ret;
+        return f().subBp(larg(), rarg(), i_v.get(0));
     }
 
 }

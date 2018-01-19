@@ -10,6 +10,7 @@ import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.converters.DifferentialFunctionClassHolder;
+import org.nd4j.imports.descriptors.properties.AttributeAdapter;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
@@ -84,6 +85,22 @@ public abstract class DifferentialFunction {
         initFromOnnx(node, sameDiff, attributesForNode, graph);
     }
 
+
+    /**
+     * Returns the {@link AttributeAdapter} s for each of the
+     * possible ops for import (typically tensorflow and onnx)
+     *
+     * See {@link AttributeAdapter} for more information on what the
+     * adapter does.
+     *
+     * Similar to {@link #mappingsForFunction()}, the returned map
+     * contains a {@link AttributeAdapter} for each field name
+     * when one is present. (It is optional for one to exist)_
+     * @return
+     */
+    public Map<String,Map<String,AttributeAdapter>> attributeAdaptersForFunction() {
+        return Collections.emptyMap();
+    }
 
     /**
      * Returns the mappings for a given function (
@@ -246,6 +263,23 @@ public abstract class DifferentialFunction {
     }
 
 
+    /**
+     * Returns true if the fields for this class should be looked up from a configuration class.
+     * @return
+     */
+    public boolean isConfigProperties() {
+        return false;
+    }
+
+    /**
+     * Returns the name of the field to be used for looking up field names.
+     * This should be used in conjunction with {@link #isConfigProperties()}
+     *  to facilitate mapping fields for model import.
+     * @return
+     */
+    public String configFieldName() {
+        return null;
+    }
 
 
 
@@ -309,11 +343,12 @@ public abstract class DifferentialFunction {
         this.sameDiff = sameDiff;
         this.inPlace = inPlace;
         setInstanceId();
-        if(sameDiff != null)
-            sameDiff.addArgsFor(args,this);
-        for(int i = 0; i < args.length; i++) {
-            if(args[i].isPlaceHolder()) {
-                sameDiff.addPropertyToResolve(this,args[i].getVarName());
+        if(sameDiff != null) {
+            sameDiff.addArgsFor(args, this);
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].isPlaceHolder()) {
+                    sameDiff.addPropertyToResolve(this, args[i].getVarName());
+                }
             }
         }
     }
@@ -410,7 +445,7 @@ public abstract class DifferentialFunction {
              *
              */
             if(varArr == null) {
-                 throw new ND4JIllegalStateException("Unable to set null array!");
+                throw new ND4JIllegalStateException("Unable to set null array!");
             }
 
             if(fieldType.getType().equals(int[].class)) {
@@ -451,15 +486,19 @@ public abstract class DifferentialFunction {
      */
     public List<SDVariable> diff(List<SDVariable> i_v1) {
         List<SDVariable> vals = doDiff(i_v1);
+        if(vals == null){
+            throw new IllegalStateException("Error executing diff operation: doDiff returned null for op: " + this.opName());
+        }
+
         val outputVars = args();
         for(int i = 0; i < vals.size(); i++) {
             SDVariable var = outputVars[i];
             SDVariable grad = var.getGradient();
             if(grad != null) {
-                SDVariable gradVar =  f().addi(grad, vals.get(i));
-
-            }
-            else {
+                SDVariable gradVar =  f().add(grad, vals.get(i));
+                vals.set(i, gradVar);
+                sameDiff.setGradientForVariableName(var.getVarName(), gradVar);
+            } else {
                 SDVariable gradVar = vals.get(i);
                 sameDiff.updateVariableNameAndReference(gradVar,var.getVarName() + "-grad");
                 sameDiff.setGradientForVariableName(var.getVarName(), gradVar);

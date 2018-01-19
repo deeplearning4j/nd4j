@@ -24,7 +24,9 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseAccumulation;
+import org.nd4j.linalg.api.shape.Shape;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -33,6 +35,8 @@ import java.util.List;
  * @author Adam Gibson
  */
 public class EuclideanDistance extends BaseAccumulation {
+    public static final String OP_NAME = "euclidean";
+
     public EuclideanDistance(SameDiff sameDiff, SDVariable i_v, int[] dimensions) {
         super(sameDiff, i_v, dimensions);
     }
@@ -89,13 +93,27 @@ public class EuclideanDistance extends BaseAccumulation {
 
     @Override
     public String opName() {
-        return "euclidean";
+        return OP_NAME;
     }
 
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
-        throw new UnsupportedOperationException();
+        //ddist(x,y)/dxi = (xi-yi)/dist(x,y)
+        SDVariable euc = outputVariables()[0];
+        SDVariable difference = larg().sub(rarg());
+        SDVariable divBroadcastable;
+        int origRank = Shape.rankFromShape(arg().getShape());   //TODO shape may not always be defined?
+        if(!(dimensions.length == 1 && dimensions[0] == Integer.MAX_VALUE) ){
+            //1x1 output case
+            divBroadcastable = i_v1.get(0).div(euc);
+        } else {
+            divBroadcastable = f().reductionBroadcastableWithOrigShape(origRank, dimensions, i_v1.get(0).div(euc));
+        }
+
+        SDVariable gradX = difference.mul(divBroadcastable);
+        SDVariable gradY = f().neg(gradX);
+        return Arrays.asList(gradX, gradY);
     }
 
     @Override

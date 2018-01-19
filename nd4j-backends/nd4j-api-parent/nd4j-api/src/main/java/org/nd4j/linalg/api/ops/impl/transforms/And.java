@@ -20,13 +20,13 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import lombok.NonNull;
-import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,16 +38,42 @@ public class And extends BaseTransformOp {
 
     protected double comparable = 0.0;
 
+    public And(SameDiff sameDiff, SDVariable ix, SDVariable iy){
+        super(sameDiff, ix, iy);
+        this.extraArgs = new Object[] {this.comparable};
+    }
+
     public And(SameDiff sameDiff, SDVariable i_v, boolean inPlace) {
         super(sameDiff, i_v, inPlace);
+        this.extraArgs = new Object[] {this.comparable};
     }
 
     public And(SameDiff sameDiff, SDVariable i_v, int[] shape, boolean inPlace, Object[] extraArgs) {
         super(sameDiff, i_v, shape, inPlace, extraArgs);
+        this.extraArgs = new Object[] {this.comparable};
     }
 
     public And(SameDiff sameDiff, SDVariable i_v, Object[] extraArgs) {
         super(sameDiff, i_v, extraArgs);
+        this.extraArgs = new Object[] {this.comparable};
+    }
+
+    public And(SameDiff sameDiff, SDVariable i_v, boolean inPlace, double comparable) {
+        super(sameDiff, i_v, inPlace);
+        this.comparable = comparable;
+        this.extraArgs = new Object[] {this.comparable};
+    }
+
+    public And(SameDiff sameDiff, SDVariable i_v, int[] shape, boolean inPlace, Object[] extraArgs, double comparable) {
+        super(sameDiff, i_v, shape, inPlace, extraArgs);
+        this.comparable = comparable;
+        this.extraArgs = new Object[] {this.comparable};
+    }
+
+    public And(SameDiff sameDiff, SDVariable i_v, Object[] extraArgs, double comparable) {
+        super(sameDiff, i_v, extraArgs);
+        this.comparable = comparable;
+        this.extraArgs = new Object[] {this.comparable};
     }
 
     public And() {}
@@ -106,6 +132,6 @@ public class And extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        return null;
+        return Arrays.asList( sameDiff.zerosLike(larg()), sameDiff.zerosLike(rarg()));
     }
 }

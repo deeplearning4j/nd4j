@@ -10,13 +10,21 @@ import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.GreaterThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMax;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.OldMin;
+import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -29,6 +37,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
 import static org.nd4j.linalg.indexing.NDArrayIndex.all;
+import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
 import static org.nd4j.linalg.indexing.NDArrayIndex.point;
 
 /**
@@ -61,7 +70,39 @@ public class SameDiffTests {
     }
 
 
+    @Test
+    public void testScalarMul() {
+        int d0 = 2;
+        int d1 = 3;
+        int d2 = 4;
 
+        int n = d0 * d1 * d2;
+
+        for (char inOrder : new char[]{'c', 'f'}) {
+            String msg = "Order: " + inOrder + ", Nd4J order: " + Nd4j.order();
+
+            SameDiff sd = SameDiff.create();
+
+            INDArray inArr = Nd4j.linspace(1, n, n).reshape(inOrder, d0, d1, d2);
+            INDArray inMul2Exp = inArr.mul(2);
+
+            SDVariable in = sd.var("in", inArr);
+            SDVariable inMul2 = in.mul(2.0);
+
+            sd.exec();
+
+            System.out.println("*** Expected ***");
+            System.out.println(inMul2Exp.shapeInfoToString());
+            System.out.println(Arrays.toString(inMul2Exp.data().asFloat()));
+
+            System.out.println("*** Actual ***");
+            System.out.println(inMul2.getArr().shapeInfoToString());
+            System.out.println(Arrays.toString(inMul2.getArr().data().asFloat()));
+
+            assertEquals(msg, inArr, in.getArr());
+            assertEquals(msg, inMul2Exp, inMul2.getArr());
+        }
+    }
 
 
 
@@ -69,7 +110,6 @@ public class SameDiffTests {
     public void testAddArgsAndOutput() {
         SameDiff sameDiff = SameDiff.create();
         val varOne = sameDiff.var("one",Nd4j.ones(2));
-
     }
 
 
@@ -1687,10 +1727,10 @@ public class SameDiffTests {
     @Test
     public void testScalarAdd() {
         SameDiff sameDiff = SameDiff.create();
-        SDVariable twoByTwo = sameDiff.var("first",Nd4j.linspace(1,4,4).reshape(2,2));
+        SDVariable twoByTwo = sameDiff.var("first",Nd4j.linspace(1,4,4).reshape('c',2,2));
         SDVariable add = twoByTwo.add(1.0);
         INDArray test = sameDiff.execAndEndResult();
-        INDArray assertion = Nd4j.linspace(1,4,4).reshape('f',2,2).add(1.0);
+        INDArray assertion = Nd4j.linspace(1,4,4).reshape('c',2,2).add(1.0);
         assertEquals(assertion,test);
     }
 
@@ -1780,7 +1820,7 @@ public class SameDiffTests {
                     outExp = Transforms.hardTanh(inArr, true);
                     break;
                 case LEAKYRELU:
-                    out = sd.leakyRelu("out", in, 0.0);
+                    out = sd.leakyRelu("out", in, 0.01);
                     outExp = Transforms.leakyRelu(inArr, true);
                     break;
                 case RELU:
@@ -1819,7 +1859,7 @@ public class SameDiffTests {
 
             sd.exec();
             INDArray outAct = sd.getVariable("out").getArr();
-            assertEquals(outExp, outAct);
+            assertEquals(a.toString(), outExp, outAct);
 
             // L = sum_i (label - out)^2
             //dL/dOut = 2(out - label)
@@ -2101,5 +2141,611 @@ public class SameDiffTests {
         INDArray exp = arr.rdiv(p);
         assertEquals(exp, dLdIn);
     }
-}
 
+    @Test
+    public void testSquare(){
+        Nd4j.getRandom().setSeed(12345);
+
+        int mb = 5;
+        int nOut = 4;
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", Nd4j.rand(mb, nOut));
+        SDVariable label = sd.var("label", Nd4j.rand(mb, nOut));
+        SDVariable diff = in.sub(label);
+        SDVariable sqDiff = sd.square(diff);
+
+        INDArray expOut = in.getArr().sub(label.getArr());
+        expOut.muli(expOut);
+
+        System.out.println("About to exec");
+        INDArray out = sd.execAndEndResult();   //JVM crash
+
+        assertEquals(out, expOut);
+    }
+
+
+    @Test
+    public void testExpandDims() {
+        for (int i = 0; i <= 2; i++) {
+            SameDiff sd = SameDiff.create();
+            SDVariable in = sd.var("in", Nd4j.create(2, 3));
+            SDVariable expanded = sd.f().expandDims(in, i);
+
+            INDArray out = sd.execAndEndResult();
+            switch (i) {
+                case 0:
+                    assertArrayEquals(new int[]{1, 2, 3}, out.shape());
+                    break;
+                case 1:
+                    assertArrayEquals(new int[]{2, 1, 3}, out.shape());
+                    break;
+                case 2:
+                    assertArrayEquals(new int[]{2, 3, 1}, out.shape());
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
+        }
+    }
+
+    @Test
+    public void testZerosLike(){
+        SameDiff sd = SameDiff.create();
+        SDVariable var0 = sd.var("in", new int[]{3,4});
+        SDVariable out = sd.zerosLike("out", var0);
+
+        INDArray out1 = sd.execAndEndResult();
+        assertEquals(Nd4j.zeros(3,4), out1);
+
+        sd.associateArrayWithVariable(Nd4j.create(4,5), var0);
+        INDArray out2 = sd.execAndEndResult();
+        assertEquals(Nd4j.zeros(4,5), out2);
+    }
+
+    @Test
+    public void testOnesLike(){
+        SameDiff sd = SameDiff.create();
+        SDVariable var0 = sd.var("in", new int[]{3,4});
+        SDVariable out = sd.onesLike("out", var0);
+
+        INDArray out1 = sd.execAndEndResult();
+        assertEquals(Nd4j.ones(3,4), out1);
+
+        sd.associateArrayWithVariable(Nd4j.create(4,5), var0);
+        INDArray out2 = sd.execAndEndResult();
+        assertEquals(Nd4j.ones(4,5), out2);
+    }
+
+    @Test
+    public void testOnesLikeBackprop(){
+        SameDiff sd = SameDiff.create();
+        SDVariable var0 = sd.var("in", new int[]{3,4});
+        SDVariable ones = sd.onesLike("ones", var0);
+        SDVariable out = sd.sum("oun", ones);
+
+        INDArray outArr = sd.execAndEndResult();
+        assertEquals(Nd4j.valueArrayOf(1, 12.0), outArr);
+
+        sd.execBackwards();
+
+        assertEquals(Nd4j.create(3,4), sd.grad("in").getArr());
+    }
+
+
+    @Test
+    public void testReduce3(){
+
+        Nd4j.getRandom().setSeed(12345);
+
+        int d0 = 3;
+        int d1 = 4;
+        int d2 = 5;
+
+        for (int[] reduceDims : new int[][]{{Integer.MAX_VALUE}, {0,1,2}, {0}, {1}, {2}, {0,1}, {0,2}, {1,2}}) {
+            for (int i = 0; i < 6; i++) {
+
+                SameDiff sd = SameDiff.create();
+                sd.setLogExecution(false);
+
+                INDArray a = Nd4j.rand(new int[]{d0, d1, d2});
+                INDArray b = Nd4j.rand(new int[]{d0, d1, d2});
+
+
+                SDVariable in = sd.var("in", a);
+                SDVariable in2 = sd.var("in2", b);
+
+                INDArray expOut;
+                SDVariable reduced;
+                String name;
+                switch (i) {
+                    case 0:
+                        reduced = sd.manhattanDistance(in, in2, reduceDims);
+                        name = "manhattan";
+                        expOut = Nd4j.getExecutioner().exec(new ManhattanDistance(a,b),reduceDims);
+                        break;
+                    case 1:
+                        reduced = sd.euclideanDistance(in, in2, reduceDims);
+                        name = "euclidean";
+                        expOut = Nd4j.getExecutioner().exec(new EuclideanDistance(a,b),reduceDims);
+                        break;
+                    case 2:
+                        reduced = sd.cosineSimilarity(in, in2, reduceDims);
+                        name = "cosine";
+                        expOut = Nd4j.getExecutioner().exec(new CosineSimilarity(a,b),reduceDims);
+                        break;
+                    case 3:
+                        reduced = sd.jaccardDistance(in, in2, reduceDims);
+                        name = "jaccard";
+                        expOut = Nd4j.getExecutioner().exec(new JaccardDistance(a,b),reduceDims);
+                        break;
+                    case 4:
+                        reduced = sd.hammingDistance(in, in2, reduceDims);
+                        name = "hamming";
+                        expOut = Nd4j.getExecutioner().exec(new HammingDistance(a,b),reduceDims);
+                        break;
+                    case 5:
+                        reduced = sd.cosineDistance(in, in2, reduceDims);
+                        name = "reduced";
+                        expOut = Nd4j.getExecutioner().exec(new CosineDistance(a,b),reduceDims);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                int[] expShape;
+                if(Arrays.equals(new int[]{0}, reduceDims)){
+                    expShape = new int[]{4,5};
+                } else if(Arrays.equals(new int[]{1}, reduceDims)){
+                    expShape = new int[]{3,5};
+                } else if(Arrays.equals(new int[]{2}, reduceDims)){
+                    expShape = new int[]{3,4};
+                } else if(Arrays.equals(new int[]{Integer.MAX_VALUE}, reduceDims)){
+                    expShape = new int[]{1,1};
+                } else if(Arrays.equals(new int[]{0,1}, reduceDims)){
+                    expShape = new int[]{1,5};
+                } else if(Arrays.equals(new int[]{0,2}, reduceDims)){
+                    expShape = new int[]{1,4};
+                } else if(Arrays.equals(new int[]{1,2}, reduceDims)){
+                    expShape = new int[]{3,1};
+                } else if(Arrays.equals(new int[]{0,1,2}, reduceDims)){
+                    expShape = new int[]{1,1};
+                } else {
+                    throw new RuntimeException();
+                }
+
+                String  msg = name + " - dims=" + Arrays.toString(reduceDims);
+
+                INDArray out = sd.execAndEndResult();
+
+                log.info(msg + " - expected shape: " + Arrays.toString(expShape) + ", out=" + Arrays.toString(out.shape())
+                        + ", outExp=" + Arrays.toString(expOut.shape()));
+
+                assertArrayEquals(msg, expShape, out.shape());
+                assertArrayEquals(msg, expShape, expOut.shape());
+
+                assertEquals(msg, out, expOut);
+            }
+        }
+    }
+
+
+    @Test
+    public void testManhattanAlongDim0(){
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray a = Nd4j.rand(new int[]{3,4,5});
+        INDArray b = Nd4j.rand(new int[]{3,4,5});
+
+        INDArray expOut = Nd4j.getExecutioner().exec(new ManhattanDistance(a,b), 0);
+
+        int[] expShape = new int[]{4,5};
+
+        assertArrayEquals(expShape, expOut.shape());
+    }
+
+
+
+    @Test
+    public void testJaccardDistance(){
+        Nd4j.getRandom().setSeed(12345);
+
+        INDArray a = Nd4j.rand(new int[]{3,4}).addi(0.1);
+        INDArray b = Nd4j.rand(new int[]{3,4}).addi(0.1);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in1 = sd.var("in1", a);
+        SDVariable in2 = sd.var("in2", b);
+
+        SDVariable jaccard = sd.jaccardDistance("out", in1, in2);
+
+        INDArray min = Transforms.min(a,b);
+        INDArray max = Transforms.max(a,b);
+
+        double minSum = min.sumNumber().doubleValue();
+        double maxSum = max.sumNumber().doubleValue();
+        double jd = 1.0 - minSum / maxSum;
+
+        INDArray out = sd.execAndEndResult();
+        assertEquals(1, out.length());
+
+        assertEquals(jd, out.getDouble(0), 1e-6);
+    }
+
+
+    @Test
+    public void testSlice2d(){
+        INDArray inArr = Nd4j.linspace(1,12,12).reshape('c',3,4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice_full = sd.slice(in, new int[]{0,0}, new int[]{3,4});
+        SDVariable subPart = sd.slice(in, new int[]{1,2}, new int[]{2,2});
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr, slice_full.getArr());
+        assertEquals(inArr.get(interval(1,3), interval(2,4)), subPart.getArr());
+    }
+
+
+    @Test
+    public void testSlice3d(){
+        INDArray inArr = Nd4j.linspace(1,60,60).reshape('c',3,4,5);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice_full = sd.slice(in, new int[]{0,0,0}, new int[]{3,4,5});
+        SDVariable subPart = sd.slice(in, new int[]{1,2,3}, new int[]{2,2,1});
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr, slice_full.getArr());
+        assertEquals(inArr.get(interval(1,3), interval(2,4), interval(3,4)), subPart.getArr());
+    }
+
+    @Test
+    public void testStridedSlice2dBasic(){
+        INDArray inArr = Nd4j.linspace(1,12,12).reshape('c',3,4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice_full = sd.stridedSlice(in, new int[]{0,0}, new int[]{3,4}, new int[]{1,1});
+        SDVariable subPart = sd.stridedSlice(in, new int[]{1,2}, new int[]{3,4}, new int[]{1,1});
+        SDVariable subPart2 = sd.stridedSlice(in, new int[]{0,0}, new int[]{4,5}, new int[]{2,2});
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr, slice_full.getArr());
+        assertEquals(inArr.get(interval(1,3), interval(2,4)), subPart.getArr());
+        assertEquals(inArr.get(interval(0,2,4), interval(0,2,5)), subPart2.getArr());
+    }
+
+
+    @Test
+    public void testStridedSliceBeginEndMask(){
+        INDArray inArr = Nd4j.linspace(1,12,12).reshape('c',3,4);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice1 = sd.stridedSlice(in, new int[]{-999,0}, new int[]{2,4}, new int[]{1,1}, 1<<1, 0, 0, 0, 0);
+        SDVariable slice2 = sd.stridedSlice(in, new int[]{1,0}, new int[]{-999,4}, new int[]{1,1}, 0, 1, 0, 0, 0);
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr.get(NDArrayIndex.interval(0,2),NDArrayIndex.all()), slice1.getArr());
+        assertEquals(inArr.get(NDArrayIndex.interval(1,3),NDArrayIndex.all()), slice2.getArr());
+    }
+
+    @Test
+    public void testStridedSliceEllipsisMask(){
+        INDArray inArr = Nd4j.linspace(1,60,60).reshape('c',3,4,5);
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+
+        //[1:3,...] -> [1:3,:,:]
+        SDVariable slice = sd.stridedSlice(in, new int[]{1}, new int[]{3}, new int[]{1}, 0, 0, 1<<1, 0, 0);
+        //[1:3,...,1:4] -> [1:3,:,1:4]
+        SDVariable slice2 = sd.stridedSlice(in, new int[]{1,1}, new int[]{3,4}, new int[]{1,1}, 0, 0, 1<<1, 0, 0);
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr.get(interval(1,3), all(), all()), slice.getArr());
+        assertEquals(inArr.get(interval(1,3), all(), all()), slice2.getArr());
+    }
+
+    @Test
+    public void testStridedSliceNewAxisMask(){
+        INDArray inArr = Nd4j.linspace(1,60,60).reshape('c',3,4,5);
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice = sd.stridedSlice(in, new int[]{-999,0,0,0},new int[]{-999,3,4,5}, new int[]{-999,1,1,1}, 0, 0, 0, 1, 0);
+
+        INDArray out = sd.execAndEndResult();
+
+        assertArrayEquals(new int[]{1,3,4,5}, inArr.shape());
+        assertEquals(inArr, out.get(point(0), all(), all(), all()));
+    }
+
+    @Test
+    public void testStridedSliceNewAxisMask2(){
+        INDArray inArr = Nd4j.linspace(1,60,60).reshape('c',3,4,5);
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice = sd.stridedSlice(in, new int[]{1,1,-999,1},new int[]{3,3,-999,4}, new int[]{1,1,-999,1}, 0, 0, 0, 1<<2, 0);
+        INDArray out = sd.execAndEndResult();
+
+        assertArrayEquals(new int[]{2,2,1,3}, slice.getArr().shape());
+    }
+
+    @Test
+    public void testStridedSliceShrinkAxisMask(){
+
+        INDArray inArr = Nd4j.linspace(1,60,60).reshape('c',3,4,5);
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable slice = sd.stridedSlice(in, new int[]{0,0,0},new int[]{-999,4,5}, new int[]{1,1,1}, 0, 0, 0, 0, 1);
+        SDVariable slice2 = sd.stridedSlice(in, new int[]{2,0,0},new int[]{-999,4,5}, new int[]{1,1,1}, 0, 0, 0, 0, 1);
+        SDVariable slice3 = sd.stridedSlice(in, new int[]{1,2,1},new int[]{-999,-999,5}, new int[]{1,1,1}, 0, 0, 0, 0, 1 | 1<<1);
+
+        sd.execAndEndResult();
+
+        assertEquals(inArr.get(point(0), all(), all()), slice.getArr());
+        assertEquals(inArr.get(point(2), all(), all()), slice2.getArr());
+        assertEquals(inArr.get(point(1),point(2), interval(1,5)), slice3.getArr());
+    }
+
+    @Test
+    public void testPairwiseBooleanTransforms(){
+        /*
+        eq, neq, gt, lt, gte, lte, or, and, xor
+         */
+        //Test transforms (pairwise)
+        Nd4j.getRandom().setSeed(12345);
+
+        for (int i = 0; i < 11; i++) {
+            SameDiff sd = SameDiff.create();
+
+            int nOut = 4;
+            int minibatch = 5;
+
+            INDArray ia = Nd4j.randn(minibatch, nOut);
+            INDArray ib = Nd4j.randn(minibatch, nOut);
+
+            SDVariable in1 = sd.var("in1", ia);
+            SDVariable in2 = sd.var("in2", ib);
+
+
+
+            SDVariable t;
+            INDArray expOut;
+            switch (i) {
+                case 0:
+                    t = sd.eq(in1, in2);
+                    expOut = ia.eq(ib);
+                    break;
+                case 1:
+                    t = sd.neq(in1, in2);
+                    expOut = ia.neq(ib);
+                    break;
+                case 2:
+                    t = sd.gt(in1, in2);
+                    expOut = ia.gt(ib);
+                    break;
+                case 3:
+                    t = sd.lt(in1, in2);
+                    expOut = ia.lt(ib);
+                    break;
+                case 4:
+                    t = sd.gte(in1, in2);
+                    expOut = ia.dup();
+                    Nd4j.getExecutioner().exec(new GreaterThanOrEqual(new INDArray[]{ia, ib}, new INDArray[]{expOut}));
+                    break;
+                case 5:
+                    t = sd.lte(in1, in2);
+                    expOut = ia.dup();
+                    Nd4j.getExecutioner().exec(new LessThanOrEqual(new INDArray[]{ia, ib}, new INDArray[]{expOut}));
+                    break;
+                case 6:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.or(in1, in2);
+                    expOut = Transforms.or(ia, ib);
+                    break;
+                case 7:
+                    t = sd.max(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMax(ia, ib, ia.dup(), ia.length()));
+                    break;
+                case 8:
+                    t = sd.min(in1, in2);
+                    expOut = Nd4j.getExecutioner().execAndReturn(new OldMin(ia, ib, ia.dup(), ia.length()));
+                    break;
+                case 9:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.and(in1, in2);
+                    expOut = Transforms.and(ia, ib);
+                    break;
+                case 10:
+                    ia = Nd4j.getExecutioner().exec(new BernoulliDistribution(ia, 0.5));
+                    ib = Nd4j.getExecutioner().exec(new BernoulliDistribution(ib, 0.5));
+                    t = sd.xor(in1, in2);
+                    expOut = Transforms.xor(ia, ib);
+                    break;
+                default:
+                    throw new RuntimeException();
+            }
+
+            log.info("Executing: " + i);
+            INDArray out = sd.execAndEndResult();
+
+            assertEquals(expOut, out);
+        }
+    }
+
+
+    @Test
+    public void testExpandDims2d(){
+        int[] origShape = new int[]{3,4};
+
+        for( int i=0; i<3; i++ ) {
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAllTestMatricesWithShape(origShape[0], origShape[1], 12345)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable expand = sd.f().expandDims(in, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                INDArray expOut;
+                switch (i){
+                    case 0:
+                        expOut = inArr.dup('c').reshape('c', 1,origShape[0], origShape[1]);
+                        break;
+                    case 1:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], 1, origShape[1]);
+                        break;
+                    case 2:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[1], 1);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                String msg = "expandDim=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, expOut);
+            }
+        }
+    }
+
+    @Test
+    public void testSqueezeDims(){
+        int[] origShape = new int[]{3,4,5};
+
+        for( int i=0; i<3; i++ ) {
+
+            int[] shape = origShape.clone();
+            shape[i] = 1;
+
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, shape)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable squeeze = sd.f().squeeze(in, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                INDArray expOut;
+                switch (i){
+                    case 0:
+                        expOut = inArr.dup('c').reshape('c', origShape[1], origShape[2]);
+                        break;
+                    case 1:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[2]);
+                        break;
+                    case 2:
+                        expOut = inArr.dup('c').reshape('c', origShape[0], origShape[1]);
+                        break;
+                    default:
+                        throw new RuntimeException();
+                }
+
+                String msg = "squeezeDim=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, expOut);
+            }
+        }
+    }
+
+    @Test
+    public void testExpandSqueezeChain(){
+
+        int[] origShape = new int[]{3,4};
+
+        for( int i=0; i<3; i++ ) {
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAllTestMatricesWithShape(origShape[0], origShape[1], 12345)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable expand = sd.expandDims(in, i);
+                SDVariable squeeze = sd.squeeze(expand, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                String msg = "expand/Squeeze=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, inArr);  //expand -> squeeze: should be opposite ops
+            }
+        }
+    }
+
+    @Test
+    public void testSqueezeExpandChain(){
+
+        int[] origShape = new int[]{3,4,5};
+
+        for( int i=0; i<3; i++ ) {
+
+            int[] shape = origShape.clone();
+            shape[i] = 1;
+
+            for (Pair<INDArray, String> p : NDArrayCreationUtil.getAll3dTestArraysWithShape(12345, shape)) {
+                INDArray inArr = p.getFirst().muli(100);
+
+                SameDiff sd = SameDiff.create();
+                SDVariable in = sd.var("in", inArr);
+                SDVariable squeeze = sd.squeeze(in, i);
+                SDVariable expand = sd.expandDims(squeeze, i);
+
+                INDArray out = sd.execAndEndResult();
+
+                String msg = "expand/Squeeze=" + i + ", source=" + p.getSecond();
+
+                assertEquals(msg, out, inArr);  //squeeze -> expand: should be opposite ops
+            }
+        }
+    }
+
+    @Test
+    public void testArgMax(){
+        Nd4j.getRandom().setSeed(12345);
+
+        for( int[] dim : new int[][]{{0},{1},{Integer.MAX_VALUE},{0,1}, {}}) {
+            INDArray inArr = Nd4j.rand(3, 4);
+            SameDiff sd = SameDiff.create();
+
+            SDVariable in = sd.var("in", inArr);
+            SDVariable argmax = sd.argmax("argmax", in, dim);
+
+            INDArray out = sd.execAndEndResult();
+
+            INDArray exp = Nd4j.argMax(inArr, dim);
+
+            assertEquals(exp, out);
+        }
+    }
+
+    @Test
+    public void testArgMin(){
+
+        Nd4j.getRandom().setSeed(12345);
+
+        for( int[] dim : new int[][]{{0},{1},{Integer.MAX_VALUE},{0,1}, {}}) {
+            INDArray inArr = Nd4j.rand(3, 4);
+            SameDiff sd = SameDiff.create();
+
+            SDVariable in = sd.var("in", inArr);
+            SDVariable argmin = sd.argmin("argmin", in, dim);
+
+            INDArray out = sd.execAndEndResult();
+
+            INDArray exp = Nd4j.argMax(inArr.neg(), dim);   //argmin(x) == argmax(-x)
+
+            assertEquals(exp, out);
+        }
+    }
+}

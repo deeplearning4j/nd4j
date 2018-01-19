@@ -166,7 +166,7 @@ public class Transpose extends DynamicCustomOp {
             return Arrays.asList(permutedShape);
         }
 
-        throw new ND4JIllegalStateException("Unable to compute shape!");
+        return Collections.emptyList();
     }
 
 
@@ -174,7 +174,8 @@ public class Transpose extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return Collections.singletonList(outputVariables()[0]);
+        SDVariable ret = sameDiff.transpose(i_v.get(0));
+        return Collections.singletonList(ret);
     }
 
 }

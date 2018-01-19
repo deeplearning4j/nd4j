@@ -19,7 +19,6 @@
 
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
@@ -69,7 +68,7 @@ public class ATanh extends BaseTransformOp {
 
     @Override
     public int opNum() {
-        return 15;
+        return 93;
     }
 
     @Override
@@ -90,10 +89,10 @@ public class ATanh extends BaseTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        val shape = outputVariables()[0].getShape();
+        //d(atanh(x))/dx = 1 / (1-x^2)
 
-        SDVariable ret = f().div(f().one(shape),f().sub(f()
-                .one(shape),f().pow(arg(),2)));
+        SDVariable oneMinusX2 = sameDiff.square(arg()).rsub(1.0);
+        SDVariable ret = oneMinusX2.rdiv(1.0).mul(i_v.get(0));
 
         return Collections.singletonList(ret);
     }

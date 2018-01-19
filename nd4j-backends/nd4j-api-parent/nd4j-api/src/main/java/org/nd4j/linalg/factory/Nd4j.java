@@ -88,13 +88,13 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
+import org.nd4j.tools.PropertyParser;
 
 /**
  * Creation of ndarrays via classpath discovery.
@@ -681,7 +681,12 @@ public class Nd4j {
      * @return
      */
     public static INDArray argMax(INDArray arr, int... dimension) {
-        return Nd4j.getExecutioner().exec(new IMax(arr), dimension);
+        IMax imax = new IMax(arr);
+        if(dimension == null || dimension.length == 0){
+            return Nd4j.getExecutioner().exec(imax, Integer.MAX_VALUE);
+        } else {
+            return Nd4j.getExecutioner().exec(imax, dimension);
+        }
     }
 
     /**
@@ -3577,6 +3582,30 @@ public class Nd4j {
         return ret;
     }
 
+    /**
+     * This method creates new 0D INDArray, aka scalar.
+     *
+     * PLEASE NOTE: Temporary method, added to ensure backward compatibility
+     * @param scalar
+     * @return
+     */
+    public static INDArray trueScalar(Number scalar) {
+        val ret = INSTANCE.trueScalar(scalar);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
+    public static INDArray trueVector(float[] data) {
+        val ret = INSTANCE.trueVector(data);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
+    public static INDArray trueVector(double[] data) {
+        val ret = INSTANCE.trueVector(data);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
 
     /**
      * Create an ndrray with the specified shape
@@ -3586,15 +3615,17 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray create(float[] data, int[] shape) {
+        if (shape.length == 0 && data.length == 1) {
+            return trueScalar(data[0]);
+        }
+
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
+            if (shape[0] != data.length)
                 throw new ND4JIllegalStateException("Shape of the new array doesn't match data length");
         }
 
@@ -3646,11 +3677,8 @@ public class Nd4j {
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
-                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
-                        + " doesn't match data length: " + data.length);
+            if (shape[0] != data.length)
+                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape) + " doesn't match data length: " + data.length);
         }
 
         checkShapeValues(data.length, shape);
@@ -4109,6 +4137,13 @@ public class Nd4j {
         return create(shape, stride, order());
     }
 
+
+    /**
+     *
+     * @param shape
+     * @param stride
+     * @return
+     */
     public static INDArray zeros(int[] shape, int[] stride) {
         return create(shape, stride);
     }
@@ -4202,11 +4237,8 @@ public class Nd4j {
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
-                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
-                        + " doesn't match data length: " + data.length);
+            if (shape[0] != data.length)
+                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape) + " doesn't match data length: " + data.length);
         }
 
         checkShapeValues(data.length, shape);
@@ -4224,11 +4256,8 @@ public class Nd4j {
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
-                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
-                        + " doesn't match data length: " + data.length);
+            if (shape[0] != data.length)
+                throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape) + " doesn't match data length: " + data.length);
         }
 
         checkShapeValues(data.length, shape);
@@ -4497,6 +4526,12 @@ public class Nd4j {
         return ret;
     }
 
+    /**
+     *
+     * @param shape
+     * @param dataType
+     * @return
+     */
     public static INDArray create(int[] shape, DataBuffer.Type dataType) {
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
@@ -4545,15 +4580,16 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(double[] data, int[] shape, int[] stride, long offset, char ordering) {
+        if (data.length == 1 && shape.length == 0)
+            return trueScalar(data[0]);
+
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
         }
 
         if (shape.length == 1) {
-            if (shape[0] == data.length) {
-                shape = new int[] {1, data.length};
-            } else
+            if (shape[0] != data.length)
                 throw new ND4JIllegalStateException("Shape of the new array " + Arrays.toString(shape)
                         + " doesn't match data length: " + data.length);
         }
@@ -5106,12 +5142,18 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray createUninitialized(int[] shape, char ordering) {
+        if (shape.length == 0)
+            return trueScalar(0.0);
+
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
-        } else if (shape.length == 1) {
+        }
+        // now we allow 1D vectors
+        /*else if (shape.length == 1) {
             shape = new int[] {1, shape[0]};
         }
+        */
 
         checkShapeValues(shape);
 
@@ -5128,6 +5170,9 @@ public class Nd4j {
      * @return
      */
     public static INDArray createUninitializedDetached(int[] shape, char ordering) {
+        if (shape.length == 0)
+            return trueScalar(0.0);
+
         //ensure shapes that wind up being scalar end up with the write shape
         if (shape.length == 1 && shape[0] == 0) {
             shape = new int[] {1, 1};
@@ -5534,6 +5579,9 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray valueArrayOf(int[] shape, double value) {
+        if (shape.length == 0)
+            return trueScalar(value);
+
         checkShapeValues(shape);
 
         INDArray ret = INSTANCE.valueArrayOf(shape, value);
@@ -6285,8 +6333,9 @@ public class Nd4j {
             Nd4j.backend = backend;
             updateNd4jContext();
             props = Nd4jContext.getInstance().getConf();
+            PropertyParser pp = new PropertyParser(props);
 
-            String otherDtype = System.getProperty(DTYPE, props.get(DTYPE).toString());
+            String otherDtype = pp.toString(DTYPE);
             dtype = otherDtype.equals("float") ? DataBuffer.Type.FLOAT
                     : otherDtype.equals("half") ? DataBuffer.Type.HALF : DataBuffer.Type.DOUBLE;
 
@@ -6298,57 +6347,57 @@ public class Nd4j {
                 DataTypeUtil.setDTypeForContext(dtype);
             }
 
-            compressDebug = Boolean.parseBoolean(props.getProperty(COMPRESSION_DEBUG, "false"));
-            copyOnOps = Boolean.parseBoolean(props.getProperty(COPY_OPS, "true"));
-            shouldInstrument = Boolean.parseBoolean(props.getProperty(INSTRUMENTATION, "false"));
-            resourceManagerOn = Boolean.parseBoolean(props.getProperty(RESOURCE_MANGER_ON, "false"));
-            executionMode = props.getProperty(EXECUTION_MODE, "java").equals("java") ? OpExecutioner.ExecutionMode.JAVA
-                            : OpExecutioner.ExecutionMode.NATIVE;
-            ORDER = System.getProperty(ORDER_KEY, props.getProperty(ORDER_KEY, "c").toString()).charAt(0);
+            compressDebug = pp.toBoolean(COMPRESSION_DEBUG);
+            copyOnOps = pp.toBoolean(COPY_OPS, true);
+            shouldInstrument = pp.toBoolean(INSTRUMENTATION);
+            resourceManagerOn = pp.toBoolean(RESOURCE_MANGER_ON);
+            executionMode = pp.toString(EXECUTION_MODE, "java").equals("java") ? OpExecutioner.ExecutionMode.JAVA
+                    : OpExecutioner.ExecutionMode.NATIVE;
+            ORDER = pp.toChar(ORDER_KEY, NDArrayFactory.C);
 
             affinityManagerClazz = (Class<? extends BasicAffinityManager>) Class
-                            .forName(System.getProperty(AFFINITY_MANAGER, props.get(AFFINITY_MANAGER).toString()));
+                            .forName(pp.toString(AFFINITY_MANAGER));
             affinityManager = affinityManagerClazz.newInstance();
             ndArrayFactoryClazz = (Class<? extends NDArrayFactory>) Class.forName(
-                            System.getProperty(NDARRAY_FACTORY_CLASS, props.get(NDARRAY_FACTORY_CLASS).toString()));
-            sparseNDArrayClazz = (Class<? extends NDArrayFactory>) Class.forName(System.getProperty(
-                            SPARSE_NDARRAY_FACTORY_CLASS, props.getProperty(SPARSE_NDARRAY_FACTORY_CLASS).toString()));
+                            pp.toString(NDARRAY_FACTORY_CLASS));
+            sparseNDArrayClazz = (Class<? extends NDArrayFactory>) Class.forName(
+                            pp.toString(SPARSE_NDARRAY_FACTORY_CLASS));
             convolutionInstanceClazz = (Class<? extends ConvolutionInstance>) Class
-                            .forName(System.getProperty(CONVOLUTION_OPS, DefaultConvolutionInstance.class.getName()));
-            String defaultName = props.getProperty(DATA_BUFFER_OPS, DefaultDataBufferFactory.class.getName());
+                            .forName(pp.toString(CONVOLUTION_OPS, DefaultConvolutionInstance.class.getName()));
+            String defaultName = pp.toString(DATA_BUFFER_OPS, DefaultDataBufferFactory.class.getName());
             dataBufferFactoryClazz = (Class<? extends DataBufferFactory>) Class
-                            .forName(System.getProperty(DATA_BUFFER_OPS, defaultName));
+                            .forName(pp.toString(DATA_BUFFER_OPS, defaultName));
             shapeInfoProviderClazz = (Class<? extends BaseShapeInfoProvider>) Class
-                            .forName(System.getProperty(SHAPEINFO_PROVIDER, props.get(SHAPEINFO_PROVIDER).toString()));
+                            .forName(pp.toString(SHAPEINFO_PROVIDER));
             sparseInfoProviderClazz = (Class<? extends BaseSparseInfoProvider>) Class.forName(
-                            System.getProperty(SPARSEINFO_PROVIDER, props.get(SPARSEINFO_PROVIDER).toString()));
+                            pp.toString(SPARSEINFO_PROVIDER));
 
             constantProviderClazz = (Class<? extends BasicConstantHandler>) Class
-                            .forName(System.getProperty(CONSTANT_PROVIDER, props.get(CONSTANT_PROVIDER).toString()));
+                            .forName(pp.toString(CONSTANT_PROVIDER));
 
             memoryManagerClazz = (Class<? extends BasicMemoryManager>) Class
-                            .forName(System.getProperty(MEMORY_MANAGER, props.get(MEMORY_MANAGER).toString()));
+                            .forName(pp.toString(MEMORY_MANAGER));
 
             allowsOrder = backend.allowsOrder();
-            String rand = props.getProperty(RANDOM_PROVIDER, DefaultRandom.class.getName());
+            String rand = pp.toString(RANDOM_PROVIDER, DefaultRandom.class.getName());
             randomClazz = (Class<? extends org.nd4j.linalg.api.rng.Random>) Class.forName(rand);
             randomFactory = new RandomFactory(randomClazz);
 
             workspaceManagerClazz = (Class<? extends MemoryWorkspaceManager>) Class
-                            .forName(System.getProperty(WORKSPACE_MANAGER, props.get(WORKSPACE_MANAGER).toString()));
+                            .forName(pp.toString(WORKSPACE_MANAGER));
 
 
             instrumentationClazz = (Class<? extends Instrumentation>) Class
-                            .forName(props.getProperty(INSTRUMENTATION, InMemoryInstrumentation.class.getName()));
+                            .forName(pp.toString(INSTRUMENTATION, InMemoryInstrumentation.class.getName()));
 
             opFactoryClazz = (Class<? extends OpFactory>) Class
-                            .forName(System.getProperty(OP_FACTORY, DefaultOpFactory.class.getName()));
+                            .forName(pp.toString(OP_FACTORY, DefaultOpFactory.class.getName()));
 
             blasWrapperClazz = (Class<? extends BlasWrapper>) Class
-                            .forName(System.getProperty(BLAS_OPS, props.get(BLAS_OPS).toString()));
+                            .forName(pp.toString(BLAS_OPS));
             sparseBlasWrapperClazz = (Class<? extends BlasWrapper>) Class
-                            .forName(System.getProperty(SPARSE_BLAS_OPS, props.get(SPARSE_BLAS_OPS).toString()));
-            String clazzName = props.getProperty(DISTRIBUTION, DefaultDistributionFactory.class.getName());
+                            .forName(pp.toString(SPARSE_BLAS_OPS));
+            String clazzName = pp.toString(DISTRIBUTION, DefaultDistributionFactory.class.getName());
             distributionFactoryClazz = (Class<? extends DistributionFactory>) Class.forName(clazzName);
 
 
@@ -6359,7 +6408,7 @@ public class Nd4j {
             workspaceManager = workspaceManagerClazz.newInstance();
 
             opExecutionerClazz = (Class<? extends OpExecutioner>) Class
-                            .forName(props.getProperty(OP_EXECUTIONER, DefaultOpExecutioner.class.getName()));
+                            .forName(pp.toString(OP_EXECUTIONER, DefaultOpExecutioner.class.getName()));
 
             instrumentation = instrumentationClazz.newInstance();
             OP_EXECUTIONER_INSTANCE = opExecutionerClazz.newInstance();
@@ -6376,8 +6425,7 @@ public class Nd4j {
             UNIT = Nd4j.createFloat(1, 0);
             ZERO = Nd4j.createFloat(0, 0);
             NEG_UNIT = Nd4j.createFloat(-1, 0);
-            ENFORCE_NUMERICAL_STABILITY =
-                            Boolean.parseBoolean(System.getProperty(NUMERICAL_STABILITY, String.valueOf(false)));
+            ENFORCE_NUMERICAL_STABILITY = pp.toBoolean(NUMERICAL_STABILITY);                            
             DISTRIBUTION_FACTORY = distributionFactoryClazz.newInstance();
             getExecutioner().setExecutionMode(executionMode);
 
@@ -6666,7 +6714,7 @@ public class Nd4j {
 
         val _dtype = SameDiff.getDataTypeFromByte(dtype);
         val _order = SameDiff.getOrderFromByte(order);
-        val prod = ArrayUtil.prod(shapeOf);
+        val prod = rank > 0 ? ArrayUtil.prod(shapeOf) : 1;
         val doubles = new double[prod];
 
         val bb = array.bufferAsByteBuffer();

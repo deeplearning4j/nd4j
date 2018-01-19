@@ -25,6 +25,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,12 +66,7 @@ public class AddOp extends BaseDynamicTransformOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        SDVariable g = sameDiff.setupFunction(i_v.get(0));
-        List<SDVariable> ret = new ArrayList<>();
-        for(int i = 0; i < 2; i++)
-            ret.add(g);
-
-        return ret;
+        return f().addBp(larg(), rarg(), i_v.get(0));
     }
 
 

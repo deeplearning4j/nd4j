@@ -15,6 +15,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +33,16 @@ public class Pooling2D extends DynamicCustomOp {
 
     public enum Pooling2DType {
         MAX, AVG, PNORM,
+    }
+
+    /**
+     * Divisor mode for average pooling only. 3 modes are supported:
+     * MODE_0:
+     * EXCLUDE_PADDING:
+     * INCLUDE_PADDING: Always do sum(window) / (kH*kW) even if padding is present.
+     */
+    public enum Divisor {
+        EXCLUDE_PADDING, INCLUDE_PADDING
     }
 
     public Pooling2D() {}
@@ -55,6 +66,12 @@ public class Pooling2D extends DynamicCustomOp {
     }
 
     @Override
+    public void setValueFor(Field target, Object value) {
+        config.setValueFor(target,value);
+    }
+
+
+    @Override
     public Map<String, Object> propertiesForFunction() {
         return config.toProperties();
     }
@@ -69,8 +86,18 @@ public class Pooling2D extends DynamicCustomOp {
         addIArgument(config.getDh());
         addIArgument(config.getDw());
         addIArgument(ArrayUtil.fromBoolean(config.isSameMode()));
-        addIArgument((int) config.getExtra());
+        addIArgument((config.getType() == Pooling2DType.AVG) ? config.getDivisor().ordinal() : (int)config.getExtra());
+        addIArgument(ArrayUtil.fromBoolean(config.isNHWC()));
+    }
 
+    @Override
+    public boolean isConfigProperties() {
+        return true;
+    }
+
+    @Override
+    public String configFieldName() {
+        return "config";
     }
 
     @Override

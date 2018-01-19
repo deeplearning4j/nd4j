@@ -11,7 +11,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @Data
-public class Pooling2DConfig {
+public class Pooling2DConfig extends BaseConvolutionConfig {
 
     private int kh, kw, sy, sx, ph, pw, virtualHeight,virtualWidth;
     /**
@@ -21,6 +21,7 @@ public class Pooling2DConfig {
      */
     private double extra;
     private Pooling2D.Pooling2DType type;
+    @Builder.Default private Pooling2D.Divisor divisor = Pooling2D.Divisor.EXCLUDE_PADDING;
     private boolean isSameMode;
     @Builder.Default private int dh = 1;
     @Builder.Default private int dw = 1;

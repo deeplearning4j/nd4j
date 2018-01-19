@@ -60,18 +60,8 @@ public class RDivOp extends BaseDynamicTransformOp {
         return "div";
     }
 
-
-
-
-
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        SDVariable gradWrtX = f().div(i_v.get(0),larg());
-        SDVariable gradWrtY = f().mul(f().neg(gradWrtX),f().div(rarg(),larg()));
-        List<SDVariable> ret = new ArrayList<>(2);
-        ret.add(gradWrtX);
-        ret.add(gradWrtY);
-        return ret;
+        return f().rdivBp(larg(), rarg(), i_v.get(0));
     }
-
 }

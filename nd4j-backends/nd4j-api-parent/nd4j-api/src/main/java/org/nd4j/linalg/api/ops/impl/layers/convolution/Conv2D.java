@@ -8,6 +8,7 @@ import onnx.OnnxProto3;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -18,6 +19,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -28,40 +30,45 @@ import java.util.*;
 @Getter
 public class Conv2D extends DynamicCustomOp {
 
-    protected  Conv2DConfig conv2DConfig;
+    protected  Conv2DConfig config;
 
     @Builder(builderMethodName = "builder")
     public Conv2D(SameDiff sameDiff,
                   SDVariable[] inputFunctions,
                   INDArray[] inputArrays, INDArray[] outputs,
-                  Conv2DConfig conv2DConfig) {
+                  Conv2DConfig config) {
         super(null,inputArrays,outputs);
         this.sameDiff = sameDiff;
-        this.conv2DConfig = conv2DConfig;
+        this.config = config;
         addArgs();
-        sameDiff.putFunctionForId(this.getOwnName(),this);;    //Normally called in DynamicCustomOp constructor, via setInstanceId - but sameDiff field is null at that point
+        sameDiff.putFunctionForId(this.getOwnName(),this);    //Normally called in DynamicCustomOp constructor, via setInstanceId - but sameDiff field is null at that point
         sameDiff.addArgsFor(inputFunctions, this);
     }
 
     public Conv2D() {}
 
     protected void addArgs() {
-        addIArgument(new int[]{conv2DConfig.getKh(),
-                conv2DConfig.getKw(),
-                conv2DConfig.getSy(),
-                conv2DConfig.getSx(),
-                conv2DConfig.getPh(),
-                conv2DConfig.getPw(),
-                conv2DConfig.getDh(),
-                conv2DConfig.getDw(),
-                ArrayUtil.fromBoolean(conv2DConfig.isSameMode()),
-                ArrayUtil.fromBoolean(conv2DConfig.isNHWC())});
+        addIArgument(new int[]{config.getKh(),
+                config.getKw(),
+                config.getSy(),
+                config.getSx(),
+                config.getPh(),
+                config.getPw(),
+                config.getDh(),
+                config.getDw(),
+                ArrayUtil.fromBoolean(config.isSameMode()),
+                ArrayUtil.fromBoolean(config.isNHWC())});
 
     }
 
     @Override
+    public void setValueFor(Field target, Object value) {
+        config.setValueFor(target,value);
+    }
+
+    @Override
     public Map<String, Object> propertiesForFunction() {
-        return conv2DConfig.toProperties();
+        return config.toProperties();
     }
 
     @Override
@@ -113,7 +120,7 @@ public class Conv2D extends DynamicCustomOp {
 
 
         boolean isSameMode = paddingMode.equalsIgnoreCase("SAME");
-        Conv2DConfig conv2DConfig = Conv2DConfig.builder()
+        Conv2DConfig config = Conv2DConfig.builder()
                 .kh(kY)
                 .kw(kX)
                 .sx(sX)
@@ -122,11 +129,21 @@ public class Conv2D extends DynamicCustomOp {
                 //c++ check checks for nchw
                 .isNHWC(dataFormat.equalsIgnoreCase("nhwc"))
                 .build();
-        this.conv2DConfig = conv2DConfig;
+        this.config = config;
 
         addArgs();
 
 
+    }
+
+    @Override
+    public boolean isConfigProperties() {
+        return true;
+    }
+
+    @Override
+    public String configFieldName() {
+        return "config";
     }
 
     @Override
@@ -154,7 +171,7 @@ public class Conv2D extends DynamicCustomOp {
         val sX = strides.getIntsList().size() < 2 ? sY : strides.getIntsList().get(1);
         boolean isSameMode = autoPad
                 .equalsIgnoreCase("SAME");
-        Conv2DConfig conv2DConfig = Conv2DConfig.builder()
+        Conv2DConfig config = Conv2DConfig.builder()
                 .dh(dilationY)
                 .dw(dilationX)
                 .kh(kY)
@@ -163,7 +180,7 @@ public class Conv2D extends DynamicCustomOp {
                 .sy(sY.intValue())
                 .isSameMode(isSameMode)
                 .build();
-        this.conv2DConfig = conv2DConfig;
+        this.config = config;
         addArgs();
 
         addOutputArgument(arr);
@@ -179,6 +196,7 @@ public class Conv2D extends DynamicCustomOp {
         val strideMapping = PropertyMapping.builder()
                 .tfAttrName("strides")
                 .onnxAttrName("strides")
+                .propertyNames(new String[]{"sx","sy"})
                 .build();
 
 
@@ -205,6 +223,7 @@ public class Conv2D extends DynamicCustomOp {
 
         val paddingWidthHeight = PropertyMapping.builder()
                 .onnxAttrName("padding")
+                .tfAttrName("padding")
                 .propertyNames(new String[]{"ph","pw"})
                 .build();
 
@@ -218,9 +237,19 @@ public class Conv2D extends DynamicCustomOp {
         map.put("isSameMode",sameMode);
         map.put("ph", paddingWidthHeight);
         map.put("pw", paddingWidthHeight);
+        try {
+            ret.put(onnxName(), map);
+        }catch(NoOpNameFoundException e) {
+            //ignore
+        }
 
-        ret.put(onnxName(),map);
-        ret.put(tensorflowName(),map);
+
+        try {
+            ret.put(tensorflowName(),map);
+        }catch(NoOpNameFoundException e) {
+            //ignore
+        }
+
         return ret;
     }
 
@@ -237,7 +266,7 @@ public class Conv2D extends DynamicCustomOp {
         inputs.addAll(Arrays.asList(args()));
         inputs.add(f1.get(0));
         Conv2DDerivative conv2DDerivative = Conv2DDerivative.derivativeBuilder()
-                .conv2DConfig(conv2DConfig)
+                .config(config)
                 .outputs(outputArguments())
                 .inputFunctions(inputs.toArray(new SDVariable[inputs.size()]))
                 .build();
@@ -254,5 +283,10 @@ public class Conv2D extends DynamicCustomOp {
     @Override
     public String tensorflowName() {
         return "Conv2D";
+    }
+
+    @Override
+    public String[] tensorflowNames() {
+        return new String[] {"Conv2D","Dilation2D"};
     }
 }

@@ -74,23 +74,22 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     public NativeOpExecutioner() {
         tadManager.init(loop, constantHandler);
 
-        Map<String, String> env = System.getenv();
-
-        if (env.containsKey(DEBUG_ENABLED)) {
+        // Do not call System.getenv(): Accessing all variables requires higher security privileges
+        if (System.getenv(DEBUG_ENABLED) != null) {
             try {
-                boolean var = Boolean.parseBoolean(env.get(DEBUG_ENABLED));
+                boolean var = Boolean.parseBoolean(System.getenv(DEBUG_ENABLED));
                 loop.enableDebugMode(var);
             } catch (Exception e) {
-                log.error("Can't parse {}: [{}]", DEBUG_ENABLED, env.get(DEBUG_ENABLED));
+                log.error("Can't parse {}: [{}]", DEBUG_ENABLED, System.getenv(DEBUG_ENABLED));
             }
         }
 
-        if (env.containsKey(VERBOSE)) {
+        if (System.getenv(VERBOSE) != null) {
             try {
-                boolean var = Boolean.parseBoolean(env.get(VERBOSE));
+                boolean var = Boolean.parseBoolean(System.getenv(VERBOSE));
                 loop.enableVerboseMode(var);
             } catch (Exception e) {
-                log.error("Can't parse {}: [{}]", VERBOSE, env.get(VERBOSE));
+                log.error("Can't parse {}: [{}]", VERBOSE, System.getenv(VERBOSE));
             }
         }
     }
@@ -169,13 +168,20 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             retShape = new int[] {1, 1};
         }
 
-        INDArray ret;
-        if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
-            ret = Nd4j.valueArrayOf(retShape, op.zeroDouble());
-        else
-            ret = Nd4j.valueArrayOf(retShape, op.zeroFloat());
+        if(op.z() == null) {
+            INDArray ret;
+            if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
+                ret = Nd4j.valueArrayOf(retShape, op.zeroDouble());
+            else
+                ret = Nd4j.valueArrayOf(retShape, op.zeroFloat());
 
-        op.setZ(ret);
+            op.setZ(ret);
+        } else if(!Arrays.equals(retShape, op.z().shape())){
+            throw new IllegalStateException("Z array shape does not match expected return type for op " + op
+                    + ": expected shape " + Arrays.toString(retShape) + ", z.shape()=" + Arrays.toString(op.z().shape()));
+        }
+
+
         //do op along all dimensions
         if (dimension.length == op.x().rank())
             dimension = new int[] {Integer.MAX_VALUE};
@@ -295,6 +301,14 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
                 ret = Nd4j.create(xT, yT);
             } else {
+                if (op.y() != null) {
+                    val xT = op.x().tensorAlongDimension(0, dimension).lengthLong();
+                    val yT = op.y().lengthLong();
+
+                    if (xT != yT)
+                        throw new ND4JIllegalStateException("Number of TADs along dimension doesn't match");
+                }
+
                 if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
                     ret = Nd4j.valueArrayOf(retShape, op.zeroDouble());
                 else
@@ -1512,6 +1526,9 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         int cnt= 0;
         val inputArgs = op.inputArguments();
         for (val in: inputArgs) {
+            if(in == null){
+                throw new NullPointerException("Input argument is null");
+            }
             inputBuffers.put(cnt, in.data().addressPointer());
             inputShapes.put(cnt++, in.shapeInfoDataBuffer().addressPointer());
         }
@@ -1559,6 +1576,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             cnt = 0;
             for (val t: tArgs1)
                 tArgs.put(cnt++, t);
+
+
 
             OpStatus status = OpStatus.ND4J_STATUS_OK;
             try {

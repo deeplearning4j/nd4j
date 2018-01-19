@@ -16,6 +16,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -47,6 +48,22 @@ public class MaxPooling2D extends DynamicCustomOp {
 
         addArgs();
     }
+
+    @Override
+    public boolean isConfigProperties() {
+        return true;
+    }
+
+    @Override
+    public String configFieldName() {
+        return "config";
+    }
+
+    @Override
+    public void setValueFor(Field target, Object value) {
+        config.setValueFor(target,value);
+    }
+
 
     @Override
     public Map<String, Object> propertiesForFunction() {
@@ -194,6 +211,7 @@ public class MaxPooling2D extends DynamicCustomOp {
         val strideMapping = PropertyMapping.builder()
                 .tfAttrName("strides")
                 .onnxAttrName("strides")
+                .propertyNames(new String[]{"sx","sy"})
                 .build();
 
         val paddingMapping = PropertyMapping.builder()

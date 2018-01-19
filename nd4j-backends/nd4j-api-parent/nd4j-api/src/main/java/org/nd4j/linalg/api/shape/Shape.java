@@ -21,6 +21,7 @@ package org.nd4j.linalg.api.shape;
 
 
 import com.google.common.primitives.Ints;
+import lombok.NonNull;
 import lombok.val;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNDArray;
@@ -60,7 +61,7 @@ public class Shape {
      * @return
      */
     public static boolean shapeIsScalar(int[] shape) {
-        return ArrayUtil.prod(shape) == 1;
+        return shape.length == 0 || ArrayUtil.prod(shape) == 1;
     }
 
     /**
@@ -70,7 +71,7 @@ public class Shape {
      * @return true if the shape is null,empty, or contains a -1 element
      */
     public static boolean isPlaceholderShape(int[] shape) {
-        if(shape == null || shape.length < 1)
+        if(shape == null)
             return true;
         else {
             for(int i = 0; i < shape.length; i++) {
@@ -133,6 +134,7 @@ public class Shape {
      * @return
      */
     public static int[] broadcastOutputShape(int[] left,int[] right) {
+        assertBroadcastable(left, right);
         if(Arrays.equals(left,right))
             return left;
         int n = Math.max(left.length,right.length);
@@ -224,8 +226,23 @@ public class Shape {
      * {@link Integer#MAX_VALUE}
      */
     public static boolean isWholeArray(int[] shape, int... dimension) {
-        return dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)
-                || dimension.length == shape.length;
+        return isWholeArray(shape.length, dimension);
+    }
+
+    /**
+     * Returns true if the dimension is null
+     * or the dimension length is 1 and the first entry
+     * is {@link Integer#MAX_VALUE}
+     * @param rank the rank of the input array
+     * @param dimension the dimensions specified
+     *
+     * @return true if the dimension length is equal to the rank,
+     * the dimension is null or the dimension length is 1 and the first entry is
+     * {@link Integer#MAX_VALUE}
+     */
+    public static boolean isWholeArray(int rank, int... dimension){
+        return rank == 0 || dimension == null || dimension.length == 0 ||
+                (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE) || dimension.length == rank;
     }
 
     /**
@@ -237,7 +254,7 @@ public class Shape {
      */
     public static int[] getReducedShape(int[] wholeShape, int[] dimensions) {
         if (isWholeArray(wholeShape, dimensions))
-            return new int[] {1, 1};
+            return new int[] {};
         else if (dimensions.length == 1 && wholeShape.length == 2) {
             int[] ret = new int[2];
             if (dimensions[0] == 1) {
@@ -285,8 +302,19 @@ public class Shape {
             if(right[i] < 1)
                 throw new ND4JIllegalStateException("Right shape contained value < 0 at index " + i);
         }
-        if (left[1] != right[0])
+
+
+        if (left.length > 1 && left[1] != right[0])
             throw new IllegalArgumentException("Columns of left not equal to rows of right");
+
+        if(left.length < right.length) {
+            if(left[0] == right[0]) {
+                return new int[] {1, right[1]};
+            }
+        }
+
+
+
 
         int[] shape = {left[0], right[1]};
         return shape;
@@ -1002,6 +1030,18 @@ public class Shape {
             return Arrays.equals(shape1Comp, shape2Comp);
         }
 
+        //scalars
+        if(shape1.length == 0 || shape2.length == 0) {
+            if(shape1.length == 0 && shapeIsScalar(shape2)) {
+                return true;
+            }
+
+            if(shape2.length == 0 && shapeIsScalar(shape1)) {
+                return true;
+            }
+        }
+
+
         shape1 = squeeze(shape1);
         shape2 = squeeze(shape2);
 
@@ -1118,6 +1158,13 @@ public class Shape {
      * @return
      */
     public static int elementWiseStride(int[] shape, int[] stride, boolean isFOrder) {
+        // 0D edge case
+        if (shape.length == 0 && stride.length == 0)
+            return 1;
+
+        if (shape.length == 1 && stride.length == 1)
+            return 1;
+
         int oldnd;
         int[] olddims = ArrayUtil.copy(shape);
         int[] oldstrides = ArrayUtil.copy(stride);
@@ -1536,6 +1583,8 @@ public class Shape {
      * @return the mapped indexes along each dimension
      */
     public static int[] ind2sub(INDArray arr, long index) {
+        if (arr.rank() == 1)
+            return new int[]{(int) index};
         return ind2sub(arr.shape(), index, ArrayUtil.prodLong(arr.shape()));
     }
 
@@ -1589,6 +1638,8 @@ public class Shape {
      * @return the mapped indexes along each dimension
      */
     public static int[] ind2subC(INDArray arr, long index) {
+        if (arr.rank() == 1)
+            return new int[]{(int) index};
         return ind2subC(arr.shape(), index, ArrayUtil.prodLong(arr.shape()));
     }
 
@@ -2396,5 +2447,43 @@ public class Shape {
             return Shape.toOffsetZeroCopyAnyOrder(input);
         else
             return input;
+    }
+
+    /**
+     * Return the rank for the given shape
+     *
+     * @param shape Shape to get the rank for
+     * @return Rank, of the array given the shape
+     * @throws ND4JIllegalStateException If shape array is null
+     */
+    public static int rankFromShape(int[] shape){
+        if(shape == null){
+            throw new ND4JIllegalStateException("Cannot get rank from null shape array");
+        }
+        return shape.length;
+    }
+
+    public static void assertBroadcastable(@NonNull INDArray x, @NonNull INDArray y){
+        assertBroadcastable(x.shape(), y.shape());
+    }
+
+    public static void assertBroadcastable(@NonNull int[] x, @NonNull int[] y){
+        if(!areShapesBroadcastable(x, y)){
+            throw new ND4JIllegalStateException("Arrays are different shape and are not broadcastable." +
+                    " Array 1 shape = " + Arrays.toString(x) + ", array 2 shape = " + Arrays.toString(y));
+        }
+    }
+
+    public static boolean areShapesBroadcastable(@NonNull int[] x, @NonNull int[] y){
+        //Ported from: https://github.com/deeplearning4j/libnd4j/blob/master/include/helpers/impl/ShapeUtils.cpp
+
+        int minRank = Math.min(x.length, y.length);
+        for( int i=-1; i>= -minRank; i--){
+            if(x[x.length + i] != y[y.length + i] && x[x.length + i] != 1 && y[y.length + i] != 1){
+                return false;
+            }
+        }
+
+        return true;
     }
 }
