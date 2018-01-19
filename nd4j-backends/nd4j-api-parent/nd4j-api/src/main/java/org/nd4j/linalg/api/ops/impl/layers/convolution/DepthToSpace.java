@@ -31,17 +31,17 @@ public class DepthToSpace extends DynamicCustomOp {
         Map<String, Map<String, PropertyMapping>> ret = new HashMap<>();
         Map<String,PropertyMapping> attrs = new LinkedHashMap<>();
 
-        val dataFormatMapping = PropertyMapping.builder()
-                .tfAttrName("data_format")
-                .propertyNames(new String[]{"dataFormat"})
-                .build();
-        attrs.put("dataFormat",dataFormatMapping);
-
         val blockSize = PropertyMapping.builder()
                 .tfAttrName("block_size")
                 .propertyNames(new String[]{"blockSize"})
                 .build();
         attrs.put("blockSize",blockSize);
+
+        val dataFormatMapping = PropertyMapping.builder()
+                .tfAttrName("data_format")
+                .propertyNames(new String[]{"dataFormat"})
+                .build();
+        attrs.put("dataFormat",dataFormatMapping);
 
         ret.put(tensorflowName(),attrs);
         return ret;
