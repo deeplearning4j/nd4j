@@ -47,12 +47,12 @@ if [[ -n "${CUDA:-}" ]]; then
 fi
 cd $TRAVIS_BUILD_DIR/
 if [[ -n "${CUDA:-}" ]]; then
-    source change-cuda-versions.sh $CUDA
+    bash change-cuda-versions.sh $CUDA
     EXTRA_OPTIONS=
 else
     EXTRA_OPTIONS='-pl !nd4j-backends/nd4j-backend-impls/nd4j-cuda,!nd4j-backends/nd4j-backend-impls/nd4j-cuda-platform,!nd4j-backends/nd4j-tests'
 fi
-source change-scala-versions.sh $SCALA
+bash change-scala-versions.sh $SCALA
 mvn clean $MAVEN_PHASE -B -U --settings ./ci/settings.xml -Dmaven.javadoc.skip=true -Dmaven.test.skip=true -Dlocal.software.repository=sonatype \
     -Djavacpp.extension=${EXT:-} $EXTRA_OPTIONS
 
