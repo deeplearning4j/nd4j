@@ -1,5 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.controlflow;
 
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
@@ -29,7 +30,10 @@ public class Switch extends DynamicCustomOp {
             return Collections.emptyList();
     }
 
-
+    @Override
+    public SDVariable[] outputVariables() {
+        return super.outputVariables();
+    }
 
     @Override
     public String tensorflowName() {

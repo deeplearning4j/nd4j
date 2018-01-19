@@ -6210,8 +6210,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         @Override public FloatNDArray position(long position) {
             return (FloatNDArray)super.position(position);
         }
-            
-        
+    
+
         /**
         *  default constructor, do not allocate memory, memory for array is passed from outside 
         */
@@ -6223,7 +6223,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(FloatBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public FloatNDArray(float[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(float[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
-        
+
         /**
          * Constructor for scalar NDArray
          */
@@ -6252,7 +6252,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this constructor creates NDArray as single row, dimension is [1 x length], memory for array is allocated in constructor 
-        */ 
+        */
         public FloatNDArray(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(length, order, workspace); }
         private native void allocate(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/);
         public FloatNDArray(@Cast("const Nd4jIndex") long length, char order) { super((Pointer)null); allocate(length, order); }
@@ -6263,22 +6263,22 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public FloatNDArray(@Const FloatNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(other, copyStrides, workspace); }
         private native void allocate(@Const FloatNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-				
+
         /**
 		*  constructor creates new NDArray using shape information from "shapeInfo", set all elements in new array to be zeros, if copyStrides is true then use stride values from "shapeInfo", else calculate strides independently 
         */
-		public FloatNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public FloatNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntPointer shapeInfo);
-		public FloatNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public FloatNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntBuffer shapeInfo);
-		public FloatNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public FloatNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const int[] shapeInfo);
+        public FloatNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntPointer shapeInfo);
+        public FloatNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntBuffer shapeInfo);
+        public FloatNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public FloatNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const int[] shapeInfo);
 
         /**
         *  this constructor creates new array using shape information contained in vector argument    
@@ -6342,7 +6342,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *   operators for memory allocation and deletion
-        */ 
+        */
         public native @Name("operator new") Pointer _new(@Cast("size_t") long i);
         public native @Name("operator delete") void _delete(Pointer p);
 
@@ -6355,12 +6355,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void replacePointers(FloatBuffer buffer, IntBuffer shapeInfo);
         public native void replacePointers(float[] buffer, int[] shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
         public native void replacePointers(float[] buffer, int[] shapeInfo);
- 
+
         /**
         *  create a new array by replicating current array by repeats times along given dimension
         *  dimension - dimension along which to repeat elements
         *  repeats - number of repetitions
-        */        
+        */
         public native FloatNDArray repeat(int dimension, @StdVector IntPointer repeats);
         public native FloatNDArray repeat(int dimension, @StdVector IntBuffer repeats);
         public native FloatNDArray repeat(int dimension, @StdVector int[] repeats);
@@ -6392,7 +6392,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  cast array elements to given dtype
-        */ 
+        */
         public native FloatNDArray cast(@Cast("nd4j::DataType") int dtype);
         public native void cast(FloatNDArray target, @Cast("nd4j::DataType") int dtype);
 
@@ -6404,7 +6404,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *   returns _buffer
         */
-        public native FloatPointer getBuffer();        
+        public native FloatPointer getBuffer();
         public native FloatPointer buffer();
 
         /**
@@ -6468,13 +6468,13 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  check whether array is contiguous in memory
-        */ 
+        */
         public native @Cast("bool") boolean isContiguous();
 
         /**
         *  prints information about array shape
         *  msg - message to print out 
-        */ 
+        */
         public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
         public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
@@ -6483,7 +6483,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
         public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
@@ -6492,14 +6492,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements, takes into account offset between elements (element-wise-stride)
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         /**
         *  this method assigns values of given array to this one
-        */ 
+        */
         public native void assign(@Const FloatNDArray other);
 
         /**
@@ -6508,7 +6508,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this method assigns given value to all elements in array
-        */ 
+        */
         public native void assign(float value);
 
         /**
@@ -6524,7 +6524,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns mean number of array
-        */ 
+        */
         public native float meanNumber();
 
 
@@ -6544,7 +6544,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  keepDims - if true then put unities in place of reduced dimensions
         */
 
-		/**
+        /**
         *  method reduces array by excluding its shapes along dimensions present in given dimensions vector, result is stored in new array to be returned
         *  dimensions - array of dimensions to reduce along
         *  keepDims - if true then put unities in place of reduced dimensions
@@ -6576,7 +6576,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns index of max element in a given array (optionally: along given dimension(s))
         *  dimensions - optional vector with dimensions
-        */          
+        */
         public native @Cast("Nd4jIndex") long argMax();
 
         /**
@@ -6648,7 +6648,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  apply operation "func" to an array
         *  func - what operation to apply
         *  target - where to store result
-        */ 
+        */
 // #ifndef __JAVACPP_HACK__
 // #endif
 
@@ -6668,12 +6668,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  perform transpose operation and store result in target, this array remains unaffected 
         *  target - where to store result
-        */ 
+        */
         public native void transpose(@ByRef FloatNDArray target);
 
         /**
         *  apply in-place transpose operation to this array, so this array becomes transposed 
-        */ 
+        */
         public native void transposei();
 
         /**
@@ -6700,7 +6700,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Cast("bool") boolean equalsTo(@Const FloatNDArray other, float eps/*=(T) 1e-5f*/);
         public native @Cast("bool") boolean equalsTo(@Const FloatNDArray other);
-        
+
         /**
         *  add given row vector to all rows of this array
         *  row - row vector to add
@@ -6720,7 +6720,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void subRowVector(@Const FloatNDArray row, FloatNDArray target);
-        
+
         /**
         *  multiply all rows of this array on given row vector, store result in target
         *  row - row vector to multiply on
@@ -6734,7 +6734,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void divRowVector(@Const FloatNDArray row, FloatNDArray target);
-        
+
         /**
         *  add given column vector to all columns of this array, store result in target
         *  column - column vector to add
@@ -6746,68 +6746,68 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  add given column vector to all columns of this array, this array becomes affected (in-place operation)
         *  column - column vector to add
         */
-		public native void addiColumnVector(@Const FloatNDArray column);
+        public native void addiColumnVector(@Const FloatNDArray column);
 
         /**
         *  multiply all columns of this array on given column vector, this array becomes affected (in-place operation)
         *  column - column vector to multiply on
         */
-		public native void muliColumnVector(@Const FloatNDArray column);
+        public native void muliColumnVector(@Const FloatNDArray column);
 
         /**
         *  returns number of bytes used by _buffer & _shapeInfo
         */
-        public native @Cast("Nd4jIndex") long memoryFootprint();        
-        
+        public native @Cast("Nd4jIndex") long memoryFootprint();
+
         /**
         *  these methods suited for FlatBuffers use
         */
         public native @StdVector FloatPointer getBufferAsVector();
         public native @StdVector IntPointer getShapeAsVector();
         public native @StdVector IntPointer getShapeInfoAsVector();
-				
+
         /**
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
-        */		
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
-		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
-	
+        */
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
         */
-		public native FloatNDArray reshape(char order, @StdVector IntPointer shape);
-		public native FloatNDArray reshape(char order, @StdVector IntBuffer shape);
-		public native FloatNDArray reshape(char order, @StdVector int[] shape);
-		
+        public native FloatNDArray reshape(char order, @StdVector IntPointer shape);
+        public native FloatNDArray reshape(char order, @StdVector IntBuffer shape);
+        public native FloatNDArray reshape(char order, @StdVector int[] shape);
+
         /**
         *  calculate strides and set given order
         *  order - order to set
         */
-		public native void updateStrides(char order);
+        public native void updateStrides(char order);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
         *  repeats - contains numbers of repetitions
         */
-		public native void tilei(@StdVector IntPointer repeats);
-		public native void tilei(@StdVector IntBuffer repeats);
-		public native void tilei(@StdVector int[] repeats);
+        public native void tilei(@StdVector IntPointer repeats);
+        public native void tilei(@StdVector IntBuffer repeats);
+        public native void tilei(@StdVector int[] repeats);
 
         /**
         *  returns new array which is created by by repeating of this array the number of times given by reps 
         *  repeats - contains numbers of repetitions
         */
-		public native @ByVal FloatNDArray tile(@StdVector IntPointer repeats);
-		public native @ByVal FloatNDArray tile(@StdVector IntBuffer repeats);
-		public native @ByVal FloatNDArray tile(@StdVector int[] repeats);
+        public native @ByVal FloatNDArray tile(@StdVector IntPointer repeats);
+        public native @ByVal FloatNDArray tile(@StdVector IntBuffer repeats);
+        public native @ByVal FloatNDArray tile(@StdVector int[] repeats);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
@@ -6823,29 +6823,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void tile(@ByRef FloatNDArray target);
-        
+
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
         *  other - input array
         */
-		public native FloatNDArray broadcast(@Const @ByRef FloatNDArray other);
-		
+        public native FloatNDArray broadcast(@Const @ByRef FloatNDArray other);
+
         /**
         *  check whether array's rows (arg=0) or columns (arg=1) create orthogonal basis
         *  arg - 0 -> row, 1 -> column
         */
-		public native @Cast("bool") boolean hasOrthonormalBasis(int arg); 
-				
+        public native @Cast("bool") boolean hasOrthonormalBasis(int arg);
+
         /**
         *  check whether array is identity matrix
         */
-		public native @Cast("bool") boolean isIdentityMatrix(); 
-		
+        public native @Cast("bool") boolean isIdentityMatrix();
+
         /**
         *  check whether array is unitary matrix
         */
-		public native @Cast("bool") boolean isUnitary(); 
-                        
+        public native @Cast("bool") boolean isUnitary();
+
         /**
         *  reduces dimensions in this array relying on index operation OpName
         *  dimensions - vector of dimensions to reduce along
@@ -6871,7 +6871,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  dimensions - vector of dimensions to reduce along
         *  extraArgs - extra parameters for operation
         */
-                
+
         /**
         *  apply reduce3 (exec) operation OpName to this and other array, return result in new output array
         *  other - input array
@@ -6911,7 +6911,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
         
         
-        
+
         /**
         *  addition unary operator array += other
         *  other - input array to add
@@ -6920,18 +6920,18 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native @Name("operator +=") void addPut(float other);
         public native @Name("operator -=") void subtractPut(float other);
-        
+
         /**
         *  subtraction operator: array - other
         *  other - input array to subtract
         */
         public native @ByVal @Name("operator -") FloatNDArray subtract(@Const @ByRef FloatNDArray other);
-        
+
         /**
         *  subtraction operator: array - scalar
         *  scalar - input scalar to subtract
         */
-        public native @ByVal @Name("operator -") FloatNDArray subtract(float scalar);        
+        public native @ByVal @Name("operator -") FloatNDArray subtract(float scalar);
 
         /**
         *  negative operator, it changes sign of all array elements on opposite
@@ -6950,14 +6950,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise multiplication operator: array * other
         *  other - input array to multiply on
         */
-        public native @ByVal @Name("operator *") FloatNDArray multiply(@Const @ByRef FloatNDArray other);        
-    
+        public native @ByVal @Name("operator *") FloatNDArray multiply(@Const @ByRef FloatNDArray other);
+
         /**
         *  multiplication operator: array * scalar
         *  scalar - input scalar to multiply on
         */
         public native @ByVal @Name("operator *") FloatNDArray multiply(float scalar);
-        
+
         /**
         *  pairwise multiplication unary operator array *= other
         *  other - input array to multiply on
@@ -6974,7 +6974,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise division operator: array / other
         *  other - input array to divide on
         */
-        public native @ByVal @Name("operator /") FloatNDArray divide(@Const @ByRef FloatNDArray other);        
+        public native @ByVal @Name("operator /") FloatNDArray divide(@Const @ByRef FloatNDArray other);
 
         /**
         *  division operator: array / scalar
@@ -7005,7 +7005,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  this method assigns elements of other array to the sub-array of this array defined be given intervals
         *  other - input array to assign elements from
         *  idx - intervals of indexes which define the sub-array
-        */ 
+        */
         public native void assign(@Const @ByRef FloatNDArray other, @Const @ByRef Intervals idx);
 
         /**
@@ -7033,7 +7033,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  default destructor
-        */ 
+        */
 
         /**
         *  set _shapeInfo
@@ -7053,10 +7053,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set _isBuffAlloc and _isShapeAlloc
         */
         public native void triggerAllocationFlag(@Cast("bool") boolean bufferAllocated, @Cast("bool") boolean shapeAllocated);
-        
+
         /**
         *  returns the value of "dim" dimension 
-        */ 
+        */
         public native int sizeAt(int dim);
 
         /**        
@@ -7066,14 +7066,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  return _isView
-        */ 
+        */
         public native @Cast("bool") boolean isView();
 
         /**
         *  returns shape portion of shapeInfo
         */
         public native IntPointer shapeOf();
-        
+
         /**
         *  returns strides portion of shapeInfo
         */
@@ -7082,12 +7082,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns rank of array
         */
-        public native int rankOf();        
+        public native int rankOf();
 
         /** 
         *  returns length of array
         */
-        public native @Cast("Nd4jIndex") long lengthOf();        
+        public native @Cast("Nd4jIndex") long lengthOf();
 
         /**
         *  returns number of rows in array
@@ -7096,17 +7096,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns number of columns in array
-        */ 
+        */
         public native int columns();
 
         /**
         *  returns size of array elements type
-        */ 
+        */
         public native int sizeOfT();
 
         /**
         *  returns element-wise-stride
-        */ 
+        */
         public native int ews();
 
         // returns true if arrays have same shape
@@ -7139,7 +7139,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  i - element index in array
         */
         public native float getIndexedScalar(@Cast("const Nd4jIndex") long i);
-        
+
         /** 
         *  returns element with given indexes from 2D array 
         *  i - number of row 
@@ -7153,21 +7153,21 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - width
         *  k - depth
         */
-        public native float getScalar(int i, int j, int k);        
-        
+        public native float getScalar(int i, int j, int k);
+
         /** 
         *  assigns given scalar to array element by given index, takes into account offset between elements (element-wise-stride)
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, float value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, float value);
 
         /** 
         *  assigns given scalar to array element by given index, regards array buffer as linear
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putScalar(@Cast("const Nd4jIndex") long i, float value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, float value);
 
         /** 
         *  assigns given scalar to 2D array element by given indexes
@@ -7175,7 +7175,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - number of row
         *  value - scalar value to assign
         */
-        public native void putScalar(int i, int j, float value);        
+        public native void putScalar(int i, int j, float value);
 
         /** 
         *  assigns given scalar to 3D array element by given indexes
@@ -7222,7 +7222,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 2D array, i - row, j - column
-        */        
+        */
 
         /**
         *  inline modifying operator for 2D array, i - row, j - column
@@ -7231,11 +7231,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 3D array, i - height, j - width, k - depth
-        */        
+        */
 
         /**
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
-        */ 
+        */
         public native @ByRef @Name("operator ()") FloatPointer apply(int i, int j, int k);
 
 
@@ -7252,8 +7252,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         @Override public HalfNDArray position(long position) {
             return (HalfNDArray)super.position(position);
         }
-            
-        
+    
+
         /**
         *  default constructor, do not allocate memory, memory for array is passed from outside 
         */
@@ -7265,7 +7265,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(@Cast("float16*") ShortBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public HalfNDArray(@Cast("float16*") short[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(@Cast("float16*") short[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
-        
+
         /**
          * Constructor for scalar NDArray
          */
@@ -7294,7 +7294,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this constructor creates NDArray as single row, dimension is [1 x length], memory for array is allocated in constructor 
-        */ 
+        */
         public HalfNDArray(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(length, order, workspace); }
         private native void allocate(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/);
         public HalfNDArray(@Cast("const Nd4jIndex") long length, char order) { super((Pointer)null); allocate(length, order); }
@@ -7305,22 +7305,22 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public HalfNDArray(@Const HalfNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(other, copyStrides, workspace); }
         private native void allocate(@Const HalfNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-				
+
         /**
 		*  constructor creates new NDArray using shape information from "shapeInfo", set all elements in new array to be zeros, if copyStrides is true then use stride values from "shapeInfo", else calculate strides independently 
         */
-		public HalfNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public HalfNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntPointer shapeInfo);
-		public HalfNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public HalfNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntBuffer shapeInfo);
-		public HalfNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public HalfNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const int[] shapeInfo);
+        public HalfNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntPointer shapeInfo);
+        public HalfNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntBuffer shapeInfo);
+        public HalfNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public HalfNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const int[] shapeInfo);
 
         /**
         *  this constructor creates new array using shape information contained in vector argument    
@@ -7384,7 +7384,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *   operators for memory allocation and deletion
-        */ 
+        */
         public native @Name("operator new") Pointer _new(@Cast("size_t") long i);
         public native @Name("operator delete") void _delete(Pointer p);
 
@@ -7397,12 +7397,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void replacePointers(@Cast("float16*") ShortBuffer buffer, IntBuffer shapeInfo);
         public native void replacePointers(@Cast("float16*") short[] buffer, int[] shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
         public native void replacePointers(@Cast("float16*") short[] buffer, int[] shapeInfo);
- 
+
         /**
         *  create a new array by replicating current array by repeats times along given dimension
         *  dimension - dimension along which to repeat elements
         *  repeats - number of repetitions
-        */        
+        */
         public native HalfNDArray repeat(int dimension, @StdVector IntPointer repeats);
         public native HalfNDArray repeat(int dimension, @StdVector IntBuffer repeats);
         public native HalfNDArray repeat(int dimension, @StdVector int[] repeats);
@@ -7434,7 +7434,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  cast array elements to given dtype
-        */ 
+        */
         public native HalfNDArray cast(@Cast("nd4j::DataType") int dtype);
         public native void cast(HalfNDArray target, @Cast("nd4j::DataType") int dtype);
 
@@ -7446,7 +7446,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *   returns _buffer
         */
-        public native @Cast("float16*") ShortPointer getBuffer();        
+        public native @Cast("float16*") ShortPointer getBuffer();
         public native @Cast("float16*") ShortPointer buffer();
 
         /**
@@ -7510,13 +7510,13 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  check whether array is contiguous in memory
-        */ 
+        */
         public native @Cast("bool") boolean isContiguous();
 
         /**
         *  prints information about array shape
         *  msg - message to print out 
-        */ 
+        */
         public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
         public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
@@ -7525,7 +7525,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
         public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
@@ -7534,14 +7534,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements, takes into account offset between elements (element-wise-stride)
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         /**
         *  this method assigns values of given array to this one
-        */ 
+        */
         public native void assign(@Const HalfNDArray other);
 
         /**
@@ -7550,7 +7550,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this method assigns given value to all elements in array
-        */ 
+        */
         public native void assign(@Cast("const float16") short value);
 
         /**
@@ -7566,7 +7566,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns mean number of array
-        */ 
+        */
         public native @Cast("float16") short meanNumber();
 
 
@@ -7586,7 +7586,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  keepDims - if true then put unities in place of reduced dimensions
         */
 
-		/**
+        /**
         *  method reduces array by excluding its shapes along dimensions present in given dimensions vector, result is stored in new array to be returned
         *  dimensions - array of dimensions to reduce along
         *  keepDims - if true then put unities in place of reduced dimensions
@@ -7618,7 +7618,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns index of max element in a given array (optionally: along given dimension(s))
         *  dimensions - optional vector with dimensions
-        */          
+        */
         public native @Cast("Nd4jIndex") long argMax();
 
         /**
@@ -7690,7 +7690,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  apply operation "func" to an array
         *  func - what operation to apply
         *  target - where to store result
-        */ 
+        */
 // #ifndef __JAVACPP_HACK__
 // #endif
 
@@ -7710,12 +7710,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  perform transpose operation and store result in target, this array remains unaffected 
         *  target - where to store result
-        */ 
+        */
         public native void transpose(@ByRef HalfNDArray target);
 
         /**
         *  apply in-place transpose operation to this array, so this array becomes transposed 
-        */ 
+        */
         public native void transposei();
 
         /**
@@ -7742,7 +7742,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Cast("bool") boolean equalsTo(@Const HalfNDArray other, @Cast("float16") short eps/*=(T) 1e-5f*/);
         public native @Cast("bool") boolean equalsTo(@Const HalfNDArray other);
-        
+
         /**
         *  add given row vector to all rows of this array
         *  row - row vector to add
@@ -7762,7 +7762,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void subRowVector(@Const HalfNDArray row, HalfNDArray target);
-        
+
         /**
         *  multiply all rows of this array on given row vector, store result in target
         *  row - row vector to multiply on
@@ -7776,7 +7776,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void divRowVector(@Const HalfNDArray row, HalfNDArray target);
-        
+
         /**
         *  add given column vector to all columns of this array, store result in target
         *  column - column vector to add
@@ -7788,68 +7788,68 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  add given column vector to all columns of this array, this array becomes affected (in-place operation)
         *  column - column vector to add
         */
-		public native void addiColumnVector(@Const HalfNDArray column);
+        public native void addiColumnVector(@Const HalfNDArray column);
 
         /**
         *  multiply all columns of this array on given column vector, this array becomes affected (in-place operation)
         *  column - column vector to multiply on
         */
-		public native void muliColumnVector(@Const HalfNDArray column);
+        public native void muliColumnVector(@Const HalfNDArray column);
 
         /**
         *  returns number of bytes used by _buffer & _shapeInfo
         */
-        public native @Cast("Nd4jIndex") long memoryFootprint();        
-        
+        public native @Cast("Nd4jIndex") long memoryFootprint();
+
         /**
         *  these methods suited for FlatBuffers use
         */
         public native @Cast("float16*") @StdVector ShortPointer getBufferAsVector();
         public native @StdVector IntPointer getShapeAsVector();
         public native @StdVector IntPointer getShapeInfoAsVector();
-				
+
         /**
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
-        */		
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
-		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
-	
+        */
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
         */
-		public native HalfNDArray reshape(char order, @StdVector IntPointer shape);
-		public native HalfNDArray reshape(char order, @StdVector IntBuffer shape);
-		public native HalfNDArray reshape(char order, @StdVector int[] shape);
-		
+        public native HalfNDArray reshape(char order, @StdVector IntPointer shape);
+        public native HalfNDArray reshape(char order, @StdVector IntBuffer shape);
+        public native HalfNDArray reshape(char order, @StdVector int[] shape);
+
         /**
         *  calculate strides and set given order
         *  order - order to set
         */
-		public native void updateStrides(char order);
+        public native void updateStrides(char order);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
         *  repeats - contains numbers of repetitions
         */
-		public native void tilei(@StdVector IntPointer repeats);
-		public native void tilei(@StdVector IntBuffer repeats);
-		public native void tilei(@StdVector int[] repeats);
+        public native void tilei(@StdVector IntPointer repeats);
+        public native void tilei(@StdVector IntBuffer repeats);
+        public native void tilei(@StdVector int[] repeats);
 
         /**
         *  returns new array which is created by by repeating of this array the number of times given by reps 
         *  repeats - contains numbers of repetitions
         */
-		public native @ByVal HalfNDArray tile(@StdVector IntPointer repeats);
-		public native @ByVal HalfNDArray tile(@StdVector IntBuffer repeats);
-		public native @ByVal HalfNDArray tile(@StdVector int[] repeats);
+        public native @ByVal HalfNDArray tile(@StdVector IntPointer repeats);
+        public native @ByVal HalfNDArray tile(@StdVector IntBuffer repeats);
+        public native @ByVal HalfNDArray tile(@StdVector int[] repeats);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
@@ -7865,29 +7865,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void tile(@ByRef HalfNDArray target);
-        
+
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
         *  other - input array
         */
-		public native HalfNDArray broadcast(@Const @ByRef HalfNDArray other);
-		
+        public native HalfNDArray broadcast(@Const @ByRef HalfNDArray other);
+
         /**
         *  check whether array's rows (arg=0) or columns (arg=1) create orthogonal basis
         *  arg - 0 -> row, 1 -> column
         */
-		public native @Cast("bool") boolean hasOrthonormalBasis(int arg); 
-				
+        public native @Cast("bool") boolean hasOrthonormalBasis(int arg);
+
         /**
         *  check whether array is identity matrix
         */
-		public native @Cast("bool") boolean isIdentityMatrix(); 
-		
+        public native @Cast("bool") boolean isIdentityMatrix();
+
         /**
         *  check whether array is unitary matrix
         */
-		public native @Cast("bool") boolean isUnitary(); 
-                        
+        public native @Cast("bool") boolean isUnitary();
+
         /**
         *  reduces dimensions in this array relying on index operation OpName
         *  dimensions - vector of dimensions to reduce along
@@ -7913,7 +7913,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  dimensions - vector of dimensions to reduce along
         *  extraArgs - extra parameters for operation
         */
-                
+
         /**
         *  apply reduce3 (exec) operation OpName to this and other array, return result in new output array
         *  other - input array
@@ -7953,7 +7953,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
         
         
-        
+
         /**
         *  addition unary operator array += other
         *  other - input array to add
@@ -7962,18 +7962,18 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native @Name("operator +=") void addPut(@Cast("const float16") short other);
         public native @Name("operator -=") void subtractPut(@Cast("const float16") short other);
-        
+
         /**
         *  subtraction operator: array - other
         *  other - input array to subtract
         */
         public native @ByVal @Name("operator -") HalfNDArray subtract(@Const @ByRef HalfNDArray other);
-        
+
         /**
         *  subtraction operator: array - scalar
         *  scalar - input scalar to subtract
         */
-        public native @ByVal @Name("operator -") HalfNDArray subtract(@Cast("const float16") short scalar);        
+        public native @ByVal @Name("operator -") HalfNDArray subtract(@Cast("const float16") short scalar);
 
         /**
         *  negative operator, it changes sign of all array elements on opposite
@@ -7992,14 +7992,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise multiplication operator: array * other
         *  other - input array to multiply on
         */
-        public native @ByVal @Name("operator *") HalfNDArray multiply(@Const @ByRef HalfNDArray other);        
-    
+        public native @ByVal @Name("operator *") HalfNDArray multiply(@Const @ByRef HalfNDArray other);
+
         /**
         *  multiplication operator: array * scalar
         *  scalar - input scalar to multiply on
         */
         public native @ByVal @Name("operator *") HalfNDArray multiply(@Cast("const float16") short scalar);
-        
+
         /**
         *  pairwise multiplication unary operator array *= other
         *  other - input array to multiply on
@@ -8016,7 +8016,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise division operator: array / other
         *  other - input array to divide on
         */
-        public native @ByVal @Name("operator /") HalfNDArray divide(@Const @ByRef HalfNDArray other);        
+        public native @ByVal @Name("operator /") HalfNDArray divide(@Const @ByRef HalfNDArray other);
 
         /**
         *  division operator: array / scalar
@@ -8047,7 +8047,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  this method assigns elements of other array to the sub-array of this array defined be given intervals
         *  other - input array to assign elements from
         *  idx - intervals of indexes which define the sub-array
-        */ 
+        */
         public native void assign(@Const @ByRef HalfNDArray other, @Const @ByRef Intervals idx);
 
         /**
@@ -8075,7 +8075,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  default destructor
-        */ 
+        */
 
         /**
         *  set _shapeInfo
@@ -8095,10 +8095,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set _isBuffAlloc and _isShapeAlloc
         */
         public native void triggerAllocationFlag(@Cast("bool") boolean bufferAllocated, @Cast("bool") boolean shapeAllocated);
-        
+
         /**
         *  returns the value of "dim" dimension 
-        */ 
+        */
         public native int sizeAt(int dim);
 
         /**        
@@ -8108,14 +8108,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  return _isView
-        */ 
+        */
         public native @Cast("bool") boolean isView();
 
         /**
         *  returns shape portion of shapeInfo
         */
         public native IntPointer shapeOf();
-        
+
         /**
         *  returns strides portion of shapeInfo
         */
@@ -8124,12 +8124,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns rank of array
         */
-        public native int rankOf();        
+        public native int rankOf();
 
         /** 
         *  returns length of array
         */
-        public native @Cast("Nd4jIndex") long lengthOf();        
+        public native @Cast("Nd4jIndex") long lengthOf();
 
         /**
         *  returns number of rows in array
@@ -8138,17 +8138,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns number of columns in array
-        */ 
+        */
         public native int columns();
 
         /**
         *  returns size of array elements type
-        */ 
+        */
         public native int sizeOfT();
 
         /**
         *  returns element-wise-stride
-        */ 
+        */
         public native int ews();
 
         // returns true if arrays have same shape
@@ -8181,7 +8181,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  i - element index in array
         */
         public native @Cast("float16") short getIndexedScalar(@Cast("const Nd4jIndex") long i);
-        
+
         /** 
         *  returns element with given indexes from 2D array 
         *  i - number of row 
@@ -8195,21 +8195,21 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - width
         *  k - depth
         */
-        public native @Cast("float16") short getScalar(int i, int j, int k);        
-        
+        public native @Cast("float16") short getScalar(int i, int j, int k);
+
         /** 
         *  assigns given scalar to array element by given index, takes into account offset between elements (element-wise-stride)
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);
 
         /** 
         *  assigns given scalar to array element by given index, regards array buffer as linear
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, @Cast("const float16") short value);
 
         /** 
         *  assigns given scalar to 2D array element by given indexes
@@ -8217,7 +8217,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - number of row
         *  value - scalar value to assign
         */
-        public native void putScalar(int i, int j, @Cast("const float16") short value);        
+        public native void putScalar(int i, int j, @Cast("const float16") short value);
 
         /** 
         *  assigns given scalar to 3D array element by given indexes
@@ -8264,7 +8264,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 2D array, i - row, j - column
-        */        
+        */
 
         /**
         *  inline modifying operator for 2D array, i - row, j - column
@@ -8273,11 +8273,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 3D array, i - height, j - width, k - depth
-        */        
+        */
 
         /**
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
-        */ 
+        */
         public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(int i, int j, int k);
 
 
@@ -8294,8 +8294,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         @Override public DoubleNDArray position(long position) {
             return (DoubleNDArray)super.position(position);
         }
-            
-        
+    
+
         /**
         *  default constructor, do not allocate memory, memory for array is passed from outside 
         */
@@ -8307,7 +8307,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(DoubleBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public DoubleNDArray(double[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(double[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
-        
+
         /**
          * Constructor for scalar NDArray
          */
@@ -8336,7 +8336,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this constructor creates NDArray as single row, dimension is [1 x length], memory for array is allocated in constructor 
-        */ 
+        */
         public DoubleNDArray(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(length, order, workspace); }
         private native void allocate(@Cast("const Nd4jIndex") long length, char order, Workspace workspace/*=nullptr*/);
         public DoubleNDArray(@Cast("const Nd4jIndex") long length, char order) { super((Pointer)null); allocate(length, order); }
@@ -8347,22 +8347,22 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public DoubleNDArray(@Const DoubleNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(other, copyStrides, workspace); }
         private native void allocate(@Const DoubleNDArray other, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-				
+
         /**
 		*  constructor creates new NDArray using shape information from "shapeInfo", set all elements in new array to be zeros, if copyStrides is true then use stride values from "shapeInfo", else calculate strides independently 
         */
-		public DoubleNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public DoubleNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntPointer shapeInfo);
-		public DoubleNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public DoubleNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const IntBuffer shapeInfo);
-		public DoubleNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
-		private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
-		public DoubleNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
-		private native void allocate(@Const int[] shapeInfo);
+        public DoubleNDArray(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntPointer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(@Const IntPointer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntPointer shapeInfo);
+        public DoubleNDArray(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const IntBuffer shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(@Const IntBuffer shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const IntBuffer shapeInfo);
+        public DoubleNDArray(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(shapeInfo, copyStrides, workspace); }
+        private native void allocate(@Const int[] shapeInfo, @Cast("const bool") boolean copyStrides/*=false*/, Workspace workspace/*=nullptr*/);
+        public DoubleNDArray(@Const int[] shapeInfo) { super((Pointer)null); allocate(shapeInfo); }
+        private native void allocate(@Const int[] shapeInfo);
 
         /**
         *  this constructor creates new array using shape information contained in vector argument    
@@ -8426,7 +8426,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *   operators for memory allocation and deletion
-        */ 
+        */
         public native @Name("operator new") Pointer _new(@Cast("size_t") long i);
         public native @Name("operator delete") void _delete(Pointer p);
 
@@ -8439,12 +8439,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void replacePointers(DoubleBuffer buffer, IntBuffer shapeInfo);
         public native void replacePointers(double[] buffer, int[] shapeInfo, @Cast("const bool") boolean releaseExisting/*=true*/);
         public native void replacePointers(double[] buffer, int[] shapeInfo);
- 
+
         /**
         *  create a new array by replicating current array by repeats times along given dimension
         *  dimension - dimension along which to repeat elements
         *  repeats - number of repetitions
-        */        
+        */
         public native DoubleNDArray repeat(int dimension, @StdVector IntPointer repeats);
         public native DoubleNDArray repeat(int dimension, @StdVector IntBuffer repeats);
         public native DoubleNDArray repeat(int dimension, @StdVector int[] repeats);
@@ -8476,7 +8476,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  cast array elements to given dtype
-        */ 
+        */
         public native DoubleNDArray cast(@Cast("nd4j::DataType") int dtype);
         public native void cast(DoubleNDArray target, @Cast("nd4j::DataType") int dtype);
 
@@ -8488,7 +8488,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *   returns _buffer
         */
-        public native DoublePointer getBuffer();        
+        public native DoublePointer getBuffer();
         public native DoublePointer buffer();
 
         /**
@@ -8552,13 +8552,13 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  check whether array is contiguous in memory
-        */ 
+        */
         public native @Cast("bool") boolean isContiguous();
 
         /**
         *  prints information about array shape
         *  msg - message to print out 
-        */ 
+        */
         public native void printShapeInfo(@Cast("char*") String msg/*=nullptr*/);
         public native void printShapeInfo();
         public native void printShapeInfo(@Cast("char*") BytePointer msg/*=nullptr*/);
@@ -8567,7 +8567,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printBuffer();
         public native void printBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
@@ -8576,14 +8576,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  prints buffer elements, takes into account offset between elements (element-wise-stride)
         *  msg - message to print out 
         *  limit - number of array elements to print out
-        */ 
+        */
         public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
         /**
         *  this method assigns values of given array to this one
-        */ 
+        */
         public native void assign(@Const DoubleNDArray other);
 
         /**
@@ -8592,7 +8592,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  this method assigns given value to all elements in array
-        */ 
+        */
         public native void assign(double value);
 
         /**
@@ -8608,7 +8608,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns mean number of array
-        */ 
+        */
         public native double meanNumber();
 
 
@@ -8628,7 +8628,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  keepDims - if true then put unities in place of reduced dimensions
         */
 
-		/**
+        /**
         *  method reduces array by excluding its shapes along dimensions present in given dimensions vector, result is stored in new array to be returned
         *  dimensions - array of dimensions to reduce along
         *  keepDims - if true then put unities in place of reduced dimensions
@@ -8660,7 +8660,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns index of max element in a given array (optionally: along given dimension(s))
         *  dimensions - optional vector with dimensions
-        */          
+        */
         public native @Cast("Nd4jIndex") long argMax();
 
         /**
@@ -8732,7 +8732,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  apply operation "func" to an array
         *  func - what operation to apply
         *  target - where to store result
-        */ 
+        */
 // #ifndef __JAVACPP_HACK__
 // #endif
 
@@ -8752,12 +8752,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  perform transpose operation and store result in target, this array remains unaffected 
         *  target - where to store result
-        */ 
+        */
         public native void transpose(@ByRef DoubleNDArray target);
 
         /**
         *  apply in-place transpose operation to this array, so this array becomes transposed 
-        */ 
+        */
         public native void transposei();
 
         /**
@@ -8784,7 +8784,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Cast("bool") boolean equalsTo(@Const DoubleNDArray other, double eps/*=(T) 1e-5f*/);
         public native @Cast("bool") boolean equalsTo(@Const DoubleNDArray other);
-        
+
         /**
         *  add given row vector to all rows of this array
         *  row - row vector to add
@@ -8804,7 +8804,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void subRowVector(@Const DoubleNDArray row, DoubleNDArray target);
-        
+
         /**
         *  multiply all rows of this array on given row vector, store result in target
         *  row - row vector to multiply on
@@ -8818,7 +8818,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void divRowVector(@Const DoubleNDArray row, DoubleNDArray target);
-        
+
         /**
         *  add given column vector to all columns of this array, store result in target
         *  column - column vector to add
@@ -8830,68 +8830,68 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  add given column vector to all columns of this array, this array becomes affected (in-place operation)
         *  column - column vector to add
         */
-		public native void addiColumnVector(@Const DoubleNDArray column);
+        public native void addiColumnVector(@Const DoubleNDArray column);
 
         /**
         *  multiply all columns of this array on given column vector, this array becomes affected (in-place operation)
         *  column - column vector to multiply on
         */
-		public native void muliColumnVector(@Const DoubleNDArray column);
+        public native void muliColumnVector(@Const DoubleNDArray column);
 
         /**
         *  returns number of bytes used by _buffer & _shapeInfo
         */
-        public native @Cast("Nd4jIndex") long memoryFootprint();        
-        
+        public native @Cast("Nd4jIndex") long memoryFootprint();
+
         /**
         *  these methods suited for FlatBuffers use
         */
         public native @StdVector DoublePointer getBufferAsVector();
         public native @StdVector IntPointer getShapeAsVector();
         public native @StdVector IntPointer getShapeInfoAsVector();
-				
+
         /**
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
-        */		
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
-		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
-	
+        */
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
+        public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
         */
-		public native DoubleNDArray reshape(char order, @StdVector IntPointer shape);
-		public native DoubleNDArray reshape(char order, @StdVector IntBuffer shape);
-		public native DoubleNDArray reshape(char order, @StdVector int[] shape);
-		
+        public native DoubleNDArray reshape(char order, @StdVector IntPointer shape);
+        public native DoubleNDArray reshape(char order, @StdVector IntBuffer shape);
+        public native DoubleNDArray reshape(char order, @StdVector int[] shape);
+
         /**
         *  calculate strides and set given order
         *  order - order to set
         */
-		public native void updateStrides(char order);
+        public native void updateStrides(char order);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
         *  repeats - contains numbers of repetitions
         */
-		public native void tilei(@StdVector IntPointer repeats);
-		public native void tilei(@StdVector IntBuffer repeats);
-		public native void tilei(@StdVector int[] repeats);
+        public native void tilei(@StdVector IntPointer repeats);
+        public native void tilei(@StdVector IntBuffer repeats);
+        public native void tilei(@StdVector int[] repeats);
 
         /**
         *  returns new array which is created by by repeating of this array the number of times given by reps 
         *  repeats - contains numbers of repetitions
         */
-		public native @ByVal DoubleNDArray tile(@StdVector IntPointer repeats);
-		public native @ByVal DoubleNDArray tile(@StdVector IntBuffer repeats);
-		public native @ByVal DoubleNDArray tile(@StdVector int[] repeats);
+        public native @ByVal DoubleNDArray tile(@StdVector IntPointer repeats);
+        public native @ByVal DoubleNDArray tile(@StdVector IntBuffer repeats);
+        public native @ByVal DoubleNDArray tile(@StdVector int[] repeats);
 
         /**
         *  change an array by repeating it the number of times given by reps (in-place operation)
@@ -8907,29 +8907,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  target - where to store result
         */
         public native void tile(@ByRef DoubleNDArray target);
-        
+
         /**
         *  returns an array which is result of broadcasting of this and other arrays 
         *  other - input array
         */
-		public native DoubleNDArray broadcast(@Const @ByRef DoubleNDArray other);
-		
+        public native DoubleNDArray broadcast(@Const @ByRef DoubleNDArray other);
+
         /**
         *  check whether array's rows (arg=0) or columns (arg=1) create orthogonal basis
         *  arg - 0 -> row, 1 -> column
         */
-		public native @Cast("bool") boolean hasOrthonormalBasis(int arg); 
-				
+        public native @Cast("bool") boolean hasOrthonormalBasis(int arg);
+
         /**
         *  check whether array is identity matrix
         */
-		public native @Cast("bool") boolean isIdentityMatrix(); 
-		
+        public native @Cast("bool") boolean isIdentityMatrix();
+
         /**
         *  check whether array is unitary matrix
         */
-		public native @Cast("bool") boolean isUnitary(); 
-                        
+        public native @Cast("bool") boolean isUnitary();
+
         /**
         *  reduces dimensions in this array relying on index operation OpName
         *  dimensions - vector of dimensions to reduce along
@@ -8955,7 +8955,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  dimensions - vector of dimensions to reduce along
         *  extraArgs - extra parameters for operation
         */
-                
+
         /**
         *  apply reduce3 (exec) operation OpName to this and other array, return result in new output array
         *  other - input array
@@ -8995,7 +8995,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         
         
         
-        
+
         /**
         *  addition unary operator array += other
         *  other - input array to add
@@ -9004,18 +9004,18 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         public native @Name("operator +=") void addPut(double other);
         public native @Name("operator -=") void subtractPut(double other);
-        
+
         /**
         *  subtraction operator: array - other
         *  other - input array to subtract
         */
         public native @ByVal @Name("operator -") DoubleNDArray subtract(@Const @ByRef DoubleNDArray other);
-        
+
         /**
         *  subtraction operator: array - scalar
         *  scalar - input scalar to subtract
         */
-        public native @ByVal @Name("operator -") DoubleNDArray subtract(double scalar);        
+        public native @ByVal @Name("operator -") DoubleNDArray subtract(double scalar);
 
         /**
         *  negative operator, it changes sign of all array elements on opposite
@@ -9034,14 +9034,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise multiplication operator: array * other
         *  other - input array to multiply on
         */
-        public native @ByVal @Name("operator *") DoubleNDArray multiply(@Const @ByRef DoubleNDArray other);        
-    
+        public native @ByVal @Name("operator *") DoubleNDArray multiply(@Const @ByRef DoubleNDArray other);
+
         /**
         *  multiplication operator: array * scalar
         *  scalar - input scalar to multiply on
         */
         public native @ByVal @Name("operator *") DoubleNDArray multiply(double scalar);
-        
+
         /**
         *  pairwise multiplication unary operator array *= other
         *  other - input array to multiply on
@@ -9058,7 +9058,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  pairwise division operator: array / other
         *  other - input array to divide on
         */
-        public native @ByVal @Name("operator /") DoubleNDArray divide(@Const @ByRef DoubleNDArray other);        
+        public native @ByVal @Name("operator /") DoubleNDArray divide(@Const @ByRef DoubleNDArray other);
 
         /**
         *  division operator: array / scalar
@@ -9089,7 +9089,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  this method assigns elements of other array to the sub-array of this array defined be given intervals
         *  other - input array to assign elements from
         *  idx - intervals of indexes which define the sub-array
-        */ 
+        */
         public native void assign(@Const @ByRef DoubleNDArray other, @Const @ByRef Intervals idx);
 
         /**
@@ -9117,7 +9117,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  default destructor
-        */ 
+        */
 
         /**
         *  set _shapeInfo
@@ -9137,10 +9137,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set _isBuffAlloc and _isShapeAlloc
         */
         public native void triggerAllocationFlag(@Cast("bool") boolean bufferAllocated, @Cast("bool") boolean shapeAllocated);
-        
+
         /**
         *  returns the value of "dim" dimension 
-        */ 
+        */
         public native int sizeAt(int dim);
 
         /**        
@@ -9150,14 +9150,14 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  return _isView
-        */ 
+        */
         public native @Cast("bool") boolean isView();
 
         /**
         *  returns shape portion of shapeInfo
         */
         public native IntPointer shapeOf();
-        
+
         /**
         *  returns strides portion of shapeInfo
         */
@@ -9166,12 +9166,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  returns rank of array
         */
-        public native int rankOf();        
+        public native int rankOf();
 
         /** 
         *  returns length of array
         */
-        public native @Cast("Nd4jIndex") long lengthOf();        
+        public native @Cast("Nd4jIndex") long lengthOf();
 
         /**
         *  returns number of rows in array
@@ -9180,17 +9180,17 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  returns number of columns in array
-        */ 
+        */
         public native int columns();
 
         /**
         *  returns size of array elements type
-        */ 
+        */
         public native int sizeOfT();
 
         /**
         *  returns element-wise-stride
-        */ 
+        */
         public native int ews();
 
         // returns true if arrays have same shape
@@ -9223,7 +9223,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  i - element index in array
         */
         public native double getIndexedScalar(@Cast("const Nd4jIndex") long i);
-        
+
         /** 
         *  returns element with given indexes from 2D array 
         *  i - number of row 
@@ -9237,21 +9237,21 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - width
         *  k - depth
         */
-        public native double getScalar(int i, int j, int k);        
-        
+        public native double getScalar(int i, int j, int k);
+
         /** 
         *  assigns given scalar to array element by given index, takes into account offset between elements (element-wise-stride)
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, double value);        
+        public native void putIndexedScalar(@Cast("const Nd4jIndex") long i, double value);
 
         /** 
         *  assigns given scalar to array element by given index, regards array buffer as linear
         *  i - element index in array
         *  value - scalar value to assign
         */
-        public native void putScalar(@Cast("const Nd4jIndex") long i, double value);        
+        public native void putScalar(@Cast("const Nd4jIndex") long i, double value);
 
         /** 
         *  assigns given scalar to 2D array element by given indexes
@@ -9259,7 +9259,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  j - number of row
         *  value - scalar value to assign
         */
-        public native void putScalar(int i, int j, double value);        
+        public native void putScalar(int i, int j, double value);
 
         /** 
         *  assigns given scalar to 3D array element by given indexes
@@ -9306,7 +9306,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 2D array, i - row, j - column
-        */        
+        */
 
         /**
         *  inline modifying operator for 2D array, i - row, j - column
@@ -9315,11 +9315,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
         /**
         *  inline accessing operator for 3D array, i - height, j - width, k - depth
-        */        
+        */
 
         /**
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
-        */ 
+        */
         public native @ByRef @Name("operator ()") DoublePointer apply(int i, int j, int k);
 
 
@@ -9334,139 +9334,139 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
+    
 
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
 
 // accessing operator for matrix, i - absolute index
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // modifying operator for matrix, i - absolute index
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // accessing operator for 2D matrix, i - row, j - column
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // modifying operator for 2D matrix, i - row, j - column
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // accessing operator for 3D array, i - row, j - column
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // modifying operator for 3D array
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // Return value from linear buffer
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // Returns value from 2D matrix by coordinates/indexes         
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // returns value from 3D tensor by coordinates        
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // This method sets value in linear buffer to position i        
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // This method sets value in 2D matrix to position i, j         
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // This method sets value in 3D matrix to position i,j,k        
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
 // returns true if these two NDArrays have same shape
 // still the definition of inline function must be in header file
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////
-
+    
 
 //////////////////////////////////////////////////////////////////////////
+    
 
+//////////////////////////////////////////////////////////////////////////
+    
+
+//////////////////////////////////////////////////////////////////////////
+    
 
 //////////////////////////////////////////////////////////////////////////
 // returns true if these two NDArrays have same _shapeInfo
 // still the definition of inline function must be in header file
-
+    
 
 
 
