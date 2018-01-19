@@ -505,21 +505,38 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         }
     }
 
+
+    /**
+     * Calls {@link #initFunctionFromProperties(DifferentialFunction, Map, NodeDef, GraphDef)}
+     * using {@link DifferentialFunction#tensorflowName()}
+     * @param on the function to use init on
+     * @param attributesForNode the attributes for the node
+     * @param node
+     * @param graph
+     */
+    public void initFunctionFromProperties(DifferentialFunction on, Map<String, AttrValue> attributesForNode, NodeDef node, GraphDef graph) {
+        initFunctionFromProperties(on.tensorflowName(),on,attributesForNode,node,graph);
+    }
+
     /**
      * Init a function's attributes
+     * @param mappedTfName the tensorflow name to pick (sometimes ops have multiple names
      * @param on the function to map
      * @param attributesForNode the attributes for the node
+     * @param node
+     * @param graph
      */
-    public void initFunctionFromProperties(DifferentialFunction on,Map<String,AttrValue> attributesForNode) {
+    public void initFunctionFromProperties(String mappedTfName, DifferentialFunction on, Map<String, AttrValue> attributesForNode, NodeDef node, GraphDef graph) {
         val properties = on.mappingsForFunction();
-        val tfProperties = properties.get(on.tensorflowName());
+        val tfProperties = properties.get(mappedTfName);
         val fields = DifferentialFunctionClassHolder.getInstance().getFieldsForFunction(on);
         val attributeAdapters = on.attributeAdaptersForFunction();
         for(val entry : tfProperties.entrySet()) {
             val tfAttrName = entry.getValue().getTfAttrName();
+            val currentField = fields.get(entry.getKey());
+
             AttributeAdapter adapter = null;
             if(tfAttrName != null) {
-                val currentField = fields.get(entry.getKey());
                 if(currentField == null) {
                     continue;
                 }
@@ -609,6 +626,31 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                             break;
                         case TYPE: break;
                     }
+                }
+            }
+
+            else if(entry.getValue().getTfInputPosition() != null) {
+                val inputFromNode = TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,node.getInput(entry.getValue().getTfInputPosition()));
+                val tensor = TFGraphMapper.getInstance().getNDArrayFromTensor("value",inputFromNode,graph);
+                if(tensor != null) {
+                    if(currentField.getType().equals(int[].class)) {
+                        on.setValueFor(currentField,tensor.data().asInt());
+                    }
+                    else if(currentField.getType().equals(double[].class)) {
+                        on.setValueFor(currentField,tensor.data().asDouble());
+
+                    }
+                    else if(currentField.getType().equals(float[].class)) {
+                        on.setValueFor(currentField,tensor.data().asFloat());
+
+                    }
+                    else if(currentField.getType().equals(INDArray.class)) {
+                        on.setValueFor(currentField,tensor);
+                    }
+                }
+
+                else {
+                    on.getSameDiff().addPropertyToResolve(on,entry.getKey());
                 }
             }
         }

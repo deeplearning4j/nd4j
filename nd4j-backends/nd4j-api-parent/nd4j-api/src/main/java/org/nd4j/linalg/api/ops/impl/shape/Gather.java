@@ -36,7 +36,7 @@ public class Gather extends DynamicCustomOp {
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        TFGraphMapper.getInstance().initFunctionFromProperties(this,attributesForNode);
+        TFGraphMapper.getInstance().initFunctionFromProperties(nodeDef.getOp(), this, attributesForNode,nodeDef, graph);
     }
 
     @Override
@@ -62,11 +62,35 @@ public class Gather extends DynamicCustomOp {
         map.put("broadcast",broadcast);
         map.put("axis",axis);
 
+
+        ret.put(tensorflowNames()[0],map);
         ret.put(onnxName(),map);
 
 
 
+        Map<String,PropertyMapping> map2 = new HashMap<>();
+        val broadcast2 = PropertyMapping.builder()
+                .tfInputPosition(1)
+                .propertyNames(new String[]{"broadcast"}).build();
+        map2.put("broadcast",broadcast2);
 
+        val axis2 = PropertyMapping.builder()
+                .tfInputPosition(2)
+                .propertyNames(new String[]{"axis"}).build();
+         map2.put("axis",axis2);
+
+        ret.put("GatherV2",map2);
+
+
+
+        Map<String,PropertyMapping> mapNd = new HashMap<>();
+        val broadcastNd = PropertyMapping.builder()
+                .tfInputPosition(1)
+                .propertyNames(new String[]{"broadcast"}).build();
+        mapNd.put("broadcast",broadcastNd);
+
+
+        ret.put("GatherNd",mapNd);
 
         return ret;
     }
