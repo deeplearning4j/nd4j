@@ -29,6 +29,8 @@ if [[ "${CUDA:-}" == "8.0" ]]; then
     CUDA_URL=https://developer.nvidia.com/compute/cuda/8.0/Prod2/local_installers/cuda_8.0.61_mac-dmg
 elif [[ "${CUDA:-}" == "9.0" ]]; then
     CUDA_URL=https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_mac-dmg
+elif [[ "${CUDA:-}" == "9.1" ]]; then
+    CUDA_URL=https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_mac
 fi
 if [[ -n ${CUDA_URL:-} ]]; then
     curl --retry 10 -L -o $HOME/cuda.dmg $CUDA_URL

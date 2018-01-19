@@ -20,6 +20,9 @@ if "%CUDA%" == "8.0" (
 if "%CUDA%" == "9.0" (
     set "CUDA_URL=https://developer.nvidia.com/compute/cuda/9.0/Prod/local_installers/cuda_9.0.176_windows-exe"
 )
+if "%CUDA%" == "9.1" (
+    set "CUDA_URL=https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_windows"
+)
 if not "%CUDA_URL%" == "" (
     curl --retry 10 -L -o cuda.exe %CUDA_URL%
     cuda.exe -s
