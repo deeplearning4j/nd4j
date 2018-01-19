@@ -55,12 +55,12 @@
             <artifactId>mkl</artifactId>
             <version>${mkl.version}-${javacpp-presets.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.bytedeco.javacpp-presets</groupId>
-            <artifactId>mkl</artifactId>
-            <version>${mkl.version}-${javacpp-presets.version}</version>
-            <classifier>${dependency.platform}</classifier>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.bytedeco.javacpp-presets</groupId>-->
+<!--            <artifactId>mkl</artifactId>-->
+<!--            <version>${mkl.version}-${javacpp-presets.version}</version>-->
+<!--            <classifier>${dependency.platform}</classifier>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.nd4j</groupId>
