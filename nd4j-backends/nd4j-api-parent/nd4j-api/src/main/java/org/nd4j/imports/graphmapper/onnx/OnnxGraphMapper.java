@@ -62,7 +62,7 @@ public class OnnxGraphMapper extends BaseGraphMapper<OnnxProto3.GraphProto, Onnx
 
     /**
      * Init a function's attributes
-     * @param mappedTfName the tensorflow name to pick (sometimes ops have multiple names
+     * @param mappedTfName the onnx name to pick (sometimes ops have multiple names
      * @param on the function to map
      * @param attributesForNode the attributes for the node
      * @param node
