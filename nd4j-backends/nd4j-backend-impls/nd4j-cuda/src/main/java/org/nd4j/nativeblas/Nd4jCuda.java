@@ -6579,6 +6579,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
         */ 
         public native @ByRef @Name("operator ()") FloatPointer apply(int i, int j, int k);
+
+        /**
+        *  inline modifying operator for 4D array, i - height, j - width, k - depth
+        */ 
+        public native @ByRef @Name("operator ()") FloatPointer apply(int t, int u, int v, int w);
+
+        /**
+        *  inline accessing operator for 4D array, i - height, j - width, k - depth
+        */
     }
 
 
@@ -7619,6 +7628,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
         */ 
         public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(int i, int j, int k);
+
+        /**
+        *  inline modifying operator for 4D array, i - height, j - width, k - depth
+        */ 
+        public native @Cast("float16*") @ByRef @Name("operator ()") ShortPointer apply(int t, int u, int v, int w);
+
+        /**
+        *  inline accessing operator for 4D array, i - height, j - width, k - depth
+        */
     }
 
 
@@ -8659,6 +8677,15 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  inline modifying operator for 3D array, i - height, j - width, k - depth
         */ 
         public native @ByRef @Name("operator ()") DoublePointer apply(int i, int j, int k);
+
+        /**
+        *  inline modifying operator for 4D array, i - height, j - width, k - depth
+        */ 
+        public native @ByRef @Name("operator ()") DoublePointer apply(int t, int u, int v, int w);
+
+        /**
+        *  inline accessing operator for 4D array, i - height, j - width, k - depth
+        */
     }
 
 
@@ -8749,6 +8776,10 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 
 //////////////////////////////////////////////////////////////////////////
 // modifying operator for 3D array
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////////
