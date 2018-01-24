@@ -51,6 +51,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
+import org.nd4j.linalg.exception.Nd4jNoSuchWorkspaceException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.*;
 import org.nd4j.linalg.indexing.conditions.Condition;
@@ -5409,6 +5410,23 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public INDArray leverageTo(String id) {
+        return leverageTo(id, false);
+    }
+
+    /**
+     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id.
+     * If enforceExistence == true, and no workspace with the specified ID exists, then an {@link Nd4jNoSuchWorkspaceException}
+     * is thrown. Otherwise, if enforceExistance == false and no workspace with the specified ID exists, then the current
+     * INDArray is returned unmodified (same as {@link #leverage()}
+     *
+     * @param id ID of the workspace to leverage to
+     * @param enforceExistence If true, and the specified workspace does not exist: an {@link Nd4jNoSuchWorkspaceException}
+     *                         will be thrown.
+     * @return The INDArray, leveraged to the specified workspace
+     * @see #leverageTo(String)
+     */
+    @Override
+    public INDArray leverageTo(String id, boolean enforceExistence) throws Nd4jNoSuchWorkspaceException {
         if (!isAttached())
             return this;
 

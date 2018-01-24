@@ -24,6 +24,7 @@ import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.complex.IComplexNumber;
+import org.nd4j.linalg.exception.Nd4jNoSuchWorkspaceException;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.ShapeOffsetResolution;
 import org.nd4j.linalg.indexing.conditions.Condition;
@@ -2639,12 +2640,28 @@ public interface INDArray extends Serializable {
     INDArray leverage();
 
     /**
-     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id
+     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id - if a workspace
+     * with that ID exists. If no workspace with the specified ID exists, the current INDArray is returned unmodified.
      *
      * @param id ID of the workspace to leverage to
      * @return
+     * @see #leverageTo(String, boolean)
      */
     INDArray leverageTo(String id);
+
+    /**
+     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id.
+     * If enforceExistence == true, and no workspace with the specified ID exists, then an {@link Nd4jNoSuchWorkspaceException}
+     * is thrown. Otherwise, if enforceExistance == false and no workspace with the specified ID exists, then the current
+     * INDArray is returned unmodified (same as {@link #leverage()}
+     *
+     * @param id ID of the workspace to leverage to
+     * @param enforceExistence If true, and the specified workspace does not exist: an {@link Nd4jNoSuchWorkspaceException}
+     *                         will be thrown.
+     * @return The INDArray, leveraged to the specified workspace
+     * @see #leverageTo(String)
+     */
+    INDArray leverageTo(String id, boolean enforceExistence) throws Nd4jNoSuchWorkspaceException;
 
     /**
      * This method pulls this INDArray into current Workspace.
