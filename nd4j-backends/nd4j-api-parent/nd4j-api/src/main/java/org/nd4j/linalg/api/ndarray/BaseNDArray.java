@@ -5430,8 +5430,13 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if (!isAttached())
             return this;
 
-        if (!Nd4j.getWorkspaceManager().checkIfWorkspaceExists(id))
-            return this;
+        if (!Nd4j.getWorkspaceManager().checkIfWorkspaceExists(id)) {
+            if(enforceExistence){
+                throw new Nd4jNoSuchWorkspaceException(id);
+            } else {
+                return this;
+            }
+        }
 
         MemoryWorkspace current = Nd4j.getMemoryManager().getCurrentWorkspace();
 
