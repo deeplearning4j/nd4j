@@ -2651,9 +2651,23 @@ public interface INDArray extends Serializable {
      *
      * PLEASE NOTE: If there's no current Workspace - INDArray returned as is
      *
-     * @return
+     * @return Migrated INDArray or <i>this</i> if no current workspace
+     * @see #migrate(boolean)
      */
     INDArray migrate();
+
+    /**
+     * This method pulls this INDArray into current Workspace, or optionally detaches if no workspace is present.<br>
+     * That is:<br>
+     * If current workspace is present/active, INDArray is migrated to it.<br>
+     * If no current workspace is present/active, one of two things occur:
+     * 1. If detachOnNoWs arg is true: if there is no current workspace, INDArray is detached
+     * 2. If detachOnNoWs arg is false: this INDArray is returned as-is (no-op) - equivalent to {@link #migrate()}
+     *
+     * @param detachOnNoWs If true: detach on no WS. If false and no workspace: return this.
+     * @return Migrated INDArray
+     */
+    INDArray migrate(boolean detachOnNoWs);
 
     /**
        * This method returns percentile value for this INDArray

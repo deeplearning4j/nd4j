@@ -1762,6 +1762,11 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
 
     @Override
     public INDArray migrate() {
+        return migrate(false);
+    }
+
+    @Override
+    public INDArray migrate(boolean detachIfNoWs){
         return null;
     }
 
