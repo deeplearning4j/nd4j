@@ -29,6 +29,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_tensormmul.class,
         float_axpy.class,
         float_batched_gemm.class,
+        float_svd.class,
         float_maximum.class,
         float_maximum_bp.class,
         float_minimum.class,
@@ -269,6 +270,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_tensormmul.class,
         half_axpy.class,
         half_batched_gemm.class,
+        half_svd.class,
         half_maximum.class,
         half_maximum_bp.class,
         half_minimum.class,
@@ -509,6 +511,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_tensormmul.class,
         double_axpy.class,
         double_batched_gemm.class,
+        double_svd.class,
         double_maximum.class,
         double_maximum_bp.class,
         double_minimum.class,
@@ -6981,6 +6984,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Name("operator +=") void addPut(@Const @ByRef FloatNDArray other);
 
+        /**
+        *  subtraction unary operator array -= other
+        *  other - input array to add
+        */
+        public native @Name("operator -=") void subtractPut(@Const @ByRef FloatNDArray other);
+
         public native @Name("operator +=") void addPut(float other);
         public native @Name("operator -=") void subtractPut(float other);
         
@@ -7082,6 +7091,30 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void setIdentity();
 
         /**
+        *  swaps the contents of tow arrays, 
+        *  PLEASE NOTE: method doesn't take into account the shapes of arrays, shapes may be different except one condition: arrays lengths must be the same 
+        */
+        public native void swapUnsafe(@ByRef FloatNDArray other);
+
+        /**
+        *  return vector with buffer which points on corresponding diagonal elements of array
+        *  type - means of vector to be returned: column ('c') or row ('r')
+        */
+        public native FloatNDArray diagonal(char type );
+
+        /**
+        *  set zeros in specified array block, works only with 2D matrix
+        *
+        *  block - block of array where to put zeros. Possible values are:
+        *      "trianUp"   - upper triangular block excluding diagonal 
+        *      "trianUpD"  - upper triangular block including diagonal 
+        *      "trianLow"  - lower triangular block excluding diagonal
+        *      "trianLowD" - lower triangular block including diagonal
+        */
+        public native void setZeros(@Cast("char*") String block);
+        public native void setZeros(@Cast("char*") BytePointer block);
+
+		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
         *
         *  shape  - contains new shape to broadcast array to 
@@ -8030,6 +8063,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Name("operator +=") void addPut(@Const @ByRef HalfNDArray other);
 
+        /**
+        *  subtraction unary operator array -= other
+        *  other - input array to add
+        */
+        public native @Name("operator -=") void subtractPut(@Const @ByRef HalfNDArray other);
+
         public native @Name("operator +=") void addPut(@Cast("const float16") short other);
         public native @Name("operator -=") void subtractPut(@Cast("const float16") short other);
         
@@ -8131,6 +8170,30 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void setIdentity();
 
         /**
+        *  swaps the contents of tow arrays, 
+        *  PLEASE NOTE: method doesn't take into account the shapes of arrays, shapes may be different except one condition: arrays lengths must be the same 
+        */
+        public native void swapUnsafe(@ByRef HalfNDArray other);
+
+        /**
+        *  return vector with buffer which points on corresponding diagonal elements of array
+        *  type - means of vector to be returned: column ('c') or row ('r')
+        */
+        public native HalfNDArray diagonal(char type );
+
+        /**
+        *  set zeros in specified array block, works only with 2D matrix
+        *
+        *  block - block of array where to put zeros. Possible values are:
+        *      "trianUp"   - upper triangular block excluding diagonal 
+        *      "trianUpD"  - upper triangular block including diagonal 
+        *      "trianLow"  - lower triangular block excluding diagonal
+        *      "trianLowD" - lower triangular block including diagonal
+        */
+        public native void setZeros(@Cast("char*") String block);
+        public native void setZeros(@Cast("char*") BytePointer block);
+
+		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
         *
         *  shape  - contains new shape to broadcast array to 
@@ -9079,6 +9142,12 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public native @Name("operator +=") void addPut(@Const @ByRef DoubleNDArray other);
 
+        /**
+        *  subtraction unary operator array -= other
+        *  other - input array to add
+        */
+        public native @Name("operator -=") void subtractPut(@Const @ByRef DoubleNDArray other);
+
         public native @Name("operator +=") void addPut(double other);
         public native @Name("operator -=") void subtractPut(double other);
         
@@ -9180,6 +9249,30 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void setIdentity();
 
         /**
+        *  swaps the contents of tow arrays, 
+        *  PLEASE NOTE: method doesn't take into account the shapes of arrays, shapes may be different except one condition: arrays lengths must be the same 
+        */
+        public native void swapUnsafe(@ByRef DoubleNDArray other);
+
+        /**
+        *  return vector with buffer which points on corresponding diagonal elements of array
+        *  type - means of vector to be returned: column ('c') or row ('r')
+        */
+        public native DoubleNDArray diagonal(char type );
+
+        /**
+        *  set zeros in specified array block, works only with 2D matrix
+        *
+        *  block - block of array where to put zeros. Possible values are:
+        *      "trianUp"   - upper triangular block excluding diagonal 
+        *      "trianUpD"  - upper triangular block including diagonal 
+        *      "trianLow"  - lower triangular block excluding diagonal
+        *      "trianLowD" - lower triangular block including diagonal
+        */
+        public native void setZeros(@Cast("char*") String block);
+        public native void setZeros(@Cast("char*") BytePointer block);
+
+		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
         *
         *  shape  - contains new shape to broadcast array to 
@@ -27125,6 +27218,68 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
+
+        /**
+         * performs singular value decomposition (SVD) of one one or more matrices, evaluates the SVD of each inner-most 2D matrix in input array:
+         * x[..., :, :] = u[..., :, :] * s[...,:] * transpose(v[..., :, :]) 
+         *
+         * Input array:
+         * x[..., Rows, Cols], the necessary condition is: rank of x >= 2
+         * 
+         * Outputs arrays:
+         * s[..., diagSize] - array with singular values which are stored in decreasing order, diagSize is smaller among Rows and Cols
+         * u[..., Rows, Rows] if IArgs[1] is true, else u[..., Rows, diagSize] - array with right singular vectors
+         * v[..., Cols, Cols] if IArgs[1] is true, else v[..., Cols, diagSize] - array with left singular vectors
+         * 
+         * Integer arguments:
+         * IArgs[0] - bool, whether to calculate u and v, s is calculated in any case
+         * IArgs[1] - bool, whether to calculate full-sized u and v
+         * IArgs[2] - the number of cols or rows which determines what algorithm to use. More precisely:
+         *            if diagSize < IArgs[2] then Jacobi algorithm is used, in opposite case the Divide-And-Conquer is applied
+         *            Recommended value is 16. 
+         */
+        @Name("nd4j::ops::svd<float>") public static class float_svd extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_svd(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_svd(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_svd position(long position) {
+                return (float_svd)super.position(position);
+            }
+        public float_svd() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::svd<float16>") public static class half_svd extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_svd(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_svd(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_svd position(long position) {
+                return (half_svd)super.position(position);
+            }
+        public half_svd() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::svd<double>") public static class double_svd extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_svd(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_svd(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_svd position(long position) {
+                return (double_svd)super.position(position);
+            }
+        public double_svd() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }   
     
 
 
