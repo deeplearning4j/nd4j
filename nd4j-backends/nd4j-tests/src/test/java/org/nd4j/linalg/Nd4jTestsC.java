@@ -4577,17 +4577,17 @@ public class Nd4jTestsC extends BaseNd4jTest {
         }
         INDArray needle = Nd4j.create(10).assign(1.0);
         INDArray reduced = Nd4j.create(5);
-        Nd4j.getExecutioner().exec(new EuclideanDistance(initial, needle, reduced, initial.lengthLong()), -1);
+        Nd4j.getExecutioner().exec(new CosineSimilarity(initial, needle, reduced, initial.lengthLong()), -1);
 
         log.warn("Reduced: {}", reduced);
 
         for (int i = 0; i < initial.rows(); i++) {
             INDArray x = initial.getRow(i).dup();
-            double res = Nd4j.getExecutioner().execAndReturn(new EuclideanDistance(x, needle)).getFinalResult()
+            double res = Nd4j.getExecutioner().execAndReturn(new CosineSimilarity(x, needle)).getFinalResult()
                     .doubleValue();
             assertEquals("Failed at " + i, reduced.getDouble(i), res, 0.001);
 
-            log.info("Euclidean: {} vs {} is {}", x, needle, res);
+            log.info("Cosine: {} vs {} is {}", x, needle, res);
         }
     }
 
