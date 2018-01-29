@@ -5565,6 +5565,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(FloatBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public FloatNDArray(float[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(float[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
+
         
         /**
          * Constructor for scalar NDArray
@@ -5577,6 +5578,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public FloatNDArray(@Const @ByRef FloatNDArray other) { super((Pointer)null); allocate(other); }
         private native void allocate(@Const @ByRef FloatNDArray other);
+
+// #ifndef __JAVACPP_HACK__
+// #endif
 
         /**
         *  constructor, create empty array stored at given workspace
@@ -6404,6 +6408,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tileToShape(@StdVector int[] shape);
 
         /**
+        *  calculates the trace of an array, that is sum of elements on main diagonal = sum array[i, i, i, ...]
+        */
+        public native float getTrace();
+        
+        /**
         *  default destructor
         */ 
 
@@ -6644,6 +6653,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(@Cast("float16*") ShortBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public HalfNDArray(@Cast("float16*") short[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(@Cast("float16*") short[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
+
         
         /**
          * Constructor for scalar NDArray
@@ -6656,6 +6666,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public HalfNDArray(@Const @ByRef HalfNDArray other) { super((Pointer)null); allocate(other); }
         private native void allocate(@Const @ByRef HalfNDArray other);
+
+// #ifndef __JAVACPP_HACK__
+// #endif
 
         /**
         *  constructor, create empty array stored at given workspace
@@ -7483,6 +7496,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tileToShape(@StdVector int[] shape);
 
         /**
+        *  calculates the trace of an array, that is sum of elements on main diagonal = sum array[i, i, i, ...]
+        */
+        public native @Cast("float16") short getTrace();
+        
+        /**
         *  default destructor
         */ 
 
@@ -7723,6 +7741,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         private native void allocate(DoubleBuffer buffer/*=nullptr*/, IntBuffer shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
         public DoubleNDArray(double[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/) { super((Pointer)null); allocate(buffer, shapeInfo, workspace); }
         private native void allocate(double[] buffer/*=nullptr*/, int[] shapeInfo/*=nullptr*/, Workspace workspace/*=nullptr*/);
+
         
         /**
          * Constructor for scalar NDArray
@@ -7735,6 +7754,9 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         */
         public DoubleNDArray(@Const @ByRef DoubleNDArray other) { super((Pointer)null); allocate(other); }
         private native void allocate(@Const @ByRef DoubleNDArray other);
+
+// #ifndef __JAVACPP_HACK__
+// #endif
 
         /**
         *  constructor, create empty array stored at given workspace
@@ -8561,6 +8583,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void tileToShape(@StdVector int[] shape, DoubleNDArray target/*=nullptr*/);
         public native void tileToShape(@StdVector int[] shape);
 
+        /**
+        *  calculates the trace of an array, that is sum of elements on main diagonal = sum array[i, i, i, ...]
+        */
+        public native double getTrace();
+        
         /**
         *  default destructor
         */ 
@@ -11487,9 +11514,9 @@ public static final int PREALLOC_SIZE = 33554432;
 // #ifdef __CUDACC__
 // #endif
 
-@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(IntPointer shapeInfo);
-@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(IntBuffer shapeInfo);
-@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(int[] shapeInfo);
+@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(IntPointer shapeInfo, @ByRef IntPointer posOfNonUnityDim);
+@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(IntBuffer shapeInfo, @ByRef IntBuffer posOfNonUnityDim);
+@Namespace("shape") public static native @Cast("bool") boolean isLikeVector(int[] shapeInfo, @ByRef int[] posOfNonUnityDim);
 // #ifdef __CUDACC__
 // #endif
 
