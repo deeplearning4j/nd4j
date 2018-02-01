@@ -13,8 +13,10 @@ import java.util.List;
 
 
 /**
- * Pooling2D operation
+ * Legacy version of the Pooling2D operation
+ * @deprecated Note: This operation will be removed in a future release
  */
+@Deprecated
 @Slf4j
 public class LegacyPooling2D extends BaseTransformOp {
 
@@ -68,34 +70,11 @@ public class LegacyPooling2D extends BaseTransformOp {
         return new Object[] {kh, kw, sy, sx, ph, pw, dh, dw, isSameMode ? 1.0 : 0.0, type.ordinal(), extra};
     }
 
-    private static INDArray getNewOutputArray(INDArray img, int kernelHeight, int kernelWidth, int strideY, int strideX,
-                                              int padHeight, int padWidth, int dh, int dw, boolean isSameMode) {
-
-        // FIXME!!!
-
-        //number of images
-        int n = img.size(0);
-        //number of channels (depth)
-        int c = img.size(1);
-        //image height
-        int h = img.size(2);
-        //image width
-        int w = img.size(3);
-        int outHeight = Convolution.outputSize(h, kernelHeight, strideY, padHeight, dh, isSameMode);
-        int outWidth = Convolution.outputSize(w, kernelWidth, strideX, padWidth, dw, isSameMode);
-
-        return Nd4j.createUninitialized(new int[] {n, c, kernelHeight, kernelWidth, outHeight, outWidth}, 'c');
-    }
-
     private static DataBuffer getIm2ColShape(INDArray img, int kernelHeight, int kernelWidth, int outHeight, int outWidth) {
         //number of images
         int n = img.size(0);
         //number of channels (depth)
         int c = img.size(1);
-        //image height
-        int h = img.size(2);
-        //image width
-        int w = img.size(3);
 
         return Nd4j.getShapeInfoProvider().createShapeInformation(new int[] {n, c,  kernelHeight, kernelWidth, outHeight, outWidth}, 'c').getFirst();
     }
