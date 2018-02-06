@@ -3487,6 +3487,29 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable predictions) {
+        return confusionMatrix(null, labels, predictions);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred) {
+        SDVariable result = f().confusionMatrix(labels, pred) ;
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, Integer numClasses) {
+        SDVariable result = f().confusionMatrix(labels, pred, numClasses) ;
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights) {
+        return confusionMatrix(null, labels, pred, numClasses, weights);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights) {
+        SDVariable result = f().confusionMatrix(labels, pred, numClasses, weights);
+        return updateVariableNameAndReference(result, name);
+    }
+
     /**
      * @param variable
      */
