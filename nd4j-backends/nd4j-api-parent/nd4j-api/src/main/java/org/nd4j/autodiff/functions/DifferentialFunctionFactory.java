@@ -515,10 +515,13 @@ public class DifferentialFunctionFactory   {
         return new ConfusionMatrix(sameDiff(), labels, pred, numClasses).outputVariables()[0];
     }
 
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, SDVariable weights){
+        return new ConfusionMatrix(sameDiff(), labels, pred, weights).outputVariables()[0];
+    }
+
     public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights){
         return new ConfusionMatrix(sameDiff(), labels, pred, numClasses, weights).outputVariables()[0];
     }
-
 
     public SDVariable broadcast(SDVariable iX, int... shape) {
         return new Broadcast(sameDiff(),iX,shape).outputVariables()[0];

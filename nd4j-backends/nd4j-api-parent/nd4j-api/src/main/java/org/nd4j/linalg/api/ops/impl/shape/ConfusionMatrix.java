@@ -17,21 +17,24 @@ import java.util.*;
  */
 public class ConfusionMatrix extends DynamicCustomOp {
 
-
     public ConfusionMatrix(){
     }
 
-    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable predctions){
-        super(null, sameDiff, new SDVariable[]{labels, predctions});
+    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable pred){
+        super(null, sameDiff, new SDVariable[]{labels, pred});
     }
 
-    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable predctions, Integer numClasses){
-        super(null, sameDiff, new SDVariable[]{labels, predctions});
+    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable pred, SDVariable weights){
+        super(null, sameDiff, new SDVariable[]{labels, pred, weights});
+    }
+
+    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable pred, Integer numClasses){
+        super(null, sameDiff, new SDVariable[]{labels, pred});
         addIArgument(numClasses);
     }
 
-    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable predctions, Integer numClasses,SDVariable weights){
-        super(null, sameDiff, new SDVariable[]{labels, predctions, weights});
+    public ConfusionMatrix(SameDiff sameDiff, SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights){
+        super(null, sameDiff, new SDVariable[]{labels, pred, weights});
         addIArgument(numClasses);
     }
 
