@@ -1060,8 +1060,6 @@ public class SameDiff {
             }
             return function;
         }
-
-
         return function;
     }
 

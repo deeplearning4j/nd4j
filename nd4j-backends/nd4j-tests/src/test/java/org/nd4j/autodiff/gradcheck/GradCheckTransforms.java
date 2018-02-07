@@ -22,6 +22,7 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -61,16 +62,22 @@ public class GradCheckTransforms {
 
         sd.associateArrayWithVariable(input, sdInput);
 
+        BatchToSpace bts = new BatchToSpace(sd, new SDVariable[] {sdInput}, blocks, crops, false);
+        SDVariable testOut = sd.var("test", expOut.shape());
+        sd.associateArrayWithVariable(expOut, testOut);
+
+        List<SDVariable> backwardResult = bts.doDiff(Collections.singletonList(testOut));
+
 
         SDVariable t = sd.batchToSpace(sdInput, blocks, crops);
-        System.out.println(Arrays.toString(t.getShape()));
-
         SDVariable loss = sd.mean("loss", t);
         sd.exec();
         INDArray out = t.getArr();
 
-
         if(!expOut.equals(out)){ log.info("batch to space failed on forward"); }
+
+        INDArray btsGrad = backwardResult.get(0).getArr();
+        if(!input.equals(btsGrad)){ log.info("batch to space failed on backward"); }
 
         boolean ok;
         try{

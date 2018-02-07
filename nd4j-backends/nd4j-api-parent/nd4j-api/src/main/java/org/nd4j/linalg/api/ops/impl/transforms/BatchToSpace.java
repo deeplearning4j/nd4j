@@ -23,6 +23,8 @@ package org.nd4j.linalg.api.ops.impl.transforms;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.NDArrayIndex;
 
 import java.util.Collections;
 import java.util.List;
@@ -45,18 +47,38 @@ import java.util.List;
  */
 public class BatchToSpace extends BaseDynamicTransformOp {
 
-    protected INDArray blocks;
-    protected INDArray crops;
+    private INDArray blocks;
+    private int spatialDimensions;
+    private int[] inputShape;
+    private INDArray crops;
 
     public BatchToSpace() {}
 
     public BatchToSpace(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray crops, boolean inPlace) {
         super(sameDiff, args, inPlace);
 
+
+        INDArray input = args[0].getArr();
+        this.inputShape = input.shape();
         this.blocks = blocks;
+        this.spatialDimensions = blocks.shape()[0];
         this.crops = crops;
 
-        this.addInputArgument(args[0].getArr(), blocks, crops);
+        this.addInputArgument(input, blocks, crops);
+    }
+
+    @Override
+    public List<int[]> calculateOutputShape() {
+        int batchSize = inputShape[0];
+        int[] outputShape = inputShape.clone();
+        for (int i=0; i<spatialDimensions; i++) {
+            int block = (int) blocks.getDouble(i, 0);
+            batchSize = batchSize / block;
+            outputShape[i+1] = outputShape[i+1] * block - (int) crops.getDouble(i, 0)  - (int) crops.getDouble(i, 1);
+        }
+        outputShape[0] = batchSize;
+        return Collections.singletonList(outputShape);
+
     }
 
 
@@ -77,7 +99,7 @@ public class BatchToSpace extends BaseDynamicTransformOp {
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
         // Inverse of batch to space is space to batch with same blocks and padding as crops
         SDVariable gradient = sameDiff.setupFunction(i_v.get(0));
-        return Collections.singletonList(sameDiff.batchToSpace(gradient, blocks, crops));
+        return Collections.singletonList(sameDiff.spaceToBatch(gradient, blocks, crops));
 
     }
 
