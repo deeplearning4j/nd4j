@@ -252,6 +252,6 @@ public class Conv2D extends DynamicCustomOp {
 
     @Override
     public String[] tensorflowNames() {
-        return new String[]{"Conv2D", "Dilation2D"};
+        return new String[] {"Conv2D"};
     }
 }
