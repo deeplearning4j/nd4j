@@ -802,6 +802,7 @@ public class TensorFlowImportTest {
 
         //log.info("{}", tg.asFlatPrint());
 
+
         val array = tg.execAndEndResult();
         val exp = Nd4j.create(2, 2).assign(1);
         assertNotNull(array);
@@ -897,6 +898,7 @@ public class TensorFlowImportTest {
         tg.associateArrayWithVariable(input1, tg.getVariable("input_1"));
 
         //tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/simplewhile_nested.fb"));
+
 
         //log.info("{}", tg.asFlatPrint());
 

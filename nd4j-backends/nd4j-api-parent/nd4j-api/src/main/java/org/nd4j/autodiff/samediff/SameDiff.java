@@ -4581,28 +4581,32 @@ public class SameDiff {
             // check if inputs are active nodes. skip step otherwise
             // please note: Exit node can't be skipped, because it's either rewind point or exit loop point
             boolean shouldSkip = false;
-            if (!(differentialFunction instanceof Exit)) {
+            if (differentialFunction instanceof Merge) {
+                val arg0 = args[0];
+                val arg1 = args[1];
 
-                // if we've left Exit nodes, we can finally delete last frame name
-                if (frameLeft) {
-                    frameLeft = false;
+                if (!flowPath.isActive(arg0) && !flowPath.isActive(arg1))
+                    shouldSkip = true;
+            } else {
+                if (!(differentialFunction instanceof Exit)) {
 
-                    val frame_name = frames.removeLast();
-                    flowPath.activateFrame(frame_name, false);
-                    flowPath.forgetFrame(frame_name);
-                }
+                    // if we've left Exit nodes, we can finally delete last frame name
+                    if (frameLeft) {
+                        frameLeft = false;
 
-                // we must check, if there's inactive nodes used as inputs for this node
-                for (val input : args) {
-                    // Merge is special case, it's possible to have inactive node there. but only one.
-                    if (input.contains("NextIteration") && differentialFunction instanceof Merge)
-                        continue;
+                        val frame_name = frames.removeLast();
+                        flowPath.activateFrame(frame_name, false);
+                        flowPath.forgetFrame(frame_name);
+                    }
 
-                    if (!flowPath.isActive(input)) {
-                        // propagate inactivity
-                        flowPath.markActive(differentialFunction.getOwnName(), false);
-                        shouldSkip = true;
-                        break;
+                    // we must check, if there's inactive nodes used as inputs for this node
+                    for (val input : args) {
+                        if (!flowPath.isActive(input)) {
+                            // propagate inactivity
+                            flowPath.markActive(differentialFunction.getOwnName(), false);
+                            shouldSkip = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -4713,9 +4717,10 @@ public class SameDiff {
                 // if SDVariable exists for second input - we use it. First input used otherwise
                 val inputs = getInputVariablesForFunction(differentialFunction);
 
-                val frame_name = frames.getLast();
+                val frame_name = frames.size() > 0 ? frames.getLast() : null;
 
-                flowPath.activateFrame(frame_name, true);
+                if (frame_name != null)
+                    flowPath.activateFrame(frame_name, true);
 
                 // frame_name can be null if this merge node is used for something that's not loop. i.e. switch/merge pair
                 if (frame_name != null)
