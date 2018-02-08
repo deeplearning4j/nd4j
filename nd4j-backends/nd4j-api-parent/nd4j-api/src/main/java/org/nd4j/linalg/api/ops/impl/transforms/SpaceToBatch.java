@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -55,32 +56,34 @@ public class SpaceToBatch extends BaseDynamicTransformOp {
     public SpaceToBatch(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray padding, boolean inPlace) {
         super(sameDiff, args, inPlace);
 
-        INDArray input = args[0].getArr();
-        this.inputShape = input.shape();
         this.blocks = blocks;
         this.spatialDimensions = blocks.shape()[0];
         this.padding = padding;
-
-        this.addInputArgument(input, blocks, padding);
-
-    }
-
-    @Override
-    public List<int[]> calculateOutputShape() {
-        int batchSize = inputShape[0];
-        int[] outputShape = inputShape.clone();
-        for (int i=0; i<spatialDimensions; i++) {
-            int block = (int) blocks.getDouble(i, 0);
-            batchSize = batchSize * block;
-            outputShape[i+1] = outputShape[i+1] / block + (int) padding.getDouble(i, 0)  + (int) padding.getDouble(i, 1);
-        }
-        outputShape[0] = batchSize;
-        return Collections.singletonList(outputShape);
     }
 
     @Override
     public String opName() {
         return "space_to_batch";
+    }
+
+    @Override
+    public INDArray[] inputArguments() {
+        /**
+         * This op has 1 input variable coming from SameDiff, and 2 static input arrays
+         */
+        val array =  super.inputArguments();
+
+        return new INDArray[]{array[0], blocks, padding};
+    }
+
+    @Override
+    public INDArray getInputArgument(int index) {
+        return inputArguments()[index];
+    }
+
+    @Override
+    public int numInputArguments() {
+        return 3;
     }
 
     @Override

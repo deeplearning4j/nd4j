@@ -58,28 +58,9 @@ public class BatchToSpace extends BaseDynamicTransformOp {
     public BatchToSpace(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray crops, boolean inPlace) {
         super(sameDiff, args, inPlace);
 
-
-        INDArray input = args[0].getArr();
-        this.inputShape = input.shape();
         this.blocks = blocks;
         this.spatialDimensions = blocks.shape()[0];
         this.crops = crops;
-
-        this.addInputArgument(input, blocks, crops);
-    }
-
-    @Override
-    public List<int[]> calculateOutputShape() {
-        int batchSize = inputShape[0];
-        int[] outputShape = inputShape.clone();
-        for (int i=0; i<spatialDimensions; i++) {
-            int block = (int) blocks.getDouble(i, 0);
-            batchSize = batchSize / block;
-            outputShape[i+1] = outputShape[i+1] * block - (int) crops.getDouble(i, 0)  - (int) crops.getDouble(i, 1);
-        }
-        outputShape[0] = batchSize;
-        return Collections.singletonList(outputShape);
-
     }
 
     @Override
