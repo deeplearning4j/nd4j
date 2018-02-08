@@ -20,6 +20,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -81,6 +82,25 @@ public class BatchToSpace extends BaseDynamicTransformOp {
 
     }
 
+    @Override
+    public INDArray[] inputArguments() {
+        /**
+         * This op has 1 input variable coming from SameDiff, and 2 static input arrays
+         */
+        val array =  super.inputArguments();
+
+        return new INDArray[]{array[0], blocks, crops};
+    }
+
+    @Override
+    public INDArray getInputArgument(int index) {
+        return inputArguments()[index];
+    }
+
+    @Override
+    public int numInputArguments() {
+        return 3;
+    }
 
     @Override
     public String opName() {
