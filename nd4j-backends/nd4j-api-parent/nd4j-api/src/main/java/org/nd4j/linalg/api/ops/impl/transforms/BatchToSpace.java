@@ -66,9 +66,14 @@ public class BatchToSpace extends DynamicCustomOp {
         /**
          * This op has 1 input variable coming from SameDiff, and 2 static input arrays
          */
+        resolvePropertiesFromSameDiffBeforeExecution();
         val array =  super.inputArguments();
-
-        return new INDArray[]{array[0], blocks, crops};
+        if (array.length == 1)
+            return new INDArray[]{array[0], blocks, crops};
+        else {
+            val args = args();
+            return new INDArray[]{args[0].getArr(), blocks, crops};
+        }
     }
 
     @Override

@@ -25,6 +25,7 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 
 import java.util.Collections;
 import java.util.List;
@@ -71,9 +72,18 @@ public class SpaceToBatch extends DynamicCustomOp {
         /**
          * This op has 1 input variable coming from SameDiff, and 2 static input arrays
          */
-        val array = super.inputArguments();
+        resolvePropertiesFromSameDiffBeforeExecution();
+        val array =  super.inputArguments();
+        if (array.length == 1)
+            return new INDArray[]{array[0], blocks, padding};
+        else {
+            val args = args();
 
-        return new INDArray[]{array[0], blocks, padding};
+            if (args[0].getArr() == null)
+                throw new ND4JIllegalStateException("Input is NULL");
+
+            return new INDArray[]{args[0].getArr(), blocks, padding};
+        }
     }
 
     @Override
