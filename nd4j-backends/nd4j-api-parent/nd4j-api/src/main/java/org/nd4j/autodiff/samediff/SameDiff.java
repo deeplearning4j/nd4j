@@ -2095,21 +2095,21 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable batchToSpace(SDVariable iX, INDArray blocks, INDArray crops) {
+    public SDVariable batchToSpace(SDVariable iX, int[] blocks, int[][] crops) {
         return batchToSpace(null, iX, blocks, crops);
     }
 
-    public SDVariable batchToSpace(String name, SDVariable iX, INDArray blocks, INDArray crops) {
+    public SDVariable batchToSpace(String name, SDVariable iX, int[] blocks, int[][] crops) {
         SDVariable ret = f().batchToSpace(iX, blocks, crops);
         return updateVariableNameAndReference(ret, name);
     }
 
 
-    public SDVariable spaceToBatch(SDVariable iX, INDArray blocks, INDArray padding) {
+    public SDVariable spaceToBatch(SDVariable iX, int[] blocks, int[][] padding) {
         return spaceToBatch(null, iX, blocks, padding);
     }
 
-    public SDVariable spaceToBatch(String name, SDVariable iX, INDArray blocks, INDArray padding) {
+    public SDVariable spaceToBatch(String name, SDVariable iX, int[] blocks, int[][] padding) {
         SDVariable ret = f().spaceToBatch(iX, blocks, padding);
         return updateVariableNameAndReference(ret, name);
     }

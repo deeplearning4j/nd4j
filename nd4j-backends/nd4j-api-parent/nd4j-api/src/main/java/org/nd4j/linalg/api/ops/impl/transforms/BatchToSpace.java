@@ -49,41 +49,23 @@ import java.util.List;
  */
 public class BatchToSpace extends DynamicCustomOp {
 
-    private INDArray blocks;
-    private INDArray crops;
+    private int[] blocks;
+    private int[][] crops;
 
     public BatchToSpace() {}
 
-    public BatchToSpace(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray crops, boolean inPlace) {
+    public BatchToSpace(SameDiff sameDiff, SDVariable[] args, int[] blocks, int[][] crops, boolean inPlace) {
         super(null,sameDiff, args, inPlace);
 
         this.blocks = blocks;
         this.crops = crops;
-    }
 
-    @Override
-    public INDArray[] inputArguments() {
-        /**
-         * This op has 1 input variable coming from SameDiff, and 2 static input arrays
-         */
-        resolvePropertiesFromSameDiffBeforeExecution();
-        val array =  super.inputArguments();
-        if (array.length == 1)
-            return new INDArray[]{array[0], blocks, crops};
-        else {
-            val args = args();
-            return new INDArray[]{args[0].getArr(), blocks, crops};
-        }
-    }
+        for (val b: blocks)
+            addIArgument(b);
 
-    @Override
-    public INDArray getInputArgument(int index) {
-        return inputArguments()[index];
-    }
+        for (int e = 0; e < crops.length; e++)
+            addIArgument(crops[e][0], crops[e][1]);
 
-    @Override
-    public int numInputArguments() {
-        return 3;
     }
 
     @Override

@@ -49,51 +49,28 @@ import java.util.List;
  */
 public class SpaceToBatch extends DynamicCustomOp {
 
-    protected INDArray blocks;
-    protected INDArray padding;
+    protected int[] blocks;
+    protected int[][] padding;
 
     public SpaceToBatch() {
     }
 
-    public SpaceToBatch(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray padding, boolean inPlace) {
+    public SpaceToBatch(SameDiff sameDiff, SDVariable[] args, int[] blocks, int[][] padding, boolean inPlace) {
         super(null, sameDiff, args, inPlace);
 
         this.blocks = blocks;
         this.padding = padding;
+
+        for (val b: blocks)
+            addIArgument(b);
+
+        for (int e = 0; e < padding.length; e++)
+            addIArgument(padding[e][0], padding[e][1]);
     }
 
     @Override
     public String opName() {
         return "space_to_batch";
-    }
-
-    @Override
-    public INDArray[] inputArguments() {
-        /**
-         * This op has 1 input variable coming from SameDiff, and 2 static input arrays
-         */
-        resolvePropertiesFromSameDiffBeforeExecution();
-        val array =  super.inputArguments();
-        if (array.length == 1)
-            return new INDArray[]{array[0], blocks, padding};
-        else {
-            val args = args();
-
-            if (args[0].getArr() == null)
-                throw new ND4JIllegalStateException("Input is NULL");
-
-            return new INDArray[]{args[0].getArr(), blocks, padding};
-        }
-    }
-
-    @Override
-    public INDArray getInputArgument(int index) {
-        return inputArguments()[index];
-    }
-
-    @Override
-    public int numInputArguments() {
-        return 3;
     }
 
     @Override

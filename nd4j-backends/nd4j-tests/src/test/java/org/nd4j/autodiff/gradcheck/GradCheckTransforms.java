@@ -69,7 +69,7 @@ public class GradCheckTransforms {
 //        List<SDVariable> backwardResult = bts.doDiff(Collections.singletonList(testOut));
 
 
-        SDVariable t = sd.batchToSpace(sdInput, blocks, crops);
+        SDVariable t = sd.batchToSpace(sdInput, new int[]{2, 2}, new int[][]{{0, 0}, {0, 0}});
         SDVariable loss = sd.mean("loss", t);
         sd.exec();
         INDArray out = t.getArr();

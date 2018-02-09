@@ -808,13 +808,13 @@ public class DifferentialFunctionFactory   {
 
     }
 
-    public SDVariable batchToSpace(SDVariable differentialFunction, INDArray blocks, INDArray crops) {
+    public SDVariable batchToSpace(SDVariable differentialFunction, int[] blocks, int[][] crops) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new BatchToSpace(sameDiff(), new SDVariable[]{differentialFunction}, blocks, crops, false)
                 .outputVariables()[0];
     }
 
-    public SDVariable spaceToBatch(SDVariable differentialFunction, INDArray blocks, INDArray padding) {
+    public SDVariable spaceToBatch(SDVariable differentialFunction, int[] blocks, int[][] padding) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new SpaceToBatch(sameDiff(), new SDVariable[]{differentialFunction}, blocks, padding, false)
                 .outputVariables()[0];
