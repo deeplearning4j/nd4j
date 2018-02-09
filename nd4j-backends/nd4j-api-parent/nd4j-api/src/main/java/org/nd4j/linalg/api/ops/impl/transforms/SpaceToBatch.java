@@ -47,8 +47,6 @@ import java.util.List;
 public class SpaceToBatch extends BaseDynamicTransformOp {
 
     protected INDArray blocks;
-    private int spatialDimensions;
-    private int[] inputShape;
     protected INDArray padding;
 
     public SpaceToBatch() {}
@@ -57,7 +55,6 @@ public class SpaceToBatch extends BaseDynamicTransformOp {
         super(sameDiff, args, inPlace);
 
         this.blocks = blocks;
-        this.spatialDimensions = blocks.shape()[0];
         this.padding = padding;
     }
 

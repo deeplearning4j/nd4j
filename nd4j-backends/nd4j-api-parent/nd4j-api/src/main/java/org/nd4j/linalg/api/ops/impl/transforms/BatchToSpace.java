@@ -49,8 +49,6 @@ import java.util.List;
 public class BatchToSpace extends BaseDynamicTransformOp {
 
     private INDArray blocks;
-    private int spatialDimensions;
-    private int[] inputShape;
     private INDArray crops;
 
     public BatchToSpace() {}
@@ -59,7 +57,6 @@ public class BatchToSpace extends BaseDynamicTransformOp {
         super(sameDiff, args, inPlace);
 
         this.blocks = blocks;
-        this.spatialDimensions = blocks.shape()[0];
         this.crops = crops;
     }
 
