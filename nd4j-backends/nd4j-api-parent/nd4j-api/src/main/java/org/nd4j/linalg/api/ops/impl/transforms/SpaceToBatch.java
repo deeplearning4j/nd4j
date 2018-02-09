@@ -49,8 +49,6 @@ import java.util.List;
 public class SpaceToBatch extends DynamicCustomOp {
 
     protected INDArray blocks;
-    private int spatialDimensions;
-    private int[] inputShape;
     protected INDArray padding;
 
     public SpaceToBatch() {
@@ -59,10 +57,7 @@ public class SpaceToBatch extends DynamicCustomOp {
     public SpaceToBatch(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray padding, boolean inPlace) {
         super(null, sameDiff, args, inPlace);
 
-        INDArray input = args[0].getArr();
-        this.inputShape = input.shape();
         this.blocks = blocks;
-        this.spatialDimensions = blocks.shape()[0];
         this.padding = padding;
     }
 
@@ -79,19 +74,6 @@ public class SpaceToBatch extends DynamicCustomOp {
         val array = super.inputArguments();
 
         return new INDArray[]{array[0], blocks, padding};
-    }
-
-    public List<int[]> calculateOutputShape() {
-        int batchSize = inputShape[0];
-        int[] outputShape = inputShape.clone();
-        for (int i = 0; i < spatialDimensions; i++) {
-            int block = (int) blocks.getDouble(i, 0);
-            batchSize = batchSize * block;
-            outputShape[i + 1] = outputShape[i + 1] / block + (int) padding.getDouble(i, 0) + (int) padding.getDouble(i, 1);
-
-        }
-        outputShape[0] = batchSize;
-        return Collections.singletonList(outputShape);
     }
 
     @Override
