@@ -61,26 +61,31 @@ public class Dilation2D extends DynamicCustomOp {
         Map<String,PropertyMapping> map = new HashMap<>();
 
         val sameMode = PropertyMapping.builder()
-                .onnxAttrName("auto_pad")
                 .tfAttrName("padding")
                 .propertyNames(new String[]{"isSameMode"})
                 .build();
 
         val ratesMapping = PropertyMapping.builder()
-                .onnxAttrName("rates")
                 .tfAttrName("rates")
                 .propertyNames(new String[]{"r0", "r1", "r2", "r3"})
                 .build();
 
         val stridesMapping = PropertyMapping.builder()
-                .onnxAttrName("strides")
                 .tfAttrName("strides")
                 .propertyNames(new String[]{"s0", "s1", "s2", "s3"})
                 .build();
 
-        map.put("padding", sameMode);
-        map.put("rates", ratesMapping);
-        map.put("strides", stridesMapping);
+        map.put("isSameMode", sameMode);
+
+        map.put("r0", ratesMapping);
+        map.put("r1", ratesMapping);
+        map.put("r2", ratesMapping);
+        map.put("r3", ratesMapping);
+
+        map.put("s0", stridesMapping);
+        map.put("s1", stridesMapping);
+        map.put("s2", stridesMapping);
+        map.put("s3", stridesMapping);
 
         try {
             ret.put(onnxName(), map);
@@ -124,6 +129,11 @@ public class Dilation2D extends DynamicCustomOp {
         ret.put(tensorflowName(), tfMappings);
         ret.put(onnxName(), onnxMappings);
         return ret;
+    }
+
+    @Override
+    public boolean isConfigProperties() {
+        return true;
     }
 
 
