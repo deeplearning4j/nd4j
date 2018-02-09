@@ -62,11 +62,11 @@ public class GradCheckTransforms {
 
         sd.associateArrayWithVariable(input, sdInput);
 
-        BatchToSpace bts = new BatchToSpace(sd, new SDVariable[] {sdInput}, blocks, crops, false);
-        SDVariable testOut = sd.var("test", expOut.shape());
-        sd.associateArrayWithVariable(expOut, testOut);
-
-        List<SDVariable> backwardResult = bts.doDiff(Collections.singletonList(testOut));
+//        BatchToSpace bts = new BatchToSpace(sd, new SDVariable[] {sdInput}, blocks, crops, false);
+//        SDVariable testOut = sd.var("test", expOut.shape());
+//        sd.associateArrayWithVariable(expOut, testOut);
+//
+//        List<SDVariable> backwardResult = bts.doDiff(Collections.singletonList(testOut));
 
 
         SDVariable t = sd.batchToSpace(sdInput, blocks, crops);
@@ -76,8 +76,8 @@ public class GradCheckTransforms {
 
         if(!expOut.equals(out)){ log.info("batch to space failed on forward"); }
 
-        INDArray btsGrad = backwardResult.get(0).getArr();
-        if(!input.equals(btsGrad)){ log.info("batch to space failed on backward"); }
+//        INDArray btsGrad = backwardResult.get(0).getArr();
+//        if(!input.equals(btsGrad)){ log.info("batch to space failed on backward"); }
 
         boolean ok;
         try{

@@ -24,6 +24,7 @@ import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,29 +33,36 @@ import java.util.List;
  * N-dimensional space to batch operation. Transforms data from a tensor from M spatial dimensions into batch dimension
  * according to the "blocks" specified (a vector of length M). Afterwards the spatial dimensions are optionally padded,
  * as specified in "padding", a tensor of dim (M, 2), denoting the padding range.
- *
+ * <p>
  * Example:
- *      input:         [[[[1], [2]], [[3], [4]]]]
- *      input shape:   [1, 2, 2, 1]
- *      blocks:        [2, 2]
- *      padding:       [[0, 0], [0, 0]]
- *
- *      output:        [[[[1]]], [[[2]]], [[[3]]], [[[4]]]]
- *      output shape:  [4, 1, 1, 1]
+ * input:         [[[[1], [2]], [[3], [4]]]]
+ * input shape:   [1, 2, 2, 1]
+ * blocks:        [2, 2]
+ * padding:       [[0, 0], [0, 0]]
+ * <p>
+ * output:        [[[[1]]], [[[2]]], [[[3]]], [[[4]]]]
+ * output shape:  [4, 1, 1, 1]
  * *
+ *
  * @author Max Pumperla
  */
-public class SpaceToBatch extends BaseDynamicTransformOp {
+public class SpaceToBatch extends DynamicCustomOp {
 
     protected INDArray blocks;
+    private int spatialDimensions;
+    private int[] inputShape;
     protected INDArray padding;
 
-    public SpaceToBatch() {}
+    public SpaceToBatch() {
+    }
 
     public SpaceToBatch(SameDiff sameDiff, SDVariable[] args, INDArray blocks, INDArray padding, boolean inPlace) {
-        super(sameDiff, args, inPlace);
+        super(null, sameDiff, args, inPlace);
 
+        INDArray input = args[0].getArr();
+        this.inputShape = input.shape();
         this.blocks = blocks;
+        this.spatialDimensions = blocks.shape()[0];
         this.padding = padding;
     }
 
@@ -68,9 +76,22 @@ public class SpaceToBatch extends BaseDynamicTransformOp {
         /**
          * This op has 1 input variable coming from SameDiff, and 2 static input arrays
          */
-        val array =  super.inputArguments();
+        val array = super.inputArguments();
 
         return new INDArray[]{array[0], blocks, padding};
+    }
+
+    public List<int[]> calculateOutputShape() {
+        int batchSize = inputShape[0];
+        int[] outputShape = inputShape.clone();
+        for (int i = 0; i < spatialDimensions; i++) {
+            int block = (int) blocks.getDouble(i, 0);
+            batchSize = batchSize * block;
+            outputShape[i + 1] = outputShape[i + 1] / block + (int) padding.getDouble(i, 0) + (int) padding.getDouble(i, 1);
+
+        }
+        outputShape[0] = batchSize;
+        return Collections.singletonList(outputShape);
     }
 
     @Override
@@ -84,7 +105,9 @@ public class SpaceToBatch extends BaseDynamicTransformOp {
     }
 
     @Override
-    public String onnxName() { return "space_to_batch"; }
+    public String onnxName() {
+        return "space_to_batch";
+    }
 
     @Override
     public String tensorflowName() {
