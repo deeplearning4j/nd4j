@@ -35,6 +35,9 @@ public class NDArrayListTest {
         ndArrayList.add(5,8.0);
         assertEquals(arrayAssertion,ndArrayList);
 
+        assertEquals(arrayAssertion.contains(8.0),ndArrayList.contains(8.0));
+        assertEquals(arrayAssertion.indexOf(8.0),ndArrayList.indexOf(8.0));
+        assertEquals(arrayAssertion.lastIndexOf(8.0),ndArrayList.lastIndexOf(8.0));
 
     }
 

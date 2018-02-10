@@ -9,6 +9,12 @@ import org.nd4j.linalg.indexing.conditions.EqualsCondition;
 
 import java.util.*;
 
+/**
+ * An {@link ArrayList} like implementation of {@link List}
+ * using {@link INDArray} as the backing data structure
+ *
+ * @author Adam Gibson
+ */
 public class NDArrayList extends  AbstractList<Double>  {
     private INDArray container;
     private int size;
@@ -33,7 +39,7 @@ public class NDArrayList extends  AbstractList<Double>  {
 
     @Override
     public boolean contains(Object o) {
-        return indexOf(o) > 0;
+        return indexOf(o) >= 0;
     }
 
     @Override
@@ -77,22 +83,50 @@ public class NDArrayList extends  AbstractList<Double>  {
 
     @Override
     public boolean containsAll(Collection<?> collection) {
-        return false;
+        for(Object d : collection) {
+            if(!contains(d)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends Double> collection) {
-        return false;
+        if(collection instanceof NDArrayList) {
+            NDArrayList ndArrayList = (NDArrayList) collection;
+            ndArrayList.growCapacity(this.size() + collection.size());
+
+        }
+        else {
+            for(Double d : collection) {
+                add(d);
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean addAll(int i, Collection<? extends Double> collection) {
-        return false;
+        if(collection instanceof NDArrayList) {
+            NDArrayList ndArrayList = (NDArrayList) collection;
+        }
+        else {
+            for(Double d : collection) {
+                add(i,d);
+            }
+        }
+        return true;
     }
 
     @Override
     public boolean removeAll(Collection<?> collection) {
-        return false;
+        for(Object d : collection) {
+            remove(d);
+        }
+
+        return true;
     }
 
     @Override
@@ -264,7 +298,7 @@ public class NDArrayList extends  AbstractList<Double>  {
     private void moveForward(int index) {
         int numMoved = size - index - 1;
         INDArrayIndex[] getRange = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index,index + numMoved)};
-        INDArray get = container.get(getRange);
+        INDArray get = container.get(getRange).dup();
         INDArrayIndex[] first = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index + 1,index + 1 + get.length())};
         container.put(first,get);
     }
