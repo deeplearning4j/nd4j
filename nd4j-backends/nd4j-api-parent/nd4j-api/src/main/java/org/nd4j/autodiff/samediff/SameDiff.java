@@ -1067,8 +1067,6 @@ public class SameDiff {
             }
             return function;
         }
-
-
         return function;
     }
 
@@ -2091,12 +2089,28 @@ public class SameDiff {
         return mergeAdd(null, iX);
     }
 
-//    public SDVariable mergeAdd(SDVariable[] iX) {
-//        return mergeAdd(null, iX);
-//    }
 
     public SDVariable mergeAdd(String name, SDVariable[] iX) {
         SDVariable ret = f().mergeadd(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable batchToSpace(SDVariable iX, int[] blocks, int[][] crops) {
+        return batchToSpace(null, iX, blocks, crops);
+    }
+
+    public SDVariable batchToSpace(String name, SDVariable iX, int[] blocks, int[][] crops) {
+        SDVariable ret = f().batchToSpace(iX, blocks, crops);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    public SDVariable spaceToBatch(SDVariable iX, int[] blocks, int[][] padding) {
+        return spaceToBatch(null, iX, blocks, padding);
+    }
+
+    public SDVariable spaceToBatch(String name, SDVariable iX, int[] blocks, int[][] padding) {
+        SDVariable ret = f().spaceToBatch(iX, blocks, padding);
         return updateVariableNameAndReference(ret, name);
     }
 
@@ -3580,14 +3594,12 @@ public class SameDiff {
         int count = 1;
         String name = baseName + "_" + count + (argIndex > 0 ? ":" + argIndex : "");
         while (getVariable(name) != null) {
-            name = baseName + "_" + count + (argIndex > 0 ? ":" + argIndex : "");
-            count++;
+            name = baseName + "_" + (++count) + (argIndex > 0 ? ":" + argIndex : "");
         }
 
         if (getVariable(name) != null) {
             throw new ND4JIllegalStateException("Converged on already generated variable!");
         }
-
 
         return name;
     }
