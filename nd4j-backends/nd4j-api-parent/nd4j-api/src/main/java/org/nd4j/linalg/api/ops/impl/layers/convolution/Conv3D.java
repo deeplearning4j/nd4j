@@ -109,13 +109,13 @@ public class Conv3D extends DynamicCustomOp {
         tfAdapters.put("kW", new ConditionalFieldValueNDArrayShapeAdapter("NDHWC",2,4,fields.get("dataFormat")));
 
         tfAdapters.put("dT", new IntArrayIntIndexAdpater(1));
-        tfAdapters.put("dW",  new IntArrayIntIndexAdpater(2));
-        tfAdapters.put("dH",new IntArrayIntIndexAdpater(3));
-
+        tfAdapters.put("dH",new IntArrayIntIndexAdpater(2));
+        tfAdapters.put("dW",  new IntArrayIntIndexAdpater(3));
 
         tfAdapters.put("pT", new IntArrayIntIndexAdpater(1));
-        tfAdapters.put("pW",  new IntArrayIntIndexAdpater(2));
-        tfAdapters.put("pH",new IntArrayIntIndexAdpater(3));
+        tfAdapters.put("pH",new IntArrayIntIndexAdpater(2));
+        tfAdapters.put("pW",  new IntArrayIntIndexAdpater(3));
+
 
         tfAdapters.put("isValidMode",new StringEqualsAdapter("VALID"));
         tfAdapters.put("isNCDHW",new StringEqualsAdapter("NCDHW"));
