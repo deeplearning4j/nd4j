@@ -15,11 +15,11 @@ import java.util.*;
  *
  * @author Adam Gibson
  */
-public class NDArrayList extends  BaseNDArrayList<Double>  {
+public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X>  {
     private INDArray container;
     private int size;
 
-    public NDArrayList() {
+    public BaseNDArrayList() {
         this.container = Nd4j.create(10);
     }
 
@@ -27,7 +27,7 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
      * Specify the underlying ndarray for this list.
      * @param container the underlying array.
      */
-    public NDArrayList(INDArray container) {
+    public BaseNDArrayList(INDArray container) {
         this.container = container;
     }
 
@@ -60,7 +60,7 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public Iterator<Double> iterator() {
+    public Iterator<X> iterator() {
         return new NDArrayListIterator();
     }
 
@@ -75,7 +75,7 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public boolean add(Double aDouble) {
+    public boolean add(X aX) {
         if(container == null) {
             container = Nd4j.create(10);
         }
@@ -85,7 +85,7 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
             container = newContainer;
         }
 
-        container.putScalar(size++,aDouble);
+        container.putScalar(size++,aX.doubleValue());
         return true;
     }
 
@@ -111,14 +111,14 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public boolean addAll(Collection<? extends Double> collection) {
-        if(collection instanceof NDArrayList) {
-            NDArrayList ndArrayList = (NDArrayList) collection;
+    public boolean addAll(Collection<? extends X> collection) {
+        if(collection instanceof BaseNDArrayList) {
+            BaseNDArrayList ndArrayList = (BaseNDArrayList) collection;
             ndArrayList.growCapacity(this.size() + collection.size());
 
         }
         else {
-            for(Double d : collection) {
+            for(X d : collection) {
                 add(d);
             }
         }
@@ -126,9 +126,9 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public boolean addAll(int i, Collection<? extends Double> collection) {
+    public boolean addAll(int i, Collection<? extends X> collection) {
 
-        for(Double d : collection) {
+        for(X d : collection) {
             add(i,d);
         }
 
@@ -156,35 +156,36 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public Double get(int i) {
-        return container.getDouble(i);
+    public X get(int i) {
+        Number ret = container.getDouble(i);
+        return (X) ret;
     }
 
     @Override
-    public Double set(int i, Double aDouble) {
-        container.putScalar(i,aDouble);
-        return aDouble;
+    public X set(int i, X aX) {
+        container.putScalar(i,aX.doubleValue());
+        return aX;
     }
 
     @Override
-    public void add(int i, Double aDouble) {
+    public void add(int i, X aX) {
         rangeCheck(i);
         growCapacity(i);
         moveForward(i);
-        container.putScalar(i,aDouble);
+        container.putScalar(i,aX.doubleValue());
         size++;
 
     }
 
     @Override
-    public Double remove(int i) {
+    public X remove(int i) {
         rangeCheck(i);
         int numMoved = this.size - i - 1;
         if(numMoved > 0) {
-            double move = container.getDouble(i);
+            Number move = container.getDouble(i);
             moveBackward(i);
             size--;
-            return move;
+            return (X) move;
         }
 
         return null;
@@ -201,26 +202,23 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
     }
 
     @Override
-    public ListIterator<Double> listIterator() {
+    public ListIterator<X> listIterator() {
         return new NDArrayListIterator();
     }
 
     @Override
-    public ListIterator<Double> listIterator(int i) {
+    public ListIterator<X> listIterator(int i) {
         return new NDArrayListIterator(i);
     }
 
-    @Override
-    public List<Double> subList(int i, int i1) {
-        return new NDArrayList(container.get(NDArrayIndex.interval(i,i1)));
-    }
+
 
     @Override
     public String toString() {
         return container.get(NDArrayIndex.interval(0,size)).toString();
     }
 
-    private class NDArrayListIterator implements ListIterator<Double> {
+    private class NDArrayListIterator implements ListIterator<X> {
         private int curr = 0;
 
         public NDArrayListIterator(int curr) {
@@ -236,10 +234,10 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
         }
 
         @Override
-        public Double next() {
-            double ret = get(curr);
+        public X next() {
+            Number ret = get(curr);
             curr++;
-            return ret;
+            return (X) ret;
         }
 
         @Override
@@ -248,10 +246,10 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
         }
 
         @Override
-        public Double previous() {
-            double ret = get(curr - 1);
+        public X previous() {
+            Number ret = get(curr - 1);
             curr--;
-            return ret;
+            return (X) ret;
         }
 
         @Override
@@ -271,12 +269,12 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
         }
 
         @Override
-        public void set(Double aDouble) {
+        public void set(X aX) {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public void add(Double aDouble) {
+        public void add(X aX) {
             throw new UnsupportedOperationException();
         }
     }
