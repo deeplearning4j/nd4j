@@ -215,6 +215,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_parallel_stack.class,
         float_log_poison_loss.class,
         float_normalize_moments.class,
+        float_tf_atan2.class,
         float_conv1d.class,
         float_conv1d_bp.class,
         float_conv2d.class,
@@ -480,6 +481,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_parallel_stack.class,
         half_log_poison_loss.class,
         half_normalize_moments.class,
+        half_tf_atan2.class,
         half_conv1d.class,
         half_conv1d_bp.class,
         half_conv2d.class,
@@ -745,6 +747,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_parallel_stack.class,
         double_log_poison_loss.class,
         double_normalize_moments.class,
+        double_tf_atan2.class,
         double_conv1d.class,
         double_conv1d_bp.class,
         double_conv2d.class,
@@ -27660,7 +27663,52 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
 
-
+        /**
+         * Special atan2 op impl for TF's args order
+         * \tparam T
+         */
+        @Name("nd4j::ops::tf_atan2<float>") public static class float_tf_atan2 extends FloatDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_tf_atan2(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_tf_atan2(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_tf_atan2 position(long position) {
+                return (float_tf_atan2)super.position(position);
+            }
+        public float_tf_atan2() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                }
+        @Name("nd4j::ops::tf_atan2<float16>") public static class half_tf_atan2 extends HalfDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_tf_atan2(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_tf_atan2(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_tf_atan2 position(long position) {
+                return (half_tf_atan2)super.position(position);
+            }
+        public half_tf_atan2() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                }
+        @Name("nd4j::ops::tf_atan2<double>") public static class double_tf_atan2 extends DoubleDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_tf_atan2(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_tf_atan2(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_tf_atan2 position(long position) {
+                return (double_tf_atan2)super.position(position);
+            }
+        public double_tf_atan2() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                }
     
 
 
