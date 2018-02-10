@@ -23,8 +23,25 @@ public class NDArrayList extends  AbstractList<Double>  {
         this.container = Nd4j.create(10);
     }
 
+    /**
+     * Specify the underlying ndarray for this list.
+     * @param container the underlying array.
+     */
     public NDArrayList(INDArray container) {
         this.container = container;
+    }
+
+
+    /**
+     * Get a view of the underlying array
+     * relative to the size of the actual array.
+     * (Sometimes there are overflows in the internals
+     * but you want to use the internal INDArray for computing something
+     * directly, this gives you the relevant subset that reflects the content of the list)
+     * @return the view of the underlying ndarray relative to the collection's real size
+     */
+    public INDArray array() {
+         return container.get(NDArrayIndex.interval(0,size));
     }
 
     @Override
@@ -78,6 +95,7 @@ public class NDArrayList extends  AbstractList<Double>  {
         if(idx < 0)
             return false;
         container.put(new INDArrayIndex[]{NDArrayIndex.interval(idx,container.length())},container.get(NDArrayIndex.interval(idx + 1,container.length())));
+        container = container.reshape(1,size);
         return true;
     }
 
@@ -109,14 +127,11 @@ public class NDArrayList extends  AbstractList<Double>  {
 
     @Override
     public boolean addAll(int i, Collection<? extends Double> collection) {
-        if(collection instanceof NDArrayList) {
-            NDArrayList ndArrayList = (NDArrayList) collection;
+
+        for(Double d : collection) {
+            add(i,d);
         }
-        else {
-            for(Double d : collection) {
-                add(i,d);
-            }
-        }
+
         return true;
     }
 
