@@ -1,0 +1,292 @@
+input: "gpu_0/data_0"
+input: "gpu_0/conv1_w_0"
+input: "gpu_0/conv1_b_0"
+output: "gpu_0/conv1_1"
+op_type: "Conv"
+attribute {
+  name: "strides"
+  ints: 2
+  ints: 2
+}
+attribute {
+  name: "pads"
+  ints: 0
+  ints: 0
+  ints: 0
+  ints: 0
+}
+attribute {
+  name: "kernel_shape"
+  ints: 7
+  ints: 7
+}
+
+input: "gpu_0/conv1_1"
+output: "gpu_0/conv1_2"
+op_type: "Relu"
+
+input: "gpu_0/conv1_2"
+output: "gpu_0/norm1_1"
+op_type: "LRN"
+attribute {
+  name: "beta"
+  f: 0.75
+}
+attribute {
+  name: "bias"
+  f: 2.0
+}
+attribute {
+  name: "alpha"
+  f: 5.0E-4
+}
+attribute {
+  name: "size"
+  i: 5
+}
+
+input: "gpu_0/norm1_1"
+output: "gpu_0/pool1_1"
+op_type: "MaxPool"
+attribute {
+  name: "strides"
+  ints: 2
+  ints: 2
+}
+attribute {
+  name: "pads"
+  ints: 0
+  ints: 0
+  ints: 0
+  ints: 0
+}
+attribute {
+  name: "kernel_shape"
+  ints: 3
+  ints: 3
+}
+
+input: "gpu_0/pool1_1"
+input: "gpu_0/conv2_w_0"
+input: "gpu_0/conv2_b_0"
+output: "gpu_0/conv2_1"
+op_type: "Conv"
+attribute {
+  name: "strides"
+  ints: 2
+  ints: 2
+}
+attribute {
+  name: "pads"
+  ints: 0
+  ints: 0
+  ints: 0
+  ints: 0
+}
+attribute {
+  name: "kernel_shape"
+  ints: 5
+  ints: 5
+}
+
+input: "gpu_0/conv2_1"
+output: "gpu_0/conv2_2"
+op_type: "Relu"
+
+input: "gpu_0/conv2_2"
+output: "gpu_0/norm2_1"
+op_type: "LRN"
+attribute {
+  name: "beta"
+  f: 0.75
+}
+attribute {
+  name: "bias"
+  f: 2.0
+}
+attribute {
+  name: "alpha"
+  f: 5.0E-4
+}
+attribute {
+  name: "size"
+  i: 5
+}
+
+input: "gpu_0/norm2_1"
+output: "gpu_0/pool2_1"
+op_type: "MaxPool"
+attribute {
+  name: "strides"
+  ints: 2
+  ints: 2
+}
+attribute {
+  name: "pads"
+  ints: 0
+  ints: 0
+  ints: 0
+  ints: 0
+}
+attribute {
+  name: "kernel_shape"
+  ints: 3
+  ints: 3
+}
+
+input: "gpu_0/pool2_1"
+input: "gpu_0/conv3_w_0"
+input: "gpu_0/conv3_b_0"
+output: "gpu_0/conv3_1"
+op_type: "Conv"
+attribute {
+  name: "strides"
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "pads"
+  ints: 1
+  ints: 1
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "kernel_shape"
+  ints: 3
+  ints: 3
+}
+
+input: "gpu_0/conv3_1"
+output: "gpu_0/conv3_2"
+op_type: "Relu"
+
+input: "gpu_0/conv3_2"
+input: "gpu_0/conv4_w_0"
+input: "gpu_0/conv4_b_0"
+output: "gpu_0/conv4_1"
+op_type: "Conv"
+attribute {
+  name: "strides"
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "pads"
+  ints: 1
+  ints: 1
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "kernel_shape"
+  ints: 3
+  ints: 3
+}
+
+input: "gpu_0/conv4_1"
+output: "gpu_0/conv4_2"
+op_type: "Relu"
+
+input: "gpu_0/conv4_2"
+input: "gpu_0/conv5_w_0"
+input: "gpu_0/conv5_b_0"
+output: "gpu_0/conv5_1"
+op_type: "Conv"
+attribute {
+  name: "strides"
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "pads"
+  ints: 1
+  ints: 1
+  ints: 1
+  ints: 1
+}
+attribute {
+  name: "kernel_shape"
+  ints: 3
+  ints: 3
+}
+
+input: "gpu_0/conv5_1"
+output: "gpu_0/conv5_2"
+op_type: "Relu"
+
+input: "gpu_0/conv5_2"
+output: "gpu_0/pool5_1"
+op_type: "MaxPool"
+attribute {
+  name: "strides"
+  ints: 2
+  ints: 2
+}
+attribute {
+  name: "pads"
+  ints: 0
+  ints: 0
+  ints: 0
+  ints: 0
+}
+attribute {
+  name: "kernel_shape"
+  ints: 2
+  ints: 2
+}
+
+input: "gpu_0/pool5_1"
+input: "gpu_0/fc6_w_0"
+input: "gpu_0/fc6_b_0"
+output: "gpu_0/fc6_1"
+op_type: "Gemm"
+attribute {
+  name: "broadcast"
+  i: 1
+}
+attribute {
+  name: "transB"
+  i: 1
+}
+
+input: "gpu_0/fc6_1"
+output: "gpu_0/fc6_2"
+op_type: "Relu"
+
+input: "gpu_0/fc6_2"
+input: "gpu_0/fc7_w_0"
+input: "gpu_0/fc7_b_0"
+output: "gpu_0/fc7_1"
+op_type: "Gemm"
+attribute {
+  name: "broadcast"
+  i: 1
+}
+attribute {
+  name: "transB"
+  i: 1
+}
+
+input: "gpu_0/fc7_1"
+output: "gpu_0/fc7_2"
+op_type: "Relu"
+
+input: "gpu_0/fc7_2"
+input: "gpu_0/fc8_w_0"
+input: "gpu_0/fc8_b_0"
+output: "gpu_0/pred_1"
+op_type: "Gemm"
+attribute {
+  name: "broadcast"
+  i: 1
+}
+attribute {
+  name: "transB"
+  i: 1
+}
+
+input: "gpu_0/pred_1"
+output: "gpu_0/softmax_1"
+op_type: "Softmax"
+
