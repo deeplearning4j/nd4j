@@ -38,13 +38,13 @@ public class TFGraphTestList {
              "conv_2", //missing SpaceToBatchND
              "conv_3", //fails due to 4d input: this seems to be related to Conv2d being mapped to Dilation2D which takes 3d input
              "deep_mnist", //broadcast bug? double check with raver
-             "deep_mnist_no_dropout",
+             //"deep_mnist_no_dropout",
              "expand_dim",
              "g_00",
              "g_01",
              "g_01",
              "g_02",
-           //  "g_03", //op missing?
+             "g_03", //op missing?
              "g_04",
              "g_05",
              "gru_mnist",

@@ -245,6 +245,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_conv3d_bp.class,
         float_ismax.class,
         float_dilation2d.class,
+        float_conv3dNew.class,
         float_set_seed.class,
         float_get_seed.class,
         float_randomuniform.class,
@@ -509,6 +510,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_conv3d_bp.class,
         half_ismax.class,
         half_dilation2d.class,
+        half_conv3dNew.class,
         half_set_seed.class,
         half_get_seed.class,
         half_randomuniform.class,
@@ -773,6 +775,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_conv3d_bp.class,
         double_ismax.class,
         double_dilation2d.class,
+        double_conv3dNew.class,
         double_set_seed.class,
         double_get_seed.class,
         double_randomuniform.class,
@@ -22521,6 +22524,51 @@ private native void allocate();
                 return (double_dilation2d)super.position(position);
             }
         public double_dilation2d() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        @Name("nd4j::ops::conv3dNew<float>") public static class float_conv3dNew extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_conv3dNew(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_conv3dNew(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_conv3dNew position(long position) {
+                return (float_conv3dNew)super.position(position);
+            }
+        public float_conv3dNew() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+
+        @Name("nd4j::ops::conv3dNew<float16>") public static class half_conv3dNew extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_conv3dNew(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_conv3dNew(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_conv3dNew position(long position) {
+                return (half_conv3dNew)super.position(position);
+            }
+        public half_conv3dNew() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+
+        @Name("nd4j::ops::conv3dNew<double>") public static class double_conv3dNew extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_conv3dNew(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_conv3dNew(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_conv3dNew position(long position) {
+                return (double_conv3dNew)super.position(position);
+            }
+        public double_conv3dNew() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
