@@ -16,8 +16,10 @@ import java.util.*;
  * @author Adam Gibson
  */
 public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X>  {
-    private INDArray container;
-    private int size;
+    protected INDArray container;
+    protected int size;
+
+
 
     public BaseNDArrayList() {
         this.container = Nd4j.create(10);
@@ -31,6 +33,16 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
         this.container = container;
     }
 
+    /**
+     * Allocates the container and this list with
+     * the given size
+     * @param size the size to allocate with
+     */
+    public void allocateWithSize(int size) {
+        container = Nd4j.create(1,size);
+        this.size = size;
+    }
+
 
     /**
      * Get a view of the underlying array
@@ -41,7 +53,7 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
      * @return the view of the underlying ndarray relative to the collection's real size
      */
     public INDArray array() {
-         return container.get(NDArrayIndex.interval(0,size));
+         return container.get(NDArrayIndex.interval(0,size)).reshape(1,size);
     }
 
     @Override
