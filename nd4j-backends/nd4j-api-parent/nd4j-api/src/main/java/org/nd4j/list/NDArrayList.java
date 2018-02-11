@@ -1,6 +1,7 @@
 package org.nd4j.list;
 
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.INDArrayIndex;
@@ -41,6 +42,10 @@ public class NDArrayList extends  BaseNDArrayList<Double>  {
      * @return the view of the underlying ndarray relative to the collection's real size
      */
     public INDArray array() {
+        if(isEmpty()) {
+            throw new ND4JIllegalStateException("Array is empty!");
+        }
+
          return container.get(NDArrayIndex.interval(0,size));
     }
 

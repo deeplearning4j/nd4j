@@ -3,7 +3,7 @@ package org.nd4j.list;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
 /**
- * An {@link BaseNDArrayList} for float 
+ * An {@link BaseNDArrayList} for float
  *
  * @author Adam Gibson
  */

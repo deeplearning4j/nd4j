@@ -1,11 +1,13 @@
 package org.nd4j.list;
 
 import org.junit.Test;
+import org.nd4j.list.matrix.MatrixNDArrayList;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class NDArrayListTest {
 
@@ -40,6 +42,24 @@ public class NDArrayListTest {
         assertEquals(arrayAssertion.lastIndexOf(8.0),ndArrayList.lastIndexOf(8.0));
         assertEquals(ndArrayList.size(),ndArrayList.array().length());
 
+    }
+
+
+    @Test
+    public void testMatrixList() {
+        MatrixNDArrayList matrixNDArrayList = new MatrixNDArrayList();
+        for(int i = 0; i < 5; i++) {
+            NDArrayList ndArrayList = new NDArrayList();
+            for(int j = 0; j < 4; j++) {
+                ndArrayList.add((double) j);
+            }
+
+            matrixNDArrayList.add(ndArrayList);
+        }
+
+        assertEquals(5,matrixNDArrayList.array().rows());
+        assertFalse(matrixNDArrayList.isEmpty());
+        assertEquals(0.0,matrixNDArrayList.getEntry(0,0));
     }
 
 }
