@@ -122,6 +122,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_squeeze.class,
         float_expand_dims.class,
         float_reshape.class,
+        float_order.class,
         float_tile_to_shape.class,
         float_tile_to_shape_bp.class,
         float_matmul.class,
@@ -216,6 +217,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_log_poison_loss.class,
         float_normalize_moments.class,
         float_tf_atan2.class,
+        float_weighted_cross_entropy_with_logits.class,
         float_conv1d.class,
         float_conv1d_bp.class,
         float_conv2d.class,
@@ -388,6 +390,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_squeeze.class,
         half_expand_dims.class,
         half_reshape.class,
+        half_order.class,
         half_tile_to_shape.class,
         half_tile_to_shape_bp.class,
         half_matmul.class,
@@ -482,6 +485,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_log_poison_loss.class,
         half_normalize_moments.class,
         half_tf_atan2.class,
+        half_weighted_cross_entropy_with_logits.class,
         half_conv1d.class,
         half_conv1d_bp.class,
         half_conv2d.class,
@@ -654,6 +658,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_squeeze.class,
         double_expand_dims.class,
         double_reshape.class,
+        double_order.class,
         double_tile_to_shape.class,
         double_tile_to_shape_bp.class,
         double_matmul.class,
@@ -748,6 +753,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_log_poison_loss.class,
         double_normalize_moments.class,
         double_tf_atan2.class,
+        double_weighted_cross_entropy_with_logits.class,
         double_conv1d.class,
         double_conv1d_bp.class,
         double_conv2d.class,
@@ -27709,6 +27715,59 @@ private native void allocate();
 private native void allocate();
                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                 }
+
+        /**
+         * This op calculates weighted logarithmic loss of input
+         * Input arguments
+         *  0 - target
+         *  1 - input
+         *  2 - weights (scalar or vector with same as last dimension)
+         *  
+         *  return value - a tensor with the same shape as target or input
+         */
+        @Name("nd4j::ops::weighted_cross_entropy_with_logits<float>") public static class float_weighted_cross_entropy_with_logits extends FloatDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_weighted_cross_entropy_with_logits(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_weighted_cross_entropy_with_logits(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_weighted_cross_entropy_with_logits position(long position) {
+                return (float_weighted_cross_entropy_with_logits)super.position(position);
+            }
+        public float_weighted_cross_entropy_with_logits() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                }
+        @Name("nd4j::ops::weighted_cross_entropy_with_logits<float16>") public static class half_weighted_cross_entropy_with_logits extends HalfDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_weighted_cross_entropy_with_logits(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_weighted_cross_entropy_with_logits(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_weighted_cross_entropy_with_logits position(long position) {
+                return (half_weighted_cross_entropy_with_logits)super.position(position);
+            }
+        public half_weighted_cross_entropy_with_logits() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                }
+        @Name("nd4j::ops::weighted_cross_entropy_with_logits<double>") public static class double_weighted_cross_entropy_with_logits extends DoubleDeclarableOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_weighted_cross_entropy_with_logits(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_weighted_cross_entropy_with_logits(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_weighted_cross_entropy_with_logits position(long position) {
+                return (double_weighted_cross_entropy_with_logits)super.position(position);
+            }
+        public double_weighted_cross_entropy_with_logits() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                }
+
     
 
 
@@ -28056,6 +28115,63 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
 
+        /**
+         * This op changes order of given array to specified order.
+         * In other words: C/F order switch
+         *
+         * Int args:
+         * 0 - isForder. set to 1 for F order output, or 0 for C order output
+         *
+         * \tparam T
+         */
+        @Name("nd4j::ops::order<float>") public static class float_order extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_order(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_order(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_order position(long position) {
+                return (float_order)super.position(position);
+            }
+        public float_order() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::order<float16>") public static class half_order extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_order(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_order(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_order position(long position) {
+                return (half_order)super.position(position);
+            }
+        public half_order() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::order<double>") public static class double_order extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_order(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_order(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_order position(long position) {
+                return (double_order)super.position(position);
+            }
+        public double_order() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * This op boosts specified input up to specified shape
+         *
+         * \tparam T
+         */
         @Name("nd4j::ops::tile_to_shape<float>") public static class float_tile_to_shape extends FloatDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
@@ -28070,7 +28186,6 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
                                                                                 }
-
         @Name("nd4j::ops::tile_to_shape<float16>") public static class half_tile_to_shape extends HalfDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
@@ -28085,7 +28200,6 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
                                                                                 }
-
         @Name("nd4j::ops::tile_to_shape<double>") public static class double_tile_to_shape extends DoubleDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */

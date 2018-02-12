@@ -226,24 +226,28 @@ public class TFGraphTestAllHelper {
             String[] varNameArr = fileName.split("\\.");
             String varName = String.join(".", Arrays.copyOfRange(varNameArr, 0, varNameArr.length - 2));
             int[] varShape = Nd4j.readNumpy(new ClassPathResource(varPath).getInputStream(), ",").data().asInt();
-            float[] varContents = Nd4j.readNumpy(new ClassPathResource(varPath.replace(".shape", ".csv")).getInputStream(), ",").data().asFloat();
-            INDArray varValue;
-            if (varShape.length == 1) {
-                if (varShape[0] == 0) {
-                    varValue = Nd4j.trueScalar(varContents[0]);
+            try {
+                float[] varContents = Nd4j.readNumpy(new ClassPathResource(varPath.replace(".shape", ".csv")).getInputStream(), ",").data().asFloat();
+                INDArray varValue;
+                if (varShape.length == 1) {
+                    if (varShape[0] == 0) {
+                        varValue = Nd4j.trueScalar(varContents[0]);
+                    } else {
+                        varValue = Nd4j.trueVector(varContents);
+                    }
                 } else {
-                    varValue = Nd4j.trueVector(varContents);
+                    varValue = Nd4j.create(varContents, varShape);
                 }
-            }
-            else {
-                varValue = Nd4j.create(varContents,varShape);
-            }
-            //varValue = Nd4j.readNumpy(new ClassPathResource(varPath.replace(".shape", ".csv")).getInputStream(), ",").reshape(varShape);
-            if (varName.contains("____")) {
-                //these are intermediate node outputs
-                varMap.put(varName.replaceAll("____", "/"), varValue);
-            } else {
-                varMap.put(varName, varValue);
+                //varValue = Nd4j.readNumpy(new ClassPathResource(varPath.replace(".shape", ".csv")).getInputStream(), ",").reshape(varShape);
+                if (varName.contains("____")) {
+                    //these are intermediate node outputs
+                    varMap.put(varName.replaceAll("____", "/"), varValue);
+                } else {
+                    varMap.put(varName, varValue);
+                }
+            } catch (NumberFormatException e) {
+                // FIXME: we can't parse boolean arrays right now :(
+                continue;
             }
         }
         return varMap;
