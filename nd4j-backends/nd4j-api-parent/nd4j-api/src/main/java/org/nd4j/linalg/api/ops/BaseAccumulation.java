@@ -50,7 +50,10 @@ import java.util.Map;
 @Slf4j
 public abstract class BaseAccumulation extends BaseOp implements Accumulation {
     protected Number finalResult;
-    protected boolean keepDims;
+    protected boolean keepDims = false;
+
+    // flag for tf imported ops, shows that there's probably one more value appended in axis
+    protected boolean newFormat = false;
     protected boolean isComplex = false;
 
 
@@ -191,13 +194,15 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             return Collections.emptyList();
 
         List<int[]> ret = new ArrayList<>(1);
-        val reducedShape = Shape.getReducedShape(arg().getShape(),dimensions, isKeepDims());
+        val reducedShape = Shape.getReducedShape(arg().getShape(),dimensions, isKeepDims(), newFormat);
         ret.add(reducedShape);
         return ret;
     }
 
     @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
+        newFormat = true;
+
         if (!attributesForNode.containsKey("axis") && !hasReductionIndices(nodeDef)) {
             this.dimensions = new int[] { Integer.MAX_VALUE };
         }

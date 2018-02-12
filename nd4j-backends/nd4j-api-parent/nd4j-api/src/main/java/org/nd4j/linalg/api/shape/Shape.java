@@ -279,9 +279,30 @@ public class Shape {
      * @param keepDims if set to true, corresponding dimensions will be set to 1
      * @return the shape of the result array as the result of the reduce
      */
-    public static int[] getReducedShape(int[] wholeShape, int[] dimensions, boolean keepDims) {
+    public static int[] getReducedShape(int[] wholeShape, int[] dimensions, boolean keepDims, boolean newFormat) {
+        // strip leading keepDims argument
+        if (newFormat)
+            dimensions = Arrays.copyOfRange(dimensions, 1, dimensions.length);
+
         if (!keepDims)
-            return getReducedShape(wholeShape, dimensions);
+            if (!newFormat)
+                return getReducedShape(wholeShape, dimensions);
+            else {
+                if (isWholeArray(wholeShape, dimensions))
+                    return new int[] {};
+                else if (dimensions.length == 1 && wholeShape.length == 2) {
+                    int[] ret = new int[1];
+                    if (dimensions[0] == 1) {
+                        ret[0] = wholeShape[0];
+                    } else if (dimensions[0] == 0) {
+                        ret[0] = wholeShape[1];
+                    }
+                    return ret;
+                }
+
+                return ArrayUtil.removeIndex(wholeShape, dimensions);
+            }
+
 
         // we'll return full array of 1 as shape
         if (isWholeArray(wholeShape, dimensions)) {
