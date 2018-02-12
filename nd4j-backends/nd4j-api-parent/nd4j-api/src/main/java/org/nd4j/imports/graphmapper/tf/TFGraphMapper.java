@@ -583,6 +583,9 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                     val attr = attributesForNode.get(tfAttrName);
                     switch (attr.getValueCase()) {
                         case B:
+                            if (adapter != null) {
+                                adapter.mapAttributeFor(attr.getB(), currentField, on);
+                            }
                             break;
                         case F: break;
                         case FUNC: break;
