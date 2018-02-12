@@ -176,6 +176,10 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             return x().dup(x().ordering());
     }
 
+    @Override
+    public boolean isKeepDims() {
+        return keepDims;
+    }
 
     @Override
     public List<int[]> calculateOutputShape() {
@@ -187,7 +191,7 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
             return Collections.emptyList();
 
         List<int[]> ret = new ArrayList<>(1);
-        val reducedShape = Shape.getReducedShape(arg().getShape(),dimensions);
+        val reducedShape = Shape.getReducedShape(arg().getShape(),dimensions, isKeepDims());
         ret.add(reducedShape);
         return ret;
     }
@@ -217,9 +221,6 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
 
             if(reductionNode == null)
                 throw new ND4JIllegalStateException("No node found!");
-
-
-
         }
         else {
             val dims = TFGraphMapper.getInstance().getNDArrayFromTensor("axis",nodeDef,graph).data().asInt();

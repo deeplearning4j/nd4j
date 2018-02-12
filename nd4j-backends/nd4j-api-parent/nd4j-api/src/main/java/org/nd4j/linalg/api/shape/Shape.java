@@ -270,6 +270,34 @@ public class Shape {
         return ArrayUtil.removeIndex(wholeShape, dimensions);
     }
 
+    /**
+     * Get the shape of the reduced array
+     *
+     * @param wholeShape the shape of the array
+     *                   with the reduce op being performed
+     * @param dimensions the dimensions the reduce op is being performed on
+     * @param keepDims if set to true, corresponding dimensions will be set to 1
+     * @return the shape of the result array as the result of the reduce
+     */
+    public static int[] getReducedShape(int[] wholeShape, int[] dimensions, boolean keepDims) {
+        if (!keepDims)
+            return getReducedShape(wholeShape, dimensions);
+
+        // we'll return full array of 1 as shape
+        if (isWholeArray(wholeShape, dimensions)) {
+            val result = new int[wholeShape.length];
+
+            Arrays.fill(result, 1);
+            return result;
+        }
+
+        val result = Arrays.copyOf(wholeShape, wholeShape.length);
+        for (val dim: dimensions)
+            result[dim] = 1;
+
+        return result;
+    }
+
 
     /**
      * Get the output shape of a matrix multiply
