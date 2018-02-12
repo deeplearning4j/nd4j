@@ -514,7 +514,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                     if(diff.isPlaceHolder( args[i].getVarName())) {
                         diff.putPlaceHolderForVariable(args[i].getVarName(), name);
                     }
-
                 }
 
 
@@ -657,7 +656,11 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                             else
                                 on.setValueFor(currentField,tensorToGet);
                             break;
-                        case TYPE: break;
+                        case TYPE:
+                            if (adapter != null) {
+                                adapter.mapAttributeFor(attr.getType(), currentField, on);
+                            }
+                            break;
                     }
                 }
             }

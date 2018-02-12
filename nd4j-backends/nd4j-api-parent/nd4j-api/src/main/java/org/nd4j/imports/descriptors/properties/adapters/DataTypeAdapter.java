@@ -18,6 +18,13 @@ public class DataTypeAdapter implements AttributeAdapter {
     protected DataBuffer.Type dtypeConv(DataType dataType) {
         val x = dataType.getNumber();
 
-        return null;
+        switch (x) {
+            case 1: return DataBuffer.Type.FLOAT;
+            case 2: return DataBuffer.Type.DOUBLE;
+            case 3: return DataBuffer.Type.INT;
+            case 9: return DataBuffer.Type.LONG;
+            case 19: return DataBuffer.Type.HALF;
+            default: throw new UnsupportedOperationException("DataType isn't supported: " + dataType.name());
+        }
     };
 }

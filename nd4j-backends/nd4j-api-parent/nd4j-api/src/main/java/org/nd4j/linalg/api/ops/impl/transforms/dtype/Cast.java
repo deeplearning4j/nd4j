@@ -10,12 +10,15 @@ import org.nd4j.imports.descriptors.properties.AttributeAdapter;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.descriptors.properties.adapters.DataTypeAdapter;
 import org.nd4j.imports.descriptors.properties.adapters.IntArrayIntIndexAdpater;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 /**
@@ -26,6 +29,10 @@ import java.util.*;
 public class Cast extends BaseDynamicTransformOp {
     private DataBuffer.Type typeDst;
 
+    public Cast() {
+        //
+    }
+
     public Cast(SameDiff sameDiff, SDVariable arg, @NonNull DataBuffer.Type dst) {
         super(sameDiff, new SDVariable[] {arg}, false);
 
@@ -35,8 +42,25 @@ public class Cast extends BaseDynamicTransformOp {
 
 
     @Override
+    public void setValueFor(Field target, Object value) {
+        if(value == null) {
+            throw new ND4JIllegalStateException("Unable to set field " + target + " using null value!");
+        }
+
+        // FIXME!
+        if (!(value instanceof DataBuffer.Type))
+            return;
+
+        try {
+            target.set(this, (DataBuffer.Type) value);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
-        super.initFromTensorFlow(nodeDef, initWith, attributesForNode, graph);
+        TFGraphMapper.getInstance().initFunctionFromProperties(nodeDef.getOp(), this, attributesForNode, nodeDef, graph);
         addArgs();
     }
 
@@ -72,7 +96,6 @@ public class Cast extends BaseDynamicTransformOp {
                 map.put(keys, propertyMapping);
         }
 
-        ret.put(onnxName(),map);
         ret.put(tensorflowName(),map);
 
         return ret;
@@ -81,11 +104,6 @@ public class Cast extends BaseDynamicTransformOp {
     @Override
     public String opName() {
         return "cast";
-    }
-
-    @Override
-    public String onnxName() {
-        throw new NoOpNameFoundException();
     }
 
     @Override
