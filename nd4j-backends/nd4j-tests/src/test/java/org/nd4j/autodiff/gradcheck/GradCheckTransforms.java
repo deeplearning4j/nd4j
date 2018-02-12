@@ -78,6 +78,50 @@ public class GradCheckTransforms {
     }
 
     @Test
+    public void testSpaceToBatch() {
+        Nd4j.getRandom().setSeed(7331);
+
+        int miniBatch = 4;
+        int[] inputShape = new int[]{1, 2, 2, 1};
+
+        int M = 2;
+        int[] blockShape = new int[]{M, 1};
+        int[] paddingShape = new int[]{M, 2};
+
+        INDArray input = Nd4j.randn(inputShape);
+        INDArray blocks = Nd4j.create(new float[]{2, 2}, blockShape);
+        INDArray padding = Nd4j.create(new float[]{0, 0, 0, 0}, paddingShape);
+
+        SameDiff sd = SameDiff.create();
+
+        SDVariable sdInput = sd.var("in", inputShape);
+
+        INDArray expOut = Nd4j.create(miniBatch, 1, 1, 1);
+        DynamicCustomOp op = DynamicCustomOp.builder("space_to_batch")
+                .addInputs(input, blocks, padding)
+                .addOutputs(expOut).build();
+        Nd4j.getExecutioner().exec(op);
+
+        sd.associateArrayWithVariable(input, sdInput);
+
+        SDVariable t = sd.spaceToBatch(sdInput, new int[]{2, 2}, new int[][]{{0, 0}, {0, 0}});
+        SDVariable loss = sd.mean("loss", t);
+        sd.exec();
+        INDArray out = t.getArr();
+
+        if (!expOut.equals(out)) {
+            log.info("space to batch failed on forward");
+        }
+
+        try {
+            GradCheckUtil.checkGradients(sd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
     public void testTransforms() {
         //Test transforms (non-pairwise)
         Nd4j.getRandom().setSeed(12345);
