@@ -25,6 +25,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Created by susaneraly on 11/6/17.
@@ -87,8 +89,30 @@ public class TFGraphTestAllHelper {
 
         if (!execType.equals(ExecuteWith.JUST_PRINT)) {
             for (String outputNode : predictions.keySet()) {
-                INDArray nd4jPred = graph.getVariable(outputNode).getArr();
-                INDArray tfPred = predictions.get(outputNode);
+                INDArray nd4jPred = null;
+                INDArray tfPred = null;
+
+                String nd4jNode = outputNode;
+
+                // we need to convert name from python name format with . on indices, to :. i.e.: output.1 -> output:1
+                if (outputNode.contains("."))
+                    nd4jNode = outputNode.replaceAll("\\.", ":");
+
+                try {
+                    nd4jPred = graph.getVariable(nd4jNode).getArr();
+                } catch (NullPointerException e) {
+                    throw new NullPointerException("Can't find SameDiff variable with name [" + nd4jNode + "]");
+                }
+
+                try {
+                    tfPred = predictions.get(outputNode);
+                }  catch (NullPointerException e) {
+                    throw new NullPointerException("Can't find predicted variable with name [" + outputNode + "]");
+                }
+
+                assertNotNull(nd4jPred);
+                assertNotNull(tfPred);
+
                 assertEquals("Predictions do not match on " + modelName, tfPred, nd4jPred);
             }
             log.info("\n\tTEST " + modelName + " PASSED...");
