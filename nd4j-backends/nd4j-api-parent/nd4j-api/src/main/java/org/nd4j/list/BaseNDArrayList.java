@@ -1,5 +1,7 @@
 package org.nd4j.list;
 
+import org.nd4j.linalg.api.buffer.DataBuffer;
+import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.BooleanIndexing;
@@ -53,7 +55,7 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
      * @return the view of the underlying ndarray relative to the collection's real size
      */
     public INDArray array() {
-         return container.get(NDArrayIndex.interval(0,size)).reshape(1,size);
+        return container.get(NDArrayIndex.interval(0,size)).reshape(1,size);
     }
 
     @Override
@@ -92,12 +94,16 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
             container = Nd4j.create(10);
         }
         else if(size == container.length()) {
-            INDArray newContainer = Nd4j.create(container.length() * 2);
-            newContainer.put(new INDArrayIndex[]{NDArrayIndex.interval(0,container.length())},container);
-            container = newContainer;
+            growCapacity(size * 2);
+        }
+        if(DataTypeUtil.getDtypeFromContext() == DataBuffer.Type.DOUBLE)
+            container.putScalar(size,aX.doubleValue());
+        else {
+            container.putScalar(size,aX.floatValue());
+
         }
 
-        container.putScalar(size++,aX.doubleValue());
+        size++;
         return true;
     }
 
@@ -175,7 +181,14 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
 
     @Override
     public X set(int i, X aX) {
-        container.putScalar(i,aX.doubleValue());
+        if(DataTypeUtil.getDtypeFromContext() == DataBuffer.Type.DOUBLE)
+            container.putScalar(i,aX.doubleValue());
+        else {
+            container.putScalar(i,aX.floatValue());
+
+        }
+
+
         return aX;
     }
 
@@ -184,9 +197,14 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
         rangeCheck(i);
         growCapacity(i);
         moveForward(i);
-        container.putScalar(i,aX.doubleValue());
-        size++;
+        if(DataTypeUtil.getDtypeFromContext() == DataBuffer.Type.DOUBLE)
+            container.putScalar(i,aX.doubleValue());
+        else {
+            container.putScalar(i,aX.floatValue());
 
+        }
+
+        size++;
     }
 
     @Override
@@ -317,13 +335,14 @@ public abstract  class BaseNDArrayList<X extends Number> extends  AbstractList<X
         int numMoved = size - index - 1;
         INDArrayIndex[] first = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index  ,index  + numMoved)};
         INDArrayIndex[] getRange = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index + 1 ,index + 1  + numMoved)};
-        container.put(first,container.get(getRange));
+        INDArray get = container.get(getRange);
+        container.put(first,get);
     }
 
     private void moveForward(int index) {
         int numMoved = size - index - 1;
         INDArrayIndex[] getRange = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index,index + numMoved)};
-        INDArray get = container.get(getRange).dup();
+        INDArray get = container.get(getRange);
         INDArrayIndex[] first = new INDArrayIndex[] {NDArrayIndex.point(0), NDArrayIndex.interval(index + 1,index + 1 + get.length())};
         container.put(first,get);
     }
