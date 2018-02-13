@@ -28354,7 +28354,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
        
-        @Name("nd4j::ops::randomuniform<float>") public static class float_randomuniform extends FloatDeclarableOp {
+        @Name("nd4j::ops::randomuniform<float>") public static class float_randomuniform extends FloatDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public float_randomuniform(Pointer p) { super(p); }
@@ -28369,7 +28369,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
                                                                                 }
        
-        @Name("nd4j::ops::randomuniform<float16>") public static class half_randomuniform extends HalfDeclarableOp {
+        @Name("nd4j::ops::randomuniform<float16>") public static class half_randomuniform extends HalfDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public half_randomuniform(Pointer p) { super(p); }
@@ -28384,7 +28384,7 @@ private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
                                                                                 }
        
-        @Name("nd4j::ops::randomuniform<double>") public static class double_randomuniform extends DoubleDeclarableOp {
+        @Name("nd4j::ops::randomuniform<double>") public static class double_randomuniform extends DoubleDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public double_randomuniform(Pointer p) { super(p); }
@@ -28397,7 +28397,7 @@ private native void allocate();
         public double_randomuniform() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
-                                                                                }        
+                                                                                }
     
 
 
