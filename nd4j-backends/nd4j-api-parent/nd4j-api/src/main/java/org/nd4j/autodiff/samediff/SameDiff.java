@@ -15,6 +15,7 @@ import org.nd4j.autodiff.execution.conf.OutputMode;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.autodiff.functions.DifferentialFunctionFactory;
 import org.nd4j.autodiff.functions.FunctionProperties;
+import org.nd4j.autodiff.samediff.flow.FlowPath;
 import org.nd4j.autodiff.util.cloner.DataBufferFastCloner;
 import org.nd4j.autodiff.util.cloner.INDArrayFastCloner;
 import org.nd4j.graph.*;
@@ -34,6 +35,7 @@ import org.nd4j.linalg.api.ops.impl.accum.distances.EuclideanDistance;
 import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
+import org.nd4j.linalg.api.ops.impl.controlflow.compat.*;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
@@ -46,6 +48,8 @@ import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.GRUCellConfiguration
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.LSTMCellConfiguration;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUCellConfiguration;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUConfiguration;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThan;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.collection.IntArrayKeyMap;
@@ -67,6 +71,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * SameDiff is the
@@ -111,6 +116,9 @@ public class SameDiff {
     //individual index for variable names
     private Map<String, List<DifferentialFunction>> functionsArgsFor;
     private Map<String, List<DifferentialFunction>> functionOutputFor;
+
+    // this entity holds runtime information for Switch/Merge/NextIteration etc stuff
+    private ThreadLocal<FlowPath> localFlowPath = new ThreadLocal<FlowPath>();
 
     /**
      * For import, many times we have variables
@@ -1059,8 +1067,6 @@ public class SameDiff {
             }
             return function;
         }
-
-
         return function;
     }
 
@@ -2083,12 +2089,28 @@ public class SameDiff {
         return mergeAdd(null, iX);
     }
 
-//    public SDVariable mergeAdd(SDVariable[] iX) {
-//        return mergeAdd(null, iX);
-//    }
 
     public SDVariable mergeAdd(String name, SDVariable[] iX) {
         SDVariable ret = f().mergeadd(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable batchToSpace(SDVariable iX, int[] blocks, int[][] crops) {
+        return batchToSpace(null, iX, blocks, crops);
+    }
+
+    public SDVariable batchToSpace(String name, SDVariable iX, int[] blocks, int[][] crops) {
+        SDVariable ret = f().batchToSpace(iX, blocks, crops);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    public SDVariable spaceToBatch(SDVariable iX, int[] blocks, int[][] padding) {
+        return spaceToBatch(null, iX, blocks, padding);
+    }
+
+    public SDVariable spaceToBatch(String name, SDVariable iX, int[] blocks, int[][] padding) {
+        SDVariable ret = f().spaceToBatch(iX, blocks, padding);
         return updateVariableNameAndReference(ret, name);
     }
 
@@ -3505,6 +3527,44 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable predictions) {
+        return confusionMatrix((String)null, labels, predictions);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred) {
+        SDVariable result = f().confusionMatrix(labels, pred) ;
+        return updateVariableNameAndReference(result, name);
+    }
+
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses) {
+        return confusionMatrix(null, labels, pred, numClasses);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, Integer numClasses) {
+        SDVariable result = f().confusionMatrix(labels, pred, numClasses) ;
+        return updateVariableNameAndReference(result, name);
+    }
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, SDVariable weights) {
+        return confusionMatrix(null, labels, pred, weights);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, SDVariable weights) {
+        SDVariable result = f().confusionMatrix(labels, pred, weights);
+        return updateVariableNameAndReference(result, name);
+    }
+
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights) {
+        return confusionMatrix(null, labels, pred, numClasses, weights);
+    }
+
+    public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights) {
+        SDVariable result = f().confusionMatrix(labels, pred, numClasses, weights);
+        return updateVariableNameAndReference(result, name);
+    }
+
     /**
      * @param variable
      */
@@ -3553,14 +3613,12 @@ public class SameDiff {
         int count = 1;
         String name = baseName + "_" + count + (argIndex > 0 ? ":" + argIndex : "");
         while (getVariable(name) != null) {
-            name = baseName + "_" + count + (argIndex > 0 ? ":" + argIndex : "");
-            count++;
+            name = baseName + "_" + (++count) + (argIndex > 0 ? ":" + argIndex : "");
         }
 
         if (getVariable(name) != null) {
             throw new ND4JIllegalStateException("Converged on already generated variable!");
         }
-
 
         return name;
     }
@@ -4543,10 +4601,29 @@ public class SameDiff {
 
         List<DifferentialFunction> ops = new ArrayList<>();
 
+        // we don't care if this thread had any other FlowPath objects attached. we'll just create new one
+        localFlowPath.set(new FlowPath());
+
+        val flowPath = localFlowPath.get();
+
         Map<SDVariable, DifferentialFunction> opMap = new HashMap<>();
         val funcs = new ArrayList<DifferentialFunction>(functionInstancesById.values());
         boolean onBackward = false;
-        for (int i = 0; i < funcs.size(); i++) {
+
+        // dequeue for Frames (nested, probably)
+        val frames = new ArrayDeque<String>();
+
+        // simple flag, set true if within frame
+        boolean inFrame = false;
+
+        // yet another flag, to remove LastFrame once we really left last frame
+        boolean frameLeft = false;
+
+        int i = 0;
+        int exec_counter = 0;
+        for (; i < funcs.size(); i++) {
+            ++exec_counter;
+
             val opName = funcs.get(i).opName();
             if (!onBackward && opName.equals(new GradientBackwardsMarker().opName())) {
                 onBackward = true;
@@ -4556,14 +4633,217 @@ public class SameDiff {
                 continue;
 
             DifferentialFunction differentialFunction = funcs.get(i);
+            val ownName = differentialFunction.getOwnName();
+
+            // just registering function for this pass
+            flowPath.ensureNodeStateExists(differentialFunction.getOwnName());
+
             if (differentialFunction instanceof SDVariable) {
                 continue;
             }
 
+            val args = getInputsForFunction(differentialFunction);
+
+            log.info("Step: {}; Executing op {} for node [{}]", exec_counter, opName, ownName);
+
+            // check if inputs are active nodes. skip step otherwise
+            // please note: Exit node can't be skipped, because it's either rewind point or exit loop point
+            boolean shouldSkip = false;
+            if (differentialFunction instanceof Merge) {
+                val arg0 = args[0];
+                val arg1 = args[1];
+
+                if (!flowPath.isActive(arg0) && !flowPath.isActive(arg1))
+                    shouldSkip = true;
+            } else {
+                if (!(differentialFunction instanceof Exit)) {
+
+                    // if we've left Exit nodes, we can finally delete last frame name
+                    if (frameLeft) {
+                        frameLeft = false;
+
+                        val frame_name = frames.removeLast();
+                        flowPath.activateFrame(frame_name, false);
+                        flowPath.forgetFrame(frame_name);
+                    }
+
+                    // we must check, if there's inactive nodes used as inputs for this node
+                    for (val input : args) {
+                        if (!flowPath.isActive(input)) {
+                            // propagate inactivity
+                            flowPath.markActive(differentialFunction.getOwnName(), false);
+                            shouldSkip = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (shouldSkip)
+                continue;
 
             differentialFunction.resolvePropertiesFromSameDiffBeforeExecution();
+            flowPath.markActive(differentialFunction.getOwnName(), true);
 
-            if (differentialFunction instanceof If) {
+            /**
+             * This set of operations (Enter/Exit/NextIteration/Exit/Switch) are special snowflakes: they modify graph execution order, and basically used here to replicate TF logic.
+             * Since SameDiff itself has own logic for loops and conditionals using Scopes
+             */
+            if (differentialFunction instanceof LoopCond) {
+                // this node just passes single input forward, for future evaluation
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
+                val array = inputs[0].getArr();
+                variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+
+                if ((int) array.getDouble(0) == 1) {
+                    val frameName = frames.getLast();
+                    // incrementing number of cycles for THIS frame, only if LoopCond is true
+                    flowPath.incrementNumberOfCycles(frameName);
+                }
+            }else if (differentialFunction instanceof Enter) {
+              //  if (flowPath.wasExecuted(differentialFunction.getOwnName()))
+              //      continue;
+
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
+                val array = inputs[0].getArr();
+                variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+
+                // frame_name MUST be non-null here
+                val frame_name = ((Enter) differentialFunction).getFrameName();
+                if (!flowPath.isRegisteredFrame(frame_name)) {
+                    flowPath.registerFrame(frame_name);
+                    frames.addLast(frame_name);
+                    inFrame = true;
+                }
+
+
+            } else if (differentialFunction instanceof Exit) {
+                // this is just exit point of graph: it maps own input to own output or rewinds graph to specific position planned at first NextIteration node
+
+                val frame_name = frames.getLast();
+
+                // saving frame_name for backward pass
+                ((Exit) differentialFunction).setFrameName(frame_name);
+
+                if (!flowPath.isFrameActive(frame_name)) {
+                    flowPath.markActive(differentialFunction.getOwnName(), false);
+
+                    // if frame is inactive, lets remove it from queue as well
+                    frameLeft = true;
+                    continue;
+                }
+
+                // Exit node is called in any way, doesn't matters if body was executed or not
+                // so, we're checking if rewind was planned (so, NextIteration was executed before Exit)
+                // and if it's TRUE - we're setting applying rewind by setting loop idx and calling continue
+                if (flowPath.isRewindPlanned(frame_name)) {
+                    // just reset loop
+                    flowPath.planRewind(frame_name, false);
+                    val currentPosition = i;
+                    i = flowPath.getRewindPosition(frame_name);
+                    val startPosition = i + 1;
+                    flowPath.setRewindPosition(frame_name, -1);
+
+                    continue;
+                }
+
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
+                val array = inputs[0].getArr();
+                variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+
+                // now it's safe to remove LastFrame
+                frameLeft = true;
+
+            } else if (differentialFunction instanceof NextIteration) {
+                // this operations merges own input, and schedules rewind to specific Merge node
+                val inputs = getInputVariablesForFunction(differentialFunction);
+                val frame_name = frames.getLast();
+
+                val array = inputs[0].getArr();
+                variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+
+                // if NextIteration wasn't skipped with inactive branch, we'll plan rewind for this frame. obviously, only once
+                if (!flowPath.isRewindPlanned(frame_name)) {
+                    flowPath.planRewind(frame_name, true);
+
+                    continue;
+                }
+
+            } else if (differentialFunction instanceof Merge) {
+                // merge operation takes two inputs, and saves one of them as own output.
+                // if SDVariable exists for second input - we use it. First input used otherwise
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
+                val frame_name = frames.size() > 0 ? frames.getLast() : null;
+
+                if (frame_name != null)
+                    flowPath.activateFrame(frame_name, true);
+
+                // frame_name can be null if this merge node is used for something that's not loop. i.e. switch/merge pair
+                if (frame_name != null)
+                    flowPath.setRewindPositionOnce(frame_name, i - 1);
+
+                // NextIteration can have NO frame_name defined. so let's propagate it
+                if (inputs.length == 2) {
+                    val secondArg = functionInstancesById.get(inputs[1].getVarName());
+
+                    if (secondArg != null && secondArg instanceof NextIteration) {
+                        ((NextIteration) secondArg).setFrameName(frame_name);
+                    }
+                }
+
+                // we must check second input first here
+                if (flowPath.wasExecuted(inputs[1].getVarName())) {
+                    // propagate second input
+                    val array = inputs[1].getArr();
+                    variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+
+                    // nullify executed mark
+                    flowPath.markExecuted(inputs[1].getVarName(), false);
+                } else {
+                    // propagate first input
+                    val array = inputs[0].getArr();
+                    variableNameToArr.put(differentialFunction.getOwnName(), array.dup(array.ordering()));
+                }
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+            } else if (differentialFunction instanceof Switch) {
+                // switch takes 2 inputs: actual input and boolean scalar. If scalar is false, input is saved as output:0, if scalar is true, input is saved as output:1
+                ((CustomOp) differentialFunction).populateInputsAndOutputsFromSameDiff();
+
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
+                val input = inputs[0].getArr();
+                val bool = inputs[1].getArr();
+
+                // basically we're setting one of the graph branches inactive. branch 0 for false, branch 1 for true
+                if ((int) bool.getDouble(0) == 0) {
+                    // false step, we'll propagate output:0 here
+                    flowPath.setActiveBranch(differentialFunction.getOwnName(), 0);
+                    flowPath.markActive(differentialFunction.getOwnName(), true);
+                    flowPath.markActive(differentialFunction.getOwnName() + ":1", false);
+                    variableNameToArr.put(differentialFunction.getOwnName(), input.dup(input.ordering()));
+                } else {
+                    // true step, we'll propagate output:1 here
+                    flowPath.setActiveBranch(differentialFunction.getOwnName(), 1);
+                    variableNameToArr.put(differentialFunction.getOwnName() + ":1", input.dup(input.ordering()));
+                    flowPath.markActive(differentialFunction.getOwnName(), false);
+                    flowPath.markActive(differentialFunction.getOwnName() + ":1", true);
+                }
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+            } else if (differentialFunction instanceof If) {
                 If ifOp = (If) differentialFunction;
                 if (!onBackward) {
                     ifOp.getPredicateExecution().exec();
@@ -4605,6 +4885,7 @@ public class SameDiff {
 
                 }
 
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
 
                 ops.add(differentialFunction);
 
@@ -4650,16 +4931,38 @@ public class SameDiff {
 
                 }
 
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
 
             } else if (differentialFunction instanceof CustomOp) {
                 DynamicCustomOp customOp = (DynamicCustomOp) differentialFunction;
                 customOp.populateInputsAndOutputsFromSameDiff();
                 customOp.assertValidForExecution();
+
+                customOp.updateInputsFromSameDiff();
+
                 Nd4j.getExecutioner().exec(customOp);
+
+                /*
+                if (customOp instanceof LessThanOrEqual) {
+                    log.info("Step: {}; InnerCondition: {} <= {} = {}", exec_counter, customOp.getInputArgument(0), customOp.getInputArgument(1), customOp.getOutputArgument(0));
+                } else if (customOp instanceof LessThan) {
+                    log.info("Step: {}; OuterCondition: {} <= {} = {}", exec_counter, customOp.getInputArgument(0), customOp.getInputArgument(1), customOp.getOutputArgument(0));
+                }
+                */
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
 
                 ops.add(customOp);
             } else if (differentialFunction instanceof Op) {
+                val inputs = getInputVariablesForFunction(differentialFunction);
+
                 Op op = (Op) differentialFunction;
+
+                // ops in differential function might have stale NDArrays used. we should renew them
+                op.setX(inputs[0].getArr());
+                if (inputs.length == 2)
+                    op.setY(inputs[1].getArr());
+
                 if (differentialFunction.getDimensions() == null)
                     Nd4j.getExecutioner().exec(op);
                 else if (op.isExecSpecial()) {
@@ -4670,6 +4973,7 @@ public class SameDiff {
                         Accumulation accumulation = (Accumulation) differentialFunction;
 
                         Nd4j.getExecutioner().exec(accumulation, axes);
+
                         if (differentialFunction.outputVariables()[0].getArr() == null) {
                             val var = differentialFunction.outputVariables()[0];
                             updateArrayForVarName(var.getVarName(), accumulation.z());
@@ -4690,11 +4994,14 @@ public class SameDiff {
                     }
                 }
 
+
+                flowPath.markExecuted(differentialFunction.getOwnName(), true);
+
                 ops.add(differentialFunction);
             }
 
             //debug
-            printFunction(differentialFunction);
+           // printFunction(differentialFunction);
         }
 
         return new Pair<>(opMap, ops);
@@ -4723,8 +5030,6 @@ public class SameDiff {
                     Arrays.toString(func.getShape()));
         }
 
-
-//        log.info("Executing op " + differentialFunction.opName());
 
         StringBuilder realShapes = new StringBuilder();
         for (val arg : differentialFunction.args()) {
@@ -4862,7 +5167,8 @@ public class SameDiff {
         }
     }
 
-    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap) {
+    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap, Map<String, Integer> forwardMap, Map<String, Integer> framesMap, AtomicInteger idCounter) {
+        val opName = node.opName();
         val hash = getOpNum(node.opName(), node.opType());
         //log.info("Exporting node: [{}:<{}> ; OpType: {}; Hash/opNum: {}]", node.opName(), node.tensorflowName(), node.opType(), hash);
 
@@ -4871,11 +5177,17 @@ public class SameDiff {
             extras[e] = ((Number) node.getExtraArgs()[e]).floatValue();
         }
 
-
         int[] extraBits = null;
         if (node.opType() == Op.Type.CUSTOM) {
             DynamicCustomOp dynamicCustomOp = (DynamicCustomOp) node;
             extraBits = dynamicCustomOp.iArgs();
+        } else if (node instanceof Enter) {
+            // in case of Enter node we'll be storing unique frame reference
+            val frameName = ((Enter) node).getFrameName();
+            if (!framesMap.containsKey(frameName))
+                framesMap.put(frameName, idCounter.incrementAndGet());
+
+            extraBits = new int[]{framesMap.get(frameName).intValue()};
         } else
             extraBits = new int[]{};
 
@@ -4890,21 +5202,30 @@ public class SameDiff {
 
 
         val inputs = node.args();
+        log.trace("");
         for (val input : inputs) {
-            for (int i = 0; i < outputVertexId.length; i++) {
+            //for (int i = 0; i < outputVertexId.length; i++) {
                 val pair = parseVariable(input.getVarName());
-                if (!reverseMap.containsKey(pair.getFirst()))
-                    throw new ND4JIllegalStateException("Unknown variable used in input: [" + pair.getFirst() + "]");
+                if (!reverseMap.containsKey(pair.getFirst())) {
+                    if (pair.getFirst().contains("NextIteration")) {
+                        // forward declaration: Merge node in case of loop will be referring to NextIteration node, which wasn't announced yet
+                        int fwdNodeId = idCounter.incrementAndGet();
+                        forwardMap.put(pair.getFirst(), fwdNodeId);
+                        reverseMap.put(pair.getFirst(), fwdNodeId);
+                    } else {
+                        throw new ND4JIllegalStateException("Unknown variable used in input: [" + pair.getFirst() + "]");
+                    }
+                }
 
                 int nodeId = reverseMap.get(pair.getFirst());
                 int outputIndex = pair.getSecond();
 
                 inPaired.add(IntPair.createIntPair(bufferBuilder, nodeId, outputIndex));
-            }
+            //}
         }
 
         log.info("Own Name: {}", node.getOwnName());
-        int ownId = reverseMap.size() + 1;
+        int ownId = forwardMap.containsKey(node.getOwnName()) ? forwardMap.get(node.getOwnName()): idCounter.incrementAndGet();
         reverseMap.put(node.getOwnName(), ownId);
 
         // TODO: Adam, just put your props here, instead of empty list, and they will be saved
@@ -4957,6 +5278,7 @@ public class SameDiff {
     public ByteBuffer asFlatBuffers(@NonNull ExecutorConfiguration configuration) {
         Nd4j.getExecutioner().commit();
         FlatBufferBuilder bufferBuilder = new FlatBufferBuilder(1024);
+        val idCounter = new AtomicInteger(0);
 
         val flatVariables = new ArrayList<Integer>();
         val flatOffsets = new ArrayList<Integer>();
@@ -4965,25 +5287,28 @@ public class SameDiff {
         // first of all we build VariableSpace dump
         List<SDVariable> variableList = new ArrayList<>(variables());
         val reverseMap = new LinkedHashMap<String, Integer>();
+        val forwardMap = new LinkedHashMap<String, Integer>();
+        val framesMap = new LinkedHashMap<String, Integer>();
 
         int idx = 0;
         for (val variable : variables()) {
             log.info("Exporting variable: [{}]", variable.getVarName());
             if (variable.getArr() == null || variable.getShape() == null) {
-                putArrayForVarName(variable.getVarName(), Nd4j.scalar(1.0));
-                addAsPlaceHolder(variable.getVarName());
+                //putArrayForVarName(variable.getVarName(), Nd4j.scalar(1.0));
+                //addAsPlaceHolder(variable.getVarName());
+                continue;
             }
 
 
             val pair = parseVariable(variable.getVarName());
-            reverseMap.put(pair.getFirst(), ++idx);
-            log.info("Adding [{}] as [{}]", pair.getFirst(), idx);
+            reverseMap.put(pair.getFirst(), idCounter.incrementAndGet());
+            log.info("Adding [{}] as [{}]", pair.getFirst(), idCounter.get());
 
             val arr = variable.getArr();
 
             int name = bufferBuilder.createString(variable.getVarName());
             int array = arr.toFlatArray(bufferBuilder);
-            int id = IntPair.createIntPair(bufferBuilder, idx, 0);
+            int id = IntPair.createIntPair(bufferBuilder, idCounter.get(), 0);
 
 
             int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
@@ -4992,7 +5317,7 @@ public class SameDiff {
 
         //add functions
         for (val func : functionInstancesById.values()) {
-            flatNodes.add(asFlatNode(func, bufferBuilder, variableList, reverseMap));
+            flatNodes.add(asFlatNode(func, bufferBuilder, variableList, reverseMap, forwardMap, framesMap, idCounter));
         }
 
         // we're dumping scopes now
@@ -5003,10 +5328,11 @@ public class SameDiff {
             for (val node : scope.getValue().variables()) {
                 INDArray arr = node.getArr();
                 if (arr == null) {
-                    val otherArr = Nd4j.scalar(1.0);
-                    scope.getValue().putArrayForVarName(node.getVarName(), otherArr);
-                    log.warn("Adding placeholder for export for var name {}", node.getVarName());
-                    arr = otherArr;
+                    //val otherArr = Nd4j.scalar(1.0);
+                    //scope.getValue().putArrayForVarName(node.getVarName(), otherArr);
+                    //log.warn("Adding placeholder for export for var name {}", node.getVarName());
+                    //arr = otherArr;
+                    continue;
                 }
 
                 int name = bufferBuilder.createString(node.getVarName());
@@ -5024,7 +5350,7 @@ public class SameDiff {
 
             //add functions
             for (val func : scope.getValue().functionInstancesById.values()) {
-                flatNodes.add(asFlatNode(func, bufferBuilder, currVarList, reverseMap));
+                flatNodes.add(asFlatNode(func, bufferBuilder, currVarList, reverseMap, forwardMap, framesMap, idCounter));
             }
 
         }
@@ -5172,7 +5498,10 @@ public class SameDiff {
                     sb.append(", ");
             }
 
-            sb.append("}\n");
+            sb.append("};");
+            sb.append(" OpNum: {").append(node.opNum()).append("};");
+
+            sb.append("\n");
         }
 
 
@@ -5231,8 +5560,20 @@ public class SameDiff {
             return 0;
         } else if (type == Op.Type.RETURN) {
             return 40;
-        } else if (type == Op.Type.IF || type == Op.Type.CONDITIONAL) {
+        } else if (type == Op.Type.IF) {
+            return 30;
+        } else if (type == Op.Type.CONDITIONAL) {
             return 10;
+        } else if (type == Op.Type.MERGE) {
+            return 60L;
+        } else if (type == Op.Type.LOOP_COND) {
+            return 70L;
+        } else if (type == Op.Type.NEXT_ITERATION) {
+            return 80L;
+        } else if (type == Op.Type.EXIT) {
+            return 90L;
+        } else if (type == Op.Type.ENTER) {
+            return 100L;
         } else if (type == Op.Type.CUSTOM) {
             val name2 = Nd4j.getExecutioner().getCustomOperations().get(name.toLowerCase());
             if (name2 == null)
@@ -5303,11 +5644,15 @@ public class SameDiff {
                 return OpType.INDEX_ACCUMULATION;
             case RANDOM:
                 return OpType.RANDOM;
+            case MERGE:
             case CONDITIONAL:
-                return OpType.LOGIC;
             case LOOP:
-                return OpType.LOGIC;
             case RETURN:
+            case ENTER:
+            case EXIT:
+            case NEXT_ITERATION:
+            case LOOP_COND:
+            case IF:
                 return OpType.LOGIC;
             case CUSTOM:
                 return OpType.CUSTOM;

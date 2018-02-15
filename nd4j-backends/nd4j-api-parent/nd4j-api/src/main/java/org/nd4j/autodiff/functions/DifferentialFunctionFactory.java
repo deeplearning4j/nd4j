@@ -5,6 +5,7 @@ import lombok.Data;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.*;
 import org.nd4j.linalg.api.ops.impl.accum.Min;
@@ -511,6 +512,21 @@ public class DifferentialFunctionFactory   {
         return new Squeeze(sameDiff(), iX, axis).outputVariables()[0];
     }
 
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred){
+        return new ConfusionMatrix(sameDiff(), labels, pred).outputVariables()[0];
+    }
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses){
+        return new ConfusionMatrix(sameDiff(), labels, pred, numClasses).outputVariables()[0];
+    }
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, SDVariable weights){
+        return new ConfusionMatrix(sameDiff(), labels, pred, weights).outputVariables()[0];
+    }
+
+    public SDVariable confusionMatrix(SDVariable labels, SDVariable pred, Integer numClasses, SDVariable weights){
+        return new ConfusionMatrix(sameDiff(), labels, pred, numClasses, weights).outputVariables()[0];
+    }
 
     public SDVariable broadcast(SDVariable iX, int... shape) {
         return new Broadcast(sameDiff(),iX,shape).outputVariables()[0];
@@ -798,6 +814,18 @@ public class DifferentialFunctionFactory   {
             validateDifferentialFunctionsameDiff(df);
         return new MergeAddOp(sameDiff(), differentialFunctions,false).outputVariables()[0];
 
+    }
+
+    public SDVariable batchToSpace(SDVariable differentialFunction, int[] blocks, int[][] crops) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new BatchToSpace(sameDiff(), new SDVariable[]{differentialFunction}, blocks, crops, false)
+                .outputVariables()[0];
+    }
+
+    public SDVariable spaceToBatch(SDVariable differentialFunction, int[] blocks, int[][] padding) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new SpaceToBatch(sameDiff(), new SDVariable[]{differentialFunction}, blocks, padding, false)
+                .outputVariables()[0];
     }
 
     public SDVariable addi(SDVariable differentialFunction, SDVariable i_v) {

@@ -89,7 +89,7 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
     @Override
     public void createBlas() {
         blas = new CudaBlas();
-        PointerPointer functions = new PointerPointer(9);
+        PointerPointer functions = new PointerPointer(13);
         functions.put(0, Loader.addressof("cublasSgemv_v2"));
         functions.put(1, Loader.addressof("cublasDgemv_v2"));
         functions.put(2, Loader.addressof("cublasHgemm"));
@@ -99,6 +99,10 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
         functions.put(6, Loader.addressof("cublasHgemmBatched"));
         functions.put(7, Loader.addressof("cublasSgemmBatched"));
         functions.put(8, Loader.addressof("cublasDgemmBatched"));
+        functions.put(9, Loader.addressof("cusolverDnSgesvd_bufferSize"));
+        functions.put(10, Loader.addressof("cusolverDnDgesvd_bufferSize"));
+        functions.put(11, Loader.addressof("cusolverDnSgesvd"));
+        functions.put(12, Loader.addressof("cusolverDnDgesvd"));
         nativeOps.initializeFunctions(functions);
     }
 
@@ -1398,7 +1402,7 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
         if (!(source instanceof CompressedDataBuffer))
             AtomicAllocator.getInstance().synchronizeHostData(source);
 
-        if (typeDst.ordinal() < 6) {
+        if (typeDst.ordinal() < 8) {
             // all types below 6 are compression modes
             BytePointer pointer = new BytePointer(source.length() * elementSize);
             CompressionDescriptor descriptor = new CompressionDescriptor(source, typeDst.name());

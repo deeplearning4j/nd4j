@@ -14,6 +14,7 @@ package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.BaseTransformOp;
 
@@ -21,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Floor mod
+ * Floating-point mod
  *
  * @author raver119@gmail.com
  */
@@ -85,12 +86,12 @@ public class FModOp extends BaseTransformOp {
 
     @Override
     public String onnxName() {
-        return "FloorMod";
+        throw new NoOpNameFoundException();
     }
 
     @Override
     public String tensorflowName() {
-        return "FloorMod";
+        throw new NoOpNameFoundException();
     }
 
     @Override

@@ -57,6 +57,7 @@ public abstract class DifferentialFunction {
 
     @Getter
     @Setter
+    @JsonIgnore
     private String ownName;
 
     public DifferentialFunction() {
@@ -139,6 +140,22 @@ public abstract class DifferentialFunction {
         return ret;
     }
 
+
+    /**
+     * Get the value for a given property
+     * for this function
+     * @param property the property to get
+     * @return the value for the function if it exists
+     */
+    public Object getValue(Field property) {
+        try {
+            return property.get(this);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     /**
      * Set the value for this function.

@@ -30,6 +30,7 @@ import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.accum.LogSumExp;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Im2col;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.primitives.Pair;
 import org.junit.After;
 import org.junit.Before;
@@ -4547,6 +4548,49 @@ public class Nd4jTestsC extends BaseNd4jTest {
         }
     }
 
+    @Test
+    public void testTadReduce3_3_NEG() throws Exception {
+        INDArray initial = Nd4j.create(5, 10);
+        for (int i = 0; i < initial.rows(); i++) {
+            initial.getRow(i).assign(i + 1);
+        }
+        INDArray needle = Nd4j.create(10).assign(1.0);
+        INDArray reduced = Nd4j.getExecutioner().exec(new EuclideanDistance(initial, needle), -1);
+
+        log.warn("Reduced: {}", reduced);
+
+        for (int i = 0; i < initial.rows(); i++) {
+            INDArray x = initial.getRow(i).dup();
+            double res = Nd4j.getExecutioner().execAndReturn(new EuclideanDistance(x, needle)).getFinalResult()
+                    .doubleValue();
+            assertEquals("Failed at " + i, reduced.getDouble(i), res, 0.001);
+
+            log.info("Euclidean: {} vs {} is {}", x, needle, res);
+        }
+    }
+
+    @Test
+    public void testTadReduce3_3_NEG_2() throws Exception {
+        INDArray initial = Nd4j.create(5, 10);
+        for (int i = 0; i < initial.rows(); i++) {
+            initial.getRow(i).assign(i + 1);
+        }
+        INDArray needle = Nd4j.create(10).assign(1.0);
+        INDArray reduced = Nd4j.create(5);
+        Nd4j.getExecutioner().exec(new CosineSimilarity(initial, needle, reduced, initial.lengthLong()), -1);
+
+        log.warn("Reduced: {}", reduced);
+
+        for (int i = 0; i < initial.rows(); i++) {
+            INDArray x = initial.getRow(i).dup();
+            double res = Nd4j.getExecutioner().execAndReturn(new CosineSimilarity(x, needle)).getFinalResult()
+                    .doubleValue();
+            assertEquals("Failed at " + i, reduced.getDouble(i), res, 0.001);
+
+            log.info("Cosine: {} vs {} is {}", x, needle, res);
+        }
+    }
+
     @Test(expected = ND4JIllegalStateException.class)
     public void testTadReduce3_5() throws Exception {
         INDArray initial = Nd4j.create(5, 10);
@@ -5915,6 +5959,52 @@ public class Nd4jTestsC extends BaseNd4jTest {
         }
 
         assertEquals(exp, out);
+    }
+
+    @Test
+    public void testLastIndex(){
+
+        INDArray in = Nd4j.create(new double[][]{
+                {1,1,1,0},
+                {1,1,0,0}});
+
+        INDArray exp0 = Nd4j.create(new double[]{1,1,0,-1});
+        INDArray exp1 = Nd4j.create(new double[]{2,1}).transpose();
+
+        INDArray out0 = BooleanIndexing.lastIndex(in, Conditions.equals(1), 0);
+        INDArray out1 = BooleanIndexing.lastIndex(in, Conditions.equals(1), 1);
+
+        assertEquals(exp0, out0);
+        assertEquals(exp1, out1);
+    }
+
+    @Test(expected = ND4JIllegalStateException.class)
+    public void testBadReduce3Call() {
+        val x = Nd4j.create(400,20);
+        val y = Nd4j.ones(1, 20);
+        x.distance2(y);
+    }
+
+
+    @Test
+    public void testReduce3AlexBug() {
+        val arr = Nd4j.linspace(1,100,100).reshape('f', 10, 10).dup('c');
+        val arr2 = Nd4j.linspace(1,100,100).reshape('c', 10, 10);
+        val out = Nd4j.getExecutioner().exec(new EuclideanDistance(arr, arr2), 1);
+        val exp = Nd4j.create(new double[] {151.93748, 128.86038, 108.37435, 92.22256, 82.9759, 82.9759, 92.22256, 108.37435, 128.86038, 151.93748});
+
+        assertEquals(exp, out);
+    }
+
+    @Test
+    public void testAllDistancesEdgeCase1() {
+        val x = Nd4j.create(400, 20).assign(2.0);
+        val y = Nd4j.ones(1, 20);
+        val z = Transforms.allEuclideanDistances(x, y, 1);
+
+        val exp = Nd4j.create(400, 1).assign(4.47214);
+
+        assertEquals(exp, z);
     }
 
 

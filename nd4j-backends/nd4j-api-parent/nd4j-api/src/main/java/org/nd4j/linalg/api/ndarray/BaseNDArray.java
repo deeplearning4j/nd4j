@@ -24,6 +24,7 @@ import com.google.common.primitives.Ints;
 import com.google.flatbuffers.FlatBufferBuilder;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.ericaro.neoitertools.Generator;
 import org.apache.commons.math3.util.FastMath;
 import org.nd4j.autodiff.samediff.SameDiff;
@@ -37,7 +38,6 @@ import org.nd4j.linalg.api.complex.IComplexNumber;
 import org.nd4j.linalg.api.instrumentation.Instrumentation;
 import org.nd4j.linalg.api.iter.FirstAxisIterator;
 import org.nd4j.linalg.api.memory.MemoryWorkspace;
-import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.*;
 import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.Min;
@@ -51,11 +51,11 @@ import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
+import org.nd4j.linalg.exception.Nd4jNoSuchWorkspaceException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.*;
 import org.nd4j.linalg.indexing.conditions.Condition;
 import org.nd4j.linalg.primitives.Pair;
-import org.nd4j.linalg.profiler.OpProfiler;
 import org.nd4j.linalg.string.NDArrayStrings;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.linalg.util.LinAlgExceptions;
@@ -3252,7 +3252,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         LinAlgExceptions.assertSameShape(other, result);
 
 
-        Nd4j.getExecutioner().exec(new SubOp(new INDArray[]{this, other},new INDArray[]{ result}));
+        Nd4j.getExecutioner().exec(new OldSubOp(this, other,result));
 
         if (Nd4j.ENFORCE_NUMERICAL_STABILITY)
             Nd4j.clearNans(result);
@@ -3857,9 +3857,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             }
         }
 
-        long prod = ArrayUtil.prodLong(newShape);
-        if(numberNegativesOnes > 0)
-            prod = Math.abs(prod);
+        long prod = ArrayUtil.prodLong(shape);
 
         if (prod != this.lengthLong())
             throw new ND4JIllegalStateException("New shape length doesn't match original length: [" + prod + "] vs [" + this.lengthLong() + "]");
@@ -4936,8 +4934,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
     
     protected void autoProcessScalarCall() {
-        if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED)
-            OpProfiler.getInstance().processScalarCall();
+       /* if (Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.DISABLED && Nd4j.getExecutioner().getProfilingMode() != OpExecutioner.ProfilingMode.SCOPE_PANIC)
+            OpProfiler.getInstance().processScalarCall();*/
     }
 
     /**
@@ -5290,7 +5288,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isAttached() {
-        return data.isAttached();
+        return data.isAttached() ||
+                (data.underlyingDataBuffer() != null && data.underlyingDataBuffer().isAttached()) ||
+                (data.originalDataBuffer() != null && data.originalDataBuffer().isAttached());
     }
 
     /**
@@ -5411,11 +5411,33 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public INDArray leverageTo(String id) {
+        return leverageTo(id, false);
+    }
+
+    /**
+     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id.
+     * If enforceExistence == true, and no workspace with the specified ID exists, then an {@link Nd4jNoSuchWorkspaceException}
+     * is thrown. Otherwise, if enforceExistance == false and no workspace with the specified ID exists, then the current
+     * INDArray is returned unmodified (same as {@link #leverage()}
+     *
+     * @param id ID of the workspace to leverage to
+     * @param enforceExistence If true, and the specified workspace does not exist: an {@link Nd4jNoSuchWorkspaceException}
+     *                         will be thrown.
+     * @return The INDArray, leveraged to the specified workspace
+     * @see #leverageTo(String)
+     */
+    @Override
+    public INDArray leverageTo(String id, boolean enforceExistence) throws Nd4jNoSuchWorkspaceException {
         if (!isAttached())
             return this;
 
-        if (!Nd4j.getWorkspaceManager().checkIfWorkspaceExists(id))
-            return this;
+        if (!Nd4j.getWorkspaceManager().checkIfWorkspaceExists(id)) {
+            if(enforceExistence){
+                throw new Nd4jNoSuchWorkspaceException(id);
+            } else {
+                return this;
+            }
+        }
 
         MemoryWorkspace current = Nd4j.getMemoryManager().getCurrentWorkspace();
 
@@ -5444,18 +5466,61 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
 
     /**
+     * This method detaches INDArray from current Workspace, and attaches it to Workspace with a given Id, if a workspace
+     * with the given ID is open and active.
+     *
+     * If the workspace does not exist, or is not active, the array is detached from any workspaces.
+     *
+     * @param id ID of the workspace to leverage to
+     * @return The INDArray, leveraged to the specified workspace (if it exists and is active) otherwise the detached array
+     * @see #leverageTo(String)
+     */
+    public INDArray leverageOrDetach(String id){
+        if(!isAttached()){
+            return this;
+        }
+
+        if(!Nd4j.getWorkspaceManager().checkIfWorkspaceExistsAndActive(id)){
+            return detach();
+        }
+        return leverageTo(id);
+    }
+
+    /**
      * This method pulls this INDArray into current Workspace.
      *
      * PLEASE NOTE: If there's no current Workspace - INDArray returned as is
      *
-     * @return
+     * @return Migrated INDArray or <i>this</i> if no current workspace
+     * @see #migrate(boolean)
      */
     @Override
     public INDArray migrate() {
+        return migrate(false);
+    }
+
+    /**
+     * This method pulls this INDArray into current Workspace, or optionally detaches if no workspace is present.<br>
+     * That is:<br>
+     * If current workspace is present/active, INDArray is migrated to it.<br>
+     * If no current workspace is present/active, one of two things occur:
+     * 1. If detachOnNoWs arg is true: if there is no current workspace, INDArray is detached
+     * 2. If detachOnNoWs arg is false: this INDArray is returned as-is (no-op) - equivalent to {@link #migrate()}
+     *
+     * @param detachOnNoWs If true: detach on no WS. If false and no workspace: return this.
+     * @return Migrated INDArray
+     */
+    @Override
+    public INDArray migrate(boolean detachOnNoWs){
         MemoryWorkspace current = Nd4j.getMemoryManager().getCurrentWorkspace();
 
-        if (current == null)
-            return this;
+        if (current == null) {
+            if(detachOnNoWs){
+                return detach();
+            } else {
+                return this;
+            }
+        }
 
         INDArray copy = null;
 
@@ -5590,5 +5655,42 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     public int underlyingRank() {
         throw new UnsupportedOperationException("Not a sparse ndarray");
 
+    }
+
+    @Override
+    public INDArray convertToFloats() {
+        if (data.dataType() == DataBuffer.Type.FLOAT)
+            return this;
+
+        val factory = Nd4j.getNDArrayFactory();
+        val buffer = Nd4j.createBuffer(new int[]{this.length()}, DataBuffer.Type.FLOAT);
+
+        factory.convertDataEx(convertType(data.dataType()), this.data().addressPointer(), DataBuffer.TypeEx.FLOAT, buffer.addressPointer(), buffer.length());
+
+        return Nd4j.createArrayFromShapeBuffer(buffer, this.shapeInformation);
+    }
+
+    @Override
+    public INDArray convertToDoubles() {
+        if (data.dataType() == DataBuffer.Type.DOUBLE)
+            return this;
+
+        val factory = Nd4j.getNDArrayFactory();
+        val buffer = Nd4j.createBuffer(new int[]{this.length()}, DataBuffer.Type.DOUBLE);
+
+        factory.convertDataEx(convertType(data.dataType()), this.data().addressPointer(), DataBuffer.TypeEx.DOUBLE, buffer.addressPointer(), buffer.length());
+
+        return Nd4j.createArrayFromShapeBuffer(buffer, this.shapeInformation);
+    }
+
+    protected static DataBuffer.TypeEx convertType(DataBuffer.Type type) {
+        if (type == DataBuffer.Type.HALF) {
+            return DataBuffer.TypeEx.FLOAT16;
+        } else if (type == DataBuffer.Type.FLOAT) {
+            return DataBuffer.TypeEx.FLOAT;
+        } else if (type == DataBuffer.Type.DOUBLE) {
+            return DataBuffer.TypeEx.DOUBLE;
+        } else
+            throw new IllegalStateException("Unknown dataType: [" + type + "]");
     }
 }

@@ -93,6 +93,7 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
     @Override
     public boolean isOpIgnoreException(NodeDef node) {
         //if statements should not be ignored
+/*
         if(node.getOp().equals("Merge")) {
             boolean ret = false;
             for(int i = 0; i < node.getInputCount(); i++) {
@@ -114,8 +115,8 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
 
             return ret;
         }
-
-        return false;
+*/
+        return true;
     }
 
     @Override
@@ -423,7 +424,12 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         return GraphDef.parseFrom(inputStream);
     }
 
-
+    protected void importCondition(String conditionName, NodeDef tfNode, ImportState<GraphDef,NodeDef> importState) {
+        /**
+         * Cond structure:
+         *
+         */
+    }
 
     @Override
     public void mapNodeType(NodeDef tfNode, ImportState<GraphDef,NodeDef> importState) {
@@ -462,6 +468,24 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
         }
         else {
             val opName = tfNode.getOp();
+            val nodeName = tfNode.getName();
+
+            // FIXME: early draft
+            // conditional import
+            /*
+            if (nodeName.startsWith("cond") && nodeName.contains("/")) {
+                val str = nodeName.replaceAll("/.*$","");
+                importCondition(str, tfNode, importState);
+
+                seenNodes.add(nodeName);
+                return;
+            } else if (nodeName.startsWith("while")) {
+                // while loop import
+
+                return;
+            }
+            */
+
             val differentialFunction = DifferentialFunctionClassHolder.getInstance().getOpWithTensorflowName(opName);
             if(differentialFunction == null) {
                 throw new ND4JIllegalStateException("No tensorflow op found for " + opName + " possibly missing operation class?");
@@ -490,7 +514,6 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                     if(diff.isPlaceHolder( args[i].getVarName())) {
                         diff.putPlaceHolderForVariable(args[i].getVarName(), name);
                     }
-
                 }
 
 
@@ -544,21 +567,25 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
             val currentField = fields.get(entry.getKey());
 
             AttributeAdapter adapter = null;
+            if(attributeAdapters != null && !attributeAdapters.isEmpty()) {
+                val mappers = attributeAdapters.get(mappedTfName);
+                val adapterFor = mappers.get(entry.getKey());
+                adapter = adapterFor;
+            }
+
+
             if(tfAttrName != null) {
                 if(currentField == null) {
                     continue;
                 }
-                if(attributeAdapters != null && !attributeAdapters.isEmpty()) {
-                    val mappers = attributeAdapters.get(on.tensorflowName());
-                    val adapterFor = mappers.get(entry.getKey());
-                    adapter = adapterFor;
-                }
-
 
                 if(attributesForNode.containsKey(tfAttrName)) {
                     val attr = attributesForNode.get(tfAttrName);
                     switch (attr.getValueCase()) {
                         case B:
+                            if (adapter != null) {
+                                adapter.mapAttributeFor(attr.getB(), currentField, on);
+                            }
                             break;
                         case F: break;
                         case FUNC: break;
@@ -632,34 +659,53 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                             else
                                 on.setValueFor(currentField,tensorToGet);
                             break;
-                        case TYPE: break;
+                        case TYPE:
+                            if (adapter != null) {
+                                adapter.mapAttributeFor(attr.getType(), currentField, on);
+                            }
+                            break;
                     }
                 }
             }
 
             else if(entry.getValue().getTfInputPosition() != null) {
+
+
                 int position = entry.getValue().getTfInputPosition();
                 if(position < 0) {
                     position += node.getInputCount();
                 }
 
                 val inputFromNode = TFGraphMapper.getInstance().getNodeWithNameFromGraph(graph,node.getInput(position));
-                val tensor = inputFromNode != null ? TFGraphMapper.getInstance().getNDArrayFromTensor("value",inputFromNode,graph) : null;
+                INDArray tensor = inputFromNode != null ? TFGraphMapper.getInstance().getNDArrayFromTensor("value",inputFromNode,graph) : null;
+                if(tensor == null) {
+                    tensor = on.getSameDiff().getArrForVarName(getNodeName(node.getInput(position)));
+                }
+
+
                 if(tensor != null) {
-                    if(currentField.getType().equals(int[].class)) {
-                        on.setValueFor(currentField,tensor.data().asInt());
+                    //use adapter instead of direct mapping just like above
+                    if(adapter != null) {
+                        adapter.mapAttributeFor(tensor,currentField,on);
                     }
-                    else if(currentField.getType().equals(double[].class)) {
-                        on.setValueFor(currentField,tensor.data().asDouble());
+                    else {
+                        if(currentField.getType().equals(int[].class)) {
+                            on.setValueFor(currentField,tensor.data().asInt());
+                        }
+                        else if(currentField.getType().equals(double[].class)) {
+                            on.setValueFor(currentField,tensor.data().asDouble());
 
-                    }
-                    else if(currentField.getType().equals(float[].class)) {
-                        on.setValueFor(currentField,tensor.data().asFloat());
+                        }
+                        else if(currentField.getType().equals(float[].class)) {
+                            on.setValueFor(currentField,tensor.data().asFloat());
 
+                        }
+                        else if(currentField.getType().equals(INDArray.class)) {
+                            on.setValueFor(currentField,tensor);
+                        }
                     }
-                    else if(currentField.getType().equals(INDArray.class)) {
-                        on.setValueFor(currentField,tensor);
-                    }
+
+
                 }
 
                 else {
@@ -780,6 +826,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 for (int e = 0; e < fb.capacity(); e++)
                     fa[e] = (float) fb.get(e);
 
+                if (fa.length == 0)
+                    throw new ND4JIllegalStateException("Can't find Tensor values! Probably you've forgot to freeze graph before saving?");
+
+                if (fa.length == 1)
+                    return Nd4j.trueScalar(fa[0]);
+
+                if (arrayShape.length == 1)
+                    return Nd4j.trueVector(fa);
+
                 val array = Nd4j.create(fa, arrayShape, 'c', 0);
                 //log.debug("SUM1: {}", array.sumNumber());
                 //log.debug("Data: {}", Arrays.toString(array.data().asFloat()));
@@ -816,6 +871,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 for (int e = 0; e < fb.capacity(); e++)
                     fa[e] = fb.get(e);
 
+                if (fa.length == 0)
+                    throw new ND4JIllegalStateException("Can't find Tensor values! Probably you've forgot to freeze graph before saving?");
+
+                if (fa.length == 1)
+                    return Nd4j.trueScalar(fa[0]);
+
+                if (arrayShape.length == 1)
+                    return Nd4j.trueVector(fa);
+
                 val array = Nd4j.create(fa, arrayShape, 'c', 0);
                 return array;
             }
@@ -848,6 +912,15 @@ public class TFGraphMapper extends BaseGraphMapper<GraphDef,NodeDef,AttrValue,No
                 val da = new double[fb.capacity()];
                 for (int e = 0; e < fb.capacity(); e++)
                     da[e] = fb.get(e);
+
+                if (da.length == 0)
+                    throw new ND4JIllegalStateException("Can't find Tensor values! Probably you've forgot to freeze graph before saving?");
+
+                if (da.length == 1)
+                    return Nd4j.trueScalar(da[0]);
+
+                if (arrayShape.length == 1)
+                    return Nd4j.trueVector(da);
 
                 val array = Nd4j.create(da, arrayShape, 0, 'c');
                 return array;

@@ -11,7 +11,7 @@
 
     <properties>
         <openblas.version>0.2.20</openblas.version>
-        <mkl.version>2017.3</mkl.version>
+        <mkl.version>2018.1</mkl.version>
         <nd4j.backend>nd4j-native</nd4j.backend>
     </properties>
 
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>openblas-platform</artifactId>
-            <version>${openblas.version}-${javacpp-presets.version}</version>
+            <version>${openblas.version}-1.4.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>

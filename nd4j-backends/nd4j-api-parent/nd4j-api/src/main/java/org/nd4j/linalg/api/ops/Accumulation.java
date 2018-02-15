@@ -90,4 +90,13 @@ public interface Accumulation extends Op {
 
     boolean isComplexAccumulation();
 
+
+    Type getOpType();
+
+    /**
+     * This method returns TRUE if we're going to keep axis, FALSE otherwise
+     *
+     * @return
+     */
+    boolean isKeepDims();
 }

@@ -302,11 +302,24 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 ret = Nd4j.create(xT, yT);
             } else {
                 if (op.y() != null) {
-                    val xT = op.x().tensorAlongDimension(0, dimension).lengthLong();
-                    val yT = op.y().lengthLong();
 
-                    if (xT != yT)
-                        throw new ND4JIllegalStateException("Number of TADs along dimension doesn't match");
+                    //2 options here: either pairwise, equal sizes - OR every X TAD vs. entirety of Y
+                    if(op.x().lengthLong() == op.y().lengthLong()){
+                        //Pairwise
+                        if (op.x().tensorssAlongDimension(dimension) != op.y().tensorssAlongDimension(dimension)) {
+                            throw new ND4JIllegalStateException("Number of TADs along dimension don't match: (x shape = " +
+                                    Arrays.toString(op.x().shape()) + ", y shape = " + Arrays.toString(op.y().shape()) +
+                                    ", dimension = " + Arrays.toString(dimension) + ")");
+                        }
+                    } else {
+                        //Every X TAD vs. entirety of Y
+                        val xTADSize = op.x().lengthLong() / op.x().tensorssAlongDimension(dimension);
+
+                        if (xTADSize != op.y().length()) {
+                            throw new ND4JIllegalStateException("Size of TADs along dimension don't match for pairwise execution:" +
+                                    " (x TAD size = " + xTADSize + ", y size = " + op.y().lengthLong());
+                        }
+                    }
                 }
 
                 if (op.x().data().dataType() == DataBuffer.Type.DOUBLE)
@@ -407,7 +420,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
             }
             //pairwise reduction like similarity of two arrays
-            else if (op.y() != null) {
+            else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                 if (op.isComplexAccumulation()) {
                     loop.execReduce3AllDouble(dummy, op.opNum(), (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
@@ -475,7 +488,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
             }
 
-            else if (op.y() != null) {
+            else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                 if (op.isComplexAccumulation()) {
                     loop.execReduce3AllFloat(dummy, op.opNum(), (FloatPointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
@@ -861,7 +874,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             super.exec(op);
 
         } else {
-            if(op.z() == op.x()) {
+            if(op.z() == op.x() || op.z() == null) {
                 op.setZ(Nd4j.scalar(0.0));
             }
 
@@ -905,13 +918,19 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 op.setZ(Nd4j.scalar(0.0));
             }
 
+            // since we're going to call reduceToScalar, we must ensure equal lengths
+            if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
+                if (op.x().lengthLong() != op.y().lengthLong())
+                    throw new ND4JIllegalStateException("X and Y operands should have equall lengths. X length: " + op.x().lengthLong() + "; Y length: " + op.y().lengthLong());
+            }
+
             if (op.x().data().dataType() == DataBuffer.Type.DOUBLE) {
                 if (op instanceof Variance) {
                     op.setFinalResult(loop.execSummaryStatsScalarDouble(null, op.opNum(),
                             (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (DoublePointer) getPointerForExtraArgs(op), true));
-                } else if (op.y() != null) {
+                } else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                     op.setFinalResult(loop.execReduce3ScalarDouble(null, op.opNum(),
                             (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
@@ -931,7 +950,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (FloatPointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (FloatPointer) getPointerForExtraArgs(op), variance.isBiasCorrected()));
-                } else if (op.y() != null) {
+                } else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                     op.setFinalResult(loop.execReduce3ScalarFloat(null, op.opNum(),
                             (FloatPointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
@@ -1471,7 +1490,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
 
     @Override
-    public Map<String, CustomOpDescriptor> getCustomOperations() {
+    public synchronized Map<String, CustomOpDescriptor> getCustomOperations() {
         if (customOps == null) {
             String list = loop.getAllCustomOps();
 
@@ -1517,6 +1536,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         if (op.numOutputArguments() == 0 && !op.isInplaceCall())
             throw new ND4JIllegalStateException("Op name " + op.opName() +  " failed to execute. You can't execute non-inplace CustomOp without outputs being specified");
 
+        val name = op.opName().toLowerCase();
         val hash = op.opHash();
 
 
@@ -1577,7 +1597,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             for (val t: tArgs1)
                 tArgs.put(cnt++, t);
 
-
+            val t = op.numInputArguments();
 
             OpStatus status = OpStatus.ND4J_STATUS_OK;
             try {

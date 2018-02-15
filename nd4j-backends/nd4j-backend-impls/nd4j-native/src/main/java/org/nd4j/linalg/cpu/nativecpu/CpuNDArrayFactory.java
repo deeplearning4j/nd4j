@@ -87,13 +87,17 @@ public class CpuNDArrayFactory extends BaseNDArrayFactory {
     @Override
     public void createBlas() {
         blas = new CpuBlas();
-        PointerPointer functions = new PointerPointer(6);
+        PointerPointer functions = new PointerPointer(10);
         functions.put(0, Loader.addressof("cblas_sgemv"));
         functions.put(1, Loader.addressof("cblas_dgemv"));
         functions.put(2, Loader.addressof("cblas_sgemm"));
         functions.put(3, Loader.addressof("cblas_dgemm"));
         functions.put(4, Loader.addressof("cblas_sgemm_batch"));
         functions.put(5, Loader.addressof("cblas_dgemm_batch"));
+        functions.put(6, Loader.addressof("LAPACKE_sgesvd"));
+        functions.put(7, Loader.addressof("LAPACKE_dgesvd"));
+        functions.put(8, Loader.addressof("LAPACKE_sgesdd"));
+        functions.put(9, Loader.addressof("LAPACKE_dgesdd"));
         nativeOps.initializeFunctions(functions);
     }
 
@@ -1152,7 +1156,7 @@ public class CpuNDArrayFactory extends BaseNDArrayFactory {
         DataBuffer buffer = null;
 
 
-        if (typeDst.ordinal() < 6) {
+        if (typeDst.ordinal() < 8) {
             // all types below 6 are compression modes
             BytePointer pointer = new BytePointer(source.length() * elementSize);
             CompressionDescriptor descriptor = new CompressionDescriptor(source, typeDst.name());

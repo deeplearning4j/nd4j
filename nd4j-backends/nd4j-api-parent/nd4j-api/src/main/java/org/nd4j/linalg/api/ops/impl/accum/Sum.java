@@ -78,7 +78,6 @@ public class Sum extends BaseAccumulation {
         return "sum";
     }
 
-
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v1) {
         //Out = sum(in)
@@ -101,5 +100,10 @@ public class Sum extends BaseAccumulation {
     @Override
     public String tensorflowName() {
         return "Sum";
+    }
+
+    @Override
+    public Type getOpType() {
+        return Type.REDUCE;
     }
 }
