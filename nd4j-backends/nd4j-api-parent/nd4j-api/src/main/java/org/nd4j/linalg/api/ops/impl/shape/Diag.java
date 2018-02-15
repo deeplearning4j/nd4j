@@ -3,9 +3,7 @@ package org.nd4j.linalg.api.ops.impl.shape;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -14,32 +12,21 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Diag extends BaseDynamicTransformOp {
+public class Diag extends DynamicCustomOp {
 
-    public Diag() {}
-
-    public Diag(SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(sameDiff, args, inPlace);
-
+    public Diag() {
     }
 
+    public Diag(SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
+        super(null, sameDiff, args, inPlace);
+
+    }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        return Collections.singletonList(arg());
-    }
-
-    @Override
-    public List<int[]> calculateOutputShape() {
-        // allow row and col vectors.
-        int length = arg().getShape()[0] > 1 ? arg().getShape()[0] : arg().getShape()[1] ;
-        return Collections.singletonList(new int[] {length, length});
-    }
-
-
-    @Override
-    public String onnxName() {
-        return "diag";
+        SDVariable grad = i_v.get(0);
+        SDVariable ret = sameDiff.diagPart(grad);
+        return Collections.singletonList(ret);
     }
 
 
@@ -50,7 +37,7 @@ public class Diag extends BaseDynamicTransformOp {
 
     @Override
     public String tensorflowName() {
-        return "diag";
+        return "Diag";
     }
 
     @Override

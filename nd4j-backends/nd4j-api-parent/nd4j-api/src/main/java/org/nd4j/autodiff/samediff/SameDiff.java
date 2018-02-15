@@ -2124,6 +2124,15 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable diagPart(SDVariable iX) {
+        return diagPart(null, iX);
+    }
+
+    public SDVariable diagPart(String name, SDVariable iX) {
+        SDVariable ret = f().diagPart(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      * @param iX
      * @return
