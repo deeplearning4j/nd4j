@@ -28,10 +28,20 @@ public class CumSum extends DynamicCustomOp {
 
     public CumSum(){}
 
+
     public CumSum(SameDiff sameDiff, SDVariable x, int... dimension){
         super(null, sameDiff, new SDVariable[]{x});
         this.sameDiff = sameDiff;
         this.dimensions = dimension;
+        addArgs();
+    }
+
+    public CumSum(SameDiff sameDiff, SDVariable x, boolean exclusive, boolean reverse, int... dimension){
+        super(null, sameDiff, new SDVariable[]{x});
+        this.sameDiff = sameDiff;
+        this.dimensions = dimension;
+        this.exclusive = exclusive;
+        this.reverse = reverse;
         addArgs();
     }
 
@@ -106,7 +116,7 @@ public class CumSum extends DynamicCustomOp {
         SDVariable gradient = sameDiff.setupFunction(grad.get(0));
 
         SDVariable reverseGrad = sameDiff.reverse(gradient, 1- dimensions[0]);
-        SDVariable ret = sameDiff.cumsum(reverseGrad, dimensions);
+        SDVariable ret = sameDiff.cumsum(reverseGrad, exclusive, reverse, dimensions);
         SDVariable reversedRet = sameDiff.reverse(ret, 1- dimensions[0]);
         return Collections.singletonList(reversedRet);
     }

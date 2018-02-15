@@ -188,8 +188,12 @@ public class DifferentialFunctionFactory   {
     }
 
 
-    public SDVariable cumsum(SDVariable in, int... dimensions){
-        return new CumSum(sameDiff(), in, dimensions).outputVariables()[0];
+    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        return new CumSum(sameDiff(), in, exclusive, reverse, dimensions).outputVariables()[0];
+    }
+
+    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        return new CumProd(sameDiff(), in, exclusive, reverse, dimensions).outputVariables()[0];
     }
 
     public SDVariable norm1(SDVariable i_x, int... dimensions) {

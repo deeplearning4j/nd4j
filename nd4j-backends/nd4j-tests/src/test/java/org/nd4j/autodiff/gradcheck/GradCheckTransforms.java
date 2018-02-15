@@ -127,7 +127,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 52; i++) {
+        for (int i = 0; i < 53; i++) {
 
             SameDiff sd = SameDiff.create();
 
@@ -395,12 +395,25 @@ public class GradCheckTransforms {
                     break;
                 case 51:
                     dim = 0;
-                    t = sd.cumsum(in, dim);
+                    boolean exclusive = false;
+                    boolean reverseBool = false;
+                    t = sd.cumsum(in, exclusive, reverseBool, dim);
                     expOut = Nd4j.create(ia.shape());
-                    DynamicCustomOp op = DynamicCustomOp.builder("cumsum")
+                    DynamicCustomOp cumsum = DynamicCustomOp.builder("cumsum")
                             .addIntegerArguments(dim)
                             .addInputs(ia).addOutputs(expOut).build();
-                    Nd4j.getExecutioner().exec(op);
+                    Nd4j.getExecutioner().exec(cumsum);
+                    break;
+                case 52:
+                    dim = 0;
+                    boolean ex = false;
+                    boolean revBool = false;
+                    t = sd.cumsum(in, ex, revBool, dim);
+                    expOut = Nd4j.create(ia.shape());
+                    DynamicCustomOp cumprod = DynamicCustomOp.builder("cumprod")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(cumprod);
                     break;
                 default:
                     throw new RuntimeException();

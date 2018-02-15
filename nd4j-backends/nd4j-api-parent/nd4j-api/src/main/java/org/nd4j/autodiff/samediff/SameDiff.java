@@ -2348,12 +2348,21 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable cumsum(SDVariable in, int... dimensions){
-        return cumsum(null, in, dimensions);
+    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+        return cumsum(null, in, exclusive, reverse, dimensions);
     }
 
-    public SDVariable cumsum(String name, SDVariable in, int... dimensions){
-        SDVariable ret = f().cumsum(in, dimensions);
+    public SDVariable cumsum(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        SDVariable ret = f().cumsum(in, exclusive, reverse, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+        return cumprod(null, in, exclusive, reverse, dimensions);
+    }
+
+    public SDVariable cumprod(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        SDVariable ret = f().cumprod(in, exclusive, reverse, dimensions);
         return updateVariableNameAndReference(ret, name);
     }
 
