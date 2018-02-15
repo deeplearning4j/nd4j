@@ -58,6 +58,13 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
     private static final String DEBUG_ENABLED = "ND4J_DEBUG";
     private static final String VERBOSE = "ND4J_VERBOSE";
+    //thread locals for custom op inputs and outputs to prevent allocations
+    //every time exec(CustomOp) is called
+    private ThreadLocal<Map<Integer,PointerPointer>> inputShapes = new ThreadLocal<>();
+    private ThreadLocal<Map<Integer,PointerPointer>> inputBuffers = new ThreadLocal<>();
+    private ThreadLocal<Map<Integer,PointerPointer>> outputShapes = new ThreadLocal<>();
+    private ThreadLocal<Map<Integer,PointerPointer>> outputBuffers = new ThreadLocal<>();
+
 
 
     protected Map<String, CustomOpDescriptor> customOps = null;
@@ -1522,9 +1529,45 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             }
         }
 
-        return new HashMap<>(customOps);
+        return customOps;
     }
 
+
+    private PointerPointer getPointerPointerFrom(ThreadLocal<Map<Integer,PointerPointer>> map,int numArguments) {
+        if(map.get() == null) {
+            Map<Integer,PointerPointer> store = new HashMap<>();
+            store.put(numArguments,new PointerPointer(numArguments));
+            map.set(store);
+            return map.get().get(numArguments);
+        }
+        else if (map.get().get(numArguments) == null) {
+            PointerPointer pointerPointer = new PointerPointer(numArguments);
+            map.get().put(numArguments,pointerPointer);
+            return pointerPointer;
+        }
+
+        return map.get().get(numArguments);
+    }
+
+
+    private PointerPointer getInputShapes(int numArguments) {
+       return getPointerPointerFrom(inputShapes,numArguments);
+    }
+
+    private PointerPointer getInputBuffers(int numArguments) {
+        return getPointerPointerFrom(inputBuffers,numArguments);
+
+    }
+
+    private PointerPointer getOutputShapes(int numArguments) {
+        return getPointerPointerFrom(outputShapes,numArguments);
+
+    }
+
+    private PointerPointer getOutputBuffers(int numArguments) {
+        return getPointerPointerFrom(outputBuffers,numArguments);
+
+    }
 
     /**
      * This method executes given CustomOp
@@ -1540,8 +1583,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         val hash = op.opHash();
 
 
-        val inputShapes = new PointerPointer<>(op.numInputArguments());
-        val inputBuffers = new PointerPointer<>(op.numInputArguments());
+        val inputShapes = getInputShapes(op.numInputArguments());
+        val inputBuffers = getInputBuffers(op.numInputArguments());
 
         int cnt= 0;
         val inputArgs = op.inputArguments();
@@ -1560,8 +1603,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         }
 
 
-        val outputShapes = new PointerPointer<>(op.numOutputArguments());
-        val outputBuffers = new PointerPointer<>(op.numOutputArguments());
+        val outputShapes = getOutputShapes(op.numOutputArguments());
+        val outputBuffers = getOutputBuffers(op.numOutputArguments());
 
         cnt= 0;
         for (val out: outputArgs) {
@@ -1614,7 +1657,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                         iArgs, op.numIArguments(),
                         op.isInplaceCall()));
             }catch(Exception e) {
-                 log.error("Failed to execute. Please see above message (printed out from c++) for a possible cause of error.");
+                log.error("Failed to execute. Please see above message (printed out from c++) for a possible cause of error.");
                 throw e;
             }
 
