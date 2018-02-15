@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static org.nd4j.linalg.indexing.NDArrayIndex.all;
-import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
 
 @Slf4j
 public class GradCheckTransforms {
@@ -41,11 +39,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 51; i++) {
-
-            if (i < 50) {
-                continue;
-            }
+        for (int i = 0; i < 52; i++) {
 
             SameDiff sd = SameDiff.create();
 
@@ -55,6 +49,7 @@ public class GradCheckTransforms {
 
             INDArray ia = Nd4j.randn(minibatch, nOut);
 
+            int dim;
             SDVariable t;
             INDArray expOut;
             switch (i) {
@@ -231,7 +226,8 @@ public class GradCheckTransforms {
                     expOut = Transforms.leakyRelu(ia, true);
                     break;
                 case 39:
-                    //TODO DIMENSION ARG???
+                    // TODO DIMENSION ARG???
+                    // TODO fix me
                     t = sd.logSoftmax(in);
                     ia = Nd4j.rand(minibatch, nOut);
                     expOut = Transforms.log(Transforms.softmax(ia, true));
@@ -300,20 +296,23 @@ public class GradCheckTransforms {
                     break;
                     //TODO clip by norm along other dimensions
                 case 50:
-                    t = sd.reverse(in, 0);
-                    int[] temp = new int[ia.size(0)];
-                    for( int j=0; j<temp.length; j++ ){
-                        temp[j] = temp.length - j - 1;
-                    }
-                    expOut = Nd4j.pullRows(ia, 1, temp);
+                    dim = 1;
+                    t = sd.reverse(in, dim);
+                    expOut = Nd4j.create(ia.shape());
+                    DynamicCustomOp reverse = DynamicCustomOp.builder("reverse")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(reverse);
+
                     break;
                 case 51:
-                    t = sd.cumsum(in, 1);
+                    dim = 0;
+                    t = sd.cumsum(in, dim);
                     expOut = Nd4j.create(ia.shape());
-                    for( int r=0; r<ia.size(0); r++ ){
-                        INDArray sub = ia.get(interval(0,r,true), all()).sum(0);
-                        expOut.putRow(r, sub);
-                    }
+                    DynamicCustomOp op = DynamicCustomOp.builder("cumsum")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(op);
                     break;
                 default:
                     throw new RuntimeException();
@@ -326,6 +325,7 @@ public class GradCheckTransforms {
 
             String msg = "test: " + i + " - " + name;
             log.info("*** Starting test: " + msg);
+
 
             SDVariable loss = sd.mean("loss", t);
 
@@ -347,7 +347,7 @@ public class GradCheckTransforms {
                 ok = false;
             }
 
-//            assertTrue(msg, ok);
+            assertTrue(msg, ok);
             if(!ok){
                 allFailed.add(msg);
             }

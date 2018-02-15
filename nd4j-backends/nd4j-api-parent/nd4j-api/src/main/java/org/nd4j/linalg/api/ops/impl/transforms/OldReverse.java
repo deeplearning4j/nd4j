@@ -29,34 +29,34 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Reverse op
+ * OldReverse op
  */
-public class Reverse extends BaseTransformOp {
-    public Reverse(SameDiff sameDiff, SDVariable i_v, int... dimensions) {
+public class OldReverse extends BaseTransformOp {
+    public OldReverse(SameDiff sameDiff, SDVariable i_v, int... dimensions) {
         super(sameDiff, i_v, false);
         this.dimensions = dimensions;
     }
 
-    public Reverse() {
+    public OldReverse() {
     }
 
-    public Reverse(INDArray x, INDArray z) {
+    public OldReverse(INDArray x, INDArray z) {
         super(x, z);
     }
 
-    public Reverse(INDArray x, INDArray z, long n) {
+    public OldReverse(INDArray x, INDArray z, long n) {
         super(x, z, n);
     }
 
-    public Reverse(INDArray x, INDArray y, INDArray z, long n) {
+    public OldReverse(INDArray x, INDArray y, INDArray z, long n) {
         super(x, y, z, n);
     }
 
-    public Reverse(INDArray x, INDArray y, INDArray z) {
+    public OldReverse(INDArray x, INDArray y, INDArray z) {
         super(x, y, z, x.lengthLong());
     }
 
-    public Reverse(INDArray x) {
+    public OldReverse(INDArray x) {
         super(x);
     }
 
@@ -72,7 +72,7 @@ public class Reverse extends BaseTransformOp {
 
     @Override
     public String opName() {
-        return "reverse";
+        return "old_reverse";
     }
 
     @Override

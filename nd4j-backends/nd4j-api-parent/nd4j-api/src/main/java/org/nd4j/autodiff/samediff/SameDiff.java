@@ -4163,7 +4163,7 @@ public class SameDiff {
 
                     for (DifferentialFunction action : allFunctions) {
                         if (action instanceof GradientBackwardsMarker) {
-                            log.warn("Action op state is null");
+                            log.warn("Action op state is null for " + action.opName());
                             continue;
                         }
 

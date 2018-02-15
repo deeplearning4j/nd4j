@@ -1,9 +1,12 @@
 package org.nd4j.linalg.api.ops.impl.accum;
 
+import lombok.val;
 import onnx.OnnxProto3;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -19,14 +22,19 @@ import java.util.Map;
  */
 public class CumSum extends DynamicCustomOp {
 
-    public CumSum(){
-
-    }
+    public CumSum(){}
 
     public CumSum(SameDiff sameDiff, SDVariable x, int... dimension){
         super(null, sameDiff, new SDVariable[]{x});
+        this.sameDiff = sameDiff;
         this.dimensions = dimension;
         addIArgument(dimension);
+    }
+
+
+    @Override
+    public INDArray getInputArgument(int index) {
+        return inputArguments()[index];
     }
 
     @Override
@@ -51,11 +59,13 @@ public class CumSum extends DynamicCustomOp {
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> grad){
-        //Gradient should be cumulative sum along same dimension of the *reversed* array
+        // Output gradient is the reversed cumulative sum of the reversed input gradient
+        SDVariable gradient = sameDiff.setupFunction(grad.get(0));
 
-        SDVariable reverse = f().reverse(grad.get(0), dimensions);
-        SDVariable ret = f().cumsum(reverse, 1);
-        return Collections.singletonList(ret);
+        SDVariable reverseGrad = sameDiff.reverse(gradient, 1- dimensions[0]);
+        SDVariable ret = sameDiff.cumsum(reverseGrad, dimensions);
+        SDVariable reversedRet = sameDiff.reverse(ret, 1- dimensions[0]);
+        return Collections.singletonList(reversedRet);
     }
 
 }
