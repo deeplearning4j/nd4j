@@ -64,6 +64,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     private ThreadLocal<Map<Integer,PointerPointer>> inputBuffers = new ThreadLocal<>();
     private ThreadLocal<Map<Integer,PointerPointer>> outputShapes = new ThreadLocal<>();
     private ThreadLocal<Map<Integer,PointerPointer>> outputBuffers = new ThreadLocal<>();
+    private ThreadLocal<Map<Integer,DoublePointer>> tArgsPointer = new ThreadLocal<>();
+    private ThreadLocal<Map<Integer,ShortPointer>> halfArgsPointer = new ThreadLocal<>();
 
 
 
@@ -1550,6 +1552,43 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
     }
 
 
+
+
+    private ShortPointer getShortPointerFrom(ThreadLocal<Map<Integer,ShortPointer>> map,int numArguments) {
+        if(map.get() == null) {
+            Map<Integer,ShortPointer> store = new HashMap<>();
+            store.put(numArguments,new ShortPointer(numArguments));
+            map.set(store);
+            return map.get().get(numArguments);
+        }
+        else if (map.get().get(numArguments) == null) {
+            ShortPointer pointerPointer = new ShortPointer(numArguments);
+            map.get().put(numArguments,pointerPointer);
+            return pointerPointer;
+        }
+
+        return map.get().get(numArguments);
+    }
+
+
+
+    private DoublePointer getDoublePointerFrom(ThreadLocal<Map<Integer,DoublePointer>> map,int numArguments) {
+        if(map.get() == null) {
+            Map<Integer,DoublePointer> store = new HashMap<>();
+            store.put(numArguments,new DoublePointer(numArguments));
+            map.set(store);
+            return map.get().get(numArguments);
+        }
+        else if (map.get().get(numArguments) == null) {
+            DoublePointer pointerPointer = new DoublePointer(numArguments);
+            map.get().put(numArguments,pointerPointer);
+            return pointerPointer;
+        }
+
+        return map.get().get(numArguments);
+    }
+
+
     private PointerPointer getInputShapes(int numArguments) {
        return getPointerPointerFrom(inputShapes,numArguments);
     }
@@ -1633,7 +1672,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             if (status != OpStatus.ND4J_STATUS_OK)
                 throw new ND4JIllegalStateException("Op execution failed: " + status);
         }  else if (Nd4j.dataType() == DataBuffer.Type.DOUBLE) {
-            val tArgs = op.numTArguments() > 0 ? new DoublePointer(op.numTArguments()) : null;
+            val tArgs = op.numTArguments() > 0 ? getDoublePointerFrom(tArgsPointer,op.numTArguments()) : null;
             val tArgs1 = op.tArgs();
 
             cnt = 0;
@@ -1662,7 +1701,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             }
 
         } else if (Nd4j.dataType() == DataBuffer.Type.HALF) {
-            val tArgs = op.numTArguments() > 0 ? new ShortPointer(op.numTArguments()) : null;
+            val tArgs = op.numTArguments() > 0 ? getShortPointerFrom(halfArgsPointer,op.numTArguments()) : null;
 
             cnt = 0;
             val tArgs1 = op.tArgs();
