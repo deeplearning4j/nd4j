@@ -2095,7 +2095,6 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-<<<<<<< HEAD
     public SDVariable batchToSpace(SDVariable iX, int[] blocks, int[][] crops) {
         return batchToSpace(null, iX, blocks, crops);
     }
