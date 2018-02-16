@@ -7,6 +7,18 @@ import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * Pairwise cross-product of two tensors of the same shape.
+ *
+ * Base operation for two vectors is:
+ *  a x b = (a_2 * b_3 - a_3 * b_2, a_3 * b_1 - a_1 * b_3, a_1 * b_2 - a_2 * b_1)
+ *
+ * For tensors of more complicated shape this op is computed pairwise. For this
+ * to work the outer dimension has to be 3.
+ *
+ * @author Max Pumperla
+ */
 public class Cross extends DynamicCustomOp {
 
     public Cross() {
