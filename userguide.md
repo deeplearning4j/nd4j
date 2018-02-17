@@ -28,6 +28,7 @@ This user guide is designed to explain (and provide examples for) the main funct
   * <a href="#indexaccumops">Index Accumulation Ops,</a>
   * <a href="#opsbroadcast">Broadcast and Vector Operations</a>
 * <a href="#boolean">Boolean Indexing: Selectively Apply Operations Based on a Condition</a>
+* <a href="#workspaces">Workspaces</a>
 * <a href="#misc">Advanced and Miscellaneous Topics</a>
   * <a href="#miscdatatype">Setting the data type</a>
   * Reshaping
@@ -559,6 +560,19 @@ As with other ops, there are inplace and copy versions. There are also column co
 
 [Link: Boolean Indexing Unit Tests](https://github.com/deeplearning4j/nd4j/blob/master/nd4j-backends/nd4j-tests/src/test/java/org/nd4j/linalg/indexing/BooleanIndexingTest.java)
 
+
+## <a name="workspaces">Workspaces</a>
+
+Workspaces are a feature of ND4J used to improve performance, by means of more efficient memory allocation and management. Specifically, workspaces are designed for cyclical workloads - such as training neural networks - as they allow for off-heap memory reuse (instead of continually allocating and deallocating memory on each iteration of the loop). The net effect is improved performance and reduced memory use.
+
+For more details on workspaces, see the following links:
+
+* <a href="https://deeplearning4j.org/workspaces">Deeplearning4j Guide to Workspaces</a>
+* <a href="https://github.com/deeplearning4j/dl4j-examples/blob/master/nd4j-examples/src/main/java/org/nd4j/examples/Nd4jEx15_Workspaces.java">Workspaces Examples</a>
+
+### <a name="workspaces-panic">Workspaces: Scope Panic</a>
+
+TODO
 
 
 ## <a name="misc">Advanced and Miscellaneous Topics</a>
