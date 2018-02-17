@@ -29,6 +29,7 @@ This user guide is designed to explain (and provide examples for) the main funct
   * <a href="#opsbroadcast">Broadcast and Vector Operations</a>
 * <a href="#boolean">Boolean Indexing: Selectively Apply Operations Based on a Condition</a>
 * <a href="#workspaces">Workspaces</a>
+  * <a href="#workspaces-panic">Workspaces: Scope Panic</a>
 * <a href="#misc">Advanced and Miscellaneous Topics</a>
   * <a href="#miscdatatype">Setting the data type</a>
   * Reshaping
@@ -572,7 +573,61 @@ For more details on workspaces, see the following links:
 
 ### <a name="workspaces-panic">Workspaces: Scope Panic</a>
 
-TODO
+Sometimes with workspaces, you may encounter an exception such as:
+```
+org.nd4j.linalg.exception.ND4JIllegalStateException: Op [set] Y argument uses leaked workspace pointer from workspace [LOOP_EXTERNAL]
+For more details, see the ND4J User Guide: nd4.org/userguide#workspaces-panic
+```
+or
+```
+org.nd4j.linalg.exception.ND4JIllegalStateException: Op [set] Y argument uses outdated workspace pointer from workspace [LOOP_EXTERNAL]
+For more details, see the ND4J User Guide: nd4.org/userguide#workspaces-panic
+```
+
+
+**Understanding Scope Panic Exceptions**
+
+In short: these exceptions mean that an INDArray that has been allocated in a workspace is being used incorrectly (for example, a bug or incorrect implementation of some method). This can occur for two reasons:
+
+1. The INDArray has 'leaked out' of the workspace in which is was defined
+2. The INDArray is used within the correct workspace, but from a previous iteration
+
+In both cases, the underlying off-heap memory that the INDArray points to has been invalidated, and can no longer be used.
+
+An example sequence of events leading to a workspace leak:
+1. Workspace W is opened
+2. INDArray X is allocated in workspace W
+3. Workspace W is closed, and hence the memory for X is no longer valid.
+4. INDArray X is used in some operation, resulting in an exception
+
+An example sequence of events, leading to an outdated workspace pointer:
+1. Workspace W is opened (iteration 1)
+2. INDArray X is allocated in workspace W (iteration 1)
+3. Workspace W is closed (iteration 1)
+4. Workspace W is opened (iteration 2)
+5. INDArray X (from iteration 1) is used in some operation, resulting in an exception
+
+**Workarounds and Fixes for Scope Panic Exceptions**
+
+There are two basic solutions, depending on the cause.
+
+First. if you have implemented some custom code (or are using workspaces manually), this usually indicates a bug in your code.
+Generally, you have two options:
+1. Detach the INDArray from all workspace, using the ```INDArray.detach()``` method. The consequence is that the returned array is no longer associated with a workspace, and can be used freely within or outside of any workspace.
+2. Don't allocate the array in the workspace in the first place. You can temporarily 'turn off' a workspace using: ```try(MemoryWorkspace scopedOut = Nd4j.getWorkspaceManager().scopeOutOfWorkspaces()){ <your code here> }```. The consequence is that any new arrays (created via Nd4j.create, for example) within the try block will not be associated with a workspace, and can be used outside of a workspace 
+3. Move/copy the array to a parent workspace, using one of the ```INDArray.leverage()``` or ```leverageTo(String)``` or ```migrate()``` methods. See the Javadoc of these methods for more details.
+
+
+Second, if you are using workspaces as part of Deeplearning4j and have not implemented any custom functionality (i.e., you have not written your own layer, data pipeline, etc), then (on the off-chance you run into this), this most likely indicates a bug in the underlying library, which usually should be reported via a Github issue. One possible workaround in the mean time is to disable workspaces using the following code:
+```
+.trainingWorkspaceMode(WorkspaceMode.NONE)
+.inferenceWorkspaceMode(WorkspaceMode.NONE)
+```
+
+If the exception is due to an issue in the data pipeline, you can try wrapping your ```DataSetIterator``` or ```MultiDataSetIterator``` in an ```AsyncShieldDataSetIterator``` or ```AsyncShieldMultiDataSetIterator```.
+
+
+For either cause, a final solution - if you are sure your code is correct - is to try disabling scope panic. *Note that this is NOT recommended and can crash the JVM if a legitimate issue is present*. To do this, use ```Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.DISABLED);``` before executing your code.
 
 
 ## <a name="misc">Advanced and Miscellaneous Topics</a>
