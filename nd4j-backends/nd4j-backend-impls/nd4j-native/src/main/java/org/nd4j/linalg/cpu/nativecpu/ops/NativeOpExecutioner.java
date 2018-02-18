@@ -939,6 +939,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (DoublePointer) getPointerForExtraArgs(op), true));
+                    op.z().putScalar(0,op.getFinalResult().doubleValue());
+
                 } else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                     op.setFinalResult(loop.execReduce3ScalarDouble(null, op.opNum(),
                             (DoublePointer) op.x().data().addressPointer(),
@@ -946,11 +948,15 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (DoublePointer) getPointerForExtraArgs(op),
                             (DoublePointer) op.y().data().addressPointer(),
                             (IntPointer) op.y().shapeInfoDataBuffer().addressPointer()));
+                    op.z().putScalar(0,op.getFinalResult().doubleValue());
+
                 } else {
                     op.setFinalResult(loop.execReduceScalarDouble(null, op.opNum(),
                             (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (DoublePointer) getPointerForExtraArgs(op)));
+                    op.z().putScalar(0,op.getFinalResult().doubleValue());
+
                 }
             } else {
                 if (op instanceof Variance) {
@@ -959,6 +965,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (FloatPointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (FloatPointer) getPointerForExtraArgs(op), variance.isBiasCorrected()));
+                    op.z().putScalar(0,op.getFinalResult().floatValue());
+
                 } else if (op.y() != null && op.getOpType() == Op.Type.REDUCE3) {
                     op.setFinalResult(loop.execReduce3ScalarFloat(null, op.opNum(),
                             (FloatPointer) op.x().data().addressPointer(),
@@ -966,15 +974,17 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (FloatPointer) getPointerForExtraArgs(op),
                             (FloatPointer) op.y().data().addressPointer(),
                             (IntPointer) op.y().shapeInfoDataBuffer().addressPointer()));
+                    op.z().putScalar(0,op.getFinalResult().floatValue());
+
                 } else {
                     op.setFinalResult(loop.execReduceScalarFloat(null, op.opNum(),
                             (FloatPointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
                             (FloatPointer) getPointerForExtraArgs(op)));
+                    op.z().putScalar(0,op.getFinalResult().floatValue());
+
                 }
             }
-
-            op.z().assign(op.getFinalResult());
 
 
             profilingHookOut(op, st);
