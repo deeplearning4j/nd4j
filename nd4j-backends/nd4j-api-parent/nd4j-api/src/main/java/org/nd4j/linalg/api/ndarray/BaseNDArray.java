@@ -92,9 +92,6 @@ import static org.nd4j.linalg.factory.Nd4j.*;
 public abstract class BaseNDArray implements INDArray, Iterable {
 
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 3285982317165542614L;
 
     protected transient volatile DataBuffer shapeInformation;
@@ -3329,7 +3326,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
 
     /**
-     * Reverse division (in place)
+     * Reverse divsion (in place)
      *
      * @param other
      * @return

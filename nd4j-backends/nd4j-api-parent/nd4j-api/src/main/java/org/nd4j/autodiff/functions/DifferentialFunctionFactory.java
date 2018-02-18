@@ -188,6 +188,14 @@ public class DifferentialFunctionFactory   {
     }
 
 
+    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        return new CumSum(sameDiff(), in, exclusive, reverse, dimensions).outputVariables()[0];
+    }
+
+    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        return new CumProd(sameDiff(), in, exclusive, reverse, dimensions).outputVariables()[0];
+    }
+
     public SDVariable norm1(SDVariable i_x, int... dimensions) {
         return new  Norm1(sameDiff(),i_x,dimensions).outputVariables()[0];
 
@@ -584,6 +592,10 @@ public class DifferentialFunctionFactory   {
         return new Reshape(sameDiff(),iX,shape).outputVariables()[0];
     }
 
+    public SDVariable reverse(SDVariable x, int... dimensions){
+        return new Reverse(sameDiff(),x, dimensions).outputVariables()[0];
+    }
+
 
     public SDVariable rollAxis(SDVariable iX, int axis) {
         return new RollAxis(sameDiff(),iX,axis).outputVariables()[0];
@@ -805,8 +817,18 @@ public class DifferentialFunctionFactory   {
         for (SDVariable df: differentialFunctions)
             validateDifferentialFunctionsameDiff(df);
         return new MergeAddOp(sameDiff(), differentialFunctions,false).outputVariables()[0];
-
     }
+
+    public  SDVariable diag(SDVariable sdVariable) {
+        validateDifferentialFunctionsameDiff(sdVariable);
+        return new Diag(sameDiff(), new SDVariable[] {sdVariable}, false).outputVariables()[0];
+    }
+
+    public  SDVariable diagPart(SDVariable sdVariable) {
+        validateDifferentialFunctionsameDiff(sdVariable);
+        return new DiagPart(sameDiff(), new SDVariable[] {sdVariable}, false).outputVariables()[0];
+    }
+
 
     public SDVariable batchToSpace(SDVariable differentialFunction, int[] blocks, int[][] crops) {
         validateDifferentialFunctionsameDiff(differentialFunction);
@@ -818,6 +840,11 @@ public class DifferentialFunctionFactory   {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new SpaceToBatch(sameDiff(), new SDVariable[]{differentialFunction}, blocks, padding, false)
                 .outputVariables()[0];
+    }
+
+    public SDVariable cross(SDVariable a, SDVariable b) {
+        validateDifferentialFunctionsameDiff(a);
+        return new Cross(sameDiff(), new SDVariable[]{a,b}).outputVariables()[0];
     }
 
     public SDVariable addi(SDVariable differentialFunction, SDVariable i_v) {

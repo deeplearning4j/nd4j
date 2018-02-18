@@ -2114,6 +2114,33 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable cross(SDVariable a, SDVariable b) {
+        return cross(null, a, b);
+    }
+
+    public SDVariable cross(String name, SDVariable a, SDVariable b) {
+        SDVariable ret = f().cross(a, b);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable diag(SDVariable iX) {
+        return diag(null, iX);
+    }
+
+    public SDVariable diag(String name, SDVariable iX) {
+        SDVariable ret = f().diag(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable diagPart(SDVariable iX) {
+        return diagPart(null, iX);
+    }
+
+    public SDVariable diagPart(String name, SDVariable iX) {
+        SDVariable ret = f().diagPart(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      * @param iX
      * @return
@@ -2348,6 +2375,24 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+        return cumsum(null, in, exclusive, reverse, dimensions);
+    }
+
+    public SDVariable cumsum(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        SDVariable ret = f().cumsum(in, exclusive, reverse, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+        return cumprod(null, in, exclusive, reverse, dimensions);
+    }
+
+    public SDVariable cumprod(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+        SDVariable ret = f().cumprod(in, exclusive, reverse, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      * @param iX
      * @param shape
@@ -2358,7 +2403,17 @@ public class SameDiff {
         return reshape(null, iX, shape);
     }
 
-    public SDVariable assign(SDVariable x, SDVariable y) {
+
+    public SDVariable reverse(SDVariable x, int... dimensions){
+        return reverse(null, x, dimensions);
+    }
+
+    public SDVariable reverse(String name, SDVariable x, int... dimensions){
+        SDVariable ret = f().reverse(x, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable assign(SDVariable x, SDVariable y){
         return assign(null, x, y);
     }
 
@@ -4202,7 +4257,7 @@ public class SameDiff {
 
                     for (DifferentialFunction action : allFunctions) {
                         if (action instanceof GradientBackwardsMarker) {
-                            log.warn("Action op state is null");
+                            log.warn("Action op state is null for " + action.opName());
                             continue;
                         }
 
@@ -4960,23 +5015,26 @@ public class SameDiff {
                             updateArrayForVarName(var.getVarName(), accumulation.z());
                             updateShapeForVarName(var.getVarName(), accumulation.z().shape());
                         }
-                    } else if (differentialFunction instanceof BroadcastOp) {
+                    } else if(differentialFunction instanceof BroadcastOp) {
                         BroadcastOp broadcastOp = (BroadcastOp) differentialFunction;
                         Nd4j.getExecutioner().exec(broadcastOp, axes);
-                    } else if (differentialFunction instanceof GradientOp) {
+                    } else if(differentialFunction instanceof GradientOp) {
                         Nd4j.getExecutioner().exec(op);
-                    } else if (differentialFunction instanceof IndexAccumulation) {
+                    } else if(differentialFunction instanceof IndexAccumulation) {
                         IndexAccumulation indexAccumulation = (IndexAccumulation) differentialFunction;
                         Nd4j.getExecutioner().exec(indexAccumulation, axes);
 
+                    } else if(differentialFunction instanceof TransformOp){
+                        TransformOp t = (TransformOp)differentialFunction;
+                        Nd4j.getExecutioner().exec(t, axes);
                     }
                 }
+
 
                 flowPath.markExecuted(differentialFunction.getOwnName(), true);
 
                 ops.add(differentialFunction);
             }
-
 
             //debug
            // printFunction(differentialFunction);
@@ -5008,6 +5066,7 @@ public class SameDiff {
                     Arrays.toString(func.getShape()));
         }
 
+
         StringBuilder realShapes = new StringBuilder();
         for (val arg : differentialFunction.args()) {
             realShapes.append(" Input shape for " + arg.getVarName() + " is  " + Arrays.
@@ -5020,7 +5079,7 @@ public class SameDiff {
         }
 
 
-        log.info(realShapes.toString());
+//        log.info(realShapes.toString());
     }
 
 
