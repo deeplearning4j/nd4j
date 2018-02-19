@@ -49,37 +49,6 @@ public class GatherNd extends DynamicCustomOp {
         OnnxGraphMapper.getInstance().initFunctionFromProperties(node.getOpType(), this, attributesForNode,node, graph);
     }
 
-
-    @Override
-    public void resolvePropertiesFromSameDiffBeforeExecution() {
-        super.resolvePropertiesFromSameDiffBeforeExecution();
-        if(broadcast != null && numInputArguments() < 2) {
-            if(numInputArguments() == 0) {
-                addInputArgument(args()[0].getArr(),Nd4j.create( ArrayUtil.toFloats(broadcast)).reshape(broadcast.length));
-
-            }
-            else if(numInputArguments() == 1) {
-                addInputArgument(Nd4j.create( ArrayUtil.toFloats(broadcast)));
-            }
-
-        }
-
-        if(numIArguments() < 1) {
-            addIArgument(axis);
-        }
-
-        if(numOutputArguments() < getDescriptor().getNumOutputs()) {
-            val outputs = outputVariables();
-            for(int i = 0; i < outputs.length; i++) {
-                val output = outputs[i].getArr();
-                addOutputArgument(output);
-            }
-        }
-
-
-
-    }
-
     @Override
     public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {
         Map<String, Map<String, PropertyMapping>> ret = new HashMap<>();
