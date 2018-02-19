@@ -182,7 +182,9 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_tear.class,
         float_unstack.class,
         float_strided_slice.class,
+        float_strided_slice_bp.class,
         float_slice.class,
+        float_slice_bp.class,
         float_range.class,
         float_onehot.class,
         float_confusion_matrix.class,
@@ -456,7 +458,9 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_tear.class,
         half_unstack.class,
         half_strided_slice.class,
+        half_strided_slice_bp.class,
         half_slice.class,
+        half_slice_bp.class,
         half_range.class,
         half_onehot.class,
         half_confusion_matrix.class,
@@ -730,7 +734,9 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_tear.class,
         double_unstack.class,
         double_strided_slice.class,
+        double_strided_slice_bp.class,
         double_slice.class,
+        double_slice_bp.class,
         double_range.class,
         double_onehot.class,
         double_confusion_matrix.class,
@@ -25971,6 +25977,48 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 } // TODO: new op type needed. that returns VIEW
+        @Name("nd4j::ops::strided_slice_bp<float>") public static class float_strided_slice_bp extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_strided_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_strided_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_strided_slice_bp position(long position) {
+                return (float_strided_slice_bp)super.position(position);
+            }
+        public float_strided_slice_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::strided_slice_bp<float16>") public static class half_strided_slice_bp extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_strided_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_strided_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_strided_slice_bp position(long position) {
+                return (half_strided_slice_bp)super.position(position);
+            }
+        public half_strided_slice_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::strided_slice_bp<double>") public static class double_strided_slice_bp extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_strided_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_strided_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_strided_slice_bp position(long position) {
+                return (double_strided_slice_bp)super.position(position);
+            }
+        public double_strided_slice_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
 
         /**
          * This operation extracts a slice from a tensor.
@@ -26015,6 +26063,48 @@ private native void allocate();
                 return (double_slice)super.position(position);
             }
         public double_slice() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        @Name("nd4j::ops::slice_bp<float>") public static class float_slice_bp extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_slice_bp position(long position) {
+                return (float_slice_bp)super.position(position);
+            }
+        public float_slice_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::slice_bp<float16>") public static class half_slice_bp extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_slice_bp position(long position) {
+                return (half_slice_bp)super.position(position);
+            }
+        public half_slice_bp() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::slice_bp<double>") public static class double_slice_bp extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_slice_bp(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_slice_bp(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_slice_bp position(long position) {
+                return (double_slice_bp)super.position(position);
+            }
+        public double_slice_bp() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }

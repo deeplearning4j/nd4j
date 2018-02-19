@@ -18,10 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Gather op
+ * GatherND op
  */
 @NoArgsConstructor
-public class Gather extends DynamicCustomOp {
+public class GatherNd extends DynamicCustomOp {
 
     private int[] broadcast;
     private int axis = 0;
@@ -29,13 +29,13 @@ public class Gather extends DynamicCustomOp {
 
     @Override
     public String onnxName() {
-        return "Gather";
+        return "GatherND";
     }
 
 
     @Override
     public String[] tensorflowNames() {
-        return new String[]{"Gather","GatherV2"};
+        return new String[]{"GatherNd"};
     }
 
     @Override
@@ -83,36 +83,21 @@ public class Gather extends DynamicCustomOp {
     @Override
     public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {
         Map<String, Map<String, PropertyMapping>> ret = new HashMap<>();
-        Map<String,PropertyMapping> map = new HashMap<>();
-        val broadcast = PropertyMapping.builder()
-                .onnxAttrName("broadcast")
+
+        Map<String,PropertyMapping> mapNd = new HashMap<>();
+        val broadcastNd = PropertyMapping.builder()
                 .tfInputPosition(1)
                 .propertyNames(new String[]{"broadcast"}).build();
 
-        map.put("broadcast",broadcast);
+        mapNd.put("broadcast",broadcastNd);
 
-        ret.put(tensorflowNames()[0],map);
-        ret.put(onnxName(),map);
-
-        Map<String,PropertyMapping> map2 = new HashMap<>();
-        val broadcast2 = PropertyMapping.builder()
-                .tfInputPosition(1)
-                .propertyNames(new String[]{"broadcast"}).build();
-        map2.put("broadcast",broadcast2);
-
-        val axis2 = PropertyMapping.builder()
-                .tfInputPosition(2)
-                .propertyNames(new String[]{"axis"}).build();
-        map2.put("axis",axis2);
-
-        ret.put("GatherV2",map2);
-
+        ret.put("GatherNd",mapNd);
 
         return ret;
     }
 
     @Override
     public String opName() {
-        return "gather";
+        return "gather_nd";
     }
 }
