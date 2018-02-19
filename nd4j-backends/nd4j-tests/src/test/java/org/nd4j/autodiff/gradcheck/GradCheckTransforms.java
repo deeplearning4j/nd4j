@@ -21,8 +21,6 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -33,6 +31,43 @@ public class GradCheckTransforms {
     static {
         Nd4j.create(1);
         DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+    }
+
+    @Test
+    public void testCross() {
+        INDArray a = Nd4j.create(new float[] {4, 2 , 1}, new int[] {1, 3});
+        INDArray b = Nd4j.create(new float[] {1, 3 , 4}, new int[] {1, 3});
+
+        INDArray expOut = Nd4j.create(1,3);
+
+        DynamicCustomOp op = DynamicCustomOp.builder("cross").addInputs(a, b).addOutputs(expOut).build();
+        Nd4j.getExecutioner().exec(op);
+
+        SameDiff sd = SameDiff.create();
+
+        SDVariable sdA = sd.var("a", expOut.shape());
+        SDVariable sdB = sd.var("a", expOut.shape());
+
+
+        sd.associateArrayWithVariable(a, sdA);
+        sd.associateArrayWithVariable(b, sdB);
+
+        SDVariable t = sd.cross(sdA, sdB);
+        SDVariable loss = sd.mean("loss", t);
+        sd.exec();
+        INDArray out = t.getArr();
+
+        if (!expOut.equals(out)) {
+            log.info("batch to space failed on forward");
+        }
+
+        try {
+            GradCheckUtil.checkGradients(sd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     @Test
@@ -48,7 +83,7 @@ public class GradCheckTransforms {
 
         INDArray input = Nd4j.randn(inputShape);
         INDArray blocks = Nd4j.create(new float[]{2, 2}, blockShape);
-        INDArray crops = Nd4j.create(new float[]{0,0,0,0}, cropShape);
+        INDArray crops = Nd4j.create(new float[]{0, 0, 0, 0}, cropShape);
 
         SameDiff sd = SameDiff.create();
 
@@ -62,31 +97,90 @@ public class GradCheckTransforms {
 
         sd.associateArrayWithVariable(input, sdInput);
 
-//        BatchToSpace bts = new BatchToSpace(sd, new SDVariable[] {sdInput}, blocks, crops, false);
-//        SDVariable testOut = sd.var("test", expOut.shape());
-//        sd.associateArrayWithVariable(expOut, testOut);
-//
-//        List<SDVariable> backwardResult = bts.doDiff(Collections.singletonList(testOut));
-
-
         SDVariable t = sd.batchToSpace(sdInput, new int[]{2, 2}, new int[][]{{0, 0}, {0, 0}});
         SDVariable loss = sd.mean("loss", t);
         sd.exec();
         INDArray out = t.getArr();
 
-        if(!expOut.equals(out)){ log.info("batch to space failed on forward"); }
-
-//        INDArray btsGrad = backwardResult.get(0).getArr();
-//        if(!input.equals(btsGrad)){ log.info("batch to space failed on backward"); }
-
-        boolean ok;
-        try{
-            ok = GradCheckUtil.checkGradients(sd);
-        } catch (Exception e){
-            e.printStackTrace();
-            ok = false;
+        if (!expOut.equals(out)) {
+            log.info("batch to space failed on forward");
         }
 
+        try {
+            GradCheckUtil.checkGradients(sd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void testSpaceToBatch() {
+        Nd4j.getRandom().setSeed(7331);
+
+        int miniBatch = 4;
+        int[] inputShape = new int[]{1, 2, 2, 1};
+
+        int M = 2;
+        int[] blockShape = new int[]{M, 1};
+        int[] paddingShape = new int[]{M, 2};
+
+        INDArray input = Nd4j.randn(inputShape);
+        INDArray blocks = Nd4j.create(new float[]{2, 2}, blockShape);
+        INDArray padding = Nd4j.create(new float[]{0, 0, 0, 0}, paddingShape);
+
+        SameDiff sd = SameDiff.create();
+
+        SDVariable sdInput = sd.var("in", inputShape);
+
+        INDArray expOut = Nd4j.create(miniBatch, 1, 1, 1);
+        DynamicCustomOp op = DynamicCustomOp.builder("space_to_batch")
+                .addInputs(input, blocks, padding)
+                .addOutputs(expOut).build();
+        Nd4j.getExecutioner().exec(op);
+
+        sd.associateArrayWithVariable(input, sdInput);
+
+        SDVariable t = sd.spaceToBatch(sdInput, new int[]{2, 2}, new int[][]{{0, 0}, {0, 0}});
+        SDVariable loss = sd.mean("loss", t);
+        sd.exec();
+        INDArray out = t.getArr();
+
+        if (!expOut.equals(out)) {
+            log.info("space to batch failed on forward");
+        }
+
+        try {
+            GradCheckUtil.checkGradients(sd);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDiag() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray ia = Nd4j.create(new float[] {4,2});
+        SDVariable in = sd.var("in", new int[]{1, 2});
+        INDArray expOut = Nd4j.create(new int[] {2,2});
+        DynamicCustomOp diag = DynamicCustomOp.builder("diag").addInputs(ia).addOutputs(expOut).build();
+        Nd4j.getExecutioner().exec(diag);
+        SDVariable t = sd.diag(in);
+
+        SDVariable loss = sd.max("loss", t, 0, 1);
+
+        sd.associateArrayWithVariable(ia, in);
+        sd.exec();
+        INDArray out = t.getArr();
+
+        if(!expOut.equals(out)){log.info("forward failed");}
+
+        try{
+            GradCheckUtil.checkGradients(sd);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -95,7 +189,7 @@ public class GradCheckTransforms {
         Nd4j.getRandom().setSeed(12345);
 
         List<String> allFailed = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 54; i++) {
 
             SameDiff sd = SameDiff.create();
 
@@ -105,6 +199,7 @@ public class GradCheckTransforms {
 
             INDArray ia = Nd4j.randn(minibatch, nOut);
 
+            int dim;
             SDVariable t;
             INDArray expOut;
             switch (i) {
@@ -281,7 +376,8 @@ public class GradCheckTransforms {
                     expOut = Transforms.leakyRelu(ia, true);
                     break;
                 case 39:
-                    //TODO DIMENSION ARG???
+                    // TODO DIMENSION ARG???
+                    // TODO fix me
                     t = sd.logSoftmax(in);
                     ia = Nd4j.rand(minibatch, nOut);
                     expOut = Transforms.log(Transforms.softmax(ia, true));
@@ -308,12 +404,12 @@ public class GradCheckTransforms {
                     break;
                 case 45:
                     t = sd.eq(in, 2.0);
-                    ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
+                    ia = Nd4j.linspace(1, minibatch * nOut, minibatch * nOut).reshape('c', minibatch, nOut);
                     expOut = ia.eq(2.0);
                     break;
                 case 46:
                     t = sd.neq(in, 2.0);
-                    ia = Nd4j.linspace(1,minibatch*nOut, minibatch*nOut).reshape('c', minibatch, nOut);
+                    ia = Nd4j.linspace(1, minibatch * nOut, minibatch * nOut).reshape('c', minibatch, nOut);
                     expOut = ia.neq(2.0);
                     break;
                 case 47:
@@ -333,13 +429,13 @@ public class GradCheckTransforms {
                     ia = Nd4j.rand(ia.shape());
                     ia.muliRowVector(ia.norm2(0).rdiv(clip));  //Exactly at threshold...
                     System.out.println(ia.norm2(0));
-                    ia.muliRowVector(Nd4j.linspace(0.9,1.1, ia.size(1)));
+                    ia.muliRowVector(Nd4j.linspace(0.9, 1.1, ia.size(1)));
                     System.out.println(ia.norm2(0));
 
                     expOut = Nd4j.create(ia.shape());
-                    for( int j=0; j<ia.columns(); j++ ){
+                    for (int j = 0; j < ia.columns(); j++) {
                         INDArray origCol = ia.getColumn(j);
-                        if(origCol.norm2Number().doubleValue() < clip){
+                        if (origCol.norm2Number().doubleValue() < clip) {
                             expOut.putColumn(j, origCol);
                         } else {
                             expOut.putColumn(j, origCol.mul(clip / origCol.norm2Number().doubleValue()));
@@ -347,6 +443,46 @@ public class GradCheckTransforms {
                     }
 
                     t = sd.clipByNorm(in, clip);
+                    break;
+                    //TODO clip by norm along other dimensions
+                case 50:
+                    dim = 1;
+                    t = sd.reverse(in, dim);
+                    expOut = Nd4j.create(ia.shape());
+                    DynamicCustomOp reverse = DynamicCustomOp.builder("reverse")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(reverse);
+
+                    break;
+                case 51:
+                    dim = 0;
+                    boolean exclusive = false;
+                    boolean reverseBool = false;
+                    t = sd.cumsum(in, exclusive, reverseBool, dim);
+                    expOut = Nd4j.create(ia.shape());
+                    DynamicCustomOp cumsum = DynamicCustomOp.builder("cumsum")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(cumsum);
+                    break;
+                case 52:
+                    dim = 0;
+                    boolean ex = false;
+                    boolean revBool = false;
+                    t = sd.cumsum(in, ex, revBool, dim);
+                    expOut = Nd4j.create(ia.shape());
+                    DynamicCustomOp cumprod = DynamicCustomOp.builder("cumprod")
+                            .addIntegerArguments(dim)
+                            .addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(cumprod);
+                case 53:
+                    ia = Nd4j.create(new float[] {4,2});
+                    in = sd.var("in", new int[]{1, 2});
+                    expOut = Nd4j.create(new int[] {2,2});
+                    DynamicCustomOp op = DynamicCustomOp.builder("diag").addInputs(ia).addOutputs(expOut).build();
+                    Nd4j.getExecutioner().exec(op);
+                    t = sd.diag(in);
                     break;
                 default:
                     throw new RuntimeException();
@@ -362,38 +498,40 @@ public class GradCheckTransforms {
 
             SDVariable loss = sd.mean("loss", t);
 
+
             sd.associateArrayWithVariable(ia, in);
             sd.exec();
             INDArray out = t.getArr();
 
-            if(!expOut.equals(out)){
+            if (!expOut.equals(out)) {
                 allFailed.add(msg + " - FAILED ON FORWARD");
                 continue;
             }
 
             boolean ok;
-            try{
+            try {
                 ok = GradCheckUtil.checkGradients(sd);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 msg += " - EXCEPTION";
                 ok = false;
             }
 
-//            assertTrue(msg, ok);
+            assertTrue(msg, ok);
             if(!ok){
+
                 allFailed.add(msg);
             }
         }
 
-        if(allFailed.size() > 0){
+        if (allFailed.size() > 0) {
             log.error("All failed transforms: " + allFailed);
             fail(allFailed.size() + " transforms failed");
         }
     }
 
     @Test
-    public void testPairwiseTransforms(){
+    public void testPairwiseTransforms() {
         /*
         add, sub, mul, div, rsub, rdiv
         eq, neq, gt, lt, gte, lte, or, and, xor
@@ -502,7 +640,7 @@ public class GradCheckTransforms {
                     expOut = Transforms.xor(ia, ib);
                     break;
                 case 18:
-                    t = sd.assign(in1,in2);
+                    t = sd.assign(in1, in2);
                     expOut = ib;
                     break;
                 case 19:
@@ -534,20 +672,20 @@ public class GradCheckTransforms {
             assertEquals(msg, expOut, out);
 
             boolean ok;
-            try{
+            try {
                 ok = GradCheckUtil.checkGradients(sd);
-            } catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 msg += " - EXCEPTION";
                 ok = false;
             }
 
-            if(!ok){
+            if (!ok) {
                 allFailed.add(msg);
             }
         }
 
-        if(allFailed.size() > 0){
+        if (allFailed.size() > 0) {
             log.error("All failed transforms: " + allFailed);
             fail(allFailed.size() + " transforms failed");
         }

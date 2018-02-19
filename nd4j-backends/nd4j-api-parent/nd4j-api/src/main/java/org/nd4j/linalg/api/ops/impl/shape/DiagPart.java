@@ -1,20 +1,48 @@
 package org.nd4j.linalg.api.ops.impl.shape;
 
 import onnx.OnnxProto3;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
+
+/**
+ * Return the diagonal part of a tensor. The input tensor has to
+ * have dimensions [d1,..., dk, d1,..., dk], so that the diagonal
+ * blocks have shape [d1,..., dk].
+ *
+ * A simple special case of this is returning the diagonal of a
+ * matrix as vector.
+ *
+ * @author  Max Pumperla
+ */
 public class DiagPart extends DynamicCustomOp {
+
+    public DiagPart() {
+    }
+
+    public DiagPart(SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
+        super(null, sameDiff, args, inPlace);
+    }
+
+    @Override
+    public List<SDVariable> doDiff(List<SDVariable> i_v) {
+        SDVariable grad = i_v.get(0);
+        SDVariable ret = sameDiff.diag(grad);
+        return Collections.singletonList(ret);
+    }
+
     @Override
     public String opName() {
         return "diag_part";
     }
-
 
 
     @Override
