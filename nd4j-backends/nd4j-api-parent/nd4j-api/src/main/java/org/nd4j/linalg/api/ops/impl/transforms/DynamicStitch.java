@@ -1,13 +1,10 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
-import lombok.val;
+import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
@@ -33,27 +30,29 @@ import java.util.*;
 public class DynamicStitch extends DynamicCustomOp {
 
     private int numPartitions;
-    private SDVariable indices;
+    private SDVariable[] indices;
 
     public DynamicStitch() {
     }
 
-    public DynamicStitch(SameDiff sameDiff, SDVariable[] inputAndpartitions) {
-        super(null, sameDiff, inputAndpartitions, false);
+    public DynamicStitch(SameDiff sameDiff, SDVariable[] inputs, SDVariable[] indices) {
+        super(null, sameDiff, ArrayUtils.addAll(inputs, indices), false);
 
-        SDVariable input = inputAndpartitions[0];
-        SDVariable sdPartitions = inputAndpartitions[1];
-
-        this.indices = sdPartitions;
-        this.numPartitions = input.getArr().shape()[0];
+        this.indices = indices;
+        this.numPartitions = inputs.length;
     }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
         // DynamicPartition and DynamicStitch are mutually inverse
         SDVariable gradient = i_v.get(0);
-        SDVariable ret = sameDiff.dynamicPartition(gradient, indices, numPartitions);
-        return Collections.singletonList(ret);
+        SDVariable[] partitionData = indices.clone();
+        for (int i = 0; i < indices.length; i++)
+            partitionData[i] = sameDiff.onesLike(indices[i]).mul(i);
+        SDVariable partitions = sameDiff.dynamicStitch(partitionData, indices);
+
+        SDVariable[] ret = sameDiff.dynamicPartition(gradient, partitions, numPartitions);
+        return new ArrayList<>(Arrays.asList(ret));
     }
 
 
@@ -76,7 +75,7 @@ public class DynamicStitch extends DynamicCustomOp {
 
     @Override
     public String onnxName() {
-        throw new IllegalStateException("Dynamic partitioning currently not supported by ONNX");
+        return "Dynamic partitioning currently not supported by ONNX";
     }
 
 }

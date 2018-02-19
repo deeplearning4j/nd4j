@@ -5,7 +5,6 @@ import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
-import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -50,9 +49,10 @@ public class DynamicPartition extends DynamicCustomOp {
     @Override
     public List<SDVariable> doDiff(List<SDVariable> i_v) {
         // DynamicPartition and DynamicStitch are mutually inverse
-        SDVariable gradient = i_v.get(0);
-        SDVariable ret = sameDiff.dynamicStitch(gradient, partitions);
-        return Collections.singletonList(ret);
+        SDVariable[] gradients = (SDVariable[]) i_v.toArray();
+        // TODO: compute indices from partitions
+//        SDVariable ret = sameDiff.dynamicStitch(gradients, partitions);
+        return Collections.singletonList(i_v.get(0));
     }
 
     protected void addArgs() {
@@ -92,10 +92,10 @@ public class DynamicPartition extends DynamicCustomOp {
     public String tensorflowName() {
         return "DynamicPartition";
     }
-    
+
     @Override
     public String onnxName() {
-        throw new IllegalStateException("Dynamic partitioning currently not supported by ONNX");
+        return "Dynamic partitioning currently not supported by ONNX";
     }
 
 }

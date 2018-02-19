@@ -21,6 +21,7 @@ import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -187,7 +188,6 @@ public class GradCheckTransforms {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Test
@@ -231,6 +231,51 @@ public class GradCheckTransforms {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testDynamicPartition() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray ia = Nd4j.create(new float[] {4, 3, 5, 7, 8, 0}, new int[] {1, 6} );
+        INDArray partitions = Nd4j.create(new float[] {1, 0, 1, 0, 0, 1});
+        int numPartitions = 2;
+
+        SDVariable in = sd.var("in", new int[]{1, 6});
+        SDVariable sdPartitions = sd.var("partitions", new int[] {1, 6});
+
+        INDArray expOut1 = Nd4j.create(new int[] {1,3});
+        INDArray expOut2 = Nd4j.create(new int[] {1,3});
+        INDArray[] expOut = new INDArray[] {expOut1, expOut2};
+
+        DynamicCustomOp dynamicPartition = DynamicCustomOp.builder("dynamic_partition")
+                .addInputs(ia, partitions)
+                .addIntegerArguments(numPartitions)
+                .addOutputs(expOut1, expOut2).build();
+        Nd4j.getExecutioner().exec(dynamicPartition);
+
+        SDVariable[] parts = sd.dynamicPartition(in, sdPartitions, numPartitions);
+
+        // merge the output partitions together again, to retrieve a single
+        // tensor and finally a scalar.
+        SDVariable t = sd.mergeAdd(parts);
+        SDVariable loss = sd.mean("loss", t);
+
+        sd.associateArrayWithVariable(ia, in);
+        sd.exec();
+        INDArray[] out = new INDArray[numPartitions];
+        for (int i = 0; i < parts.length; i++) {
+            out[i] = parts[i].getArr();
+        }
+
+        if(!expOut.equals(out)){log.error("forward failed");}
+//        System.out.println(Arrays.toString(out.shape()));
+//
+//        try{
+//            GradCheckUtil.checkGradients(sd);
+//        } catch (Exception e){
+//            e.printStackTrace();
+//        }
     }
 
     @Test

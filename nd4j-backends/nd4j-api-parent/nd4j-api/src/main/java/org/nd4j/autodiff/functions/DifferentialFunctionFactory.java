@@ -2,6 +2,7 @@ package org.nd4j.autodiff.functions;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
+import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
@@ -856,15 +857,17 @@ public class DifferentialFunctionFactory   {
                 .outputVariables()[0];
     }
 
-    public SDVariable dynamicPartition(SDVariable differentialFunction, SDVariable partitions, int numPartitions) {
+    public SDVariable[] dynamicPartition(SDVariable differentialFunction, SDVariable partitions, int numPartitions) {
         validateDifferentialFunctionsameDiff(differentialFunction);
         return new DynamicPartition(sameDiff(), new SDVariable[] {differentialFunction, partitions}, numPartitions)
-                .outputVariables()[0];
+                .outputVariables();
     }
 
-    public SDVariable dynamicStitch(SDVariable differentialFunction, SDVariable indices) {
-        validateDifferentialFunctionsameDiff(differentialFunction);
-        return new DynamicStitch(sameDiff(), new SDVariable[] {differentialFunction, indices})
+    public SDVariable dynamicStitch(SDVariable[] differentialFunctions, SDVariable[] indices) {
+        for (SDVariable df: differentialFunctions)
+            validateDifferentialFunctionsameDiff(df);
+
+        return new DynamicStitch(sameDiff(), differentialFunctions, indices)
                 .outputVariables()[0];
     }
 
