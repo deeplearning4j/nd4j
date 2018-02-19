@@ -856,6 +856,18 @@ public class DifferentialFunctionFactory   {
                 .outputVariables()[0];
     }
 
+    public SDVariable dynamicPartition(SDVariable differentialFunction, SDVariable partitions, int numPartitions) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new DynamicPartition(sameDiff(), new SDVariable[] {differentialFunction, partitions}, numPartitions)
+                .outputVariables()[0];
+    }
+
+    public SDVariable dynamicStitch(SDVariable differentialFunction, SDVariable indices) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new DynamicStitch(sameDiff(), new SDVariable[] {differentialFunction, indices})
+                .outputVariables()[0];
+    }
+
     public SDVariable cross(SDVariable a, SDVariable b) {
         validateDifferentialFunctionsameDiff(a);
         return new Cross(sameDiff(), new SDVariable[]{a,b}).outputVariables()[0];

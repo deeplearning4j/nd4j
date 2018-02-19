@@ -2132,6 +2132,26 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+
+    public SDVariable dynamicPartition(SDVariable iX, SDVariable partitions, int numPartitions) {
+        return dynamicPartition(null, iX, partitions, numPartitions);
+    }
+
+    public SDVariable dynamicPartition(String name, SDVariable iX, SDVariable partitions, int numPartitions) {
+        SDVariable ret = f().dynamicPartition(iX, partitions, numPartitions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable dynamicStitch(SDVariable iX, SDVariable indices) {
+        return dynamicStitch(null, iX, indices);
+    }
+
+    public SDVariable dynamicStitch(String name, SDVariable iX, SDVariable indices) {
+        SDVariable ret = f().dynamicStitch(iX, indices);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
     public SDVariable cross(SDVariable a, SDVariable b) {
         return cross(null, a, b);
     }
