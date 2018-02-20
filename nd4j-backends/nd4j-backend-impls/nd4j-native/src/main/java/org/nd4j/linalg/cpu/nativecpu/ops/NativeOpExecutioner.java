@@ -265,8 +265,9 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         if (extraz.get() == null)
             extraz.set(new PointerPointer(32));
 
+        int[] maxShape = Shape.getMaxShape(op.x(),op.y());
         for (int i = 0; i < dimension.length; i++)
-            if (dimension[i] >= op.x().rank() && dimension[i] != Integer.MAX_VALUE)
+            if (dimension[i] >= maxShape.length && dimension[i] != Integer.MAX_VALUE)
                 throw new ND4JIllegalStateException("Op target dimension " + Arrays.toString(dimension)
                         + " contains element that higher then rank of op.X: [" + op.x().rank() + "]");
 
@@ -283,7 +284,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         if (Shape.wholeArrayDimension(dimension))
             retShape = new int[] {1, 1};
         else
-            retShape = ArrayUtil.removeIndex(op.x().shape(), dimension);
+            retShape = ArrayUtil.removeIndex(maxShape, dimension);
         //ensure vector is proper shape
         if (retShape.length == 1) {
             if (dimension[0] == 0)

@@ -56,6 +56,29 @@ public class Shape {
 
 
     /**
+     * Return the shape of the largest length array
+     * based on the input
+     * @param inputs the inputs to get the max shape for
+     * @return the largest shape based on the inputs
+     */
+    public static int[] getMaxShape(INDArray...inputs) {
+        if(inputs == null)
+            return null;
+        else if(inputs.length < 2)
+            return inputs[0].shape();
+        else {
+            int[] currMax = inputs[0].shape();
+            for(int i = 1; i <  inputs.length; i++) {
+                if(ArrayUtil.prod(currMax) < inputs[i].length()) {
+                    currMax = inputs[i].shape();
+                }
+            }
+
+            return currMax;
+        }
+    }
+
+    /**
      * Returns true if this shape is scalar
      * @param shape the shape that is scalar
      * @return
