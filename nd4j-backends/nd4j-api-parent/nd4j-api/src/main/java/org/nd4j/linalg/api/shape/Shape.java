@@ -69,6 +69,9 @@ public class Shape {
         else {
             int[] currMax = inputs[0].shape();
             for(int i = 1; i <  inputs.length; i++) {
+                if(inputs[i] == null) {
+                    continue;
+                }
                 if(ArrayUtil.prod(currMax) < inputs[i].length()) {
                     currMax = inputs[i].shape();
                 }

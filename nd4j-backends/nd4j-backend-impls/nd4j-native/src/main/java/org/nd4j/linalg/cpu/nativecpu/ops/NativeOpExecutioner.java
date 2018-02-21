@@ -314,7 +314,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 if (op.y() != null) {
 
                     //2 options here: either pairwise, equal sizes - OR every X TAD vs. entirety of Y
-                    if(op.x().lengthLong() == op.y().lengthLong()){
+                    if(op.x().lengthLong() == op.y().lengthLong()) {
                         //Pairwise
                         if (op.x().tensorssAlongDimension(dimension) != op.y().tensorssAlongDimension(dimension)) {
                             throw new ND4JIllegalStateException("Number of TADs along dimension don't match: (x shape = " +
