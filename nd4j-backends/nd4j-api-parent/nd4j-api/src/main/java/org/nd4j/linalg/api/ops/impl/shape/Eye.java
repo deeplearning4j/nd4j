@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops.impl.shape;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
 
@@ -61,6 +62,17 @@ public class Eye extends DynamicCustomOp {
             addIArgument(dim);
         }
     }
+
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
+    }
+
+    @Override
+    public String tensorflowName() {
+        return "Expm1";
+    }
+
 
     @Override
     public String opName() {
