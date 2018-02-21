@@ -269,13 +269,43 @@ public class GradCheckTransforms {
         }
 
         if(!expOut.equals(out)){log.error("forward failed");}
-//        System.out.println(Arrays.toString(out.shape()));
-//
-//        try{
-//            GradCheckUtil.checkGradients(sd);
-//        } catch (Exception e){
-//            e.printStackTrace();
-//        }
+    }
+
+    @Test
+    public void testDynamicStitch() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray ia = Nd4j.create(new float[] {5, 1, 3}, new int[] {1, 3} );
+        INDArray ib = Nd4j.create(new float[] {7, 2, 4}, new int[] {1, 3} );
+        INDArray indexA = Nd4j.create(new float[] {0, 1, 4}, new int[] {1, 3});
+        INDArray indexB = Nd4j.create(new float[] {2, 3, 5}, new int[] {1, 3});
+
+        INDArray expOut = Nd4j.create(new int[] {1,6});
+
+        DynamicCustomOp dynamicStitch = DynamicCustomOp.builder("dynamic_stitch")
+                .addInputs(indexA, indexB, ia, ib)
+                .addOutputs(expOut).build();
+        Nd4j.getExecutioner().exec(dynamicStitch);
+
+        SDVariable in1 = sd.var("in1", new int[]{1, 3});
+        SDVariable in2 = sd.var("in2", new int[]{1, 3});
+
+        SDVariable index1 = sd.var("index1", new int[] {1, 3});
+        SDVariable index2 = sd.var("index2", new int[] {1, 3});
+
+        sd.associateArrayWithVariable(ia, in1);
+        sd.associateArrayWithVariable(ib, in2);
+        sd.associateArrayWithVariable(indexA, index1);
+        sd.associateArrayWithVariable(indexB, index2);
+
+        SDVariable t = sd.dynamicStitch(new SDVariable[] {index1, index2}, new SDVariable[] {in1, in2});
+
+        SDVariable loss = sd.mean("loss", t);
+
+        sd.exec();
+        INDArray out = t.getArr();
+
+        if(!expOut.equals(out)){log.error("forward failed");}
     }
 
     @Test

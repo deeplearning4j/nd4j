@@ -2142,12 +2142,12 @@ public class SameDiff {
         return updateVariableNamesAndReferences(ret, name);
     }
 
-    public SDVariable dynamicStitch(SDVariable[] iX, SDVariable[] indices) {
-        return dynamicStitch(null, iX, indices);
+    public SDVariable dynamicStitch(SDVariable[] indices, SDVariable[] iX) {
+        return dynamicStitch(null, indices, iX);
     }
 
-    public SDVariable dynamicStitch(String name, SDVariable[] iX, SDVariable[] indices) {
-        SDVariable ret = f().dynamicStitch(iX, indices);
+    public SDVariable dynamicStitch(String name, SDVariable[] indices, SDVariable[] iX) {
+        SDVariable ret = f().dynamicStitch(indices, iX);
         return updateVariableNameAndReference(ret, name);
     }
 

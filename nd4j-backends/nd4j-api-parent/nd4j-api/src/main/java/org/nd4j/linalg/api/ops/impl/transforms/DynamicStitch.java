@@ -35,8 +35,8 @@ public class DynamicStitch extends DynamicCustomOp {
     public DynamicStitch() {
     }
 
-    public DynamicStitch(SameDiff sameDiff, SDVariable[] inputs, SDVariable[] indices) {
-        super(null, sameDiff, ArrayUtils.addAll(inputs, indices), false);
+    public DynamicStitch(SameDiff sameDiff, SDVariable[] indices, SDVariable[] inputs) {
+        super(null, sameDiff, ArrayUtils.addAll(indices, inputs), false);
 
         this.indices = indices;
         this.numPartitions = inputs.length;

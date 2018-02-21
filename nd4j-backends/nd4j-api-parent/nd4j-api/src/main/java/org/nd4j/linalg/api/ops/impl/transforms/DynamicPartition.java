@@ -1,6 +1,7 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import lombok.val;
+import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
@@ -36,24 +37,24 @@ public class DynamicPartition extends DynamicCustomOp {
     public DynamicPartition() {
     }
 
-    public DynamicPartition(SameDiff sameDiff, SDVariable[] inputAndpartitions, int numPartitions) {
-        super(null, sameDiff, inputAndpartitions, false);
-        SDVariable sdPartitions = inputAndpartitions[1];
+    public DynamicPartition(SameDiff sameDiff, SDVariable input,  SDVariable partitions, int numPartitions) {
+        super(null, sameDiff,  new SDVariable[] {input, partitions}, false);
 
-        this.partitions = sdPartitions;
+        this.partitions = partitions;
         this.numPartitions = numPartitions;
         addArgs();
     }
 
 
-    @Override
-    public List<SDVariable> doDiff(List<SDVariable> i_v) {
-        // DynamicPartition and DynamicStitch are mutually inverse
-        SDVariable[] gradients = (SDVariable[]) i_v.toArray();
-        // TODO: compute indices from partitions
-//        SDVariable ret = sameDiff.dynamicStitch(gradients, partitions);
-        return Collections.singletonList(i_v.get(0));
-    }
+//    @Override
+//    public List<SDVariable> doDiff(List<SDVariable> i_v) {
+//        // DynamicPartition and DynamicStitch are mutually inverse
+//        SDVariable[] gradients = (SDVariable[]) i_v.toArray();
+////         TODO: compute indices from partitions
+//        SDVariable[] indices = f(partitions, numPartitions);
+//        SDVariable ret = sameDiff.dynamicStitch(gradients, indices);
+//        return Collections.singletonList(i_v.get(0));
+//    }
 
     protected void addArgs() {
         addIArgument(numPartitions);
