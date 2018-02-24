@@ -519,6 +519,16 @@ public class BooleanIndexingTest extends BaseNd4jTest {
         assertEquals(2,filtered.length());
     }
 
+    @Test
+    public void testChooseNone() {
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.ANY_PANIC);
+        NativeOpsHolder.getInstance().getDeviceNativeOps().enableDebugMode(true);
+        INDArray arr = Nd4j.linspace(1,4,4).reshape(2,2);
+        INDArray filtered = BooleanIndexing.chooseFrom(new INDArray[]{arr},Arrays.asList(5.0), Collections.emptyList(),new GreaterThan());
+        assertNull(filtered);
+    }
+
+
     @Override
     public char ordering() {
         return 'c';

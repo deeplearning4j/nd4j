@@ -301,6 +301,11 @@ public class BooleanIndexing {
     public static INDArray chooseFrom(@NonNull  INDArray[] input,@NonNull  Condition condition) {
         Choose choose = new Choose(input,condition);
         Nd4j.getExecutioner().exec(choose);
+        int secondOutput = choose.getOutputArgument(1).getInt(0);
+        if(secondOutput < 1) {
+            return null;
+        }
+
         return choose.getOutputArgument(0);
     }
 
@@ -324,6 +329,9 @@ public class BooleanIndexing {
         Choose choose = new Choose(input,iArgs,tArgs,condition);
         Nd4j.getExecutioner().exec(choose);
         int secondOutput = choose.getOutputArgument(1).getInt(0);
+        if(secondOutput < 1) {
+            return null;
+        }
         return choose.getOutputArgument(0).get(NDArrayIndex.interval(0,secondOutput));
     }
 
