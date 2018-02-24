@@ -1973,6 +1973,15 @@ public class SameDiff {
         return exp(null, iX);
     }
 
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable expm1(SDVariable iX) {
+        return expm1(null, iX);
+    }
+
     /**
      * @param iX
      * @return
@@ -2105,6 +2114,15 @@ public class SameDiff {
     }
 
 
+    public SDVariable depthToSpace(SDVariable iX, int blockSize, String dataFormat) {
+        return depthToSpace(null, iX, blockSize, dataFormat);
+    }
+
+    public SDVariable depthToSpace(String name, SDVariable iX, int blockSize, String dataFormat) {
+        SDVariable ret = f().depthToSpace(iX, blockSize, dataFormat);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     public SDVariable spaceToBatch(SDVariable iX, int[] blocks, int[][] padding) {
         return spaceToBatch(null, iX, blocks, padding);
     }
@@ -2114,6 +2132,35 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable spaceToDepth(SDVariable iX, int blockSize, String dataFormat) {
+        return spaceToDepth(null, iX, blockSize, dataFormat);
+    }
+
+    public SDVariable spaceToDepth(String name, SDVariable iX, int blockSize, String dataFormat) {
+        SDVariable ret = f().spaceToDepth(iX, blockSize, dataFormat);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    public SDVariable[] dynamicPartition(SDVariable iX, SDVariable partitions, int numPartitions) {
+        return dynamicPartition(null, iX, partitions, numPartitions);
+    }
+
+    public SDVariable[] dynamicPartition(String[] name, SDVariable iX, SDVariable partitions, int numPartitions) {
+        SDVariable[] ret = f().dynamicPartition(iX, partitions, numPartitions);
+        return updateVariableNamesAndReferences(ret, name);
+    }
+
+    public SDVariable dynamicStitch(SDVariable[] indices, SDVariable[] iX) {
+        return dynamicStitch(null, indices, iX);
+    }
+
+    public SDVariable dynamicStitch(String name, SDVariable[] indices, SDVariable[] iX) {
+        SDVariable ret = f().dynamicStitch(indices, iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
     public SDVariable cross(SDVariable a, SDVariable b) {
         return cross(null, a, b);
     }
@@ -2121,6 +2168,23 @@ public class SameDiff {
     public SDVariable cross(String name, SDVariable a, SDVariable b) {
         SDVariable ret = f().cross(a, b);
         return updateVariableNameAndReference(ret, name);
+    }
+
+    public  SDVariable erf(SDVariable iX) {
+        return erf(null, iX);
+    }
+
+    public  SDVariable erf(String name, SDVariable iX) {
+        return erf(name, iX);
+    }
+
+
+    public  SDVariable erfc(SDVariable iX) {
+        return erfc(null, iX);
+    }
+
+    public  SDVariable erfc(String name, SDVariable iX) {
+        return erfc(name, iX);
     }
 
     public SDVariable diag(SDVariable iX) {
@@ -2963,6 +3027,17 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
 
     }
+
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable expm1(String name, SDVariable iX) {
+        SDVariable result = functionFactory.exp(iX);
+        return updateVariableNameAndReference(result, name);
+    }
+
 
     /**
      * @param iX
@@ -4624,6 +4699,29 @@ public class SameDiff {
         varToUpdate.setVarName(newVarName);
         updateVariableName(oldVarName, newVarName);
         return varToUpdate;
+    }
+
+
+    /**
+     * Updates the variable name property on the passed in variables,
+     * its reference in samediff, and returns the variable.
+     *
+     * @param variablesToUpdate the variable to update
+     * @param newVariableNames  the new variable name
+     * @return the updated, passed in variables
+     */
+    public SDVariable[] updateVariableNamesAndReferences(SDVariable[] variablesToUpdate, String[] newVariableNames) {
+
+        int numVariables = variablesToUpdate.length;
+        SDVariable[] updatedVariables = new SDVariable[numVariables];
+
+        for (int i = 0; i < numVariables; i++) {
+            SDVariable varToUpdate = variablesToUpdate[i];
+            String name = newVariableNames[i];
+            updatedVariables[i] = updateVariableNameAndReference(varToUpdate, name);
+        }
+
+        return updatedVariables;
     }
 
     /**

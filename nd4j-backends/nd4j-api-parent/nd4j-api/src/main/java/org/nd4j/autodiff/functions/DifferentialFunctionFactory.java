@@ -2,6 +2,7 @@ package org.nd4j.autodiff.functions;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
+import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
@@ -12,6 +13,8 @@ import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.DepthToSpace;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.SpaceToDepth;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -344,6 +347,10 @@ public class DifferentialFunctionFactory   {
 
     public SDVariable exp(SDVariable iX) {
         return new Exp(sameDiff(),iX,null).outputVariables()[0];
+    }
+
+    public SDVariable expm1(SDVariable iX) {
+        return new Expm1(sameDiff(),iX,null).outputVariables()[0];
     }
 
 
@@ -842,9 +849,45 @@ public class DifferentialFunctionFactory   {
                 .outputVariables()[0];
     }
 
+    public SDVariable depthToSpace(SDVariable differentialFunction, int blocksSize, String dataFormat ) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new DepthToSpace(sameDiff(), new SDVariable[]{differentialFunction}, blocksSize, dataFormat)
+                .outputVariables()[0];
+    }
+
+    public SDVariable spaceToDepth(SDVariable differentialFunction, int blocksSize, String dataFormat ) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new SpaceToDepth(sameDiff(), new SDVariable[]{differentialFunction}, blocksSize, dataFormat)
+                .outputVariables()[0];
+    }
+
+    public SDVariable[] dynamicPartition(SDVariable differentialFunction, SDVariable partitions, int numPartitions) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return new DynamicPartition(sameDiff(), differentialFunction, partitions, numPartitions)
+                .outputVariables();
+    }
+
+    public SDVariable dynamicStitch(SDVariable[] indices, SDVariable[] differentialFunctions) {
+        for (SDVariable df: differentialFunctions)
+            validateDifferentialFunctionsameDiff(df);
+
+        return new DynamicStitch(sameDiff(), indices, differentialFunctions)
+                .outputVariables()[0];
+    }
+
     public SDVariable cross(SDVariable a, SDVariable b) {
         validateDifferentialFunctionsameDiff(a);
         return new Cross(sameDiff(), new SDVariable[]{a,b}).outputVariables()[0];
+    }
+
+    public SDVariable erf(SDVariable differentialFunction) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return  new Erf(sameDiff(), differentialFunction, false).outputVariables()[0];
+    }
+
+    public SDVariable erfc(SDVariable differentialFunction) {
+        validateDifferentialFunctionsameDiff(differentialFunction);
+        return  new Erfc(sameDiff(), differentialFunction, false).outputVariables()[0];
     }
 
     public SDVariable addi(SDVariable differentialFunction, SDVariable i_v) {
