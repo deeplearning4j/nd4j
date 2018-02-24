@@ -96,6 +96,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_greater.class,
         float_Where.class,
         float_select.class,
+        float_choose.class,
         float_sigmoid.class,
         float_sigmoid_bp.class,
         float_softsign.class,
@@ -157,6 +158,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_ismax.class,
         float_dilation2d.class,
         float_conv3dNew.class,
+        float_max_pool_with_argmax.class,
         float_sru.class,
         float_sru_logic.class,
         float_sru_bi.class,
@@ -374,6 +376,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_greater.class,
         half_Where.class,
         half_select.class,
+        half_choose.class,
         half_sigmoid.class,
         half_sigmoid_bp.class,
         half_softsign.class,
@@ -435,6 +438,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_ismax.class,
         half_dilation2d.class,
         half_conv3dNew.class,
+        half_max_pool_with_argmax.class,
         half_sru.class,
         half_sru_logic.class,
         half_sru_bi.class,
@@ -652,6 +656,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_greater.class,
         double_Where.class,
         double_select.class,
+        double_choose.class,
         double_sigmoid.class,
         double_sigmoid_bp.class,
         double_softsign.class,
@@ -713,6 +718,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_ismax.class,
         double_dilation2d.class,
         double_conv3dNew.class,
+        double_max_pool_with_argmax.class,
         double_sru.class,
         double_sru_logic.class,
         double_sru_bi.class,
@@ -19655,6 +19661,62 @@ private native void allocate();
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
+
+        /**
+         * This op takes either 1 argument and 1 scalar
+         * or 1 argument and another comparison array
+         * and runs a pre defined conditional op.
+         *
+         *  The output of the op is dynamic in size and returns a flat vector of elements
+         *  that return true on the given condition.
+         *  In numpy parlance, most people might understand:
+         *  a[a > 2]
+         *  where a is a numpy array and the condition is true when an element is
+         *  > 2. Libnd4j already implements a number of pre defined conditions.
+         * \tparam T
+         */
+        @Name("nd4j::ops::choose<float>") public static class float_choose extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_choose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_choose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_choose position(long position) {
+                return (float_choose)super.position(position);
+            }
+        public float_choose() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::choose<float16>") public static class half_choose extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_choose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_choose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_choose position(long position) {
+                return (half_choose)super.position(position);
+            }
+        public half_choose() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::choose<double>") public static class double_choose extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_choose(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_choose(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_choose position(long position) {
+                return (double_choose)super.position(position);
+            }
+        public double_choose() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
     
 
 
@@ -22620,6 +22682,60 @@ private native void allocate();
                 return (double_conv3dNew)super.position(position);
             }
         public double_conv3dNew() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        
+        /**
+         * This op same as maxpool2d with a variant to return a matrix of indexes for max values
+         *
+         * Input - 4D tensor
+         * Output:
+         *     0 - 4D tensor as input
+         *     1 - 4D tensor with max value indexes
+         *     
+         * Int params:
+         *   9 int with 2x4 vectors and 1 bool value
+         */
+        @Name("nd4j::ops::max_pool_with_argmax<float>") public static class float_max_pool_with_argmax extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_max_pool_with_argmax(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_max_pool_with_argmax(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_max_pool_with_argmax position(long position) {
+                return (float_max_pool_with_argmax)super.position(position);
+            }
+        public float_max_pool_with_argmax() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::max_pool_with_argmax<float16>") public static class half_max_pool_with_argmax extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_max_pool_with_argmax(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_max_pool_with_argmax(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_max_pool_with_argmax position(long position) {
+                return (half_max_pool_with_argmax)super.position(position);
+            }
+        public half_max_pool_with_argmax() { super((Pointer)null); allocate(); }
+private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::max_pool_with_argmax<double>") public static class double_max_pool_with_argmax extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_max_pool_with_argmax(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_max_pool_with_argmax(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_max_pool_with_argmax position(long position) {
+                return (double_max_pool_with_argmax)super.position(position);
+            }
+        public double_max_pool_with_argmax() { super((Pointer)null); allocate(); }
 private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }

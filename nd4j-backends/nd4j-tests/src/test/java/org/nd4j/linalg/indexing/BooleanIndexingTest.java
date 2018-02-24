@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndReplace;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
@@ -14,9 +15,12 @@ import org.nd4j.linalg.factory.Nd4jBackend;
 import org.nd4j.linalg.indexing.conditions.AbsValueGreaterThan;
 import org.nd4j.linalg.indexing.conditions.Condition;
 import org.nd4j.linalg.indexing.conditions.Conditions;
+import org.nd4j.linalg.indexing.conditions.GreaterThan;
 import org.nd4j.linalg.indexing.functions.Value;
+import org.nd4j.nativeblas.NativeOpsHolder;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -504,6 +508,15 @@ public class BooleanIndexingTest extends BaseNd4jTest {
         int numZeroes = Nd4j.getExecutioner().exec(condition, Integer.MAX_VALUE).getInt(0);
 
         assertEquals(2, numZeroes);
+    }
+
+    @Test
+    public void testChooseBasic() {
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.ANY_PANIC);
+        NativeOpsHolder.getInstance().getDeviceNativeOps().enableDebugMode(true);
+        INDArray arr = Nd4j.linspace(1,4,4).reshape(2,2);
+        INDArray filtered = BooleanIndexing.chooseFrom(new INDArray[]{arr},Arrays.asList(2.0), Collections.emptyList(),new GreaterThan());
+        assertEquals(2,filtered.length());
     }
 
     @Override

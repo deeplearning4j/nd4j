@@ -27,6 +27,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
 import org.nd4j.linalg.api.ops.impl.indexaccum.FirstIndex;
 import org.nd4j.linalg.api.ops.impl.indexaccum.LastIndex;
+import org.nd4j.linalg.api.ops.impl.transforms.comparison.Choose;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndReplace;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
 import org.nd4j.linalg.api.shape.Shape;
@@ -35,6 +36,7 @@ import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.conditions.BaseCondition;
 import org.nd4j.linalg.indexing.conditions.Condition;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -287,6 +289,43 @@ public class BooleanIndexing {
         Nd4j.getExecutioner().exec(new CompareAndReplace(to, from, condition));
     }
 
+    /**
+     * Choose from the inputs based on the given condition.
+     * This returns a row vector of all elements fulfilling the
+     * condition listed within the array for input
+     * @param input the input to filter
+     * @param condition the condition to filter based on
+     * @return a row vector of the input elements that are true
+     * ffor the given conditions
+     */
+    public static INDArray chooseFrom(@NonNull  INDArray[] input,@NonNull  Condition condition) {
+        Choose choose = new Choose(input,condition);
+        Nd4j.getExecutioner().exec(choose);
+        return choose.getOutputArgument(0);
+    }
+
+
+    /**
+     * Choose from the inputs based on the given condition.
+     * This returns a row vector of all elements fulfilling the
+     * condition listed within the array for input.
+     * The double and integer arguments are only relevant
+     * for scalar operations (like when you have a scalar
+     * you are trying to compare each element in your input against)
+     *
+     * @param input the input to filter
+     * @param tArgs the double args
+     * @param iArgs the integer args
+     * @param condition the condition to filter based on
+     * @return a row vector of the input elements that are true
+     * ffor the given conditions
+     */
+    public static INDArray chooseFrom(@NonNull  INDArray[] input, @NonNull  List<Double> tArgs, @NonNull List<Integer> iArgs, @NonNull Condition condition) {
+        Choose choose = new Choose(input,iArgs,tArgs,condition);
+        Nd4j.getExecutioner().exec(choose);
+        int secondOutput = choose.getOutputArgument(1).getInt(0);
+        return choose.getOutputArgument(0).get(NDArrayIndex.interval(0,secondOutput));
+    }
 
     /**
      * This method does element-wise assing for 2 equal-sized matrices, for each element that matches Condition
