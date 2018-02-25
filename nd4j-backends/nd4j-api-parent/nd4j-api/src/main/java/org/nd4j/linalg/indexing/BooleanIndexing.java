@@ -207,7 +207,7 @@ public class BooleanIndexing {
      * @param function  the function to apply the op to
      */
     public static void applyWhere(final INDArray to, final Condition condition,
-                    final Function<Number, Number> function) {
+                                  final Function<Number, Number> function) {
         // keep original java implementation for dynamic
 
         Shape.iterate(to, new CoordinateFunction() {
@@ -332,11 +332,12 @@ public class BooleanIndexing {
         if(secondOutput < 1) {
             return null;
         }
-        return choose.getOutputArgument(0).get(NDArrayIndex.interval(0,secondOutput));
+        INDArray ret =  choose.getOutputArgument(0).get(NDArrayIndex.interval(0,secondOutput));
+        return ret;
     }
 
     /**
-     * This method does element-wise assing for 2 equal-sized matrices, for each element that matches Condition
+     * This method does element-wise assessing for 2 equal-sized matrices, for each element that matches Condition
      *
      * @param to
      * @param set
@@ -358,7 +359,7 @@ public class BooleanIndexing {
      * @param function  the function to apply the op to
      */
     public static void applyWhere(final INDArray to, final Condition condition, final Function<Number, Number> function,
-                    final Function<Number, Number> alternativeFunction) {
+                                  final Function<Number, Number> alternativeFunction) {
         Shape.iterate(to, new CoordinateFunction() {
             @Override
             public void process(int[]... coord) {
@@ -381,7 +382,7 @@ public class BooleanIndexing {
      * @param function  the function to apply the op to
      */
     public static void applyWhere(IComplexNDArray to, Condition condition,
-                    Function<IComplexNumber, IComplexNumber> function) {
+                                  Function<IComplexNumber, IComplexNumber> function) {
         IComplexNDArray linear = to.linearView();
         for (int i = 0; i < linear.linearView().length(); i++) {
             if (condition.apply(linear.getDouble(i))) {
