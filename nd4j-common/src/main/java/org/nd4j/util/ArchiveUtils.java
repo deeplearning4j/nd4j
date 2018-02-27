@@ -65,11 +65,12 @@ public class ArchiveUtils {
                     String fileName = ze.getName();
                     File newFile = new File(dest + File.separator + fileName);
 
-                    log.debug("File extracted: " + newFile.getAbsoluteFile());
-
-                    //createComplex all non exists folders
-                    //else you will hit FileNotFoundException for compressed folder
-                    new File(newFile.getParent()).mkdirs();
+                    if (ze.isDirectory()) {
+                        newFile.mkdirs();
+                        zis.closeEntry();
+                        ze = zis.getNextEntry();
+                        continue;
+                    }
 
                     FileOutputStream fos = new FileOutputStream(newFile);
 
@@ -80,6 +81,7 @@ public class ArchiveUtils {
 
                     fos.close();
                     ze = zis.getNextEntry();
+                    log.debug("File extracted: " + newFile.getAbsoluteFile());
                 }
 
                 zis.closeEntry();
