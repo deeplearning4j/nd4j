@@ -52,6 +52,6 @@ public class ExecutorConfiguration {
         if (outp == -1)
             throw new UnsupportedOperationException("Unknown values were passed into configuration as OutputMode: [" + outputMode + "]");
 
-        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings);
+        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings, 0, 0);
     }
 }
