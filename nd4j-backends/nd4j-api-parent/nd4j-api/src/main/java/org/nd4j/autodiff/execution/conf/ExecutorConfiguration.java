@@ -24,6 +24,8 @@ public class ExecutorConfiguration {
     @Builder.Default private ExecutionMode executionMode = ExecutionMode.SEQUENTIAL;
     @Builder.Default private OutputMode outputMode = OutputMode.IMPLICIT;
     @Builder.Default boolean gatherTimings = true;
+    @Builder.Default private long footprintForward = 0L;
+    @Builder.Default private long footprintBackward = 0L;
 
 
     /**
@@ -52,6 +54,6 @@ public class ExecutorConfiguration {
         if (outp == -1)
             throw new UnsupportedOperationException("Unknown values were passed into configuration as OutputMode: [" + outputMode + "]");
 
-        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings, 0, 0);
+        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings, footprintForward, footprintBackward);
     }
 }
