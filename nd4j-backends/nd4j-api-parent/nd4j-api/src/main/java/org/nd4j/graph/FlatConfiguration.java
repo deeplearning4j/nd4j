@@ -16,18 +16,24 @@ public final class FlatConfiguration extends Table {
   public FlatConfiguration __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public long id() { int o = __offset(4); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
-  public byte executionMode() { int o = __offset(6); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public byte profilingMode() { int o = __offset(8); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public byte outputMode() { int o = __offset(10); return o != 0 ? bb.get(o + bb_pos) : 0; }
-  public boolean timestats() { int o = __offset(12); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
+  public long footprintForward() { int o = __offset(6); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
+  public long footprintBackward() { int o = __offset(8); return o != 0 ? bb.getLong(o + bb_pos) : 0L; }
+  public byte executionMode() { int o = __offset(10); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public byte profilingMode() { int o = __offset(12); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public byte outputMode() { int o = __offset(14); return o != 0 ? bb.get(o + bb_pos) : 0; }
+  public boolean timestats() { int o = __offset(16); return o != 0 ? 0!=bb.get(o + bb_pos) : false; }
 
   public static int createFlatConfiguration(FlatBufferBuilder builder,
       long id,
+      long footprintForward,
+      long footprintBackward,
       byte executionMode,
       byte profilingMode,
       byte outputMode,
       boolean timestats) {
-    builder.startObject(5);
+    builder.startObject(7);
+    FlatConfiguration.addFootprintBackward(builder, footprintBackward);
+    FlatConfiguration.addFootprintForward(builder, footprintForward);
     FlatConfiguration.addId(builder, id);
     FlatConfiguration.addTimestats(builder, timestats);
     FlatConfiguration.addOutputMode(builder, outputMode);
@@ -36,12 +42,14 @@ public final class FlatConfiguration extends Table {
     return FlatConfiguration.endFlatConfiguration(builder);
   }
 
-  public static void startFlatConfiguration(FlatBufferBuilder builder) { builder.startObject(5); }
+  public static void startFlatConfiguration(FlatBufferBuilder builder) { builder.startObject(7); }
   public static void addId(FlatBufferBuilder builder, long id) { builder.addLong(0, id, 0L); }
-  public static void addExecutionMode(FlatBufferBuilder builder, byte executionMode) { builder.addByte(1, executionMode, 0); }
-  public static void addProfilingMode(FlatBufferBuilder builder, byte profilingMode) { builder.addByte(2, profilingMode, 0); }
-  public static void addOutputMode(FlatBufferBuilder builder, byte outputMode) { builder.addByte(3, outputMode, 0); }
-  public static void addTimestats(FlatBufferBuilder builder, boolean timestats) { builder.addBoolean(4, timestats, false); }
+  public static void addFootprintForward(FlatBufferBuilder builder, long footprintForward) { builder.addLong(1, footprintForward, 0L); }
+  public static void addFootprintBackward(FlatBufferBuilder builder, long footprintBackward) { builder.addLong(2, footprintBackward, 0L); }
+  public static void addExecutionMode(FlatBufferBuilder builder, byte executionMode) { builder.addByte(3, executionMode, 0); }
+  public static void addProfilingMode(FlatBufferBuilder builder, byte profilingMode) { builder.addByte(4, profilingMode, 0); }
+  public static void addOutputMode(FlatBufferBuilder builder, byte outputMode) { builder.addByte(5, outputMode, 0); }
+  public static void addTimestats(FlatBufferBuilder builder, boolean timestats) { builder.addBoolean(6, timestats, false); }
   public static int endFlatConfiguration(FlatBufferBuilder builder) {
     int o = builder.endObject();
     return o;
