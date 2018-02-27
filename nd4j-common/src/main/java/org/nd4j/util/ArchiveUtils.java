@@ -38,10 +38,12 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class ArchiveUtils {
 
-    private ArchiveUtils() {}
+    private ArchiveUtils() {
+    }
 
     /**
      * Extracts files to the specified destination
+     *
      * @param file the file to extract to
      * @param dest the destination directory
      * @throws IOException
@@ -55,106 +57,79 @@ public class ArchiveUtils {
         byte data[] = new byte[BUFFER];
 
         if (file.endsWith(".zip")) {
-            //getFromOrigin the zip file content
-            ZipInputStream zis = new ZipInputStream(fin);
-            //getFromOrigin the zipped file list entry
-            ZipEntry ze = zis.getNextEntry();
+            try(ZipInputStream zis = new ZipInputStream(fin)) {
+                //get the zipped file list entry
+                ZipEntry ze = zis.getNextEntry();
 
-            while (ze != null) {
+                while (ze != null) {
+                    String fileName = ze.getName();
+                    File newFile = new File(dest + File.separator + fileName);
 
-                String fileName = ze.getName();
-                File newFile = new File(dest + File.separator + fileName);
+                    log.info("file unzip : " + newFile.getAbsoluteFile());
 
-                log.info("file unzip : " + newFile.getAbsoluteFile());
+                    //createComplex all non exists folders
+                    //else you will hit FileNotFoundException for compressed folder
+                    new File(newFile.getParent()).mkdirs();
 
-                //createComplex all non exists folders
-                //else you will hit FileNotFoundException for compressed folder
-                new File(newFile.getParent()).mkdirs();
+                    FileOutputStream fos = new FileOutputStream(newFile);
 
-                FileOutputStream fos = new FileOutputStream(newFile);
+                    int len;
+                    while ((len = zis.read(data)) > 0) {
+                        fos.write(data, 0, len);
+                    }
 
-                int len;
-                while ((len = zis.read(data)) > 0) {
-                    fos.write(data, 0, len);
+                    fos.close();
+                    ze = zis.getNextEntry();
                 }
 
-                fos.close();
-                ze = zis.getNextEntry();
+                zis.closeEntry();
             }
-
-            zis.closeEntry();
-            zis.close();
-
-
-        }
-
-
-
-        else if (file.endsWith(".tar.gz") || file.endsWith(".tgz")) {
+        } else if (file.endsWith(".tar.gz") || file.endsWith(".tgz")) {
 
             BufferedInputStream in = new BufferedInputStream(fin);
             GzipCompressorInputStream gzIn = new GzipCompressorInputStream(in);
             TarArchiveInputStream tarIn = new TarArchiveInputStream(gzIn);
 
-            TarArchiveEntry entry = null;
-
-            /** Read the tar entries using the getNextEntry method **/
-
+            TarArchiveEntry entry;
+            /* Read the tar entries using the getNextEntry method **/
             while ((entry = (TarArchiveEntry) tarIn.getNextEntry()) != null) {
-
                 log.info("Extracting: " + entry.getName());
-
-                /** If the entry is a directory, createComplex the directory. **/
+                /* If the entry is a directory, create the directory. */
 
                 if (entry.isDirectory()) {
-
                     File f = new File(dest + File.separator + entry.getName());
                     f.mkdirs();
                 }
-                /**
+                /*
                  * If the entry is a file,write the decompressed file to the disk
                  * and close destination stream.
-                 **/
+                 */
                 else {
                     int count;
+                    try(FileOutputStream fos = new FileOutputStream(dest + File.separator + entry.getName());
+                        BufferedOutputStream destStream = new BufferedOutputStream(fos, BUFFER);) {
+                        while ((count = tarIn.read(data, 0, BUFFER)) != -1) {
+                            destStream.write(data, 0, count);
+                        }
 
-                    FileOutputStream fos = new FileOutputStream(dest + File.separator + entry.getName());
-                    BufferedOutputStream destStream = new BufferedOutputStream(fos, BUFFER);
-                    while ((count = tarIn.read(data, 0, BUFFER)) != -1) {
-                        destStream.write(data, 0, count);
+                        destStream.flush();
+                        IOUtils.closeQuietly(destStream);
                     }
-
-                    destStream.flush();
-
-                    IOUtils.closeQuietly(destStream);
                 }
             }
 
-
-
-            /** Close the input stream **/
-
+            // Close the input stream
             tarIn.close();
-        }
-
-        else if (file.endsWith(".gz")) {
-            GZIPInputStream is2 = new GZIPInputStream(fin);
+        } else if (file.endsWith(".gz")) {
             File extracted = new File(target.getParent(), target.getName().replace(".gz", ""));
             if (extracted.exists())
                 extracted.delete();
             extracted.createNewFile();
-            OutputStream fos = FileUtils.openOutputStream(extracted);
-            IOUtils.copyLarge(is2, fos);
-            is2.close();
-            fos.flush();
-            fos.close();
+            try(GZIPInputStream is2 = new GZIPInputStream(fin); OutputStream fos = FileUtils.openOutputStream(extracted)) {
+                IOUtils.copyLarge(is2, fos);
+                fos.flush();
+            }
         }
-
-
         target.delete();
-
     }
-
-
-
 }

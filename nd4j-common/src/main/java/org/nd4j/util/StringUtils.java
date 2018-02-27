@@ -491,6 +491,59 @@ public class StringUtils {
     }
 
     /**
+     * This function splits the String s into multiple Strings using the
+     * splitChar.  However, it provides an quoting facility: it is possible to
+     * quote strings with the quoteChar.
+     * If the quoteChar occurs within the quotedExpression, it must be prefaced
+     * by the escapeChar
+     *
+     * @param s         The String to split
+     * @param splitChar
+     * @param quoteChar
+     * @return An array of Strings that s is split into
+     */
+    public static String[] splitOnCharWithQuoting(String s, char splitChar, char quoteChar, char escapeChar) {
+        List<String> result = new ArrayList<>();
+        int i = 0;
+        int length = s.length();
+        StringBuilder b = new StringBuilder();
+        while (i < length) {
+            char curr = s.charAt(i);
+            if (curr == splitChar) {
+                // add last buffer
+                if (b.length() > 0) {
+                    result.add(b.toString());
+                    b = new StringBuilder();
+                }
+                i++;
+            } else if (curr == quoteChar) {
+                // find next instance of quoteChar
+                i++;
+                while (i < length) {
+                    curr = s.charAt(i);
+                    if (curr == escapeChar) {
+                        b.append(s.charAt(i + 1));
+                        i += 2;
+                    } else if (curr == quoteChar) {
+                        i++;
+                        break; // break this loop
+                    } else {
+                        b.append(s.charAt(i));
+                        i++;
+                    }
+                }
+            } else {
+                b.append(curr);
+                i++;
+            }
+        }
+        if (b.length() > 0) {
+            result.add(b.toString());
+        }
+        return result.toArray(new String[0]);
+    }
+
+    /**
      * Escape commas in the string using the default escape char
      * @param str a string
      * @return an escaped string
@@ -797,6 +850,20 @@ public class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * Concatenates strings, using whitespaces as separator.
+     *
+     * @param strings Strings to join.
+     */
+    public static String join(Iterable<String> strings){
+        return join(" ", strings);
+    }
+
+    /**
+     * Concatenates strings, using whitespaces as separator.
+     *
+     * @param strings Strings to join.
+     */
     public static String join(char separator, Iterable<?> strings) {
         return join(separator + "", strings);
     }
