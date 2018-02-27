@@ -36,9 +36,9 @@ public class ReflectionUtils {
      * Cache of constructors for each class. Pins the classes so they
      * can't be garbage collected until ReflectionUtils can be collected.
      */
-    private static final Map<Class<?>, Constructor<?>> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
+    protected static final Map<Class<?>, Constructor<?>> CONSTRUCTOR_CACHE = new ConcurrentHashMap<>();
 
-    private ReflectionUtils() {}
+    protected ReflectionUtils() {}
 
 
 

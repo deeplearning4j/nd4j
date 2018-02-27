@@ -38,7 +38,7 @@ import java.util.zip.ZipInputStream;
 @Slf4j
 public class ArchiveUtils {
 
-    private ArchiveUtils() {
+    protected ArchiveUtils() {
     }
 
     /**

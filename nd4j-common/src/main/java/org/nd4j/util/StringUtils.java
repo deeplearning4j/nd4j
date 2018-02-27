@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1022,4 +1023,57 @@ public class StringUtils {
         return true;
     }
 
+
+    public static String timeUnitToString(long time, TimeUnit unit) {
+        String str = String.valueOf(time);
+        switch (unit) {
+            case MILLISECONDS:
+                str += "Millisecond";
+                break;
+            case SECONDS:
+                str += "Second";
+                break;
+            case MINUTES:
+                str += "Minute";
+                break;
+            case HOURS:
+                str += "Hour";
+                break;
+            case DAYS:
+                str += "Day";
+                break;
+            default:
+                throw new RuntimeException();
+        }
+        if (time == 1)
+            return str;
+        return str + "s";
+    }
+
+    public static TimeUnit stringToTimeUnit(String str) {
+        switch (str.toLowerCase()) {
+            case "ms":
+            case "millisecond":
+            case "milliseconds":
+                return TimeUnit.MILLISECONDS;
+            case "s":
+            case "sec":
+            case "second":
+            case "seconds":
+                return TimeUnit.SECONDS;
+            case "min":
+            case "minute":
+            case "minutes":
+                return TimeUnit.MINUTES;
+            case "h":
+            case "hour":
+            case "hours":
+                return TimeUnit.HOURS;
+            case "day":
+            case "days":
+                return TimeUnit.DAYS;
+            default:
+                throw new RuntimeException("Unknown time unit: \"" + str + "\"");
+        }
+    }
 }
