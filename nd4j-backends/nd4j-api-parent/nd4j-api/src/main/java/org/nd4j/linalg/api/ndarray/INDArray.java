@@ -798,7 +798,19 @@ public interface INDArray extends Serializable {
      */
     INDArray get(INDArrayIndex... indexes);
 
+    /**
+     * Get the elements from this ndarray based on the specified indices
+     * @param indices an ndaray of the indices to get the elements for
+     * @return the elements to get the array for
+     */
+    INDArray get(INDArray indices);
 
+    /**
+     * Get the elements from this ndarray based on the specified indices
+     * @param indices an ndaray of the indices to get the elements for
+     * @return the elements to get the array for
+     */
+    INDArray get(List<List<Integer>> indices);
 
     /**
      * Get an INDArray comprised of the specified columns only. Copy operation.
@@ -1034,6 +1046,38 @@ public interface INDArray extends Serializable {
      * Returns the (1-norm) distance.
      */
     double distance1(INDArray other);
+
+
+
+    /**
+     * Put element in to the indices denoted by
+     * the indices ndarray.
+     * This is equivalent to:
+     * a[indices] = element
+     *
+     *  in numpy.
+     *
+     * @param indices the indices to put
+     * @param element the element array to put
+     * @return this array
+     */
+    INDArray put(List<List<Integer>> indices,INDArray element);
+
+
+    /**
+     * Put element in to the indices denoted by
+     * the indices ndarray.
+     * This is equivalent to:
+     * a[indices] = element
+     *
+     *  in numpy.
+     *
+     * @param indices the indices to put
+     * @param element the element array to put
+     * @return this array
+     */
+    INDArray put(INDArray indices,INDArray element);
+
 
 
     /**
