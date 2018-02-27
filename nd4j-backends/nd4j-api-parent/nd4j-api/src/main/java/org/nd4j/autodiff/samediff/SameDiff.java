@@ -2894,6 +2894,26 @@ public class SameDiff {
 
     }
 
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isNonDecreasing(SDVariable iX) {
+        SDVariable result = functionFactory.isNonDecreasing(iX);
+        return updateVariableNameAndReference(result, null);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isNonDecreasing(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isNonDecreasing(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
 
     /**
      * @param iX
