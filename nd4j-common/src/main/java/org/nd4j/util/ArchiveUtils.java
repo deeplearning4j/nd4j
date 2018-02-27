@@ -56,7 +56,7 @@ public class ArchiveUtils {
         int BUFFER = 2048;
         byte data[] = new byte[BUFFER];
 
-        if (file.endsWith(".zip")) {
+        if (file.endsWith(".zip") || file.endsWith(".jar")) {
             try(ZipInputStream zis = new ZipInputStream(fin)) {
                 //get the zipped file list entry
                 ZipEntry ze = zis.getNextEntry();
@@ -65,7 +65,7 @@ public class ArchiveUtils {
                     String fileName = ze.getName();
                     File newFile = new File(dest + File.separator + fileName);
 
-                    log.info("file unzip : " + newFile.getAbsoluteFile());
+                    log.debug("File extracted: " + newFile.getAbsoluteFile());
 
                     //createComplex all non exists folders
                     //else you will hit FileNotFoundException for compressed folder
@@ -129,6 +129,9 @@ public class ArchiveUtils {
                 IOUtils.copyLarge(is2, fos);
                 fos.flush();
             }
+        } else {
+            throw new IllegalStateException("Unable to infer file type (compression format) from source file name: " +
+                    file);
         }
         target.delete();
     }
