@@ -45,9 +45,11 @@ import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.EuclideanDistance;
 import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.broadcast.*;
+import org.nd4j.linalg.api.ops.impl.controlflow.Where;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.Assign;
+import org.nd4j.linalg.api.ops.impl.transforms.MatchConditionTransform;
 import org.nd4j.linalg.api.ops.impl.transforms.Negative;
 import org.nd4j.linalg.api.ops.impl.transforms.arithmetic.*;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
@@ -1818,6 +1820,35 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         return this;
 
+    }
+
+    @Override
+    public INDArray getWhere(INDArray comp, Condition condition) {
+        return BooleanIndexing.chooseFrom(new INDArray[]{this,comp},condition);
+    }
+
+    @Override
+    public INDArray getWhere(Number comp, Condition condition) {
+        return BooleanIndexing.chooseFrom(new INDArray[]{this},Arrays.asList(comp.doubleValue()),Collections.<Integer>emptyList(),condition);
+    }
+
+    @Override
+    public INDArray putWhere(INDArray comp, INDArray put, Condition condition) {
+        Nd4j.getCompressor().autoDecompress(this);
+        MatchConditionTransform matchCondition = new MatchConditionTransform(this,comp,condition);
+        Nd4j.getExecutioner().exec(matchCondition);
+        Nd4j.getExecutioner().exec(new Where(new INDArray[]{comp,this,put},new INDArray[]{this}));
+        return this;
+    }
+
+    @Override
+    public INDArray putWhere(Number comp, INDArray put, Condition condition) {
+        return putWhere(Nd4j.scalar(comp),put,condition);
+    }
+
+    @Override
+    public INDArray putWhere(Number comp, Number put, Condition condition) {
+        return putWhere(Nd4j.scalar(comp),Nd4j.scalar(put),condition);
     }
 
     /**

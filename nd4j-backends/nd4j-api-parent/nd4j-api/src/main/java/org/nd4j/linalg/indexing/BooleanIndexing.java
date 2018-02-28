@@ -255,11 +255,17 @@ public class BooleanIndexing {
     }
 
     /**
-     * This method does element-wise assing for 2 equal-sized matrices, for each element that matches Condition
+     * This method does element-wise comparison
+     * for 2 equal-sized matrices, for each element that matches Condition.
+     * To is the array to apply the indexing to
+     * from is a condition mask array (0 or 1).
+     * This would come from the output of a bit masking method like:
+     * {@link INDArray#gt(Number)},{@link INDArray#gte(Number)},
+     * {@link INDArray#lt(Number)},..
      *
-     * @param to
-     * @param from
-     * @param condition
+     * @param to the array to apply the condition to
+     * @param from the mask array
+     * @param condition the condition to apply
      */
     public static void assignIf(@NonNull INDArray to, @NonNull INDArray from, @NonNull Condition condition) {
         if (!(condition instanceof BaseCondition))
@@ -273,7 +279,7 @@ public class BooleanIndexing {
 
 
     /**
-     * This method does element-wise assing for 2 equal-sized matrices, for each element that matches Condition
+     * This method does element-wise comparison for 2 equal-sized matrices, for each element that matches Condition
      *
      * @param to
      * @param from
@@ -309,6 +315,29 @@ public class BooleanIndexing {
         return choose.getOutputArgument(0);
     }
 
+    /**
+     * A minor shortcut for applying a bitmask to
+     * a matrix
+     * @param arr The array to apply the mask to
+     * @param mask the mask to apply
+     * @return the array with the mask applied
+     */
+    public static INDArray applyMask(INDArray arr,INDArray mask)  {
+        return arr.mul(mask);
+    }
+
+    /**
+     * A minor shortcut for applying a bitmask to
+     * a matrix
+     * @param arr The array to apply the mask to
+     * @param mask the mask to apply
+     * @return the array with the mask applied
+     */
+    public static INDArray applyMaskInPlace(INDArray arr,INDArray mask)  {
+        return arr.muli(mask);
+    }
+
+
 
     /**
      * Choose from the inputs based on the given condition.
@@ -332,7 +361,9 @@ public class BooleanIndexing {
         if(secondOutput < 1) {
             return null;
         }
+
         INDArray ret =  choose.getOutputArgument(0).get(NDArrayIndex.interval(0,secondOutput));
+        ret = ret.reshape(ret.length());
         return ret;
     }
 

@@ -12,32 +12,42 @@ import static org.nd4j.linalg.ops.transforms.Transforms.*;
  * based on:
  * https://github.com/apache/commons-math/blob/master/src/main/java/org/apache/commons/math4/analysis/interpolation/BicubicInterpolator.java
  *
+ *
+ *
  * @author Adam Gibson
  */
 public class TwoPointApproximation {
 
 
     /**
+     * Prepare the boundaries for processing
+     * @param bounds the bounds
+     * @param x the input in to the approximation
+     * @return the lower and upper bounds as an array of ndarrays
+     * (in that order) of the same shape as x
+     */
+    public static INDArray[] prepareBounds(INDArray bounds,INDArray x) {
+        return new INDArray[]  {Nd4j.valueArrayOf(x.shape(),bounds.getDouble(0)),
+                Nd4j.valueArrayOf(x.shape(),bounds.getDouble(1))};
+    }
+
+    /**
      * Adjust final scheme to presence of bounds
+     *
+     * Returns (in this order):
+     * adjusted hypothesis, whether to use onesided as an int mask array
      * @param x the point to estimate the derivative
      * @param h the finite difference steps
      * @param numSteps Number of h steps in 1 direction
      *                 to implement finite difference scheme.
      *
      * @param lowerBound Lower bounds for independent variable variable
-     * @param upperBound
+     * @param upperBound Upper bounds for independent variable
      * @return
      */
-    public static INDArray adjustSchemeToBounds(INDArray x,INDArray h,int numSteps,INDArray lowerBound,INDArray upperBound) {
+    public static INDArray[] adjustSchemeToBounds(INDArray x,INDArray h,int numSteps,INDArray lowerBound,INDArray upperBound) {
         h = abs(h);
         INDArray oneSided = Nd4j.zerosLike(h);
-
-        /**
-         * COME BACK TO THIS
-         *     if np.all((lb == -np.inf) & (ub == np.inf)):
-         return h, use_one_sided
-
-         */
 
         INDArray hTotal = h.mul(numSteps);
         INDArray hAdjusted = h.dup();
@@ -46,25 +56,88 @@ public class TwoPointApproximation {
 
         INDArray central = and(greaterThanOrEqual(lowerDist,hTotal),greaterThanOrEqual(upperBound2,hTotal));
         INDArray forward = and(greaterThanOrEqual(upperBound,lowerDist),not(central));
-        int[] fowardIndices = forward.data().asInt();
-        //hAdjusted.put(new INDArrayIndex[]{
-        //         new SpecifiedIndex(fowardIndices)},min(h.get));
-        return hTotal;
+        hAdjusted.put(forward,min(h.get(forward),upperBound2.get(forward).mul(0.5).divi(numSteps)));
+        oneSided.put(forward,Nd4j.scalar(1.0));
+
+        INDArray backward = and(upperBound2.lt(lowerBound),not(central));
+        hAdjusted.put(backward,min(h.get(backward),lowerDist.get(backward).mul(0.5).divi(numSteps)));
+        oneSided.put(backward,Nd4j.scalar(1.0));
+
+        INDArray minDist = min(upperBound2,lowerDist).divi(numSteps);
+        INDArray adjustedCentral = and(not(central),lessThanOrEqual(abs(hAdjusted),minDist));
+        hAdjusted.put(adjustedCentral,minDist.get(adjustedCentral));
+        oneSided.put(adjustedCentral,Nd4j.scalar(0.0));
+        return new INDArray[] {hAdjusted,oneSided};
     }
 
+    /**
+     *
+     * @param x
+     * @return
+     */
     public static INDArray computeAbsoluteStep(INDArray x) {
         INDArray relStep = pow(Nd4j.scalar(Nd4j.EPS_THRESHOLD),0.5);
         return computeAbsoluteStep(relStep,x);
     }
 
+    /**
+     *
+     * @param relStep
+     * @param x
+     * @return
+     */
     public static INDArray computeAbsoluteStep(INDArray relStep,INDArray x) {
         INDArray signX0 = x.gte(0).muli(2).subi(1);
         return relStep.mul(signX0).muli(max(abs(x),1.0));
     }
 
-    public static INDArray approximateDerivative(Function<INDArray,INDArray> f,INDArray x, INDArray relStep,INDArray bounds)  {
+    /**
+     *
+     * @param f
+     * @param x
+     * @param relStep
+     * @param f0
+     * @param bounds
+     * @return
+     */
+    public static INDArray approximateDerivative(Function<INDArray,INDArray> f,
+                                                 INDArray x,
+                                                 INDArray relStep,INDArray f0,
+                                                 INDArray bounds)  {
         INDArray h = computeAbsoluteStep(relStep,x);
-        return h;
+        INDArray[] upperAndLower = prepareBounds(bounds, x);
+        INDArray[] boundaries = adjustSchemeToBounds(x,h,1,upperAndLower[0],upperAndLower[1]);
+        return denseDifference(f,x,h,f0,boundaries[1]);
+
+    }
+
+
+    /**
+     *
+     * @param func
+     * @param x0
+     * @param f0
+     * @param h
+     * @param oneSided
+     * @return
+     */
+    public static INDArray denseDifference(Function<INDArray,INDArray> func,
+                                           INDArray x0,INDArray f0,
+                                           INDArray h,INDArray oneSided) {
+        INDArray hVecs = Nd4j.diag(h);
+        INDArray dx,df,x;
+        INDArray jTransposed = Nd4j.create(x0.length(),f0.length());
+        for(int i = 0; i < h.length(); i++) {
+            x = (x0.add(hVecs.slice(i)));
+            dx = x.slice(i).sub(x0.slice(i));
+            df = func.apply(x).sub(f0);
+            jTransposed.putSlice(i,df.div(dx));
+        }
+
+        if(f0.length() == 1)
+            jTransposed = jTransposed.ravel();
+
+        return jTransposed.transpose();
 
     }
 

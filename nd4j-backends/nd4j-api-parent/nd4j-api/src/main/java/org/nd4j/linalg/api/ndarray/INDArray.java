@@ -799,6 +799,59 @@ public interface INDArray extends Serializable {
     INDArray get(INDArrayIndex... indexes);
 
     /**
+     * Boolean indexing:
+     * Return the element if it fulfills the condition in
+     * result array
+     * @param comp the comparison array
+     * @param condition the condition to apply
+     * @return the array fulfilling the criteria
+     */
+    INDArray getWhere(INDArray comp,Condition condition);
+
+    /**
+     * Boolean indexing:
+     * Return the element if it fulfills the condition in
+     * result array
+     * @param comp the comparison array
+     * @param condition the condition to apply
+     * @return the array fulfilling the criteria
+     */
+    INDArray getWhere(Number comp,Condition condition);
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(INDArray comp,INDArray put,Condition condition);
+
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(Number comp,INDArray put,Condition condition);
+
+
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(Number comp,Number put,Condition condition);
+
+    /**
      * Get the elements from this ndarray based on the specified indices
      * @param indices an ndaray of the indices to get the elements for
      * @return the elements to get the array for
