@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.nd4j.graph.Direction;
 import org.nd4j.graph.FlatConfiguration;
 import org.nd4j.graph.ProfilingMode;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
@@ -54,6 +55,6 @@ public class ExecutorConfiguration {
         if (outp == -1)
             throw new UnsupportedOperationException("Unknown values were passed into configuration as OutputMode: [" + outputMode + "]");
 
-        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings, footprintForward, footprintBackward);
+        return FlatConfiguration.createFlatConfiguration(builder, -1, prof, exec, outp, gatherTimings, footprintForward, footprintBackward, Direction.FORWARD_ONLY);
     }
 }
