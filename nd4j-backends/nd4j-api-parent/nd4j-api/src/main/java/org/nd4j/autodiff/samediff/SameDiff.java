@@ -2899,8 +2899,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable isNonDecreasing(SDVariable iX) {
-        SDVariable result = functionFactory.isNonDecreasing(iX);
-        return updateVariableNameAndReference(result, null);
+        return isNonDecreasing(null, iX);
 
     }
 
@@ -2914,6 +2913,44 @@ public class SameDiff {
 
     }
 
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isStrictlyIncreasing(SDVariable iX) {
+        return isStrictlyIncreasing(null, iX);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isStrictlyIncreasing(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isStrictlyIncreasing(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param
+     * @return
+     */
+    public SDVariable isNumericTensor(SDVariable iX) {
+        return isNumericTensor(null, iX);
+
+    }
+
+    /**
+     * @param
+     * @return
+     */
+    public SDVariable isNumericTensor(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isNumericTensor(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
 
     /**
      * @param iX

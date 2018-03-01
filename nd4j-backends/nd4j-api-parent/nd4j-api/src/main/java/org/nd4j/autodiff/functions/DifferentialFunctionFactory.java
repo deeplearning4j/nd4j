@@ -1143,9 +1143,19 @@ public class DifferentialFunctionFactory   {
         return new ScalarEquals(sameDiff(),iX,i_y,true).outputVariables()[0];
     }
 
-    public SDVariable isNonDecreasing(SDVariable functionInput) {
-        validateDifferentialFunctionsameDiff(functionInput);
-        return new IsNonDecreasing(sameDiff(),new SDVariable[]{functionInput},true).outputVariables()[0];
+    public SDVariable isNonDecreasing(SDVariable iX) {
+        validateDifferentialFunctionsameDiff(iX);
+        return new IsNonDecreasing(sameDiff(),new SDVariable[]{iX},false).outputVariables()[0];
+    }
+
+    public SDVariable isStrictlyIncreasing(SDVariable iX) {
+        validateDifferentialFunctionsameDiff(iX);
+        return new IsStrictlyIncreasing(sameDiff(),new SDVariable[]{iX},false).outputVariables()[0];
+    }
+
+    public SDVariable isNumericTensor(SDVariable iX) {
+        validateDifferentialFunctionsameDiff(iX);
+        return new IsNumericTensor(sameDiff(),new SDVariable[]{iX},false).outputVariables()[0];
     }
 
     public SDVariable slice(SDVariable input, int[] begin, int[] size){

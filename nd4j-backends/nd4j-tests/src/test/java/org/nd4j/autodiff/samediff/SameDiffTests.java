@@ -2606,23 +2606,31 @@ public class SameDiffTests {
          */
         Nd4j.getRandom().setSeed(12345);
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 3; i++) {
             SameDiff sd = SameDiff.create();
 
             int nOut = 4;
             int minibatch = 5;
-
             INDArray ia = Nd4j.randn(minibatch, nOut);
 
-            SDVariable in1 = sd.var("in1", ia);
+            //INDArray ia = Nd4j.create(new float[] {1, 2, 3 });
 
+            SDVariable in1 = sd.var("in1", ia);
+            INDArray expOut = Nd4j.create(new float[] {1});
             SDVariable t;
-            INDArray expOut;
+
             switch (i) {
                 case 0:
                     t = sd.isNonDecreasing(in1);
-                    expOut = ia.dup();
                     Nd4j.getExecutioner().exec(new IsNonDecreasing(new INDArray[]{ia}, new INDArray[]{expOut}));
+                    break;
+                case 1:
+                    t = sd.isStrictlyIncreasing(in1);
+                    Nd4j.getExecutioner().exec(new IsStrictlyIncreasing(new INDArray[]{ia}, new INDArray[]{expOut}));
+                    break;
+                case 2:
+                    t = sd.isNumericTensor(in1);
+                    Nd4j.getExecutioner().exec(new IsNumericTensor(new INDArray[]{ia}, new INDArray[]{expOut}));
                     break;
                 default:
                     throw new RuntimeException();

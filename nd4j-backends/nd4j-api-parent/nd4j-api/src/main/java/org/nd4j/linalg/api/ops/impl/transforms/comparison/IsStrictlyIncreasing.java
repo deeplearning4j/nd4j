@@ -30,30 +30,30 @@ import java.util.List;
 
 /**
  * This op takes 1 n-dimensional array as input,
- * and returns true if for every adjacent pair we have x[i] <= x[i+1].
+ * and returns true if for every adjacent pair we have x[i] < x[i+1].
  *
  */
-public class IsNonDecreasing extends DynamicCustomOp {
-    public IsNonDecreasing() {}
+public class IsStrictlyIncreasing extends DynamicCustomOp {
+    public IsStrictlyIncreasing() {}
 
-    public IsNonDecreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
+    public IsStrictlyIncreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(null, sameDiff, args, inPlace);
     }
 
-    public IsNonDecreasing(INDArray[] inputs, INDArray[] outputs) {
+    public IsStrictlyIncreasing( INDArray[] inputs, INDArray[] outputs) {
         super(null, inputs, outputs);
     }
 
 
     @Override
     public String opName() {
-        return "is_non_decreasing";
+        return "is_strictly_increasing";
     }
 
 
     @Override
     public String tensorflowName() {
-        return "IsNonDecreasing";
+        return "IsStrictlyIncreasing";
     }
 
     @Override

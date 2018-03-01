@@ -29,31 +29,30 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This op takes 1 n-dimensional array as input,
- * and returns true if for every adjacent pair we have x[i] <= x[i+1].
- *
+ * This op takes 1 n-dimensional array as input, and returns true if input is a numeric array.
  */
-public class IsNonDecreasing extends DynamicCustomOp {
-    public IsNonDecreasing() {}
 
-    public IsNonDecreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
+public class IsNumericTensor extends DynamicCustomOp {
+    public IsNumericTensor() {}
+
+    public IsNumericTensor( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
         super(null, sameDiff, args, inPlace);
     }
 
-    public IsNonDecreasing(INDArray[] inputs, INDArray[] outputs) {
+    public IsNumericTensor( INDArray[] inputs, INDArray[] outputs) {
         super(null, inputs, outputs);
     }
 
 
     @Override
     public String opName() {
-        return "is_non_decreasing";
+        return "is_numeric_tensor";
     }
 
 
     @Override
     public String tensorflowName() {
-        return "IsNonDecreasing";
+        return "IsNumericTensor";
     }
 
     @Override
