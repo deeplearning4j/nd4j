@@ -48,8 +48,6 @@ import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.GRUCellConfiguration
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.LSTMCellConfiguration;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUCellConfiguration;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.config.SRUConfiguration;
-import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThan;
-import org.nd4j.linalg.api.ops.impl.transforms.comparison.LessThanOrEqual;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.GradientBackwardsMarker;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.collection.IntArrayKeyMap;

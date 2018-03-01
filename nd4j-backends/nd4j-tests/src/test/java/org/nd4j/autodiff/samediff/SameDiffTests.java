@@ -2611,9 +2611,8 @@ public class SameDiffTests {
 
             int nOut = 4;
             int minibatch = 5;
-            INDArray ia = Nd4j.randn(minibatch, nOut);
 
-            //INDArray ia = Nd4j.create(new float[] {1, 2, 3 });
+            INDArray ia = Nd4j.randn(minibatch, nOut);
 
             SDVariable in1 = sd.var("in1", ia);
             INDArray expOut = Nd4j.create(new float[] {1});
