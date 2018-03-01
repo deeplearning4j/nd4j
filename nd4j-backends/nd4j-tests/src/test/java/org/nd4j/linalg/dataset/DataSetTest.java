@@ -397,6 +397,48 @@ public class DataSetTest extends BaseNd4jTest {
         assertEquals(second, fMerged.get(interval(nExamples1, nExamples1 + nExamples2, true), all(), all(), all()));
         assertEquals(labels1, lMerged.get(interval(0, nExamples1), all()));
         assertEquals(labels2, lMerged.get(interval(nExamples1, nExamples1 + nExamples2), all()));
+
+
+        //Test merging with an empty DataSet (this should be ignored)
+        DataSet merged2 = DataSet.merge(Arrays.asList(ds1, new DataSet(), ds2));
+        assertEquals(merged, merged2);
+
+        //Test merging with no features in one of the DataSets
+        INDArray temp = ds1.getFeatures();
+        ds1.setFeatures(null);
+        try{
+            DataSet.merge(Arrays.asList(ds1, ds2));
+            fail("Expected exception");
+        } catch (IllegalStateException e){
+            //OK
+            assertTrue(e.getMessage().contains("Cannot merge"));
+        }
+
+        try{
+            DataSet.merge(Arrays.asList(ds2, ds1));
+            fail("Expected exception");
+        } catch (IllegalStateException e){
+            //OK
+            assertTrue(e.getMessage().contains("Cannot merge"));
+        }
+
+        ds1.setFeatures(temp);
+        ds2.setLabels(null);
+        try{
+            DataSet.merge(Arrays.asList(ds1, ds2));
+            fail("Expected exception");
+        } catch (IllegalStateException e){
+            //OK
+            assertTrue(e.getMessage().contains("Cannot merge"));
+        }
+
+        try{
+            DataSet.merge(Arrays.asList(ds2, ds1));
+            fail("Expected exception");
+        } catch (IllegalStateException e){
+            //OK
+            assertTrue(e.getMessage().contains("Cannot merge"));
+        }
     }
 
     @Test
