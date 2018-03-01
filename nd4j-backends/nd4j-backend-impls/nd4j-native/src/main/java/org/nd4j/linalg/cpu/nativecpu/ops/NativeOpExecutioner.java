@@ -622,7 +622,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             validateDataType(Nd4j.dataType(), op);
 
             if (op.x().lengthLong() != op.z().lengthLong())
-                throw new ND4JIllegalStateException("op.X length should be equal to op.Y length: ["
+                throw new ND4JIllegalStateException("op.X length should be equal to op.Z length: ["
                         + Arrays.toString(op.x().shapeInfoDataBuffer().asInt()) + "] != ["
                         + Arrays.toString(op.z().shapeInfoDataBuffer().asInt()) + "]");
 

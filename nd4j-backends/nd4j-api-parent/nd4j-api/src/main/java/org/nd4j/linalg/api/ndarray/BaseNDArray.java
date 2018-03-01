@@ -1837,8 +1837,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         Nd4j.getCompressor().autoDecompress(this);
         MatchConditionTransform matchCondition = new MatchConditionTransform(this,comp,condition);
         Nd4j.getExecutioner().exec(matchCondition);
-        Nd4j.getExecutioner().exec(new Where(new INDArray[]{comp,this,put},new INDArray[]{this}));
-        return this;
+        return putWhereWithMask(matchCondition.z(),put);
     }
 
     @Override
@@ -1849,6 +1848,19 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     @Override
     public INDArray putWhere(Number comp, Number put, Condition condition) {
         return putWhere(Nd4j.scalar(comp),Nd4j.scalar(put),condition);
+    }
+
+
+    @Override
+    public INDArray putWhereWithMask(INDArray mask, INDArray put) {
+        INDArray output = dup();
+        Nd4j.getExecutioner().exec(new Where(new INDArray[]{mask,this,put},new INDArray[]{output}));
+        return output;
+    }
+
+    @Override
+    public INDArray putWhereWithMask(INDArray mask, Number put) {
+        return putWhereWithMask(mask,Nd4j.scalar(put));
     }
 
     /**

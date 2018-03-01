@@ -8,6 +8,7 @@ import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
+import org.nd4j.linalg.api.ops.impl.controlflow.Where;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndReplace;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -548,6 +549,32 @@ public class BooleanIndexingTest extends BaseNd4jTest {
         assertNull(filtered);
     }
 
+
+    @Test
+    public void testWhere() {
+        INDArray data = Nd4j.create(4);
+        INDArray mask = Nd4j.create(4);
+        INDArray put = Nd4j.create(4);
+        INDArray resultData = Nd4j.create(4);
+        INDArray assertion = Nd4j.create(4);
+        for (int i = 0; i < 4; i++) {
+            data.putScalar(i,i);
+            if (i > 1) {
+                assertion.putScalar(i, 5.0);
+                mask.putScalar(i, 1);
+            } else {
+                assertion.putScalar(i, i);
+                mask.putScalar(i, 0.0);
+            }
+
+            put.putScalar(i, 5.0);
+            resultData.putScalar(i, 0.0);
+        }
+
+
+        Nd4j.getExecutioner().exec(new Where(new INDArray[]{mask,data,put},new INDArray[]{resultData}));
+        assertEquals(assertion,resultData);
+    }
 
     @Override
     public char ordering() {

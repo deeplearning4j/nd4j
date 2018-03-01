@@ -136,6 +136,46 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
     }
 
     @Override
+    public INDArray putWhereWithMask(INDArray mask, INDArray put) {
+        return null;
+    }
+
+    @Override
+    public INDArray putWhereWithMask(INDArray mask, Number put) {
+        return null;
+    }
+
+    @Override
+    public INDArray toDense() {
+        return null;
+    }
+
+    @Override
+    public INDArray getWhere(INDArray comp, Condition condition) {
+        return null;
+    }
+
+    @Override
+    public INDArray getWhere(Number comp, Condition condition) {
+        return null;
+    }
+
+    @Override
+    public INDArray putWhere(INDArray comp, INDArray put, Condition condition) {
+        return null;
+    }
+
+    @Override
+    public INDArray putWhere(Number comp, INDArray put, Condition condition) {
+        return null;
+    }
+
+    @Override
+    public INDArray putWhere(Number comp, Number put, Condition condition) {
+        return null;
+    }
+
+    @Override
     public INDArray get(List<List<Integer>> indices) {
         return null;
     }

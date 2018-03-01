@@ -840,6 +840,24 @@ public interface INDArray extends Serializable {
     INDArray putWhere(Number comp,INDArray put,Condition condition);
 
 
+    /**
+     * Use a pre computed mask
+     * for assigning arrays
+     * @param mask the mask to use
+     * @param put the array to put
+     * @return the resulting array
+     */
+    INDArray putWhereWithMask(INDArray mask,INDArray put);
+
+
+    /**
+     * Use a pre computed mask
+     * for assigning arrays
+     * @param mask the mask to use
+     * @param put the array to put
+     * @return the resulting array
+     */
+    INDArray putWhereWithMask(INDArray mask,Number put);
 
     /**
      * Assign the element according

@@ -87,8 +87,11 @@ public class TwoPointApproximation {
      * @return
      */
     public static INDArray computeAbsoluteStep(INDArray relStep,INDArray x) {
+        if(relStep == null) {
+            relStep = pow(Nd4j.scalar(Nd4j.EPS_THRESHOLD),0.5);
+        }
         INDArray signX0 = x.gte(0).muli(2).subi(1);
-        return relStep.mul(signX0).muli(max(abs(x),1.0));
+        return signX0.mul(relStep).muli(max(abs(x),1.0));
     }
 
     /**
