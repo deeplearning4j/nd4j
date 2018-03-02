@@ -3458,11 +3458,7 @@ public class Nd4j {
      * real components
      */
     public static IComplexNDArray createComplex(IComplexNumber[] data, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
-
+        shape = getEnsuredShape(shape);
         IComplexNDArray ret = INSTANCE.createComplex(data, shape);
         logCreationIfNecessary(ret);
         return ret;
@@ -3476,10 +3472,7 @@ public class Nd4j {
      * real components
      */
     public static IComplexNDArray createComplex(List<IComplexNDArray> arrs, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
         IComplexNDArray ret = INSTANCE.createComplex(arrs, shape);
         logCreationIfNecessary(ret);
         return ret;
@@ -3570,10 +3563,7 @@ public class Nd4j {
      * real components
      */
     public static IComplexNDArray createComplex(IComplexNumber[] data, int[] shape, long offset, char order) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -3619,10 +3609,7 @@ public class Nd4j {
             return trueScalar(data[0]);
         }
 
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] != data.length)
@@ -3644,10 +3631,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3671,10 +3655,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray create(double[] data, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] != data.length)
@@ -3696,10 +3677,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3725,10 +3703,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, int[] stride) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -3746,10 +3721,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape, int[] stride) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -3767,10 +3739,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, int[] stride, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -3788,10 +3757,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(double[] data, int[] shape, int[] stride, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3909,10 +3875,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(float[] data, int[] shape, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3937,10 +3900,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(double[] data, int[] shape, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3966,10 +3926,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(float[] data, int[] shape, int[] stride, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -3993,10 +3950,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(List<INDArray> list, int[] shape) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4070,10 +4024,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(int[] shape, int[] stride, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4202,10 +4153,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(float[] data, int[] shape, int[] stride, char ordering, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -4231,10 +4179,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(float[] data, int[] shape, char ordering, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] != data.length)
@@ -4250,10 +4195,7 @@ public class Nd4j {
 
 
     public static INDArray create(double[] data, int[] shape, char ordering, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] != data.length)
@@ -4276,10 +4218,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(DataBuffer data, int[] shape, int[] strides, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4296,10 +4235,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(DataBuffer data, int[] shape, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4335,10 +4271,7 @@ public class Nd4j {
      * @return
      */
     public static IComplexNDArray createComplex(DataBuffer data, int[] shape, int[] newStrides, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4355,10 +4288,7 @@ public class Nd4j {
      * @return
      */
     public static IComplexNDArray createComplex(DataBuffer data, int[] shape, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4378,10 +4308,7 @@ public class Nd4j {
      */
     public static IComplexNDArray createComplex(DataBuffer data, int[] shape, int[] newStrides, long offset,
                                                 char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4399,10 +4326,7 @@ public class Nd4j {
      * @return
      */
     public static IComplexNDArray createComplex(DataBuffer data, int[] shape, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4490,10 +4414,7 @@ public class Nd4j {
     public static IComplexNDArray createComplex(float[] data, int rows, int columns, int[] stride, long offset,
                                                 char ordering) {
         int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4514,10 +4435,7 @@ public class Nd4j {
      */
     public static INDArray create(float[] data, int rows, int columns, int[] stride, long offset, char ordering) {
         int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(data.length, shape);
 
@@ -4533,10 +4451,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(int[] shape, DataBuffer.Type dataType) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4559,10 +4474,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, int[] stride, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4583,10 +4495,7 @@ public class Nd4j {
         if (data.length == 1 && shape.length == 0)
             return trueScalar(data[0]);
 
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] != data.length)
@@ -4609,10 +4518,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray create(double[] data, int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -4637,10 +4543,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static INDArray create(float[] data, int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -4665,10 +4568,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4685,10 +4585,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4706,10 +4603,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, int[] stride, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4727,10 +4621,7 @@ public class Nd4j {
      * @return the created ndarray
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape, int[] stride, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4750,11 +4641,7 @@ public class Nd4j {
      */
     public static IComplexNDArray createComplex(double[] data, int rows, int columns, int[] stride, long offset,
                                                 char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(shape);
 
@@ -4774,11 +4661,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(double[] data, int rows, int columns, int[] stride, long offset, char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(data.length, shape);
 
@@ -4796,10 +4679,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape, int[] stride, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4817,10 +4697,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(float[] data, int[] shape, int[] stride, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -4844,10 +4721,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(List<INDArray> list, int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4884,11 +4758,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(int rows, int columns, int[] stride, long offset, char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(shape);
 
@@ -4926,10 +4796,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(int[] shape, int[] stride, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -4952,11 +4819,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(int rows, int columns, int[] stride, char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(shape);
 
@@ -4974,11 +4837,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(int rows, int columns, int[] stride, char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(shape);
 
@@ -5010,10 +4869,7 @@ public class Nd4j {
      * @return the instance
      */
     public static INDArray create(int[] shape, int[] stride, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -5041,11 +4897,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(int rows, int columns, char ordering) {
-        int[] shape = new int[] {rows, columns};
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        int[] shape = getEnsuredShape(rows, columns);
 
         checkShapeValues(shape);
 
@@ -5083,10 +4935,7 @@ public class Nd4j {
      * @return the instance
      */
     public static IComplexNDArray createComplex(int[] shape, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -5145,10 +4994,7 @@ public class Nd4j {
         if (shape.length == 0)
             return trueScalar(0.0);
 
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
         // now we allow 1D vectors
         /*else if (shape.length == 1) {
             shape = new int[] {1, shape[0]};
@@ -5260,10 +5106,7 @@ public class Nd4j {
      * @return
      */
     public static IComplexNDArray createComplex(float[] data, int[] shape, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -5292,10 +5135,7 @@ public class Nd4j {
      * @return
      */
     public static INDArray create(double[] data, int[] shape, long offset) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         if (shape.length == 1) {
             if (shape[0] == data.length) {
@@ -5321,10 +5161,7 @@ public class Nd4j {
      * @return
      */
     public static IComplexNDArray createComplex(double[] data, int[] shape, long offset, char ordering) {
-        //ensure shapes that wind up being scalar end up with the write shape
-        if (shape.length == 1 && shape[0] == 0) {
-            shape = new int[] {1, 1};
-        }
+        shape = getEnsuredShape(shape);
 
         checkShapeValues(shape);
 
@@ -6490,6 +6327,28 @@ public class Nd4j {
             return false;
         }
         return (fallback.equalsIgnoreCase("true") || fallback.equalsIgnoreCase("1"));
+    }
+    
+    /**
+     * Get ensured shapes that wind up being scalar end up with the write shape
+     * @param shape
+     * @return 
+     */
+    private static int[] getEnsuredShape(int[] shape) {
+        if (shape.length == 1 && shape[0] == 0) {
+            return new int[]{1, 1};
+        }
+        return shape;
+    }
+    
+    /**
+     * Get ensured shapes that wind up being scalar end up with the write shape
+     * @param rows
+     * @param columns
+     * @return 
+     */
+    private static int[] getEnsuredShape(int rows, int columns) {
+        return getEnsuredShape(new int[] {rows, columns});
     }
 
     /**
