@@ -5882,7 +5882,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean permutei(@Const int[] dimensions, int rank);
 
         /**
-        *  permutes the dimensions in array according to "dimensions" array
+        *  permutes the dimensions in array according to "dimensions" array, new array points on _buffer of this array
         */
         public native FloatNDArray permute(@StdVector IntPointer dimensions);
         public native FloatNDArray permute(@StdVector IntBuffer dimensions);
@@ -6052,7 +6052,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  apply operation which requires broadcasting, broadcast a smaller array (tad) along  bigger one (this)
         *  tad - array to broadcast
-        *  dimensions -  array with dimensions to broadcast along
+        *  dimensions -  dimensions array to broadcast along
         *  target - where to store result
         *  extraParams - extra parameters for operation
         */
@@ -6207,22 +6207,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
+        *
+        *  if there was permute applied before or there are weird strides, then new buffer is allocated for array
         */		
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
 		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);        
 	
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
+        *
+        * if there was permute applied before or there are weird strides, then new buffer is allocated for new array
         */
 		public native FloatNDArray reshape(char order, @StdVector IntPointer shape);
 		public native FloatNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native FloatNDArray reshape(char order, @StdVector int[] shape);
+        public native @ByVal FloatNDArray reshape(@StdVector IntPointer shape);
+        public native @ByVal FloatNDArray reshape(@StdVector IntBuffer shape);
+        public native @ByVal FloatNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order
@@ -6955,7 +6962,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean permutei(@Const int[] dimensions, int rank);
 
         /**
-        *  permutes the dimensions in array according to "dimensions" array
+        *  permutes the dimensions in array according to "dimensions" array, new array points on _buffer of this array
         */
         public native HalfNDArray permute(@StdVector IntPointer dimensions);
         public native HalfNDArray permute(@StdVector IntBuffer dimensions);
@@ -7125,7 +7132,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  apply operation which requires broadcasting, broadcast a smaller array (tad) along  bigger one (this)
         *  tad - array to broadcast
-        *  dimensions -  array with dimensions to broadcast along
+        *  dimensions -  dimensions array to broadcast along
         *  target - where to store result
         *  extraParams - extra parameters for operation
         */
@@ -7280,22 +7287,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
+        *
+        *  if there was permute applied before or there are weird strides, then new buffer is allocated for array
         */		
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
 		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);        
 	
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
+        *
+        * if there was permute applied before or there are weird strides, then new buffer is allocated for new array
         */
 		public native HalfNDArray reshape(char order, @StdVector IntPointer shape);
 		public native HalfNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native HalfNDArray reshape(char order, @StdVector int[] shape);
+        public native @ByVal HalfNDArray reshape(@StdVector IntPointer shape);
+        public native @ByVal HalfNDArray reshape(@StdVector IntBuffer shape);
+        public native @ByVal HalfNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order
@@ -8028,7 +8042,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native @Cast("bool") boolean permutei(@Const int[] dimensions, int rank);
 
         /**
-        *  permutes the dimensions in array according to "dimensions" array
+        *  permutes the dimensions in array according to "dimensions" array, new array points on _buffer of this array
         */
         public native DoubleNDArray permute(@StdVector IntPointer dimensions);
         public native DoubleNDArray permute(@StdVector IntBuffer dimensions);
@@ -8198,7 +8212,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         /**
         *  apply operation which requires broadcasting, broadcast a smaller array (tad) along  bigger one (this)
         *  tad - array to broadcast
-        *  dimensions -  array with dimensions to broadcast along
+        *  dimensions -  dimensions array to broadcast along
         *  target - where to store result
         *  extraParams - extra parameters for operation
         */
@@ -8353,22 +8367,29 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *  set new order and shape in case of suitable array length (in-place operation)
         *  order - order to set
         *  shape - shape to set
+        *
+        *  if there was permute applied before or there are weird strides, then new buffer is allocated for array
         */		
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector IntBuffer shape);
 		public native @Cast("bool") boolean reshapei(char order, @StdVector int[] shape);		
 		public native @Cast("bool") boolean reshapei(@StdVector IntPointer shape);
 		public native @Cast("bool") boolean reshapei(@StdVector IntBuffer shape);
-		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);
+		public native @Cast("bool") boolean reshapei(@StdVector int[] shape);        
 	
         /**
         *  creates new array with corresponding order and shape, new array will point on _buffer of this array
         *  order - order to set
         *  shape - shape to set
+        *
+        * if there was permute applied before or there are weird strides, then new buffer is allocated for new array
         */
 		public native DoubleNDArray reshape(char order, @StdVector IntPointer shape);
 		public native DoubleNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native DoubleNDArray reshape(char order, @StdVector int[] shape);
+        public native @ByVal DoubleNDArray reshape(@StdVector IntPointer shape);
+        public native @ByVal DoubleNDArray reshape(@StdVector IntBuffer shape);
+        public native @ByVal DoubleNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order

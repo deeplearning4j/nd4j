@@ -799,6 +799,23 @@ public interface INDArray extends Serializable {
     INDArray get(INDArrayIndex... indexes);
 
     /**
+     * Return a mask on whether each element
+     * matches the given condition
+     * @param comp
+     * @param condition
+     * @return
+     */
+    INDArray match(INDArray comp,Condition condition);
+
+    /**
+     * Returns a mask
+     * @param comp
+     * @param condition
+     * @return
+     */
+    INDArray match(Number comp,Condition condition);
+
+    /**
      * Boolean indexing:
      * Return the element if it fulfills the condition in
      * result array

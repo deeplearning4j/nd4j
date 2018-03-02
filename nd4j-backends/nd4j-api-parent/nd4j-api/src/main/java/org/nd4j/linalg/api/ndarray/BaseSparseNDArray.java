@@ -135,6 +135,17 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
 
     }
 
+
+    @Override
+    public INDArray match(INDArray comp, Condition condition) {
+        return null;
+    }
+
+    @Override
+    public INDArray match(Number comp, Condition condition) {
+        return null;
+    }
+
     @Override
     public INDArray putWhereWithMask(INDArray mask, INDArray put) {
         return null;

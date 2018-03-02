@@ -1823,6 +1823,16 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
 
     @Override
+    public INDArray match(INDArray comp, Condition condition) {
+        return Nd4j.getExecutioner().exec(new MatchConditionTransform(this,comp,condition)).z();
+    }
+
+    @Override
+    public INDArray match(Number comp, Condition condition) {
+        return Nd4j.getExecutioner().exec(new MatchConditionTransform(this,comp.doubleValue(),condition)).z();
+    }
+
+    @Override
     public INDArray getWhere(INDArray comp, Condition condition) {
         return BooleanIndexing.chooseFrom(new INDArray[]{this,comp},condition);
     }
