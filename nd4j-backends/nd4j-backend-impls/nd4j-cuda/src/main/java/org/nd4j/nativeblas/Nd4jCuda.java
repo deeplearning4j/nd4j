@@ -5329,6 +5329,45 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 // #endif //NATIVEOPERATIONS_NATIVEOPS_H
 
 
+// Parsed from memory/ExternalWorkspace.h
+
+//
+//  @author raver119@gmail.com
+//
+
+// #ifndef LIBND4J_EXTERNALWORKSPACE_H
+// #define LIBND4J_EXTERNALWORKSPACE_H
+
+// #include <pointercast.h>
+// #include <dll.h>
+        @Namespace("nd4j::memory") @NoOffset public static class ExternalWorkspace extends Pointer {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public ExternalWorkspace(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public ExternalWorkspace(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public ExternalWorkspace position(long position) {
+                return (ExternalWorkspace)super.position(position);
+            }
+        
+            public ExternalWorkspace() { super((Pointer)null); allocate(); }
+            private native void allocate();
+
+            public ExternalWorkspace(@Cast("Nd4jPointer") Pointer ptrH, @Cast("Nd4jIndex") long sizeH, @Cast("Nd4jPointer") Pointer ptrD, @Cast("Nd4jIndex") long sizeD) { super((Pointer)null); allocate(ptrH, sizeH, ptrD, sizeD); }
+            private native void allocate(@Cast("Nd4jPointer") Pointer ptrH, @Cast("Nd4jIndex") long sizeH, @Cast("Nd4jPointer") Pointer ptrD, @Cast("Nd4jIndex") long sizeD);
+            
+            public native Pointer pointerHost();
+            public native Pointer pointerDevice();
+
+            public native @Cast("Nd4jIndex") long sizeHost();
+            public native @Cast("Nd4jIndex") long sizeDevice();
+        }
+    
+
+
+// #endif
+
 // Parsed from memory/Workspace.h
 
 //
@@ -5347,6 +5386,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 // #include <dll.h>
 // #include <pointercast.h>
 // #include <types/float16.h>
+// #include <memory/ExternalWorkspace.h>
 
 //        void ping();
 
@@ -5360,6 +5400,8 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public Workspace(Pointer p) { super(p); }
         
+            public Workspace(ExternalWorkspace external) { super((Pointer)null); allocate(external); }
+            private native void allocate(ExternalWorkspace external);
             public Workspace(@Cast("Nd4jIndex") long initialSize/*=0*/) { super((Pointer)null); allocate(initialSize); }
             private native void allocate(@Cast("Nd4jIndex") long initialSize/*=0*/);
             public Workspace() { super((Pointer)null); allocate(); }
@@ -6227,9 +6269,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 		public native FloatNDArray reshape(char order, @StdVector IntPointer shape);
 		public native FloatNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native FloatNDArray reshape(char order, @StdVector int[] shape);
-        public native @ByVal FloatNDArray reshape(@StdVector IntPointer shape);
-        public native @ByVal FloatNDArray reshape(@StdVector IntBuffer shape);
-        public native @ByVal FloatNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order
@@ -7307,9 +7346,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 		public native HalfNDArray reshape(char order, @StdVector IntPointer shape);
 		public native HalfNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native HalfNDArray reshape(char order, @StdVector int[] shape);
-        public native @ByVal HalfNDArray reshape(@StdVector IntPointer shape);
-        public native @ByVal HalfNDArray reshape(@StdVector IntBuffer shape);
-        public native @ByVal HalfNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order
@@ -8387,9 +8423,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
 		public native DoubleNDArray reshape(char order, @StdVector IntPointer shape);
 		public native DoubleNDArray reshape(char order, @StdVector IntBuffer shape);
 		public native DoubleNDArray reshape(char order, @StdVector int[] shape);
-        public native @ByVal DoubleNDArray reshape(@StdVector IntPointer shape);
-        public native @ByVal DoubleNDArray reshape(@StdVector IntBuffer shape);
-        public native @ByVal DoubleNDArray reshape(@StdVector int[] shape);
 		
         /**
         *  calculate strides and set given order

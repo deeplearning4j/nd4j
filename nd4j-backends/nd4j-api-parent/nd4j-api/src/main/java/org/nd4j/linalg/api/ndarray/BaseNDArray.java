@@ -5587,6 +5587,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         */
         if (Nd4j.getMemoryManager().getCurrentWorkspace() == null) {
             if (!isView()) {
+                Nd4j.getExecutioner().commit();
                 DataBuffer buffer = Nd4j.createBuffer(this.lengthLong(), false);
 
                 Nd4j.getMemoryManager().memcpy(buffer, this.data());
@@ -5595,6 +5596,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             } else {
                 INDArray copy = Nd4j.createUninitialized(this.shape(), this.ordering());
                 copy.assign(this);
+                Nd4j.getExecutioner().commit();
 
                 return copy;
             }
@@ -5604,7 +5606,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             INDArray copy = null;
 
             if (!isView()) {
-
+                Nd4j.getExecutioner().commit();
                 DataBuffer buffer = Nd4j.createBuffer(this.lengthLong(), false);
 
                 //Pointer.memcpy(buffer.pointer(), this.data.pointer(), this.lengthLong() * Nd4j.sizeOfDataType(this.data.dataType()));
@@ -5616,6 +5618,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             } else {
                 copy = Nd4j.createUninitialized(this.shape(), this.ordering());
                 copy.assign(this);
+                Nd4j.getExecutioner().commit();
             }
 
             Nd4j.getMemoryManager().setCurrentWorkspace(workspace);
@@ -5658,12 +5661,14 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
             INDArray copy = null;
             if (!this.isView()) {
+                Nd4j.getExecutioner().commit();
                 DataBuffer buffer = Nd4j.createBuffer(this.lengthLong(), false);
                 Nd4j.getMemoryManager().memcpy(buffer, this.data());
 
                 copy = Nd4j.createArrayFromShapeBuffer(buffer, this.shapeInfoDataBuffer());
             } else {
                 copy = this.dup(this.ordering());
+                Nd4j.getExecutioner().commit();
             }
 
             // restore current ws
@@ -5725,12 +5730,14 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         Nd4j.getMemoryManager().setCurrentWorkspace(target);
         INDArray copy = null;
         if (!this.isView()) {
+            Nd4j.getExecutioner().commit();
             DataBuffer buffer = Nd4j.createBuffer(this.lengthLong(), false);
             Nd4j.getMemoryManager().memcpy(buffer, this.data());
 
             copy = Nd4j.createArrayFromShapeBuffer(buffer, this.shapeInfoDataBuffer());
         } else {
             copy = this.dup(this.ordering());
+            Nd4j.getExecutioner().commit();
         }
 
         Nd4j.getMemoryManager().setCurrentWorkspace(current);
@@ -5798,12 +5805,14 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         INDArray copy = null;
 
         if (!this.isView()) {
+            Nd4j.getExecutioner().commit();
             DataBuffer buffer = Nd4j.createBuffer(this.lengthLong(), false);
             Nd4j.getMemoryManager().memcpy(buffer, this.data());
 
             copy = Nd4j.createArrayFromShapeBuffer(buffer, this.shapeInfoDataBuffer());
         } else {
             copy = this.dup(this.ordering());
+            Nd4j.getExecutioner().commit();
         }
 
         return copy;

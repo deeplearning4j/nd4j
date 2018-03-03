@@ -46,9 +46,10 @@ public class TwoPointApproximation {
      * @return
      */
     public static INDArray[] adjustSchemeToBounds(INDArray x,INDArray h,int numSteps,INDArray lowerBound,INDArray upperBound) {
-        h = abs(h);
-        INDArray oneSided = Nd4j.zerosLike(h);
-
+        INDArray oneSided = Nd4j.onesLike(h);
+        if(and(lowerBound.eq(Double.NEGATIVE_INFINITY),upperBound.eq(Double.POSITIVE_INFINITY)).sumNumber().doubleValue() > 0) {
+            return new INDArray[] {h,oneSided};
+        }
         INDArray hTotal = h.mul(numSteps);
         INDArray hAdjusted = h.dup();
         INDArray lowerDist = x.sub(lowerBound);
@@ -88,7 +89,7 @@ public class TwoPointApproximation {
      */
     public static INDArray computeAbsoluteStep(INDArray relStep,INDArray x) {
         if(relStep == null) {
-            relStep = pow(Nd4j.scalar(Nd4j.EPS_THRESHOLD),0.5);
+            relStep = pow(Nd4j.scalar(2.220446049250313e-16),0.5);
         }
         INDArray signX0 = x.gte(0).muli(2).subi(1);
         return signX0.mul(relStep).muli(max(abs(x),1.0));
@@ -110,7 +111,7 @@ public class TwoPointApproximation {
         INDArray h = computeAbsoluteStep(relStep,x);
         INDArray[] upperAndLower = prepareBounds(bounds, x);
         INDArray[] boundaries = adjustSchemeToBounds(x,h,1,upperAndLower[0],upperAndLower[1]);
-        return denseDifference(f,x,h,f0,boundaries[1]);
+        return denseDifference(f,x,f0,h,boundaries[1]);
 
     }
 
@@ -131,7 +132,7 @@ public class TwoPointApproximation {
         INDArray dx,df,x;
         INDArray jTransposed = Nd4j.create(x0.length(),f0.length());
         for(int i = 0; i < h.length(); i++) {
-            x = (x0.add(hVecs.slice(i)));
+            x = (x0.addRowVector(hVecs.slice(i)));
             dx = x.slice(i).sub(x0.slice(i));
             df = func.apply(x).sub(f0);
             jTransposed.putSlice(i,df.div(dx));

@@ -3,13 +3,41 @@ package org.nd4j.finitedifferences;
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.function.Function;
 import org.nd4j.linalg.indexing.conditions.GreaterThanOrEqual;
 
+import java.io.File;
+
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.nd4j.linalg.ops.transforms.Transforms.exp;
 import static org.nd4j.linalg.ops.transforms.Transforms.pow;
 
 public class TwoPointApproximationTest {
+
+
+
+    @Test
+    public void testLinspaceDerivative() {
+        INDArray linspace = Nd4j.valueArrayOf(5,1e-3);
+        INDArray yLinspace = linspace.dup();
+        Function<INDArray,INDArray> f = new Function<INDArray, INDArray>() {
+            @Override
+            public INDArray apply(INDArray indArray) {
+                return indArray.add(1);
+            }
+        };
+
+        INDArray test = TwoPointApproximation
+                .approximateDerivative(f,linspace,null,yLinspace,
+                        Nd4j.create(new double[] {Double.NEGATIVE_INFINITY
+                                ,Double.POSITIVE_INFINITY})) ;
+
+        INDArray npLoad = Nd4j.createFromNpyFile(new File("/home/agibsonccc/code/nn-descent-comparison/comparison/approx_deriv_small.npy"));
+        assertEquals(npLoad,test);
+        System.out.println(test);
+
+    }
 
 
     @Test
@@ -34,7 +62,7 @@ public class TwoPointApproximationTest {
         INDArray xvGteMask = xv.gte(minDist);
 
         INDArray yBeforeAssertion = Nd4j.create(
-          new double[] {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}
+                new double[] {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}
 
         );
         assertEquals(yBeforeAssertion,yv);
@@ -45,12 +73,25 @@ public class TwoPointApproximationTest {
 
         });
 
+
         assertEquals(yvAssertion,yv);
+        Function<INDArray,INDArray> f = new Function<INDArray, INDArray>() {
+            @Override
+            public INDArray apply(INDArray indArray) {
+                INDArray add =  pow(indArray.mul(spread),2 * minDist);
+                INDArray arr =  add
+                        .addi(1).rdivi(1.0);
+                return arr;
+            }
+        };
+
         INDArray test = TwoPointApproximation
-                .approximateDerivative(indArray -> pow(indArray.mul(spread),2 * minDist)
-                                .addi(1).rdivi(1.0),xv,null,yv,
+                .approximateDerivative(f,xv,null,yv,
                         Nd4j.create(new double[] {Double.NEGATIVE_INFINITY
-                                ,Double.POSITIVE_INFINITY}));
+                                ,Double.POSITIVE_INFINITY})) ;
+        INDArray npLoad = Nd4j.createFromNpyFile(new File("/home/agibsonccc/code/nn-descent-comparison/comparison/approx_deriv.npy"));
+        assertArrayEquals(test.shape(),npLoad.shape());
+        assertEquals(npLoad.slice(0),test.slice(0));
         System.out.println(test);
     }
 }
