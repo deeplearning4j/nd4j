@@ -22,7 +22,6 @@ import java.util.Map;
  */
 @RunWith(Parameterized.class)
 public class TFGraphTestList {
-
     public static String[] modelNames = new String[]{
             "add_n",
             "ae",
@@ -41,11 +40,11 @@ public class TFGraphTestList {
             "g_01",
             "g_01",
             "g_02",
-           // "g_03", //op missing?
+            "g_03", //op missing?
             "g_04",
-           // "g_05",
-           // "gru_mnist",
-           // "lstm_mnist",
+            "g_05",
+            "gru_mnist",
+            "lstm_mnist",
             "math_mul_order",
             "mlp_00",
             "mnist_00",
@@ -54,10 +53,10 @@ public class TFGraphTestList {
             "non2d_0A",
             "pool_0",
             "pool_1",
-           // "primitive_gru",
+            "primitive_gru",
             "primitive_gru_dynamic", //while loop related NullPointer, double check import here
-         //   "primitive_lstm",
-          //"ssd_mobilenet_v1_coco",
+            "primitive_lstm",
+          "ssd_mobilenet_v1_coco",
             "stack",
             "stack_1d",
             "stack_scalar",
@@ -70,6 +69,7 @@ public class TFGraphTestList {
             //"yolov2_608x608"
 
     };
+
 
 
     //change this to SAMEDIFF for samediff
