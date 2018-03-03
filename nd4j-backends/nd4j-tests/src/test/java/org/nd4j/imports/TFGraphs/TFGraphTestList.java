@@ -54,7 +54,7 @@ public class TFGraphTestList {
             "non2d_0A",
             "pool_0",
             "pool_1",
-            "primitive_gru",
+           // "primitive_gru",
             "primitive_gru_dynamic", //while loop related NullPointer, double check import here
             "primitive_lstm",
           //"ssd_mobilenet_v1_coco",
