@@ -147,15 +147,16 @@ public class TwoPointApproximation {
         for(int i = 0; i < h.length(); i++) {
             INDArray hVecI = hVecs.slice(i);
             x = (x0.add(hVecI));
-            dx = x.slice(i).sub(x0.slice(i)).add(Nd4j.EPS_THRESHOLD);
+            dx = x.slice(i).sub(x0.slice(i));
             df = func.apply(x).sub(f0);
-            jTransposed.putSlice(i,df.div(dx));
+            INDArray div = df.div(dx);
+            jTransposed.putSlice(i,div);
         }
 
         if(f0.length() == 1)
             jTransposed = jTransposed.ravel();
 
-        return jTransposed.transpose();
+            return jTransposed;
 
     }
 

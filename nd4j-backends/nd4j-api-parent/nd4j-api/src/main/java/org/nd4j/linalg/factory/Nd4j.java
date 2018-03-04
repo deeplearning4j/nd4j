@@ -6682,7 +6682,29 @@ public class Nd4j {
         return INSTANCE.createFromNpyFile(file);
     }
 
+    /**
+     * Create a numpy array based on the passed in
+     * input stream
+     * @param is the input stream to read
+     * @return the loaded ndarray
+     * @throws IOException
+     */
+    public static INDArray createNpyFromInputStream(InputStream is) throws IOException {
+        byte[] content = IOUtils.toByteArray(is);
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(content.length);
+        byteBuffer.put(content);
+        byteBuffer.rewind();
+        Pointer pointer = new Pointer(byteBuffer);
+        return createFromNpyPointer(pointer);
+    }
 
+
+    /**
+     * Create an {@link INDArray}
+     * from a flatbuffers {@link FlatArray}
+     * @param array the array to create the {@link INDArray} from
+     * @return the created {@link INDArray}
+     */
     public static INDArray createFromFlatArray(FlatArray array) {
         val dtype = array.dtype();
         val order = array.byteOrder();
