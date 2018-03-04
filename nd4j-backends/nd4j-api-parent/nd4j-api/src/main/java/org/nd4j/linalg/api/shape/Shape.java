@@ -646,9 +646,6 @@ public class Shape {
         long offset = 0;
         for (int i = 0; i < rank; i++) {
             int size_dimi = size(shapeInformation, i);
-            if (indices[i] >= size_dimi)
-                throw new IllegalArgumentException(
-                        String.format("Index [%d] must not be >= shape[%d]=%d.", i, i, size_dimi));
             if (size_dimi != 1) {
                 offset += indices[i] * stride(shapeInformation, i);
             }
@@ -1192,6 +1189,12 @@ public class Shape {
         return (shape.length == 2 && shape[1] == 1);
     }
 
+    /**
+     * Returns true if the given shape length is 2
+     * and the size at element 1 is 1
+     * @param shape
+     * @return
+     */
     public static boolean isColumnVectorShape(long[] shape) {
         return (shape.length == 2 && shape[1] == 1);
     }

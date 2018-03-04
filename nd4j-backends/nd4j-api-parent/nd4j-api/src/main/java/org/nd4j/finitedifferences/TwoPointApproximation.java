@@ -1,6 +1,8 @@
 package org.nd4j.finitedifferences;
 
+import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.exception.ND4JIllegalArgumentException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.function.Function;
 
@@ -81,6 +83,13 @@ public class TwoPointApproximation {
         return computeAbsoluteStep(relStep,x);
     }
 
+    public static double getEpsRelativeTo(INDArray data) {
+        if(data.data().dataType() == DataBuffer.Type.FLOAT)
+            return 1.1920929e-07;
+            return 2.220446049250313e-16;
+    }
+
+
     /**
      *
      * @param relStep
@@ -89,7 +98,7 @@ public class TwoPointApproximation {
      */
     public static INDArray computeAbsoluteStep(INDArray relStep,INDArray x) {
         if(relStep == null) {
-            relStep = pow(Nd4j.scalar(2.220446049250313e-16),0.5);
+            relStep = pow(Nd4j.scalar(getEpsRelativeTo(x)),0.5);
         }
         INDArray signX0 = x.gte(0).muli(2).subi(1);
         return signX0.mul(relStep).muli(max(abs(x),1.0));
@@ -108,6 +117,10 @@ public class TwoPointApproximation {
                                                  INDArray x,
                                                  INDArray relStep,INDArray f0,
                                                  INDArray bounds)  {
+        if(x.rank() > 2) {
+            throw new ND4JIllegalArgumentException("Argument must be a vector or scalar");
+        }
+
         INDArray h = computeAbsoluteStep(relStep,x);
         INDArray[] upperAndLower = prepareBounds(bounds, x);
         INDArray[] boundaries = adjustSchemeToBounds(x,h,1,upperAndLower[0],upperAndLower[1]);
@@ -128,12 +141,13 @@ public class TwoPointApproximation {
     public static INDArray denseDifference(Function<INDArray,INDArray> func,
                                            INDArray x0,INDArray f0,
                                            INDArray h,INDArray oneSided) {
-        INDArray hVecs = Nd4j.diag(h);
+        INDArray hVecs = Nd4j.diag(h.reshape(1,h.length()));
         INDArray dx,df,x;
         INDArray jTransposed = Nd4j.create(x0.length(),f0.length());
         for(int i = 0; i < h.length(); i++) {
-            x = (x0.addRowVector(hVecs.slice(i)));
-            dx = x.slice(i).sub(x0.slice(i));
+            INDArray hVecI = hVecs.slice(i);
+            x = (x0.add(hVecI));
+            dx = x.slice(i).sub(x0.slice(i)).add(Nd4j.EPS_THRESHOLD);
             df = func.apply(x).sub(f0);
             jTransposed.putSlice(i,df.div(dx));
         }

@@ -1338,7 +1338,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         Nd4j.getCompressor().autoDecompress(this);
         autoProcessScalarCall();
 
-        if (rank() != 2)
+        if (rank() > 2)
             throw new IllegalStateException("Cannot use putScalar(int,int,double) on a rank " + rank() + " INDArray");
         long offset = Shape.getOffsetUnsafe(javaShapeInformation, row, col);
         data.put(offset, value);
@@ -2616,10 +2616,11 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      * @param operation the operation
      * @return
      */
-    protected INDArray doRowWise(final INDArray rowVector, final char operation) {
+    protected INDArray doRowWise(INDArray rowVector, final char operation) {
         Nd4j.getCompressor().autoDecompress(this);
+
         //Input validation: require (a) rowVector to actually be a row vector, and (b) this.size(1) to match rowVector.size(1)
-        if (!rowVector.isRowVector() || this.size(1) != rowVector.size(1)) {
+        if (!rowVector.isRowVector() ||this.rank() > 1 && rowVector.rank() > 1 &&  this.size(1) != rowVector.size(1)) {
             throw new IllegalStateException("Mismatched shapes (shape = " + Arrays.toString(shape())
                     + ", row vector shape =" + Arrays.toString(rowVector.shape()) + ")");
         }
@@ -3411,7 +3412,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }
 
 
-        if(!Arrays.equals(this.shape(),other.shape())) {
+        if(!Shape.shapeEquals(this.shape(),other.shape())) {
             int[] broadcastDimensions = Shape.getBroadcastDimensions(this.shape(),other.shape());
             Nd4j.getExecutioner().exec(new BroadcastDivOp(this,other,result,broadcastDimensions),broadcastDimensions);
             return result;
@@ -3455,7 +3456,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
 
 
-        if(!Arrays.equals(this.shape(),other.shape())) {
+        if(!Shape.shapeEquals(this.shape(),other.shape())) {
             int[] broadcastDimensions = Shape.getBroadcastDimensions(this.shape(),other.shape());
             Nd4j.getExecutioner().exec(new BroadcastMulOp(this,other,result,broadcastDimensions),broadcastDimensions);
             return result;
@@ -3499,7 +3500,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }
 
 
-        if(!Arrays.equals(this.shape(),other.shape())) {
+        if(!Shape.shapeEquals(this.shape(),other.shape())) {
             int[] broadcastDimensions = Shape.getBroadcastDimensions(this.shape(),other.shape());
             Nd4j.getExecutioner().exec(new BroadcastSubOp(this,other,result,broadcastDimensions),broadcastDimensions);
             return result;
@@ -3545,7 +3546,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return other.addi(getDouble(0), result);
         }
 
-        if(!Arrays.equals(this.shape(),other.shape())) {
+        if(!Shape.shapeEquals(this.shape(),other.shape())) {
             int[] broadcastDimensions = Shape.getBroadcastDimensions(this.shape(),other.shape());
             result = Nd4j.createUninitialized(Shape.broadcastOutputShape(this.shape(),other.shape()));
             Nd4j.getExecutioner().exec(new BroadcastAddOp(this,other,result,broadcastDimensions),broadcastDimensions);
@@ -4495,6 +4496,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return this;
         else if (isColumnVector() && c > 0)
             throw new IllegalArgumentException("Illegal index for row");
+        else if(isRowVector()) {
+            return Nd4j.scalar(getDouble(c));
+        }
         return get(NDArrayIndex.all(), NDArrayIndex.point(c));
     }
 

@@ -2,6 +2,7 @@ package org.nd4j.finitedifferences;
 
 import org.junit.Test;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.function.Function;
 import org.nd4j.linalg.indexing.conditions.GreaterThanOrEqual;
@@ -19,8 +20,9 @@ public class TwoPointApproximationTest {
 
     @Test
     public void testLinspaceDerivative() {
-        INDArray linspace = Nd4j.valueArrayOf(5,1e-3);
-        INDArray yLinspace = linspace.dup();
+        Nd4j.getExecutioner().setProfilingMode(OpExecutioner.ProfilingMode.ANY_PANIC);
+        INDArray linspace = Nd4j.createFromNpyFile(new File("/home/agibsonccc/code/nn-descent-comparison/comparison/x.npy"));
+        INDArray yLinspace = Nd4j.createFromNpyFile(new File("/home/agibsonccc/code/nn-descent-comparison/comparison/y.npy"));
         Function<INDArray,INDArray> f = new Function<INDArray, INDArray>() {
             @Override
             public INDArray apply(INDArray indArray) {
@@ -30,8 +32,8 @@ public class TwoPointApproximationTest {
 
         INDArray test = TwoPointApproximation
                 .approximateDerivative(f,linspace,null,yLinspace,
-                        Nd4j.create(new double[] {Double.NEGATIVE_INFINITY
-                                ,Double.POSITIVE_INFINITY})) ;
+                        Nd4j.create(new double[] {Float.MIN_VALUE
+                                ,Float.MAX_VALUE})) ;
 
         INDArray npLoad = Nd4j.createFromNpyFile(new File("/home/agibsonccc/code/nn-descent-comparison/comparison/approx_deriv_small.npy"));
         assertEquals(npLoad,test);
