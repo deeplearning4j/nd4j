@@ -753,6 +753,12 @@ public interface INDArray extends Serializable {
     INDArray divi(Number n, INDArray result);
 
 
+    /**
+     *
+     * @param n
+     * @param result
+     * @return
+     */
     INDArray mul(Number n, INDArray result);
 
 
@@ -777,6 +783,12 @@ public interface INDArray extends Serializable {
      */
     INDArray subi(Number n, INDArray result);
 
+    /**
+     *
+     * @param n
+     * @param result
+     * @return
+     */
     INDArray add(Number n, INDArray result);
 
     /**
@@ -1109,6 +1121,69 @@ public interface INDArray extends Serializable {
      * @return a scalar ndarray of the element at this index
      */
     INDArray getScalar(int i);
+
+
+    /**
+     * Convert this ndarray to a 2d double matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d double array
+     */
+    double[][] toDoubleMatrix();
+
+    /**
+     * Convert this ndarray to a 1d double matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d double array
+     */
+    double[] toDoubleVector();
+
+    /**
+     * Convert this ndarray to a 1d float vector.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d float array
+     */
+    float[] toFloatVector();
+
+    /**
+     * Convert this ndarray to a 2d float matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d float array
+     */
+    float[][] toFloatMatrix();
+
+    /**
+     * Convert this ndarray to a 1d int matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d int array
+     */
+    int[] toIntVector();
+
+
+    /**
+     * Convert this ndarray to a 2d int matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d int array
+     */
+    int[][] toIntMatrix();
+
 
 
     /**

@@ -36,8 +36,9 @@ public class TwoPointApproximationTest {
 
         INDArray npLoad = Nd4j.createNpyFromInputStream(new ClassPathResource(basePath + "approx_deriv_small.npy").getInputStream());
         assertEquals(npLoad,test);
-        System.out.println(test);
 
     }
-    
+
+
+
 }
