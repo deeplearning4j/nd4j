@@ -798,7 +798,107 @@ public interface INDArray extends Serializable {
      */
     INDArray get(INDArrayIndex... indexes);
 
+    /**
+     * Return a mask on whether each element
+     * matches the given condition
+     * @param comp
+     * @param condition
+     * @return
+     */
+    INDArray match(INDArray comp,Condition condition);
 
+    /**
+     * Returns a mask
+     * @param comp
+     * @param condition
+     * @return
+     */
+    INDArray match(Number comp,Condition condition);
+
+    /**
+     * Boolean indexing:
+     * Return the element if it fulfills the condition in
+     * result array
+     * @param comp the comparison array
+     * @param condition the condition to apply
+     * @return the array fulfilling the criteria
+     */
+    INDArray getWhere(INDArray comp,Condition condition);
+
+    /**
+     * Boolean indexing:
+     * Return the element if it fulfills the condition in
+     * result array
+     * @param comp the comparison array
+     * @param condition the condition to apply
+     * @return the array fulfilling the criteria
+     */
+    INDArray getWhere(Number comp,Condition condition);
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(INDArray comp,INDArray put,Condition condition);
+
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(Number comp,INDArray put,Condition condition);
+
+
+    /**
+     * Use a pre computed mask
+     * for assigning arrays
+     * @param mask the mask to use
+     * @param put the array to put
+     * @return the resulting array
+     */
+    INDArray putWhereWithMask(INDArray mask,INDArray put);
+
+
+    /**
+     * Use a pre computed mask
+     * for assigning arrays
+     * @param mask the mask to use
+     * @param put the array to put
+     * @return the resulting array
+     */
+    INDArray putWhereWithMask(INDArray mask,Number put);
+
+    /**
+     * Assign the element according
+     * to the comparison array
+     * @param comp the comparison array
+     * @param put the elements to put
+     * @param condition the condition for masking on
+     * @return
+     */
+    INDArray putWhere(Number comp,Number put,Condition condition);
+
+    /**
+     * Get the elements from this ndarray based on the specified indices
+     * @param indices an ndaray of the indices to get the elements for
+     * @return the elements to get the array for
+     */
+    INDArray get(INDArray indices);
+
+    /**
+     * Get the elements from this ndarray based on the specified indices
+     * @param indices an ndaray of the indices to get the elements for
+     * @return the elements to get the array for
+     */
+    INDArray get(List<List<Integer>> indices);
 
     /**
      * Get an INDArray comprised of the specified columns only. Copy operation.
@@ -1034,6 +1134,38 @@ public interface INDArray extends Serializable {
      * Returns the (1-norm) distance.
      */
     double distance1(INDArray other);
+
+
+
+    /**
+     * Put element in to the indices denoted by
+     * the indices ndarray.
+     * This is equivalent to:
+     * a[indices] = element
+     *
+     *  in numpy.
+     *
+     * @param indices the indices to put
+     * @param element the element array to put
+     * @return this array
+     */
+    INDArray put(List<List<Integer>> indices,INDArray element);
+
+
+    /**
+     * Put element in to the indices denoted by
+     * the indices ndarray.
+     * This is equivalent to:
+     * a[indices] = element
+     *
+     *  in numpy.
+     *
+     * @param indices the indices to put
+     * @param element the element array to put
+     * @return this array
+     */
+    INDArray put(INDArray indices,INDArray element);
+
 
 
     /**
@@ -1320,6 +1452,68 @@ public interface INDArray extends Serializable {
      */
     INDArray mmul(INDArray other);
 
+
+
+    /**
+     * Convert this ndarray to a 2d double matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d double array
+     */
+    double[][] toDoubleMatrix();
+
+    /**
+     * Convert this ndarray to a 1d double matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d double array
+     */
+    double[] toDoubleVector();
+
+    /**
+     * Convert this ndarray to a 1d float vector.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d float array
+     */
+    float[] toFloatVector();
+
+    /**
+     * Convert this ndarray to a 2d float matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d float array
+     */
+    float[][] toFloatMatrix();
+
+    /**
+     * Convert this ndarray to a 1d int matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 1d int array
+     */
+    int[] toIntVector();
+
+
+    /**
+     * Convert this ndarray to a 2d int matrix.
+     * Note that THIS SHOULD NOT BE USED FOR SPEED.
+     * This is mainly used for integrations with other libraries.
+     * Due to nd4j's off  heap nature, moving data on heap is very expensive
+     * and should not be used if possible.
+     * @return a copy of this array as a 2d int array
+     */
+    int[][] toIntMatrix();
 
     /**
      * Perform an copy matrix multiplication
