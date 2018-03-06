@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.rng.Random;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -122,5 +123,13 @@ public class Nd4jTest extends BaseNd4jTest {
         assertEquals(Nd4j.create(new double[] {2.25, 2.25, 2.25}), var);
     }
 
+    @Test
+    public void testExpandDims(){
+        INDArray array = Nd4j.create(2, 3);
+        assertArrayEquals(Nd4j.expandDims(array, 0).shape(), new int[]{1,2,3});
+        assertArrayEquals(Nd4j.expandDims(array, 1).shape(), new int[]{2,1,3});
+        assertArrayEquals(Nd4j.expandDims(array, 2).shape(), new int[]{2,3,1});
+        assertArrayEquals(Nd4j.expandDims(array, -1).shape(), new int[]{2,1,3});
+    }
 
 }
