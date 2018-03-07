@@ -31871,7 +31871,6 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //
 //  @author raver119@gmail.com
 //
-
 // #include <ops/declarable/headers/common.h>
         @Name("nd4j::ops::test_output_reshape<float>") public static class float_test_output_reshape extends FloatDeclarableOp {
             static { Loader.load(); }
