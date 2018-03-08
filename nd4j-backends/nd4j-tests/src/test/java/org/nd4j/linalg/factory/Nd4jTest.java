@@ -139,12 +139,12 @@ public class Nd4jTest extends BaseNd4jTest {
             final char ordering = testMatrix.ordering();
             final int[] shape = testMatrix.shape();
             final int rank = testMatrix.rank();
-            for (int i = -rank+1; i < rank; i++) {
+            for (int i = -rank; i <= rank; i++) {
                 final INDArray expanded = Nd4j.expandDims(testMatrix, i);
 
                 final String message = "Expanding in Dimension " + i + "; Shape before expanding: " + Arrays.toString(shape) + " "+ordering+" Order; Shape after expanding: " + Arrays.toString(expanded.shape()) +  " "+expanded.ordering()+"; Input Created via: " + recreation;
 
-                assertEquals(message, 1, expanded.shape()[(i + rank) % rank]);
+                assertEquals(message, 1, expanded.shape()[i < 0 ? i + rank : i]);
                 assertEquals(message, testMatrix.ravel(), expanded.ravel());
                 assertEquals(message, ordering,  expanded.ordering());
             }
