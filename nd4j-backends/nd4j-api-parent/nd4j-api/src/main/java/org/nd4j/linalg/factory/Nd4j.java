@@ -403,7 +403,7 @@ public class Nd4j {
         int[] indexes = new int[input.rank() + 1];
         for (int i = 0; i < indexes.length; i++)
             indexes[i] = i < dimension ? shape[i] : i == dimension ? 1 : shape[i - 1];
-        return input.reshape(indexes);
+        return input.reshape(input.ordering(), indexes);
     }
 
     /**

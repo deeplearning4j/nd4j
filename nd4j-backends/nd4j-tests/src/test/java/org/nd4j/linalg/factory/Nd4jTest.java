@@ -6,11 +6,13 @@ import org.junit.runners.Parameterized;
 import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.rng.Random;
+import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
+import org.nd4j.linalg.primitives.Pair;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -125,11 +127,28 @@ public class Nd4jTest extends BaseNd4jTest {
 
     @Test
     public void testExpandDims(){
-        INDArray array = Nd4j.create(2, 3);
-        assertArrayEquals(Nd4j.expandDims(array, 0).shape(), new int[]{1,2,3});
-        assertArrayEquals(Nd4j.expandDims(array, 1).shape(), new int[]{2,1,3});
-        assertArrayEquals(Nd4j.expandDims(array, 2).shape(), new int[]{2,3,1});
-        assertArrayEquals(Nd4j.expandDims(array, -1).shape(), new int[]{2,1,3});
+        final List<Pair<INDArray, String>> testMatricesC = NDArrayCreationUtil.getAllTestMatricesWithShape('c', 2, 3, 0xDEAD);
+        final List<Pair<INDArray, String>> testMatricesF = NDArrayCreationUtil.getAllTestMatricesWithShape('f', 2, 3, 0xBEEF);
+
+        final ArrayList<Pair<INDArray, String>> testMatrices = new ArrayList<>(testMatricesC);
+        testMatrices.addAll(testMatricesF);
+
+        for (Pair<INDArray, String> testMatrixPair : testMatrices) {
+            final String recreation = testMatrixPair.getSecond();
+            final INDArray testMatrix = testMatrixPair.getFirst();
+            final char ordering = testMatrix.ordering();
+            final int[] shape = testMatrix.shape();
+            final int rank = testMatrix.rank();
+            for (int i = -rank+1; i < rank; i++) {
+                final INDArray expanded = Nd4j.expandDims(testMatrix, i);
+
+                final String message = "Expanding in Dimension " + i + "; Shape before expanding: " + Arrays.toString(shape) + " "+ordering+" Order; Shape after expanding: " + Arrays.toString(expanded.shape()) +  " "+expanded.ordering()+"; Input Created via: " + recreation;
+
+                assertEquals(message, 1, expanded.shape()[(i + rank) % rank]);
+                assertEquals(message, testMatrix.ravel(), expanded.ravel());
+                assertEquals(message, ordering,  expanded.ordering());
+            }
+        }
     }
 
 }
