@@ -127,8 +127,8 @@ public class Nd4jTest extends BaseNd4jTest {
 
     @Test
     public void testExpandDims(){
-        final List<Pair<INDArray, String>> testMatricesC = NDArrayCreationUtil.getAllTestMatricesWithShape('c', 2, 3, 0xDEAD);
-        final List<Pair<INDArray, String>> testMatricesF = NDArrayCreationUtil.getAllTestMatricesWithShape('f', 2, 3, 0xBEEF);
+        final List<Pair<INDArray, String>> testMatricesC = NDArrayCreationUtil.getAllTestMatricesWithShape('c', 3, 5, 0xDEAD);
+        final List<Pair<INDArray, String>> testMatricesF = NDArrayCreationUtil.getAllTestMatricesWithShape('f', 7, 11, 0xBEEF);
 
         final ArrayList<Pair<INDArray, String>> testMatrices = new ArrayList<>(testMatricesC);
         testMatrices.addAll(testMatricesF);
@@ -147,6 +147,9 @@ public class Nd4jTest extends BaseNd4jTest {
                 assertEquals(message, 1, expanded.shape()[i < 0 ? i + rank : i]);
                 assertEquals(message, testMatrix.ravel(), expanded.ravel());
                 assertEquals(message, ordering,  expanded.ordering());
+
+                testMatrix.assign(Nd4j.rand(shape));
+                assertEquals(message, testMatrix.ravel(), expanded.ravel());
             }
         }
     }
