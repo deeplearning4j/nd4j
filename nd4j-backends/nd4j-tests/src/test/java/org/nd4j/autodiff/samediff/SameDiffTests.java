@@ -298,6 +298,15 @@ public class SameDiffTests {
 
     }
 
+    @Test
+    public void testTile() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
+        SDVariable x = sameDiff.var("x", arr);
+        SDVariable result = sameDiff.tile(x, new int[]{2, 2});
+        assertArrayEquals(new int[]{2, 8}, result.getShape());
+
+    }
 
     @Test
     public void testDistance() {
