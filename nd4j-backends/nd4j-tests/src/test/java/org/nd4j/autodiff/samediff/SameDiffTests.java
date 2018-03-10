@@ -276,11 +276,17 @@ public class SameDiffTests {
 
     }
 
+    @Test
+    public void testPermute() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 6, 6).reshape(2, 3));
+        SDVariable x = sameDiff.var("x", arr);
+        SDVariable result = sameDiff.permute(x, 1, 0);
+        assertArrayEquals(new int[]{3, 2}, result.getShape());
 
+    }
 
-
-
-
+    
     @Test
     public void testDistance() {
         SameDiff sameDiff = SameDiff.create();
