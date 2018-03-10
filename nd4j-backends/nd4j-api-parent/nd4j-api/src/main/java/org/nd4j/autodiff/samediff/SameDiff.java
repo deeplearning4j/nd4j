@@ -2519,6 +2519,12 @@ public class SameDiff {
         return concat(null, dimension, inputs);
     }
 
+    /**
+     * @param iX
+     * @param repeat
+     * @return
+     */
+    public SDVariable tile(SDVariable iX, int[] repeat) { return tile(iX, repeat);}
 
     /**
      * @param x
@@ -3496,6 +3502,16 @@ public class SameDiff {
 
     }
 
+    /**
+     * @param iX
+     * @param repeat
+     * @return
+     */
+    public SDVariable tile(String name, SDVariable iX, int[] repeat) {
+        SDVariable result = functionFactory.tile(iX, repeat);
+        return updateVariableNameAndReference(result, name);
+
+    }
 
     /**
      * @param x
