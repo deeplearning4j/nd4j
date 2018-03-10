@@ -286,7 +286,19 @@ public class SameDiffTests {
 
     }
 
-    
+    @Test
+    public void testConcat() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
+        INDArray arr2 = Transforms.sigmoid(Nd4j.linspace(4, 8, 4));
+        SDVariable x1 = sameDiff.var("x1", arr1);
+        SDVariable x2 = sameDiff.var("x2", arr2);
+        SDVariable result = sameDiff.concat(0, x1, x2);
+        assertArrayEquals(new int[]{2, 4}, result.getShape());
+
+    }
+
+
     @Test
     public void testDistance() {
         SameDiff sameDiff = SameDiff.create();
