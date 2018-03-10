@@ -2492,6 +2492,14 @@ public class SameDiff {
         return transpose(null, iX);
     }
 
+    /**
+     * @param iX
+     * @param dimensions
+     * @return
+     */
+    public SDVariable permute(SDVariable iX, int... dimensions) {
+        return permute(null, iX, dimensions);
+    }
 
     /**
      * @param x
@@ -3440,6 +3448,17 @@ public class SameDiff {
      */
     public SDVariable transpose(String name, SDVariable iX) {
         SDVariable result = functionFactory.transpose(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param iX
+     * @param dimensions
+     * @return
+     */
+    public SDVariable permute(String name, SDVariable iX, int... dimensions) {
+        SDVariable result = functionFactory.permute(iX, dimensions);
         return updateVariableNameAndReference(result, name);
 
     }
