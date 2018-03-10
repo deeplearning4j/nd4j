@@ -2525,7 +2525,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable tile(SDVariable iX, int[] repeat) { return tile(iX, repeat);}
-    
+
 
     /**
      * @param x
@@ -2533,8 +2533,6 @@ public class SameDiff {
      * @param transpose
      * @return
      */
-
-
     public SDVariable mmul(SDVariable x, SDVariable y, MMulTranspose transpose) {
         return mmul(null, x, y, transpose);
 
