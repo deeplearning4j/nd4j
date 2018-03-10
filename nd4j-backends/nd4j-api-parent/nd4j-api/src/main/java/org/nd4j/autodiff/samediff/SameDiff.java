@@ -2510,6 +2510,15 @@ public class SameDiff {
         return rollAxis(null, x, axis);
     }
 
+    /**
+     * @param dimension
+     * @param inputs
+     * @return
+     */
+    public SDVariable concat(int dimension, SDVariable... inputs) {
+        return concat(null, dimension, inputs);
+    }
+
 
     /**
      * @param x
@@ -3471,6 +3480,18 @@ public class SameDiff {
      */
     public SDVariable rollAxis(String name, SDVariable x, int axis) {
         SDVariable result = functionFactory.rollAxis(x, axis);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+
+    /**
+     * @param dimension
+     * @param inputs
+     * @return
+     */
+    public SDVariable concat(String name, int dimension, SDVariable... inputs) {
+        SDVariable result = functionFactory.concat(dimension, inputs);
         return updateVariableNameAndReference(result, name);
 
     }
