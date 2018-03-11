@@ -55,7 +55,7 @@
                                 <include>src/main/protobuf/tf/tensorflow</include>
                             </inputDirectories>
                             <addSources>main</addSources>
-                            <cleanOutputFolder>true</cleanOutputFolder>
+                            <cleanOutputFolder>false</cleanOutputFolder>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
@@ -73,7 +73,7 @@
                                 <include>src/main/protobuf/onnx</include>
                             </inputDirectories>
                             <addSources>main</addSources>
-                            <cleanOutputFolder>true</cleanOutputFolder>
+                            <cleanOutputFolder>false</cleanOutputFolder>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
