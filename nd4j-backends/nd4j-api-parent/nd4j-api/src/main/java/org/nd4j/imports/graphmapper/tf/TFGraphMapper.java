@@ -1,8 +1,8 @@
 package org.nd4j.imports.graphmapper.tf;
 
+import com.github.os72.protobuf351.Message;
 import com.google.common.primitives.Floats;
 import com.google.common.primitives.Ints;
-import com.github.os72.protobuf350.Message;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.nd4j.autodiff.functions.DifferentialFunction;
