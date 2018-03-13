@@ -20,6 +20,7 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.List;
 import java.util.Map;
 
@@ -181,17 +182,17 @@ public class LossMultiLabel extends DifferentialFunction implements ILossFunctio
 
     @Override
     public SDVariable[] outputVariables() {
-        return new SDVariable[0];
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public SDVariable[] outputVariables(String baseName) {
-        return new SDVariable[0];
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 
