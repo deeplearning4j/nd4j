@@ -78,7 +78,7 @@ public class LossMultiLabel extends DifferentialFunction implements ILossFunctio
 
             final INDArray locPositive = positive.getRow(i);
             final INDArray locNegative = negative.getRow(i);
-            final INDArray locNormFactor = normFactor.getScalar(i);
+            final Double locNormFactor = normFactor.getDouble(i);
 
             final INDArray operandA = Nd4j.ones(shape[1], shape[0]).mmul(locCfn);
             final INDArray operandB = operandA.transpose();
@@ -92,7 +92,7 @@ public class LossMultiLabel extends DifferentialFunction implements ILossFunctio
             if (scoreOutput != null) {
                 if (mask != null) {
                     final INDArray perLabel = classificationDifferences.sum(0);
-                    LossUtil.applyMask(perLabel, mask);
+                    LossUtil.applyMask(perLabel, mask.getRow(i));
                     perLabel.sum(scoreOutput.getRow(i), 0);
                 } else {
                     classificationDifferences.sum(scoreOutput.getRow(i), 0, 1);
@@ -100,7 +100,7 @@ public class LossMultiLabel extends DifferentialFunction implements ILossFunctio
             }
 
             if (gradientOutput != null) {
-                gradientOutput.getRow(i).assign(classificationDifferences.sum(0).add(classificationDifferences.sum(1).transposei().negi()));
+                gradientOutput.getRow(i).assign(classificationDifferences.sum(0).addi(classificationDifferences.sum(1).transposei().negi()));
             }
         }
 
