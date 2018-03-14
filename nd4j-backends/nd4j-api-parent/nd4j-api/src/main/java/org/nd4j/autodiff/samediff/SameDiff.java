@@ -2524,7 +2524,7 @@ public class SameDiff {
      * @param repeat
      * @return
      */
-    public SDVariable tile(SDVariable iX, int[] repeat) { return tile(iX, repeat);}
+    public SDVariable tile(SDVariable iX, int[] repeat) { return tile(null, iX, repeat);}
 
 
     /**
