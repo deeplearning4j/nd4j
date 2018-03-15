@@ -2643,19 +2643,6 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-    /**
-     * @param x
-     * @return
-     */
-    public SDVariable reverse_sequence(String name, SDVariable x) {
-        SDVariable ret = f().reverse_sequence(x);
-        return updateVariableNameAndReference(ret, name);
-    }
-    /**
-     * @param x
-     * @return
-     */
-    public SDVariable reverse_sequence(SDVariable x) { return reverse_sequence(null, x);}
 
     public SDVariable assign(SDVariable x, SDVariable y){
         return assign(null, x, y);
