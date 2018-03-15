@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  *
  */
-public class DepthwiseCon2dNative extends DynamicCustomOp {
+public class DepthwiseConv2dNative extends DynamicCustomOp {
     private int sy, sx, ph, pw;
 
 
