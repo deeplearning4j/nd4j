@@ -1696,14 +1696,20 @@ public class SameDiff {
      * @return
      */
     public SDVariable conv3d(SDVariable[] inputs, Conv3DConfig conv3DConfig) {
-        Conv3D conv3D = Conv3D.builder()
-                .inputFunctions(inputs)
-                .conv3DConfig(conv3DConfig)
-                .sameDiff(this)
-                .build();
+        return conv3d(null, inputs, conv3DConfig);
+    }
 
-        val outputVars = conv3D.outputVariables();
-        return outputVars[0];
+    /**
+     * Conv3d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to conv3d
+     * @param conv3DConfig the configuration
+     * @return
+     */
+    public SDVariable conv3d(String name, SDVariable[] inputs, Conv3DConfig conv3DConfig) {
+        SDVariable ret = f().conv3d(inputs, conv3DConfig);
+        return updateVariableNameAndReference(ret, name);
     }
 
 

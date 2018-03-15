@@ -13,9 +13,11 @@ import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.DepthToSpace;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.SpaceToDepth;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -141,6 +143,25 @@ public class DifferentialFunctionFactory   {
         return outputVertexId;
     }
 
+
+
+    /**
+     * Conv3d operation.
+     *
+     * @param inputs       the inputs to conv3d
+     * @param conv3DConfig the configuration
+     * @return
+     */
+    public SDVariable conv3d(SDVariable[] inputs, Conv3DConfig conv3DConfig) {
+        Conv3D conv3D = Conv3D.builder()
+                .inputFunctions(inputs)
+                .conv3DConfig(conv3DConfig)
+                .sameDiff(sameDiff())
+                .build();
+
+        val outputVars = conv3D.outputVariables();
+        return outputVars[0];
+    }
 
 
     public SDVariable tile(SDVariable iX, int[] repeat) {
