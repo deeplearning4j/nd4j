@@ -643,6 +643,9 @@ public class DifferentialFunctionFactory   {
         return new Reverse(sameDiff(),x, dimensions).outputVariables()[0];
     }
 
+    public SDVariable reverse_sequence(SDVariable x) {
+        return new Reverse(sameDiff(), x, 1).outputVariables()[0];
+    }
 
     public SDVariable rollAxis(SDVariable iX, int axis) {
         return new RollAxis(sameDiff(),iX,axis).outputVariables()[0];
