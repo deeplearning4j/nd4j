@@ -20,7 +20,7 @@ public abstract class BaseRandomOp extends BaseOp implements RandomOp {
     public BaseRandomOp(SameDiff sameDiff,
                             SDVariable i_v) {
         if (i_v != null) {
-            f().validateDifferentialFunctionsameDiff(i_v);
+            this.sameDiff = sameDiff;
             this.xVertexId = i_v.getVarName();
             sameDiff.addArgsFor(new String[]{xVertexId},this);
             if(Shape.isPlaceholderShape(i_v.getShape())) {
