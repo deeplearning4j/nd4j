@@ -59,6 +59,7 @@ public class Conv3D extends DynamicCustomOp {
 
     private void addArgs() {
         addIArgument(
+                // TODO: support bias terms
 //                ArrayUtil.fromBoolean(getConfig().isBiasUsed()),
                 getConfig().getKT(),
                 getConfig().getKH(),
