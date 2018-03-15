@@ -2,7 +2,7 @@ package org.nd4j.autodiff.functions;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
-import org.apache.commons.lang3.ArrayUtils;
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
@@ -12,8 +12,10 @@ import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.DepthToSpace;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.SpaceToDepth;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -120,6 +122,24 @@ public class DifferentialFunctionFactory   {
         return new OnesLike(name, sameDiff(),input).outputVariables()[0];
     }
 
+
+    /**
+     * Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable conv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        Conv2D conv2D = Conv2D.builder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .config(conv2DConfig)
+                .build();
+
+        val outputVertexId = conv2D.outputVariables()[0];
+        return outputVertexId;
+    }
 
 
 

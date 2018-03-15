@@ -1671,21 +1671,27 @@ public class SameDiff {
      * @return
      */
     public SDVariable conv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
-        Conv2D conv2D = Conv2D.builder()
-                .inputFunctions(inputs)
-                .sameDiff(this)
-                .config(conv2DConfig)
-                .build();
-
-        val outputVertexId = conv2D.outputVariables()[0];
-        return outputVertexId;
+        return conv2d(null, inputs, conv2DConfig);
     }
-
 
     /**
      * Conv2d operation.
      *
+     * @param name         name of the operation in SameDiff
      * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable conv2d(String name, SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SDVariable ret = f().conv2d(inputs, conv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    /**
+     * Conv3d operation.
+     *
+     * @param inputs       the inputs to conv3d
      * @param conv3DConfig the configuration
      * @return
      */
