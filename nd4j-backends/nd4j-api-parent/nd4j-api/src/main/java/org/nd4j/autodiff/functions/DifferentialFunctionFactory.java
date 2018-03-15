@@ -16,6 +16,7 @@ import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.*;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.DeConv2DConfig;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -137,8 +138,7 @@ public class DifferentialFunctionFactory   {
                 .config(conv2DConfig)
                 .build();
 
-        val outputVertexId = conv2D.outputVariables()[0];
-        return outputVertexId;
+        return conv2D.outputVariables()[0];
     }
 
     /**
@@ -155,8 +155,7 @@ public class DifferentialFunctionFactory   {
                 .conv2DConfig(conv2DConfig)
                 .build();
 
-        val outputVertexId = sconv2D.outputVariables()[0];
-        return outputVertexId;
+        return sconv2D.outputVariables()[0];
     }
 
 
@@ -175,10 +174,26 @@ public class DifferentialFunctionFactory   {
                 .conv2DConfig(depthConv2DConfig)
                 .build();
 
-        val outputVertexId = depthWiseConv2D.outputVariables()[0];
-        return outputVertexId;
+        return depthWiseConv2D.outputVariables()[0];
     }
 
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        DeConv2D deconv2D = DeConv2D.builder()
+                .inputs(inputs)
+                .config(deconv2DConfig)
+                .sameDiff(sameDiff())
+                .build();
+
+        return deconv2D.outputVariables()[0];
+    }
 
     /**
      * Conv3d operation.

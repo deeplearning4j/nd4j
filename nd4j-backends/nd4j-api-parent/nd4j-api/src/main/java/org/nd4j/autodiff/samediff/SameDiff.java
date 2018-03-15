@@ -40,6 +40,7 @@ import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.DeConv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.GRUCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.LSTMCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.SRU;
@@ -1736,6 +1737,33 @@ public class SameDiff {
         SDVariable ret = f().sconv2d(inputs, conv2DConfig);
         return updateVariableNameAndReference(ret, name);
     }
+
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param inputs       the inputs to sconv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        return deconv2d(null, inputs, deconv2DConfig);
+    }
+
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(String name, SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        SDVariable ret = f().deconv2d(inputs, deconv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
 
 
 
