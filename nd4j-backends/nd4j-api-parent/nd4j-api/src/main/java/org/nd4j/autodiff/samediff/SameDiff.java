@@ -1687,6 +1687,32 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    /**
+     * Separable Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        return sconv2d(null, inputs, conv2DConfig);
+    }
+
+
+    /**
+     * Sepcarable Conv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(String name, SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SDVariable ret = f().sconv2d(inputs, conv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
 
     /**
      * Conv3d operation.

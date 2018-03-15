@@ -12,10 +12,7 @@ import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.DepthToSpace;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.SpaceToDepth;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.*;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
@@ -140,6 +137,24 @@ public class DifferentialFunctionFactory   {
                 .build();
 
         val outputVertexId = conv2D.outputVariables()[0];
+        return outputVertexId;
+    }
+
+    /**
+     * Separable Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SConv2D sconv2D = SConv2D.sBuilder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .conv2DConfig(conv2DConfig)
+                .build();
+
+        val outputVertexId = sconv2D.outputVariables()[0];
         return outputVertexId;
     }
 

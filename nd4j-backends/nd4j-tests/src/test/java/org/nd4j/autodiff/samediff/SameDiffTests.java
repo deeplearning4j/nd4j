@@ -1984,6 +1984,50 @@ public class SameDiffTests {
     }
 
     @Test
+    public void testSeparableConv2dBasic(){
+        int nIn = 3;
+        int nOut = 4;
+        int kH = 2;
+        int kW = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+
+        int depthWise = 3;
+
+        SameDiff sd = SameDiff.create();
+        INDArray depthWeightArr = Nd4j.create(depthWise, nIn, kH, kW);
+        INDArray pointWeightArr = Nd4j.create(nOut, depthWise, 1, 1);
+
+        INDArray bArr = Nd4j.create(1, nOut);
+        INDArray inArr = Nd4j.create(mb, nIn, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+        SDVariable dW = sd.var("dW", depthWeightArr);
+        SDVariable pW = sd.var("pW", pointWeightArr);
+        SDVariable b = sd.var("b", bArr);
+
+        SDVariable[] vars = new SDVariable[]{in, dW, pW, b};
+
+        Conv2DConfig c = Conv2DConfig.builder()
+                .kh(kH).kw(kW)
+                .ph(0).pw(0)
+                .sy(1).sx(1)
+                .dh(1).dw(1)
+                .isSameMode(false)
+                .build();
+
+        SDVariable out = sd.sconv2d(vars, c);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        //Expected output size: out = (in - k + 2*p)/s + 1 = (28-2+0)/1+1 = 27
+        int[] outShape = outArr.shape();
+        assertArrayEquals(new int[]{mb, nOut, 27, 27}, outShape);
+    }
+
+    @Test
     public void testConv2dBasic(){
         int nIn = 3;
         int nOut = 4;
