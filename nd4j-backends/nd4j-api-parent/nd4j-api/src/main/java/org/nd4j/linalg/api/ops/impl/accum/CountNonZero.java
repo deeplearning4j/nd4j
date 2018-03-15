@@ -17,47 +17,64 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.impl.transforms.comparison;
+package org.nd4j.linalg.api.ops.impl.accum;
 
+import lombok.NoArgsConstructor;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.linalg.api.ops.BaseAccumulation;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * This op takes 1 n-dimensional array as input,
- * and returns true if for every adjacent pair we have x[i] < x[i+1].
+ * Count the number of non-zero elements
  *
+ * @author Max Pumperla
  */
-public class IsStrictlyIncreasing extends DynamicCustomOp {
-    public IsStrictlyIncreasing() {}
+@NoArgsConstructor
+public class CountNonZero extends BaseAccumulation {
 
-    public IsStrictlyIncreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(null, sameDiff, args, inPlace);
+    public CountNonZero(SameDiff sameDiff, SDVariable input) {
+        super(sameDiff, input);
     }
 
-    public IsStrictlyIncreasing( INDArray[] inputs, INDArray[] outputs) {
-        super(null, inputs, outputs);
+
+    public CountNonZero(INDArray x) {
+        super(x);
     }
 
+
+    @Override
+    public int opNum() {
+        return 22;
+    }
 
     @Override
     public String opName() {
-        return "is_strictly_increasing";
+        return "countNonZero";
     }
 
 
     @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx name found for shape " + opName());
+    }
+
+    @Override
     public String tensorflowName() {
-        return "IsStrictlyIncreasing";
+        return "count_nonzero";
+    }
+
+    @Override
+    public Type getOpType() {
+        return Type.AGGREGATION;
     }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException("");
+        return null;
     }
+
 }

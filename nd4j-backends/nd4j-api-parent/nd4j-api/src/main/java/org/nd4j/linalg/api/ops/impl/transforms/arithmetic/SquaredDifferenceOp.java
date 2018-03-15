@@ -17,47 +17,49 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.impl.transforms.comparison;
+package org.nd4j.linalg.api.ops.impl.transforms.arithmetic;
 
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * This op takes 1 n-dimensional array as input,
- * and returns true if for every adjacent pair we have x[i] < x[i+1].
+ * Squared difference operation, i.e. returns (x - y) * (x - y)
  *
+ * @author Max Pumperla
  */
-public class IsStrictlyIncreasing extends DynamicCustomOp {
-    public IsStrictlyIncreasing() {}
+public class SquaredDifferenceOp extends BaseDynamicTransformOp {
 
-    public IsStrictlyIncreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(null, sameDiff, args, inPlace);
+    public SquaredDifferenceOp() {}
+
+    public SquaredDifferenceOp(SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
+        super(sameDiff, args, inPlace);
     }
 
-    public IsStrictlyIncreasing( INDArray[] inputs, INDArray[] outputs) {
-        super(null, inputs, outputs);
+    public SquaredDifferenceOp(INDArray[] inputs, INDArray[] outputs) {
+        super(inputs, outputs);
     }
 
 
     @Override
     public String opName() {
-        return "is_strictly_increasing";
+        return "squaredsubtract";
     }
 
+
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx op opName found for " +  opName());
+    }
 
     @Override
     public String tensorflowName() {
-        return "IsStrictlyIncreasing";
+        return "squared_difference";
     }
 
-    @Override
-    public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException("");
-    }
+
 }

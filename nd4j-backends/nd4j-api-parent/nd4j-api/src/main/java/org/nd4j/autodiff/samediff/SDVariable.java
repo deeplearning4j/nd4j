@@ -299,6 +299,16 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      * @param sameDiffVariable
      * @return
      */
+    public SDVariable squaredDifference(SDVariable sameDiffVariable) {
+        return squaredDifference(sameDiff.generateNewVarName(new SquaredDifferenceOp().opName(),0),sameDiffVariable);
+
+    }
+
+    /**
+     *
+     * @param sameDiffVariable
+     * @return
+     */
     public SDVariable div(double sameDiffVariable) {
         return div(sameDiff.generateNewVarName(new DivOp().opName(),0),sameDiffVariable);
 
@@ -397,6 +407,16 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rdiv(SDVariable sameDiffVariable) {
         return rdiv(sameDiff.generateNewVarName(new RDivOp().opName(),0),sameDiffVariable);
+
+    }
+
+    /**
+     *
+     * @param sameDiffVariable
+     * @return
+     */
+    public SDVariable truncatedDiv(SDVariable sameDiffVariable) {
+        return truncatedDiv(sameDiff.generateNewVarName(new TruncateDivOp().opName(),0),sameDiffVariable);
 
     }
 
@@ -519,6 +539,17 @@ public class SDVariable extends DifferentialFunction implements Serializable {
      */
     public SDVariable rdiv(String varName, double sameDiffVariable) {
         val function = sameDiff.f().rdiv(this,sameDiffVariable);
+        return sameDiff.updateVariableNameAndReference(function,varName);
+
+    }
+
+    /**
+     *
+     * @param sameDiffVariable
+     * @return
+     */
+    public SDVariable truncatedDiv(String varName, SDVariable sameDiffVariable) {
+        val function = sameDiff.f().truncatedDiv(this, sameDiffVariable);
         return sameDiff.updateVariableNameAndReference(function,varName);
 
     }
@@ -695,8 +726,22 @@ public class SDVariable extends DifferentialFunction implements Serializable {
     /**
      *
      * @param sameDiffVariable
-     * @return
+     * @return squared difference between variables
      */
+    public SDVariable squaredDifference(String varName, SDVariable sameDiffVariable) {
+        assertShapeEquals(sameDiffVariable);
+
+        SDVariable left = this;
+        SDVariable right = sameDiffVariable;
+        val result = sameDiff.f().squaredDifference(left, right);
+        return sameDiff.updateVariableNameAndReference(result, varName);
+    }
+
+        /**
+         *
+         * @param sameDiffVariable
+         * @return
+         */
     public SDVariable div(String varName, SDVariable sameDiffVariable) {
         assertShapeEquals(sameDiffVariable);
         val result = sameDiff.f().div(this,sameDiffVariable);

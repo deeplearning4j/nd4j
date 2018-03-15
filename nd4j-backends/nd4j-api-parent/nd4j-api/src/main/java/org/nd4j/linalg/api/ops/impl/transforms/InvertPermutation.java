@@ -17,47 +17,51 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.impl.transforms.comparison;
+package org.nd4j.linalg.api.ops.impl.transforms;
 
+import lombok.NoArgsConstructor;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.DynamicCustomOp;
-import org.nd4j.linalg.api.ops.impl.transforms.BaseDynamicTransformOp;
+import org.nd4j.imports.NoOpNameFoundException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * This op takes 1 n-dimensional array as input,
- * and returns true if for every adjacent pair we have x[i] < x[i+1].
+ * Inverse of index permutation.
  *
+ * @author Max Pumperla
  */
-public class IsStrictlyIncreasing extends DynamicCustomOp {
-    public IsStrictlyIncreasing() {}
+@NoArgsConstructor
+public class InvertPermutation extends BaseDynamicTransformOp {
 
-    public IsStrictlyIncreasing( SameDiff sameDiff, SDVariable[] args, boolean inPlace) {
-        super(null, sameDiff, args, inPlace);
+
+    public InvertPermutation(SameDiff sameDiff, SDVariable input, boolean inPlace) {
+        super( sameDiff, new SDVariable[] {input}, inPlace);
     }
-
-    public IsStrictlyIncreasing( INDArray[] inputs, INDArray[] outputs) {
-        super(null, inputs, outputs);
-    }
-
 
     @Override
     public String opName() {
-        return "is_strictly_increasing";
+        return "invert_permutation";
     }
 
+    @Override
+    public String onnxName() {
+        throw new NoOpNameFoundException("No onnx name found for shape " + opName());
+    }
 
     @Override
     public String tensorflowName() {
-        return "IsStrictlyIncreasing";
+        return "InvertPermutation";
     }
 
+
     @Override
-    public List<SDVariable> doDiff(List<SDVariable> f1) {
-        throw new UnsupportedOperationException("");
+    public List<SDVariable> doDiff(List<SDVariable> grad) {
+        SDVariable gradient = grad.get(0);
+        SDVariable invertedGradient = f().invertPermutation(gradient, false);
+        return Arrays.asList(invertedGradient);
     }
+
 }

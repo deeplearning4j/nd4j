@@ -1881,6 +1881,24 @@ public class SameDiff {
         return tan(null, iX);
     }
 
+    public SDVariable permute(SDVariable input, int... dimensions) {
+        return permute(null, input, dimensions);
+    }
+
+    public SDVariable permute(String name, SDVariable input, int... dimensions) {
+        SDVariable ret = f().permute(input, dimensions);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable invertPermutation(SDVariable input) {
+        return invertPermutation(null, input);
+    }
+
+    public SDVariable invertPermutation(String name, SDVariable input) {
+        SDVariable ret = f().invertPermutation(input, false);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     /**
      * @param iX
      * @return
@@ -1976,8 +1994,55 @@ public class SameDiff {
      * @param iX
      * @return
      */
+    public SDVariable rsqrt(SDVariable iX) {
+        return rsqrt(null, iX);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
     public SDVariable expm1(SDVariable iX) {
         return expm1(null, iX);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable log1p(SDVariable iX) {
+        return log1p(null, iX);
+    }
+
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isInfinite(SDVariable iX) {
+        return isInfinite(null, iX);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isNaN(SDVariable iX) { return isNaN(null, iX); }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable round(SDVariable iX) {
+        return round(null, iX);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isFinite(SDVariable iX) {
+        return isFinite(null, iX);
     }
 
     /**
@@ -1987,7 +2052,6 @@ public class SameDiff {
     public SDVariable log(SDVariable iX) {
         return log(null, iX);
     }
-
 
     /**
      * @param iX
@@ -2064,6 +2128,14 @@ public class SameDiff {
      */
     public SDVariable relu(SDVariable iX, double cutoff) {
         return relu(null, iX, cutoff);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable relu6(SDVariable iX, double cutoff) {
+        return relu6(null, iX, cutoff);
     }
 
     /**
@@ -2158,6 +2230,25 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable dilation2D(SDVariable df, SDVariable weights, int[] strides,
+                                 int[] rates, boolean isSameMode) {
+        return dilation2D(null, df, weights, strides, rates, isSameMode);
+    }
+
+    public SDVariable dilation2D(String name, SDVariable df, SDVariable weights, int[] strides,
+                                 int[] rates, boolean isSameMode) {
+        SDVariable ret = f().dilation2D(df, weights,strides, rates, isSameMode);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable shape(SDVariable df) {
+        return shape(null, df);
+    }
+
+    public SDVariable shape(String name, SDVariable df) {
+        SDVariable ret = f().shape(df);
+        return updateVariableNameAndReference(ret, name);
+    }
 
     public SDVariable cross(SDVariable a, SDVariable b) {
         return cross(null, a, b);
@@ -2168,12 +2259,59 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable gather(SDVariable df, int axis, int[] broadcast) {
+        return gather(null, df, axis, broadcast);
+    }
+
+    public SDVariable gather(String name, SDVariable df, int axis, int[] broadcast) {
+        SDVariable ret = f().gather(df, axis, broadcast);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable gatherNd(SDVariable df, SDVariable indices) {
+        return gatherNd(null, df, indices);
+    }
+
+    public SDVariable gatherNd(String name, SDVariable df, SDVariable indices) {
+        SDVariable ret = f().gatherNd(df, indices);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable repeat(SDVariable df, int axis) {
+        return repeat(null, df, axis);
+    }
+
+
+    public SDVariable repeat(String name, SDVariable df, int axis) {
+        SDVariable ret = f().repeat(df, axis);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable stack(SDVariable[] values, int axis) {
+        return stack(null, values, axis);
+    }
+
+    public SDVariable stack(String name, SDVariable[] values, int axis) {
+        SDVariable ret = f().stack(values, axis);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable[] unstack(SDVariable value, int axis) {
+        return unstack(null, value, axis);
+    }
+
+    public SDVariable[] unstack(String[] names, SDVariable value, int axis) {
+        SDVariable[] ret = f().unstack(value, axis);
+        return updateVariableNamesAndReferences(ret, names);
+    }
+
     public  SDVariable erf(SDVariable iX) {
         return erf(null, iX);
     }
 
     public  SDVariable erf(String name, SDVariable iX) {
-        return erf(name, iX);
+        SDVariable ret = f().erf(iX);
+        return updateVariableNameAndReference(ret, name);
     }
 
 
@@ -2182,7 +2320,8 @@ public class SameDiff {
     }
 
     public  SDVariable erfc(String name, SDVariable iX) {
-        return erfc(name, iX);
+        SDVariable ret = f().erfc(iX);
+        return updateVariableNameAndReference(ret, name);
     }
 
     public SDVariable diag(SDVariable iX) {
@@ -2401,6 +2540,25 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
+    public SDVariable countZero(SDVariable input) {
+        return countZero(null, input);
+    }
+
+    public SDVariable countZero(String name, SDVariable input) {
+        SDVariable res = f().countZero(input);
+        return updateVariableNameAndReference(res, name);
+    }
+
+
+    public SDVariable countNonZero(SDVariable input) {
+        return countNonZero(null, input);
+    }
+
+    public SDVariable countNonZero(String name, SDVariable input) {
+        SDVariable res = f().countNonZero(input);
+        return updateVariableNameAndReference(res, name);
+    }
+
     /**
      * @param iX
      * @param dimensions
@@ -2525,6 +2683,10 @@ public class SameDiff {
      * @return
      */
     public SDVariable tile(SDVariable iX, int[] repeat) { return tile(null, iX, repeat);}
+
+    public SDVariable fill(SDVariable shape, double value) {
+        return fill(null, shape, value);
+    }
 
 
     /**
@@ -3113,7 +3275,7 @@ public class SameDiff {
      * @return
      */
     public SDVariable expm1(String name, SDVariable iX) {
-        SDVariable result = functionFactory.exp(iX);
+        SDVariable result = functionFactory.expm1(iX);
         return updateVariableNameAndReference(result, name);
     }
 
@@ -3122,8 +3284,65 @@ public class SameDiff {
      * @param iX
      * @return
      */
+    public SDVariable rsqrt(String name, SDVariable iX) {
+        SDVariable result = functionFactory.rsqrt(iX);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
     public SDVariable log(String name, SDVariable iX) {
         SDVariable result = functionFactory.log(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable log1p(String name, SDVariable iX) {
+        SDVariable result = functionFactory.log1p(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isFinite(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isFinite(iX);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isInfinite(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isInfinite(iX);
+        return updateVariableNameAndReference(result, name);
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable isNaN(String name, SDVariable iX) {
+        SDVariable result = functionFactory.isNaN(iX);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable round(String name, SDVariable iX) {
+        SDVariable result = functionFactory.round(iX);
         return updateVariableNameAndReference(result, name);
 
     }
@@ -3186,6 +3405,16 @@ public class SameDiff {
      */
     public SDVariable relu(String name, SDVariable iX, double cutoff) {
         SDVariable result = functionFactory.relu(iX, cutoff);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param iX
+     * @return
+     */
+    public SDVariable relu6(String name, SDVariable iX, double cutoff) {
+        SDVariable result = functionFactory.relu6(iX, cutoff);
         return updateVariableNameAndReference(result, name);
 
     }
@@ -3487,6 +3716,17 @@ public class SameDiff {
      */
     public SDVariable rollAxis(String name, SDVariable x, int axis) {
         SDVariable result = functionFactory.rollAxis(x, axis);
+        return updateVariableNameAndReference(result, name);
+
+    }
+
+    /**
+     * @param shape
+     * @param value
+     * @return
+     */
+    public SDVariable fill(String name, SDVariable shape, double value) {
+        SDVariable result = functionFactory.fill(shape, value);
         return updateVariableNameAndReference(result, name);
 
     }
