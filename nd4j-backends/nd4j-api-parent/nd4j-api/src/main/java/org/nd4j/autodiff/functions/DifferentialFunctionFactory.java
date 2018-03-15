@@ -159,6 +159,25 @@ public class DifferentialFunctionFactory   {
     }
 
 
+    /**
+     * Depthwise Conv2d operation. This is just separable convolution with
+     * only the depth-wise weights specified.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        SConv2D depthWiseConv2D = SConv2D.sBuilder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .conv2DConfig(depthConv2DConfig)
+                .build();
+
+        val outputVertexId = depthWiseConv2D.outputVariables()[0];
+        return outputVertexId;
+    }
+
 
     /**
      * Conv3d operation.

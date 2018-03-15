@@ -1984,6 +1984,47 @@ public class SameDiffTests {
     }
 
     @Test
+    public void testDepthWiseConv2dBasic(){
+        int nIn = 3;
+        int depthWise = 4;
+        int kH = 2;
+        int kW = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+
+
+        SameDiff sd = SameDiff.create();
+        INDArray depthWeightArr = Nd4j.create(depthWise, nIn, kH, kW);
+
+        INDArray bArr = Nd4j.create(1, depthWise * nIn);
+        INDArray inArr = Nd4j.create(mb, nIn, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+        SDVariable dW = sd.var("dW", depthWeightArr);
+        SDVariable b = sd.var("b", bArr);
+
+        SDVariable[] vars = new SDVariable[]{in, dW, b};
+
+        Conv2DConfig c = Conv2DConfig.builder()
+                .kh(kH).kw(kW)
+                .ph(0).pw(0)
+                .sy(1).sx(1)
+                .dh(1).dw(1)
+                .isSameMode(false)
+                .build();
+
+        SDVariable out = sd.sconv2d(vars, c);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        //Expected output size: out = (in - k + 2*p)/s + 1 = (28-2+0)/1+1 = 27
+        int[] outShape = outArr.shape();
+        assertArrayEquals(new int[]{mb, depthWise * nIn, 27, 27}, outShape);
+    }
+
+    @Test
     public void testSeparableConv2dBasic(){
         int nIn = 3;
         int nOut = 4;

@@ -1688,6 +1688,31 @@ public class SameDiff {
     }
 
     /**
+     * Depth-wise Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        return depthWiseConv2d(null, inputs, depthConv2DConfig);
+    }
+
+
+    /**
+     * Depth-wise Conv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(String name, SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        SDVariable ret = f().depthWiseConv2d(inputs, depthConv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
      * Separable Conv2d operation.
      *
      * @param inputs       the inputs to conv2d
@@ -1700,7 +1725,7 @@ public class SameDiff {
 
 
     /**
-     * Sepcarable Conv2d operation.
+     * Separable Conv2d operation.
      *
      * @param name         name of the operation in SameDiff
      * @param inputs       the inputs to sconv2d
