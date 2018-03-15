@@ -14,6 +14,7 @@ import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
@@ -1938,6 +1939,48 @@ public class SameDiffTests {
         SDVariable in = sd.var("in", new int[]{10,10,10});
         SDVariable mean1 = sd.mean(in, 2);      //[10,10] out
         SDVariable mean2 = sd.mean(mean1, 1);   //[10,1] out - ***exception here***
+    }
+
+    @Test
+    public void testConv3dBasic(){
+        int nIn = 3;
+        int nOut = 4;
+        int kH = 2;
+        int kW = 2;
+        int kT = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+        int imgT = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray wArr = Nd4j.create(nOut, nIn, kT, kH, kW); //As per DL4J
+        INDArray bArr = Nd4j.create(1, nOut);
+        INDArray inArr = Nd4j.create(mb, nIn, imgT, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+        SDVariable w = sd.var("W", wArr);
+        SDVariable b = sd.var("b", bArr);
+
+        //Order: https://github.com/deeplearning4j/libnd4j/blob/6c41ea5528bb1f454e92a9da971de87b93ff521f/include/ops/declarable/generic/convo/conv2d.cpp#L20-L22
+        //in, w, b - bias is optional
+        SDVariable[] vars = new SDVariable[]{in, w, b};
+
+        Conv3DConfig conv3DConfig = Conv3DConfig.builder()
+                .kH(kH).kW(kW).kT(kT)
+                .dilationH(1).dilationW(1).dilationT(1)
+                .isValidMode(false)
+                .biasUsed(false)
+                .build();
+
+        SDVariable out = sd.conv3d(vars, conv3DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        //Expected output size: out = (in - k)/d + 1 = (28-2+0)/1+1 = 27
+        int[] outShape = outArr.shape();
+        assertArrayEquals(new int[]{mb, nOut, 27, 27, 27}, outShape);
     }
 
     @Test
