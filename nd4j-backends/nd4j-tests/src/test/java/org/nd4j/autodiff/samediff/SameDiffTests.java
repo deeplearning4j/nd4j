@@ -329,7 +329,7 @@ public class SameDiffTests {
     public void testGatherNd() {
         SameDiff sameDiff = SameDiff.create();
         INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 24, 24)).reshape(2, 3, 4);
-        INDArray arr2 = Nd4j.create(new int[]{1, 2, 3, 0, 1, 3, 1, 0, 2}, new int[]{3, 3});
+        INDArray arr2 = Nd4j.create(new float[]{1, 2, 3, 0, 1, 3, 1, 0, 2}, new int[]{3, 3});
         SDVariable x = sameDiff.var("x", arr1);
         SDVariable idxs = sameDiff.var("idxs", arr2);
         SDVariable result = sameDiff.gatherNd(x, idxs);
