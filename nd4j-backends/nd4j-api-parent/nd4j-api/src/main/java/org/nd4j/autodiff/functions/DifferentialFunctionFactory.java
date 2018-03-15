@@ -188,8 +188,8 @@ public class DifferentialFunctionFactory   {
     public SDVariable deconv2d(SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
         DeConv2D deconv2D = DeConv2D.builder()
                 .inputs(inputs)
-                .config(deconv2DConfig)
                 .sameDiff(sameDiff())
+                .config(deconv2DConfig)
                 .build();
 
         return deconv2D.outputVariables()[0];
