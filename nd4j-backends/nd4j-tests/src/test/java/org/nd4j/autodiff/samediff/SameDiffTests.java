@@ -243,14 +243,12 @@ public class SameDiffTests {
     }
 
     @Test
-    @Ignore
     public void testSoftmaxXentWithLogits() {
-        // TODO: Fix me
 
         SameDiff sameDiff = SameDiff.create();
-        INDArray logits = Nd4j.create(new int[]{1, 5});
-        INDArray weights = Nd4j.create(new int[]{1, 5});
-        INDArray labels = Nd4j.create(new int[]{1, 5});
+        INDArray logits = Nd4j.create(new int[]{1, 1});
+        INDArray weights = Nd4j.create(new int[]{1, 1});
+        INDArray labels = Nd4j.create(new int[]{1, 1});
 
         SDVariable sdLogits = sameDiff.var("logits", logits);
         SDVariable sdWeights = sameDiff.var("weights", weights);
@@ -260,15 +258,14 @@ public class SameDiffTests {
         double labelSmoothing = 0.0;
 
         SDVariable res = sameDiff.softmaxCrossEntropyWithLogits(sdLogits, sdWeights, sdLabels, mode, labelSmoothing);
+        sameDiff.exec();
+
         INDArray resultArray = res.getArr();
-        assertArrayEquals(new int[]{1, 5}, res.getShape());
+        assertArrayEquals(new int[]{1, 1}, res.getShape());
     }
 
     @Test
-    @Ignore
     public void testWeightedXentWithLogits() {
-        // TODO: Fix me
-
         SameDiff sameDiff = SameDiff.create();
         INDArray targets = Nd4j.create(new int[]{1, 5});
         INDArray inputs = Nd4j.create(new int[]{1, 5});
@@ -279,15 +276,14 @@ public class SameDiffTests {
         SDVariable sdTargets = sameDiff.var("targets", targets);
 
         SDVariable res = sameDiff.weightedCrossEntropyWithLogits(sdTargets, sdInputs, sdWeights);
+        sameDiff.exec();
+
         INDArray resultArray = res.getArr();
         assertArrayEquals(new int[]{1, 5}, res.getShape());
     }
 
     @Test
-    @Ignore
     public void testSigmoidXentWithLogits() {
-        // TODO: Fix me
-
         SameDiff sameDiff = SameDiff.create();
         INDArray logits = Nd4j.create(new int[]{1, 5});
         INDArray weights = Nd4j.create(new int[]{1, 5});
@@ -301,6 +297,8 @@ public class SameDiffTests {
         double labelSmoothing = 0.0;
 
         SDVariable res = sameDiff.sigmoidCrossEntropyWithLogits(sdLogits, sdWeights, sdLabels, mode, labelSmoothing);
+        sameDiff.exec();
+
         INDArray resultArray = res.getArr();
         assertArrayEquals(new int[]{1, 5}, res.getShape());
 
