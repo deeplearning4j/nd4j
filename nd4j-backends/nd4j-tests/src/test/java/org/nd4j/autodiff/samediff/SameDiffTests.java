@@ -265,6 +265,7 @@ public class SameDiffTests {
     }
 
     @Test
+    @Ignore
     public void testWeightedXentWithLogits() {
         // TODO: Fix me
 
