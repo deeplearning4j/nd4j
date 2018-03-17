@@ -77,20 +77,46 @@ public class ClassPathResource extends AbstractFileResolvingResource {
     /**
      * Get a temp file from the classpath.<br>
      * This is for resources where a file is needed and the classpath resource is in a jar file. The file is copied
-     * to the default temporary directory, using {@link Files#createTempFile(String, String, FileAttribute[])}
+     * to the default temporary directory, using {@link Files#createTempFile(String, String, FileAttribute[])}.
+     * Consequently, the extracted file will have a different filename to the extracted one.
+     *
      * @return the temp file
      * @throws IOException If an error occurs when files are being copied
+     * @see #getTempFileFromArchive(File)
      */
     public File getTempFileFromArchive() throws IOException {
+        return getTempFileFromArchive(null);
+    }
+
+    /**
+     * Get a temp file from the classpath, and (optionally) place it in the specified directory<br>
+     * Note that:<br>
+     * - If the directory is not specified, the file is copied to the default temporary directory, using
+     * {@link Files#createTempFile(String, String, FileAttribute[])}. Consequently, the extracted file will have a
+     * different filename to the extracted one.<br>
+     * - If the directory *is* specified, the file is copied directly - and the original filename is maintained
+     *
+     * @param rootDirectory May be null. If non-null, copy to the specified directory
+     * @return the temp file
+     * @throws IOException If an error occurs when files are being copied
+     * @see #getTempFileFromArchive(File)
+     */
+    public File getTempFileFromArchive(File rootDirectory) throws IOException {
         InputStream is = getInputStream();
         File tmpFile;
-        if (path.contains("/") || path.contains("\\")) {
-            int idx = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-            String subpath = path.substring(idx + 1);
-            tmpFile = Files.createTempFile(subpath, ".tmp").toFile();
+        if(rootDirectory != null){
+            //Maintain original file names, as it's going in a directory...
+            if (path.contains("/") || path.contains("\\")) {
+                int idx = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
+                String subpath = path.substring(idx + 1);
+                tmpFile = new File(rootDirectory, subpath);
+            } else {
+                tmpFile = new File(rootDirectory, path);
+            }
         } else {
             tmpFile = Files.createTempFile(path, "tmp").toFile();
         }
+
         tmpFile.deleteOnExit();
 
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tmpFile));
