@@ -54,6 +54,24 @@ public class ClassPathResource extends AbstractFileResolvingResource {
         return this.classLoader != null ? this.classLoader : this.clazz.getClassLoader();
     }
 
+    /**
+     * Get the File.
+     * If the file cannot be accessed directly (for example, it is in a JAR file), we will attempt to extract it from
+     * the JAR and copy it to the temporary directory, using {@link #getTempFileFromArchive()}
+     *
+     * @return The File, or a temporary copy if it can not be accessed directly
+     * @throws IOException
+     */
+    @Override
+    public File getFile() throws IOException {
+        try{
+            return super.getFile();
+        } catch (FileNotFoundException e){
+            //java.io.FileNotFoundException: class path resource [iris.txt] cannot be resolved to absolute file path because
+            // it does not reside in the file system: jar:file:/.../dl4j-test-resources-0.9.2-SNAPSHOT.jar!/iris.txt
+            return getTempFileFromArchive();
+        }
+    }
 
 
     /**
