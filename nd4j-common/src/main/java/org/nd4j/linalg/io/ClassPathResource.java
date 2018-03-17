@@ -4,6 +4,8 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.attribute.FileAttribute;
 
 /**
  * A slightly upgraded version of spring's
@@ -12,6 +14,7 @@ import java.net.URL;
  *
  */
 public class ClassPathResource extends AbstractFileResolvingResource {
+
     private final String path;
     private ClassLoader classLoader;
     private Class<?> clazz;
@@ -54,12 +57,11 @@ public class ClassPathResource extends AbstractFileResolvingResource {
 
 
     /**
-     * Get a temp file from the classpath.
-     * This is for resources where
-     * a file is needed and the
-     * classpath resource is in a jar file
+     * Get a temp file from the classpath.<br>
+     * This is for resources where a file is needed and the classpath resource is in a jar file. The file is copied
+     * to the default temporary directory, using {@link Files#createTempFile(String, String, FileAttribute[])}
      * @return the temp file
-     * @throws IOException
+     * @throws IOException If an error occurs when files are being copied
      */
     public File getTempFileFromArchive() throws IOException {
         InputStream is = getInputStream();
@@ -67,12 +69,11 @@ public class ClassPathResource extends AbstractFileResolvingResource {
         if (path.contains("/") || path.contains("\\")) {
             int idx = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
             String subpath = path.substring(idx + 1);
-            tmpFile = new File(subpath + "tmp");
+            tmpFile = Files.createTempFile(subpath, ".tmp").toFile();
         } else {
-            tmpFile = new File(path + "tmp");
+            tmpFile = Files.createTempFile(path, "tmp").toFile();
         }
         tmpFile.deleteOnExit();
-
 
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(tmpFile));
 
