@@ -1,5 +1,6 @@
 package org.nd4j.linalg.io;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -106,15 +107,9 @@ public class ClassPathResource extends AbstractFileResolvingResource {
         File tmpFile;
         if(rootDirectory != null){
             //Maintain original file names, as it's going in a directory...
-            if (path.contains("/") || path.contains("\\")) {
-                int idx = Math.max(path.lastIndexOf("/"), path.lastIndexOf("\\"));
-                String subpath = path.substring(idx + 1);
-                tmpFile = new File(rootDirectory, subpath);
-            } else {
-                tmpFile = new File(rootDirectory, path);
-            }
+            tmpFile = new File(rootDirectory, FilenameUtils.getName(path));
         } else {
-            tmpFile = Files.createTempFile(path, "tmp").toFile();
+            tmpFile = Files.createTempFile(FilenameUtils.getName(path), "tmp").toFile();
         }
 
         tmpFile.deleteOnExit();
