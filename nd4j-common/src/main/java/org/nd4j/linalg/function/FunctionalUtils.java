@@ -15,7 +15,7 @@ import java.util.Map;
  *
  * @author Adam Gibson
  */
-public class MapToPair {
+public class FunctionalUtils {
 
 
     /**

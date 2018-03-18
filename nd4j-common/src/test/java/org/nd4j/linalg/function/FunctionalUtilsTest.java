@@ -7,7 +7,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 
-public class MapToPairTest {
+public class FunctionalUtilsTest {
 
 
     @Test
@@ -28,7 +28,7 @@ public class MapToPairTest {
         assertion.put("dog",Pair.of(Arrays.asList("adam"),Arrays.asList("steve")));
         assertion.put("fish",Pair.of(Collections.<String>emptyList(),Arrays.asList("alex")));
 
-        Map<String, Pair<List<String>, List<String>>> cogroup = MapToPair.cogroup(leftMap, rightMap);
+        Map<String, Pair<List<String>, List<String>>> cogroup = FunctionalUtils.cogroup(leftMap, rightMap);
         assertEquals(assertion,cogroup);
 
     }
@@ -42,7 +42,7 @@ public class MapToPairTest {
             }
         }
 
-        Map<Integer, List<Integer>> integerIterableMap = MapToPair.groupByKey(list);
+        Map<Integer, List<Integer>> integerIterableMap = FunctionalUtils.groupByKey(list);
         assertEquals(10,integerIterableMap.keySet().size());
         assertEquals(5,integerIterableMap.get(0).size());
     }
@@ -54,7 +54,7 @@ public class MapToPairTest {
             map.put(String.valueOf(i),String.valueOf(i));
         }
 
-        List<Pair<String, String>> pairs = MapToPair.mapToPair(map);
+        List<Pair<String, String>> pairs = FunctionalUtils.mapToPair(map);
         assertEquals(map.size(),pairs.size());
     }
 
