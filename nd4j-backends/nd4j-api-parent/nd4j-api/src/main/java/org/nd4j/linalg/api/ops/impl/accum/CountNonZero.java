@@ -17,89 +17,64 @@
  *
  */
 
-package org.nd4j.linalg.api.ops.random.impl;
+package org.nd4j.linalg.api.ops.impl.accum;
 
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
+import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.api.ops.random.BaseRandomOp;
+import org.nd4j.linalg.api.ops.BaseAccumulation;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Inverted DropOut implementation as Op
+ * Count the number of non-zero elements
  *
- * @author raver119@gmail.com
+ * @author Max Pumperla
  */
 @NoArgsConstructor
-public class DropOut extends BaseRandomOp {
+public class CountNonZero extends BaseAccumulation {
 
-    private double p;
-
-    public DropOut(SameDiff sameDiff, SDVariable input, double p) {
+    public CountNonZero(SameDiff sameDiff, SDVariable input) {
         super(sameDiff, input);
-        this.p = p;
-    }
-
-    public DropOut(@NonNull INDArray x, double p) {
-        this(x, x, p, x.lengthLong());
-    }
-
-    public DropOut(@NonNull INDArray x, @NonNull INDArray z, double p) {
-        this(x, z, p, x.lengthLong());
-    }
-
-    public DropOut(@NonNull INDArray x, @NonNull INDArray z, double p, long n) {
-        this.p = p;
-        init(x, null, z, n);
     }
 
 
-    @Override
-    public Map<String, Object> propertiesForFunction() {
-        Map<String,Object> ret = new LinkedHashMap<>();
-        ret.put("p",p);
-        return ret;
+    public CountNonZero(INDArray x) {
+        super(x);
     }
+
 
     @Override
     public int opNum() {
-        return 1;
+        return 22;
     }
 
     @Override
     public String opName() {
-        return "dropout";
-    }
-
-    @Override
-    public void init(INDArray x, INDArray y, INDArray z, long n) {
-        super.init(x, y, z, n);
-        this.extraArgs = new Object[] {p, (double) n};
+        return "countNonZero";
     }
 
 
     @Override
     public String onnxName() {
-        return "Dropout";
+        throw new NoOpNameFoundException("No onnx name found for shape " + opName());
     }
 
     @Override
     public String tensorflowName() {
-        return opName();
+        return "count_nonzero";
     }
 
     @Override
-    public Type opType() {
-        return Type.RANDOM ;
+    public Type getOpType() {
+        return Type.AGGREGATION;
     }
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
         return null;
     }
+
 }
