@@ -86,7 +86,7 @@ public class ReverseSequence extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("ReverseSequence");
+        return "ReverseSequence";
     }
 
 
