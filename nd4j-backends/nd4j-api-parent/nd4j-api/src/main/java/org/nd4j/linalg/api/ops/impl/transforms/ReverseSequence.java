@@ -9,17 +9,16 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class ReverseSequence extends BaseDynamicTransformOp {
+public class ReverseSequence extends DynamicCustomOp {
 
 
     int seqDim;
     int batchDim;
 
 
-    public boolean isInplaceCall(){return false;}
 
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths, int seqDim, int batchDim) {
-        super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
+        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
 
         this.seqDim = seqDim;
         this.batchDim = batchDim;
@@ -28,7 +27,7 @@ public class ReverseSequence extends BaseDynamicTransformOp {
     }
 
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths) {
-        super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
+        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
         this.seqDim = 1;
         this.batchDim = 0;
         addArguments();
