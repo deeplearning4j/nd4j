@@ -2,6 +2,7 @@ package org.nd4j.linalg.api.ops.impl.layers.convolution;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import onnx.OnnxProto3;
@@ -20,10 +21,11 @@ import java.util.*;
 
 
 /**
- * Pooling2D operation
+ * Average Pooling2D operation
  */
 @Slf4j
 @Getter
+@NoArgsConstructor
 public class AvgPooling2D extends DynamicCustomOp {
 
     protected Pooling2DConfig config;
@@ -32,23 +34,21 @@ public class AvgPooling2D extends DynamicCustomOp {
         MAX, AVG, PNORM,
     }
 
-    public AvgPooling2D() {}
 
     @Builder(builderMethodName = "builder")
-    @SuppressWarnings("Used in lombok")
     public AvgPooling2D(SameDiff sameDiff, SDVariable[] inputs, INDArray[] arrayInputs, INDArray[] arrayOutputs, Pooling2DConfig config) {
         super(null,sameDiff, inputs, false);
         if(arrayInputs != null) {
             addInputArgument(arrayInputs);
         }
-
         if(arrayOutputs != null) {
             addOutputArgument(arrayOutputs);
         }
+        config.setType(Pooling2D.Pooling2DType.AVG);
 
+
+        this.sameDiff = sameDiff;
         this.config = config;
-
-
         addArgs();
     }
 

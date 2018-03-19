@@ -2,19 +2,19 @@ package org.nd4j.autodiff.functions;
 
 import com.google.common.base.Preconditions;
 import lombok.Data;
-import org.apache.commons.lang3.ArrayUtils;
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
-import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.*;
+import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.broadcast.BiasAdd;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.DepthToSpace;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.SpaceToDepth;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.*;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -28,6 +28,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.clip.ClipByValue;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.*;
 import org.nd4j.linalg.api.ops.impl.transforms.gradient.SigmoidDerivative;
+import org.nd4j.linalg.api.ops.random.impl.DropOut;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -121,7 +122,212 @@ public class DifferentialFunctionFactory   {
         return new OnesLike(name, sameDiff(),input).outputVariables()[0];
     }
 
+    /**
+     * Conv1d operation.
+     *
+     * @param inputs       the inputs to conv1d
+     * @param conv1DConfig the configuration
+     * @return
+     */
+    public SDVariable conv1d(SDVariable[] inputs, Conv1DConfig conv1DConfig) {
+        Conv1D conv1D = Conv1D.builder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .config(conv1DConfig)
+                .build();
 
+        return conv1D.outputVariables()[0];
+    }
+
+    /**
+     * Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable conv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        Conv2D conv2D = Conv2D.builder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .config(conv2DConfig)
+                .build();
+
+        return conv2D.outputVariables()[0];
+    }
+
+    /**
+     * Average pooling 2d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        AvgPooling2D avgPooling2D = AvgPooling2D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .config(pooling2DConfig)
+                .build();
+
+        return avgPooling2D.outputVariables()[0];
+    }
+
+    /**
+     * Max pooling 2d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        MaxPooling2D maxPooling2D = MaxPooling2D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .config(pooling2DConfig)
+                .build();
+
+        return maxPooling2D.outputVariables()[0];
+    }
+
+    /**
+     * Avg pooling 3d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        Pooling3D maxPooling3D = Pooling3D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .pooling3DConfig(pooling3DConfig)
+                .type(Pooling3D.Pooling3DType.AVG)
+                .build();
+
+        return maxPooling3D.outputVariables()[0];
+    }
+
+
+    /**
+     * Max pooling 3d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        Pooling3D maxPooling3D = Pooling3D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .pooling3DConfig(pooling3DConfig)
+                .type(Pooling3D.Pooling3DType.MAX)
+                .build();
+
+        return maxPooling3D.outputVariables()[0];
+    }
+
+    /**
+     * Separable Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SConv2D sconv2D = SConv2D.sBuilder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .conv2DConfig(conv2DConfig)
+                .build();
+
+        return sconv2D.outputVariables()[0];
+    }
+
+
+    /**
+     * Depthwise Conv2d operation. This is just separable convolution with
+     * only the depth-wise weights specified.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        SConv2D depthWiseConv2D = SConv2D.sBuilder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .conv2DConfig(depthConv2DConfig)
+                .build();
+
+        return depthWiseConv2D.outputVariables()[0];
+    }
+
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        DeConv2D deconv2D = DeConv2D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .config(deconv2DConfig)
+                .build();
+
+        return deconv2D.outputVariables()[0];
+    }
+
+    /**
+     * Conv3d operation.
+     *
+     * @param inputs       the inputs to conv3d
+     * @param conv3DConfig the configuration
+     * @return
+     */
+    public SDVariable conv3d(SDVariable[] inputs, Conv3DConfig conv3DConfig) {
+        Conv3D conv3D = Conv3D.builder()
+                .inputFunctions(inputs)
+                .conv3DConfig(conv3DConfig)
+                .sameDiff(sameDiff())
+                .build();
+
+        val outputVars = conv3D.outputVariables();
+        return outputVars[0];
+    }
+
+
+    /**
+     * Batch norm operation.
+     *
+     */
+    public SDVariable batchNorm(SDVariable input, SDVariable mean,
+                                SDVariable variance, SDVariable gamma,
+                                SDVariable beta,
+                                boolean applyGamma, boolean applyBeta,
+                                double epsilon) {
+        BatchNorm batchNorm = BatchNorm.builder()
+                .inputFunctions(new SDVariable[] {input, mean, variance, gamma, beta})
+                .applyGamma(applyGamma)
+                .applyBeta(applyBeta)
+                .epsilon(epsilon)
+                .sameDiff(sameDiff())
+                .build();
+
+        val outputVars = batchNorm.outputVariables();
+        return outputVars[0];
+    }
+
+    public SDVariable[] moments(SDVariable input, int... axes) {
+        return new Moments(sameDiff(), input, axes).outputVariables();
+    }
+
+    public SDVariable[] normalizeMoments(SDVariable counts, SDVariable means, SDVariable variances, double shift) {
+        return new NormalizeMoments(sameDiff(), counts, means, variances, shift).outputVariables();
+    }
 
 
     public SDVariable tile(SDVariable iX, int[] repeat) {
@@ -132,6 +338,9 @@ public class DifferentialFunctionFactory   {
     }
 
 
+    public SDVariable dropout(SDVariable input, double p) {
+        return new DropOut(sameDiff(), input, p).outputVariables()[0];
+    }
 
 
     public SDVariable sum(SDVariable i_x,
@@ -170,6 +379,11 @@ public class DifferentialFunctionFactory   {
     public SDVariable countZero(SDVariable input) {
         return new CountZero(sameDiff(), input).outputVariables()[0];
     }
+
+    public SDVariable zeroFraction(SDVariable input) {
+        return new ZeroFraction(sameDiff(), input).outputVariables()[0];
+    }
+
 
     public SDVariable max(SDVariable i_x, int... dimensions) {
         return new Max(sameDiff(),i_x,dimensions).outputVariables()[0];
@@ -575,6 +789,14 @@ public class DifferentialFunctionFactory   {
         return new Broadcast(sameDiff(),iX,shape).outputVariables()[0];
     }
 
+    public SDVariable onehot(SDVariable indices, int depth, int axis, double on, double off) {
+        return new OneHot(sameDiff(), indices, depth, axis, on, off).outputVariables()[0];
+    }
+
+    public SDVariable onehot(SDVariable indices, int depth) {
+        return new OneHot(sameDiff(), indices, depth).outputVariables()[0];
+    }
+
 
     public SDVariable repeat(SDVariable iX, int axis) {
         return new Repeat(sameDiff(), new SDVariable[]{iX},axis).outputVariables()[0];
@@ -689,6 +911,22 @@ public class DifferentialFunctionFactory   {
         return new JaccardDistance(sameDiff(), ix, iy, dimensions).outputVariables()[0];
     }
 
+    public SDVariable weightedCrossEntropyWithLogits(SDVariable targets, SDVariable inputs, SDVariable weights) {
+        return new WeightedCrossEntropyLoss(sameDiff(), targets, inputs, weights).outputVariables()[0];
+    }
+
+    public SDVariable sigmoidCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return new SigmoidCrossEntropyLoss(sameDiff(), logits, weights, labels,
+                reductionMode, labelSmoothing).outputVariables()[0];
+    }
+
+    public SDVariable softmaxCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return new SoftmaxCrossEntropyLoss(sameDiff(), logits, weights, labels,
+                reductionMode, labelSmoothing).outputVariables()[0];
+    }
+
     public SDVariable lossBinaryXENT(SDVariable iX,
                                      SDVariable i_y,
                                      int... dimensions) {
@@ -772,6 +1010,9 @@ public class DifferentialFunctionFactory   {
 
     }
 
+    public SDVariable xwPlusB(SDVariable input, SDVariable weights, SDVariable bias) {
+        return new XwPlusB(sameDiff(), input, weights, bias).outputVariables()[0];
+    }
 
 
     public SDVariable mmul(SDVariable x,

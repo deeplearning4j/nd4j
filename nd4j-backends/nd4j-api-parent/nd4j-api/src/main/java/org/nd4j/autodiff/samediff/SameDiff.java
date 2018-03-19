@@ -38,8 +38,7 @@ import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.controlflow.compat.*;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.GRUCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.LSTMCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.SRU;
@@ -1662,6 +1661,126 @@ public class SameDiff {
         return getFunction("grad").getGradForVariable(var.getVarName());
     }
 
+    /**
+     * Average pooling 2d operation.
+     *
+     * @param inputs       the inputs to average pooling 2d
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        return avgPooling2d(null, inputs, pooling2DConfig);
+    }
+
+    /**
+     * Average pooling 2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to average pooling 2d
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling2d(String name, SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        SDVariable ret = f().avgPooling2d(inputs, pooling2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Max pooling 2d operation.
+     *
+     * @param inputs       the inputs to max pooling 2d
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        return maxPooling2d(null, inputs, pooling2DConfig);
+    }
+
+    /**
+     * Max pooling 2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to max pooling 2d
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling2d(String name, SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        SDVariable ret = f().maxPooling2d(inputs, pooling2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Average pooling 3d operation.
+     *
+     * @param inputs       the inputs to average pooling 3d
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        return avgPooling3d(null, inputs, pooling3DConfig);
+    }
+
+    /**
+     * Average pooling 3d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to average pooling 3d
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling3d(String name, SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        SDVariable ret = f().avgPooling3d(inputs, pooling3DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Max pooling 3d operation.
+     *
+     * @param inputs       the inputs to max pooling 3d
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        return maxPooling3d(null, inputs, pooling3DConfig);
+    }
+
+    /**
+     * Max pooling 3d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to max pooling 3d
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling3d(String name, SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        SDVariable ret = f().maxPooling3d(inputs, pooling3DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Conv1d operation.
+     *
+     * @param inputs       the inputs to conv1d
+     * @param conv1DConfig the configuration
+     * @return
+     */
+    public SDVariable conv1d(SDVariable[] inputs, Conv1DConfig conv1DConfig) {
+        return conv1d(null, inputs, conv1DConfig);
+    }
+
+    /**
+     * Conv1d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to conv1d
+     * @param conv1DConfig the configuration
+     * @return
+     */
+    public SDVariable conv1d(String name, SDVariable[] inputs, Conv1DConfig conv1DConfig) {
+        SDVariable ret = f().conv1d(inputs, conv1DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
 
     /**
      * Conv2d operation.
@@ -1671,33 +1790,146 @@ public class SameDiff {
      * @return
      */
     public SDVariable conv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
-        Conv2D conv2D = Conv2D.builder()
-                .inputFunctions(inputs)
-                .sameDiff(this)
-                .config(conv2DConfig)
-                .build();
-
-        val outputVertexId = conv2D.outputVariables()[0];
-        return outputVertexId;
+        return conv2d(null, inputs, conv2DConfig);
     }
-
 
     /**
      * Conv2d operation.
      *
+     * @param name         name of the operation in SameDiff
      * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable conv2d(String name, SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SDVariable ret = f().conv2d(inputs, conv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Depth-wise Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        return depthWiseConv2d(null, inputs, depthConv2DConfig);
+    }
+
+
+    /**
+     * Depth-wise Conv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param depthConv2DConfig the configuration
+     * @return
+     */
+    public SDVariable depthWiseConv2d(String name, SDVariable[] inputs, Conv2DConfig depthConv2DConfig) {
+        SDVariable ret = f().depthWiseConv2d(inputs, depthConv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Separable Conv2d operation.
+     *
+     * @param inputs       the inputs to conv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        return sconv2d(null, inputs, conv2DConfig);
+    }
+
+
+    /**
+     * Separable Conv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param conv2DConfig the configuration
+     * @return
+     */
+    public SDVariable sconv2d(String name, SDVariable[] inputs, Conv2DConfig conv2DConfig) {
+        SDVariable ret = f().sconv2d(inputs, conv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param inputs       the inputs to sconv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        return deconv2d(null, inputs, deconv2DConfig);
+    }
+
+
+    /**
+     * Deconv2d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to sconv2d
+     * @param deconv2DConfig the configuration
+     * @return
+     */
+    public SDVariable deconv2d(String name, SDVariable[] inputs, DeConv2DConfig deconv2DConfig) {
+        SDVariable ret = f().deconv2d(inputs, deconv2DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+
+
+    /**
+     * Conv3d operation.
+     *
+     * @param inputs       the inputs to conv3d
      * @param conv3DConfig the configuration
      * @return
      */
     public SDVariable conv3d(SDVariable[] inputs, Conv3DConfig conv3DConfig) {
-        Conv3D conv3D = Conv3D.builder()
-                .inputFunctions(inputs)
-                .conv3DConfig(conv3DConfig)
-                .sameDiff(this)
-                .build();
+        return conv3d(null, inputs, conv3DConfig);
+    }
 
-        val outputVars = conv3D.outputVariables();
-        return outputVars[0];
+    /**
+     * Conv3d operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to conv3d
+     * @param conv3DConfig the configuration
+     * @return
+     */
+    public SDVariable conv3d(String name, SDVariable[] inputs, Conv3DConfig conv3DConfig) {
+        SDVariable ret = f().conv3d(inputs, conv3DConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    /**
+     * Batch norm operation.
+     *
+     */
+    public SDVariable batchNorm(SDVariable input, SDVariable mean,
+                                SDVariable variance, SDVariable gamma,
+                                SDVariable beta,
+                                boolean applyGamma, boolean applyBeta, double epsilon) {
+        return batchNorm(null, input, mean, variance, gamma, beta, applyGamma, applyBeta, epsilon);
+    }
+
+    /**
+     * Batch norm operation.
+     *
+     */
+    public SDVariable batchNorm(String name, SDVariable input, SDVariable mean,
+                                SDVariable variance, SDVariable gamma,
+                                SDVariable beta,
+                                boolean applyGamma, boolean applyBeta, double epsilon) {
+        SDVariable res = f().batchNorm(input, mean, variance, gamma, beta, applyGamma, applyBeta, epsilon);
+        return updateVariableNameAndReference(res, name);
     }
 
 
@@ -2018,7 +2250,9 @@ public class SameDiff {
      * @param iX
      * @return
      */
-    public SDVariable isNaN(SDVariable iX) { return isNaN(null, iX); }
+    public SDVariable isNaN(SDVariable iX) {
+        return isNaN(null, iX);
+    }
 
     /**
      * @param iX
@@ -2228,7 +2462,7 @@ public class SameDiff {
 
     public SDVariable dilation2D(String name, SDVariable df, SDVariable weights, int[] strides,
                                  int[] rates, boolean isSameMode) {
-        SDVariable ret = f().dilation2D(df, weights,strides, rates, isSameMode);
+        SDVariable ret = f().dilation2D(df, weights, strides, rates, isSameMode);
         return updateVariableNameAndReference(ret, name);
     }
 
@@ -2296,21 +2530,21 @@ public class SameDiff {
         return updateVariableNamesAndReferences(ret, names);
     }
 
-    public  SDVariable erf(SDVariable iX) {
+    public SDVariable erf(SDVariable iX) {
         return erf(null, iX);
     }
 
-    public  SDVariable erf(String name, SDVariable iX) {
+    public SDVariable erf(String name, SDVariable iX) {
         SDVariable ret = f().erf(iX);
         return updateVariableNameAndReference(ret, name);
     }
 
 
-    public  SDVariable erfc(SDVariable iX) {
+    public SDVariable erfc(SDVariable iX) {
         return erfc(null, iX);
     }
 
-    public  SDVariable erfc(String name, SDVariable iX) {
+    public SDVariable erfc(String name, SDVariable iX) {
         SDVariable ret = f().erfc(iX);
         return updateVariableNameAndReference(ret, name);
     }
@@ -2330,6 +2564,23 @@ public class SameDiff {
 
     public SDVariable diagPart(String name, SDVariable iX) {
         SDVariable ret = f().diagPart(iX);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable oneHot(SDVariable indices, int depth) {
+        return oneHot(null, indices, depth, -1, 1.00, 0.00);
+    }
+
+    public SDVariable oneHot(SDVariable indices, int depth, int axis, double on, double off) {
+        return oneHot(null, indices, depth, axis, on, off);
+    }
+
+    public SDVariable oneHot(String name, SDVariable indices, int depth) {
+        return oneHot(name, indices, depth, -1, 1.00, 0.00);
+    }
+
+    public SDVariable oneHot(String name, SDVariable indices, int depth, int axis, double on, double off) {
+        SDVariable ret = f().onehot(indices, depth, axis, on, off);
         return updateVariableNameAndReference(ret, name);
     }
 
@@ -2540,6 +2791,14 @@ public class SameDiff {
         return updateVariableNameAndReference(res, name);
     }
 
+    public SDVariable zeroFraction(SDVariable input) {
+        return zeroFraction(null, input);
+    }
+
+    public SDVariable zeroFraction(String name, SDVariable input) {
+        SDVariable res = f().zeroFraction(input);
+        return updateVariableNameAndReference(res, name);
+    }
 
     public SDVariable countNonZero(SDVariable input) {
         return countNonZero(null, input);
@@ -2586,20 +2845,20 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+    public SDVariable cumsum(SDVariable in, boolean exclusive, boolean reverse, int... dimensions) {
         return cumsum(null, in, exclusive, reverse, dimensions);
     }
 
-    public SDVariable cumsum(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+    public SDVariable cumsum(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions) {
         SDVariable ret = f().cumsum(in, exclusive, reverse, dimensions);
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions ){
+    public SDVariable cumprod(SDVariable in, boolean exclusive, boolean reverse, int... dimensions) {
         return cumprod(null, in, exclusive, reverse, dimensions);
     }
 
-    public SDVariable cumprod(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions){
+    public SDVariable cumprod(String name, SDVariable in, boolean exclusive, boolean reverse, int... dimensions) {
         SDVariable ret = f().cumprod(in, exclusive, reverse, dimensions);
         return updateVariableNameAndReference(ret, name);
     }
@@ -2643,6 +2902,7 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+
     public SDVariable reverse_sequence(String name, SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
         SDVariable ret = f().reverse_sequence(x, seq_lengths, seqDim, batchDim);
         return updateVariableNameAndReference(ret, name);
@@ -2660,6 +2920,7 @@ public class SameDiff {
     public SDVariable reverse_sequence(SDVariable x, SDVariable seq_lengths){
         return reverse_sequence(null, x, seq_lengths);
     }
+
 
     public SDVariable assign(SDVariable x, SDVariable y){
         return assign(null, x, y);
@@ -2705,6 +2966,25 @@ public class SameDiff {
         return concat(null, dimension, inputs);
     }
 
+    public SDVariable[] moments(SDVariable input, int... axes) {
+        return moments(null, input, axes);
+    }
+
+    public SDVariable[] moments(String[] name, SDVariable input, int... axes) {
+        SDVariable[] res = f().moments(input, axes);
+        return updateVariableNamesAndReferences(res, name);
+    }
+
+    public SDVariable[] normalizeMoments(SDVariable counts, SDVariable means, SDVariable variances, double shift) {
+        return normalizeMoments(null, counts, means, variances, shift);
+    }
+
+    public SDVariable[] normalizeMoments(String[] name, SDVariable counts, SDVariable means, SDVariable variances,
+                                         double shift) {
+        SDVariable[] res = f().normalizeMoments(counts, means, variances, shift);
+        return updateVariableNamesAndReferences(res, name);
+    }
+
     /**
      * @param iX
      * @param repeat
@@ -2716,6 +2996,24 @@ public class SameDiff {
         return fill(null, shape, value);
     }
 
+    public SDVariable dropout(SDVariable input, double p) {
+        return dropout(null, input, p);
+    }
+
+    public SDVariable dropout(String name, SDVariable input, double p) {
+        SDVariable res = f().dropout(input, p);
+        return updateVariableNameAndReference(res, name);
+    }
+
+
+    public SDVariable xwPlusB(SDVariable input, SDVariable weights, SDVariable bias) {
+        return xwPlusB(null, input, weights, bias);
+    }
+
+    public SDVariable xwPlusB(String name, SDVariable input, SDVariable weights, SDVariable bias) {
+        SDVariable res = f().xwPlusB(input, weights, bias);
+        return updateVariableNameAndReference(res, name);
+    }
 
     /**
      * @param x
@@ -3855,6 +4153,39 @@ public class SameDiff {
         return updateVariableNameAndReference(result, name);
     }
 
+    public SDVariable sigmoidCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return sigmoidCrossEntropyWithLogits(null, logits, weights, labels, reductionMode, labelSmoothing);
+    }
+
+    public SDVariable sigmoidCrossEntropyWithLogits(String name, SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        SDVariable res = f().sigmoidCrossEntropyWithLogits(logits, weights, labels, reductionMode, labelSmoothing);
+        return updateVariableNameAndReference(res, name);
+    }
+
+    public SDVariable softmaxCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return softmaxCrossEntropyWithLogits(null, logits, weights, labels, reductionMode, labelSmoothing);
+    }
+
+    public SDVariable softmaxCrossEntropyWithLogits(String name, SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        SDVariable res = f().softmaxCrossEntropyWithLogits(logits, weights, labels, reductionMode, labelSmoothing);
+        return updateVariableNameAndReference(res, name);
+    }
+
+    public SDVariable weightedCrossEntropyWithLogits(SDVariable targets, SDVariable inputs,
+                                                     SDVariable weights) {
+        return weightedCrossEntropyWithLogits(null, targets, inputs, weights);
+    }
+
+    public SDVariable weightedCrossEntropyWithLogits(String name, SDVariable targets, SDVariable inputs,
+                                                     SDVariable weights) {
+        SDVariable res = f().weightedCrossEntropyWithLogits(targets, inputs, weights);
+        return updateVariableNameAndReference(res, name);
+    }
+
     /**
      * @param iX
      * @param i_y
@@ -4020,11 +4351,11 @@ public class SameDiff {
     }
 
     public SDVariable confusionMatrix(SDVariable labels, SDVariable predictions) {
-        return confusionMatrix((String)null, labels, predictions);
+        return confusionMatrix((String) null, labels, predictions);
     }
 
     public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred) {
-        SDVariable result = f().confusionMatrix(labels, pred) ;
+        SDVariable result = f().confusionMatrix(labels, pred);
         return updateVariableNameAndReference(result, name);
     }
 
@@ -4034,7 +4365,7 @@ public class SameDiff {
     }
 
     public SDVariable confusionMatrix(String name, SDVariable labels, SDVariable pred, Integer numClasses) {
-        SDVariable result = f().confusionMatrix(labels, pred, numClasses) ;
+        SDVariable result = f().confusionMatrix(labels, pred, numClasses);
         return updateVariableNameAndReference(result, name);
     }
 
@@ -5098,7 +5429,7 @@ public class SameDiff {
 
         for (int i = 0; i < numVariables; i++) {
             SDVariable varToUpdate = variablesToUpdate[i];
-            String name = newVariableNames[i];
+            String name = newVariableNames == null ? null : newVariableNames[i];
             updatedVariables[i] = updateVariableNameAndReference(varToUpdate, name);
         }
 
@@ -5218,9 +5549,9 @@ public class SameDiff {
                     // incrementing number of cycles for THIS frame, only if LoopCond is true
                     flowPath.incrementNumberOfCycles(frameName);
                 }
-            }else if (differentialFunction instanceof Enter) {
-              //  if (flowPath.wasExecuted(differentialFunction.getOwnName()))
-              //      continue;
+            } else if (differentialFunction instanceof Enter) {
+                //  if (flowPath.wasExecuted(differentialFunction.getOwnName()))
+                //      continue;
 
                 val inputs = getInputVariablesForFunction(differentialFunction);
 
@@ -5494,17 +5825,17 @@ public class SameDiff {
                             updateArrayForVarName(var.getVarName(), accumulation.z());
                             updateShapeForVarName(var.getVarName(), accumulation.z().shape());
                         }
-                    } else if(differentialFunction instanceof BroadcastOp) {
+                    } else if (differentialFunction instanceof BroadcastOp) {
                         BroadcastOp broadcastOp = (BroadcastOp) differentialFunction;
                         Nd4j.getExecutioner().exec(broadcastOp, axes);
-                    } else if(differentialFunction instanceof GradientOp) {
+                    } else if (differentialFunction instanceof GradientOp) {
                         Nd4j.getExecutioner().exec(op);
-                    } else if(differentialFunction instanceof IndexAccumulation) {
+                    } else if (differentialFunction instanceof IndexAccumulation) {
                         IndexAccumulation indexAccumulation = (IndexAccumulation) differentialFunction;
                         Nd4j.getExecutioner().exec(indexAccumulation, axes);
 
-                    } else if(differentialFunction instanceof TransformOp){
-                        TransformOp t = (TransformOp)differentialFunction;
+                    } else if (differentialFunction instanceof TransformOp) {
+                        TransformOp t = (TransformOp) differentialFunction;
                         Nd4j.getExecutioner().exec(t, axes);
                     }
                 }
@@ -5516,7 +5847,7 @@ public class SameDiff {
             }
 
             //debug
-           // printFunction(differentialFunction);
+            // printFunction(differentialFunction);
         }
 
         return new Pair<>(opMap, ops);
@@ -5720,27 +6051,27 @@ public class SameDiff {
         log.trace("");
         for (val input : inputs) {
             //for (int i = 0; i < outputVertexId.length; i++) {
-                val pair = parseVariable(input.getVarName());
-                if (!reverseMap.containsKey(pair.getFirst())) {
-                    if (pair.getFirst().contains("NextIteration")) {
-                        // forward declaration: Merge node in case of loop will be referring to NextIteration node, which wasn't announced yet
-                        int fwdNodeId = idCounter.incrementAndGet();
-                        forwardMap.put(pair.getFirst(), fwdNodeId);
-                        reverseMap.put(pair.getFirst(), fwdNodeId);
-                    } else {
-                        throw new ND4JIllegalStateException("Unknown variable used in input: [" + pair.getFirst() + "]");
-                    }
+            val pair = parseVariable(input.getVarName());
+            if (!reverseMap.containsKey(pair.getFirst())) {
+                if (pair.getFirst().contains("NextIteration")) {
+                    // forward declaration: Merge node in case of loop will be referring to NextIteration node, which wasn't announced yet
+                    int fwdNodeId = idCounter.incrementAndGet();
+                    forwardMap.put(pair.getFirst(), fwdNodeId);
+                    reverseMap.put(pair.getFirst(), fwdNodeId);
+                } else {
+                    throw new ND4JIllegalStateException("Unknown variable used in input: [" + pair.getFirst() + "]");
                 }
+            }
 
-                int nodeId = reverseMap.get(pair.getFirst());
-                int outputIndex = pair.getSecond();
+            int nodeId = reverseMap.get(pair.getFirst());
+            int outputIndex = pair.getSecond();
 
-                inPaired.add(IntPair.createIntPair(bufferBuilder, nodeId, outputIndex));
+            inPaired.add(IntPair.createIntPair(bufferBuilder, nodeId, outputIndex));
             //}
         }
 
         log.info("Own Name: {}", node.getOwnName());
-        int ownId = forwardMap.containsKey(node.getOwnName()) ? forwardMap.get(node.getOwnName()): idCounter.incrementAndGet();
+        int ownId = forwardMap.containsKey(node.getOwnName()) ? forwardMap.get(node.getOwnName()) : idCounter.incrementAndGet();
         reverseMap.put(node.getOwnName(), ownId);
 
         // TODO: Adam, just put your props here, instead of empty list, and they will be saved
