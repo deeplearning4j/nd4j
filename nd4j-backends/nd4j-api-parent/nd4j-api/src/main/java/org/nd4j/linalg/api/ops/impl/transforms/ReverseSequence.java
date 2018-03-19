@@ -8,13 +8,15 @@ import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import java.util.Arrays;
 import java.util.List;
 
-public class ReverseSequence extends DynamicCustomOp {
+public class ReverseSequence extends BaseDynamicTransformOp {
 
     int seqDim;
     int batchDim;
 
+    public boolean isInplaceCall(){return false;}
+
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths, int seqDim, int batchDim) {
-        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
+        super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
         this.seqDim = seqDim;
         this.batchDim = batchDim;
         addArguments();
@@ -22,7 +24,7 @@ public class ReverseSequence extends DynamicCustomOp {
     }
 
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths) {
-        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
+        super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
         this.seqDim = 1;
         this.batchDim = 0;
         addArguments();
@@ -38,7 +40,7 @@ public class ReverseSequence extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "reverse_sequence";
+        return "reverse_sequense";
     }
 
     @Override
