@@ -1,12 +1,17 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
+import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
+import org.nd4j.imports.descriptors.properties.PropertyMapping;
+import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
+import org.tensorflow.framework.AttrValue;
+import org.tensorflow.framework.GraphDef;
+import org.tensorflow.framework.NodeDef;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 
 public class ReverseSequence extends DynamicCustomOp {
@@ -45,6 +50,30 @@ public class ReverseSequence extends DynamicCustomOp {
     public String opName() {
         return "reverse_sequense";
 
+    }
+
+    @Override
+    public void initFromTensorFlow(NodeDef nodeDef, SameDiff initWith, Map<String, AttrValue> attributesForNode, GraphDef graph) {
+        TFGraphMapper.getInstance().initFunctionFromProperties(nodeDef.getOp(), this, attributesForNode, nodeDef, graph);
+        addArguments();
+    }
+
+    @Override
+    public Map<String, Map<String, PropertyMapping>> mappingsForFunction() {
+        Map<String, Map<String, PropertyMapping>> ret = new HashMap<>();
+        Map<String, PropertyMapping> attrs = new LinkedHashMap<>();
+        val seqDim = PropertyMapping.builder()
+                .propertyNames(new String[]{"seqDim"})
+                .tfInputPosition(2)
+                .build();
+        val batchDim = PropertyMapping.builder()
+                .propertyNames(new String[]{"batchDim"})
+                .tfInputPosition(3)
+                .build();
+        attrs.put("seqDim", seqDim);
+        attrs.put("batchDim", batchDim);
+        ret.put(tensorflowName(), attrs);
+        return ret;
     }
 
     @Override
