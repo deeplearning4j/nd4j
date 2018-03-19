@@ -433,13 +433,39 @@ public class SameDiffTests {
     @Test
     public void testReverseSequence() {
         SameDiff sameDiff = SameDiff.create();
-        INDArray arr1 = Nd4j.create(new float[]{1, 2, 3, 0, 0, 4, 5, 0, 0, 0, 6, 7, 8, 9, 0}, new int[]{3, 5});
-        INDArray arr2 = Nd4j.create(new float[]{3, 2, 4});
+        float[] input_data = new float[]{
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9,
+                0, 0, 0,
+                0, 0, 0,
+
+                1, 2, 3,
+                4, 5, 6,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        float[] expected_output = new float[]{
+                7, 8, 9,
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        INDArray arr1 = Nd4j.create(input_data, new int[]{2, 5, 3});
+        INDArray arr2 = Nd4j.create(new float[]{3, 2}).reshape(2);
         SDVariable x = sameDiff.var("x", arr1);
         SDVariable seq_lengths = sameDiff.var("seq_lengths", arr2);
         SDVariable result = sameDiff.reverse_sequence(x, seq_lengths, 1, 0);
-        INDArray expected = Nd4j.create(new float[]{3, 2, 1, 0, 0, 5, 4, 0, 0, 0, 9, 8, 7, 6, 0}, new int[]{3, 5});
-        assertArrayEquals(new int[]{3, 5}, result.getShape());
+        INDArray expected = Nd4j.create(expected_output, new int[]{2, 5, 3});
+        assertArrayEquals(arr1.shape(), result.getShape());
         assertEquals(expected, result.eval());
     }
 
