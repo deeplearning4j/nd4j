@@ -8,24 +8,19 @@ import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import java.util.Arrays;
 import java.util.List;
 
-<<<<<<< HEAD
+
 public class ReverseSequence extends BaseDynamicTransformOp {
-=======
-public class ReverseSequence extends DynamicCustomOp {
->>>>>>> 2beadea2e2a6e7d7f309aa0aeb2d44042d0ec669
+
 
     int seqDim;
     int batchDim;
 
-<<<<<<< HEAD
+
     public boolean isInplaceCall(){return false;}
 
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths, int seqDim, int batchDim) {
         super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
-=======
-    public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths, int seqDim, int batchDim) {
-        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
->>>>>>> 2beadea2e2a6e7d7f309aa0aeb2d44042d0ec669
+
         this.seqDim = seqDim;
         this.batchDim = batchDim;
         addArguments();
@@ -33,11 +28,7 @@ public class ReverseSequence extends DynamicCustomOp {
     }
 
     public ReverseSequence(SameDiff sameDiff, SDVariable i_v, SDVariable seqLengths) {
-<<<<<<< HEAD
         super(sameDiff, new SDVariable[]{i_v, seqLengths}, false);
-=======
-        super(null, sameDiff, new SDVariable[]{i_v, seqLengths}, false);
->>>>>>> 2beadea2e2a6e7d7f309aa0aeb2d44042d0ec669
         this.seqDim = 1;
         this.batchDim = 0;
         addArguments();
