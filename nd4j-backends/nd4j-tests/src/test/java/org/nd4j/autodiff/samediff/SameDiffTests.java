@@ -14,6 +14,7 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.LocalResponseNormalization;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
@@ -22,7 +23,9 @@ import org.nd4j.linalg.api.ops.random.impl.BernoulliDistribution;
 import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
+import org.nd4j.linalg.indexing.NDArrayIndexAll;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -496,6 +499,45 @@ public class SameDiffTests {
         SDVariable addResult = result.add(result);
         SDVariable finalReshape = sameDiff.reshape(addResult, 1, 2);
         assertArrayEquals(new int[]{1, 2}, finalReshape.getShape());
+    }
+
+    @Test
+    public void testReverseSequence() {
+        SameDiff sameDiff = SameDiff.create();
+        float[] input_data = new float[]{
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9,
+                0, 0, 0,
+                0, 0, 0,
+
+                1, 2, 3,
+                4, 5, 6,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        float[] expected_output = new float[]{
+                7, 8, 9,
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        INDArray arr1 = Nd4j.create(input_data, new int[]{2, 5, 3});
+        INDArray arr2 = Nd4j.create(new float[]{3, 2}).reshape(2);
+        SDVariable x = sameDiff.var("x", arr1);
+        SDVariable seq_lengths = sameDiff.var("seq_lengths", arr2);
+        SDVariable result = sameDiff.reverse_sequence(x, seq_lengths, 1, 0);
+        INDArray expected = Nd4j.create(expected_output, new int[]{2, 5, 3});
+        assertArrayEquals(arr1.shape(), result.eval().shape());
+        assertEquals(expected, result.eval());
     }
 
     @Test
@@ -2175,6 +2217,30 @@ public class SameDiffTests {
 
         INDArray outArr = sd.execAndEndResult();
         assertArrayEquals(new int[]{1, 10}, outArr.shape());
+
+    }
+
+    @Test
+    public void testLrn() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray input = Nd4j.create(new float[]{4, 4, 4, 4}, new int[]{1, 4, 1, 1});
+
+        SDVariable sdInput = sd.var("input", input);
+
+        LocalResponseNormalizationConfig lrn = LocalResponseNormalizationConfig.builder()
+                .alpha(1.0)
+                .beta(.5)
+                .bias(0.0)
+                .depth(1).build();
+
+        SDVariable out = sd.localResponseNormalization(sdInput, lrn);
+        SDVariable sdOut = sd.tanh("out", out);
+
+        sd.exec();
+
+        for (int i = 0; i < 4; i++)
+           assert out.getArr().get(all(), NDArrayIndex.point(i), all(), all()).getDouble(0) == 1;
 
     }
 
