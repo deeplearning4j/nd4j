@@ -6,17 +6,15 @@ import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
-import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.*;
+import org.nd4j.linalg.api.ops.impl.accum.Max;
 import org.nd4j.linalg.api.ops.impl.accum.Min;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.broadcast.BiasAdd;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.*;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.DeConv2DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.scalar.*;
 import org.nd4j.linalg.api.ops.impl.scalar.comparison.*;
 import org.nd4j.linalg.api.ops.impl.shape.*;
@@ -124,6 +122,22 @@ public class DifferentialFunctionFactory   {
         return new OnesLike(name, sameDiff(),input).outputVariables()[0];
     }
 
+    /**
+     * Conv1d operation.
+     *
+     * @param inputs       the inputs to conv1d
+     * @param conv1DConfig the configuration
+     * @return
+     */
+    public SDVariable conv1d(SDVariable[] inputs, Conv1DConfig conv1DConfig) {
+        Conv1D conv1D = Conv1D.builder()
+                .inputFunctions(inputs)
+                .sameDiff(sameDiff())
+                .config(conv1DConfig)
+                .build();
+
+        return conv1D.outputVariables()[0];
+    }
 
     /**
      * Conv2d operation.
@@ -140,6 +154,77 @@ public class DifferentialFunctionFactory   {
                 .build();
 
         return conv2D.outputVariables()[0];
+    }
+
+    /**
+     * Average pooling 2d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        AvgPooling2D avgPooling2D = AvgPooling2D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .config(pooling2DConfig)
+                .build();
+
+        return avgPooling2D.outputVariables()[0];
+    }
+
+    /**
+     * Max pooling 2d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling2DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling2d(SDVariable[] inputs, Pooling2DConfig pooling2DConfig) {
+        MaxPooling2D maxPooling2D = MaxPooling2D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .config(pooling2DConfig)
+                .build();
+
+        return maxPooling2D.outputVariables()[0];
+    }
+
+    /**
+     * Avg pooling 3d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable avgPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        Pooling3D maxPooling3D = Pooling3D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .pooling3DConfig(pooling3DConfig)
+                .type(Pooling3D.Pooling3DType.AVG)
+                .build();
+
+        return maxPooling3D.outputVariables()[0];
+    }
+
+
+    /**
+     * Max pooling 3d operation.
+     *
+     * @param inputs       the inputs to pooling
+     * @param pooling3DConfig the configuration
+     * @return
+     */
+    public SDVariable maxPooling3d(SDVariable[] inputs, Pooling3DConfig pooling3DConfig) {
+        Pooling3D maxPooling3D = Pooling3D.builder()
+                .inputs(inputs)
+                .sameDiff(sameDiff())
+                .pooling3DConfig(pooling3DConfig)
+                .type(Pooling3D.Pooling3DType.MAX)
+                .build();
+
+        return maxPooling3D.outputVariables()[0];
     }
 
     /**
@@ -215,6 +300,36 @@ public class DifferentialFunctionFactory   {
     }
 
 
+    /**
+     * Batch norm operation.
+     *
+     */
+    public SDVariable batchNorm(SDVariable input, SDVariable mean,
+                                SDVariable variance, SDVariable gamma,
+                                SDVariable beta,
+                                boolean applyGamma, boolean applyBeta,
+                                double epsilon) {
+        BatchNorm batchNorm = BatchNorm.builder()
+                .inputFunctions(new SDVariable[] {input, mean, variance, gamma, beta})
+                .applyGamma(applyGamma)
+                .applyBeta(applyBeta)
+                .epsilon(epsilon)
+                .sameDiff(sameDiff())
+                .build();
+
+        val outputVars = batchNorm.outputVariables();
+        return outputVars[0];
+    }
+
+    public SDVariable[] moments(SDVariable input, int... axes) {
+        return new Moments(sameDiff(), input, axes).outputVariables();
+    }
+
+    public SDVariable[] normalizeMoments(SDVariable counts, SDVariable means, SDVariable variances, double shift) {
+        return new NormalizeMoments(sameDiff(), counts, means, variances, shift).outputVariables();
+    }
+
+
     public SDVariable tile(SDVariable iX, int[] repeat) {
         if(repeat == null) {
             throw new ND4JIllegalStateException("Repeat must not be null!");
@@ -264,6 +379,11 @@ public class DifferentialFunctionFactory   {
     public SDVariable countZero(SDVariable input) {
         return new CountZero(sameDiff(), input).outputVariables()[0];
     }
+
+    public SDVariable zeroFraction(SDVariable input) {
+        return new ZeroFraction(sameDiff(), input).outputVariables()[0];
+    }
+
 
     public SDVariable max(SDVariable i_x, int... dimensions) {
         return new Max(sameDiff(),i_x,dimensions).outputVariables()[0];
@@ -669,6 +789,14 @@ public class DifferentialFunctionFactory   {
         return new Broadcast(sameDiff(),iX,shape).outputVariables()[0];
     }
 
+    public SDVariable onehot(SDVariable indices, int depth, int axis, double on, double off) {
+        return new OneHot(sameDiff(), indices, depth, axis, on, off).outputVariables()[0];
+    }
+
+    public SDVariable onehot(SDVariable indices, int depth) {
+        return new OneHot(sameDiff(), indices, depth).outputVariables()[0];
+    }
+
 
     public SDVariable repeat(SDVariable iX, int axis) {
         return new Repeat(sameDiff(), new SDVariable[]{iX},axis).outputVariables()[0];
@@ -775,6 +903,22 @@ public class DifferentialFunctionFactory   {
         return new JaccardDistance(sameDiff(), ix, iy, dimensions).outputVariables()[0];
     }
 
+    public SDVariable weightedCrossEntropyWithLogits(SDVariable targets, SDVariable inputs, SDVariable weights) {
+        return new WeightedCrossEntropyLoss(sameDiff(), targets, inputs, weights).outputVariables()[0];
+    }
+
+    public SDVariable sigmoidCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return new SigmoidCrossEntropyLoss(sameDiff(), logits, weights, labels,
+                reductionMode, labelSmoothing).outputVariables()[0];
+    }
+
+    public SDVariable softmaxCrossEntropyWithLogits(SDVariable logits, SDVariable weights, SDVariable labels,
+                                                    int reductionMode, double labelSmoothing) {
+        return new SoftmaxCrossEntropyLoss(sameDiff(), logits, weights, labels,
+                reductionMode, labelSmoothing).outputVariables()[0];
+    }
+
     public SDVariable lossBinaryXENT(SDVariable iX,
                                      SDVariable i_y,
                                      int... dimensions) {
@@ -858,6 +1002,9 @@ public class DifferentialFunctionFactory   {
 
     }
 
+    public SDVariable xwPlusB(SDVariable input, SDVariable weights, SDVariable bias) {
+        return new XwPlusB(sameDiff(), input, weights, bias).outputVariables()[0];
+    }
 
 
     public SDVariable mmul(SDVariable x,

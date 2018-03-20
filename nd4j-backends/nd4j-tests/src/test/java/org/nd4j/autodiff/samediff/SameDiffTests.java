@@ -2,6 +2,7 @@ package org.nd4j.autodiff.samediff;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.linalg.activations.Activation;
@@ -13,9 +14,7 @@ import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.layers.Linear;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv3DConfig;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.config.DeConv2DConfig;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.transforms.IsMax;
 import org.nd4j.linalg.api.ops.impl.transforms.SoftMaxDerivative;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.*;
@@ -227,6 +226,27 @@ public class SameDiffTests {
         assertArrayEquals(new int[]{1, 1}, result.getShape());
     }
 
+
+    @Test
+    public void testXwPlusB() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray input = Nd4j.create(new int[]{2, 2});
+        INDArray weights = Nd4j.create(new int[]{2, 2});
+        INDArray b = Nd4j.create(new int[]{1, 2});
+
+        SDVariable sdInput = sameDiff.var("input", input);
+        SDVariable sdWeights = sameDiff.var("weights", weights);
+        SDVariable sdBias = sameDiff.var("bias", b);
+
+        SDVariable res = sameDiff.xwPlusB(sdInput, sdWeights, sdBias);
+        sameDiff.exec();
+
+        INDArray out = res.getArr();
+
+        assertArrayEquals(new int[]{2, 2}, res.getShape());
+
+    }
+
     @Test
     public void testBiasAdd() {
         SameDiff sameDiff = SameDiff.create();
@@ -238,6 +258,68 @@ public class SameDiffTests {
 
         SDVariable res = sameDiff.biasAdd(input, bias);
         assertArrayEquals(new int[]{2, 2}, res.getShape());
+
+    }
+
+    @Test
+    public void testSoftmaxXentWithLogits() {
+
+        SameDiff sameDiff = SameDiff.create();
+        INDArray logits = Nd4j.create(new int[]{1, 1});
+        INDArray weights = Nd4j.create(new int[]{1, 1});
+        INDArray labels = Nd4j.create(new int[]{1, 1});
+
+        SDVariable sdLogits = sameDiff.var("logits", logits);
+        SDVariable sdWeights = sameDiff.var("weights", weights);
+        SDVariable sdLabels = sameDiff.var("labels", labels);
+
+        int mode = 0;
+        double labelSmoothing = 0.0;
+
+        SDVariable res = sameDiff.softmaxCrossEntropyWithLogits(sdLogits, sdWeights, sdLabels, mode, labelSmoothing);
+        sameDiff.exec();
+
+        INDArray resultArray = res.getArr();
+        assertArrayEquals(new int[]{1, 1}, res.getShape());
+    }
+
+    @Test
+    public void testWeightedXentWithLogits() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray targets = Nd4j.create(new int[]{1, 5});
+        INDArray inputs = Nd4j.create(new int[]{1, 5});
+        INDArray weights = Nd4j.create(new int[]{1, 5});
+
+        SDVariable sdInputs = sameDiff.var("inputs", inputs);
+        SDVariable sdWeights = sameDiff.var("weights", weights);
+        SDVariable sdTargets = sameDiff.var("targets", targets);
+
+        SDVariable res = sameDiff.weightedCrossEntropyWithLogits(sdTargets, sdInputs, sdWeights);
+        sameDiff.exec();
+
+        INDArray resultArray = res.getArr();
+        assertArrayEquals(new int[]{1, 5}, res.getShape());
+    }
+
+    @Test
+    public void testSigmoidXentWithLogits() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray logits = Nd4j.create(new int[]{1, 5});
+        INDArray weights = Nd4j.create(new int[]{1, 5});
+        INDArray labels = Nd4j.create(new int[]{1, 5});
+
+        SDVariable sdLogits = sameDiff.var("logits", logits);
+        SDVariable sdWeights = sameDiff.var("weights", weights);
+        SDVariable sdLabels = sameDiff.var("labels", labels);
+
+        int mode = 0;
+        double labelSmoothing = 0.0;
+
+        SDVariable res = sameDiff.sigmoidCrossEntropyWithLogits(sdLogits, sdWeights, sdLabels, mode, labelSmoothing);
+        sameDiff.exec();
+
+        INDArray resultArray = res.getArr();
+        assertArrayEquals(new int[]{1, 5}, res.getShape());
 
     }
 
@@ -2072,6 +2154,89 @@ public class SameDiffTests {
     }
 
     @Test
+    public void testBatchNormTest() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray input = Nd4j.rand(1, 10);
+        INDArray mean = Nd4j.rand(1, 10);
+        INDArray var = Nd4j.rand(1, 10);
+        INDArray gamma = Nd4j.rand(1, 10);
+        INDArray beta = Nd4j.rand(1, 10);
+
+        SDVariable sdInput = sd.var("input", input);
+        SDVariable sdMean = sd.var("mean", mean);
+        SDVariable sdVar = sd.var("var", var);
+        SDVariable sdGamma = sd.var("gamma", gamma);
+        SDVariable sdBeta = sd.var("beta", beta);
+
+        SDVariable out = sd.batchNorm(sdInput, sdMean, sdVar, sdGamma, sdBeta,
+                true, true, 0.0);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        assertArrayEquals(new int[]{1, 10}, outArr.shape());
+
+    }
+
+    @Test
+    public void testMoments() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray input = Nd4j.create(new float[]{1, 2, 3, 4}, new int[]{2, 2});
+
+        SDVariable sdInput = sd.var("input", input);
+
+        int[] axis = new int[]{0, 1};
+        SDVariable[] moments = sd.moments(sdInput, axis);
+        SDVariable mean = moments[0];
+        SDVariable variance = moments[1];
+
+        SDVariable sum = mean.add(variance);
+        SDVariable out = sd.tanh("out", sum);
+
+        INDArray outArr = sd.execAndEndResult();
+
+        INDArray meanArray = mean.getArr();
+        INDArray varArray = variance.getArr();
+
+        assert meanArray.getDouble(0) == 2.5;
+        assert varArray.getDouble(0) == 1.25;
+    }
+
+    @Test
+    public void testNormalizeMoments() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray counts = Nd4j.create(new float[]{2}, new int[]{1, 1});
+        INDArray means = Nd4j.create(new float[]{2, 4}, new int[]{1, 2});
+        INDArray vars = Nd4j.create(new float[]{6, 8}, new int[]{1, 2});
+
+
+        SDVariable sdCounts = sd.var("counts", counts);
+        SDVariable sdMeans = sd.var("means", means);
+        SDVariable sdVars = sd.var("vars", vars);
+        double shift = 0.0;
+
+        SDVariable[] moments = sd.normalizeMoments(sdCounts, sdMeans, sdVars, shift);
+        SDVariable normMean = moments[0];
+        SDVariable normVariance = moments[1];
+
+        SDVariable sum = normMean.add(normVariance);
+        SDVariable out = sd.tanh("out", sum);
+
+        INDArray outArr = sd.execAndEndResult();
+
+        INDArray meanArray = normMean.getArr();
+        INDArray varArray = normVariance.getArr();
+
+        assert meanArray.getDouble(0, 0) == 1;
+        assert meanArray.getDouble(0, 1) == 2;
+        assert Arrays.equals(meanArray.shape(), varArray.shape());
+
+    }
+
+
+    @Test
     public void testDepthWiseConv2dBasic() {
         int nIn = 3;
         int depthWise = 4;
@@ -2236,6 +2401,182 @@ public class SameDiffTests {
         int[] outShape = outArr.shape();
         assertArrayEquals(new int[]{mb, nOut, 27, 27}, outShape);
         // sd.execBackwards(); // TODO: test failing here
+    }
+
+    @Test
+    public void testMaxPooling2dBasic() {
+        int nIn = 3;
+        int kH = 2;
+        int kW = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray inArr = Nd4j.create(mb, nIn, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+
+
+        SDVariable[] vars = new SDVariable[]{in};
+
+        Pooling2DConfig pooling2DConfig = Pooling2DConfig.builder()
+                .kh(kH).kw(kW)
+                .ph(0).pw(0)
+                .sy(1).sx(1)
+                .dh(1).dw(1)
+                .isSameMode(false)
+                .build();
+
+        SDVariable out = sd.maxPooling2d(vars, pooling2DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        int[] outShape = outArr.shape();
+        // oH = (iH - (kH + (kH-1)*(dH-1)) + 2*pH)/sH + 1;
+        assertArrayEquals(new int[]{mb, nIn, 27, 27}, outShape);
+    }
+
+    @Test
+    public void testAvgPooling2dBasic() {
+        int nIn = 3;
+        int kH = 2;
+        int kW = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray inArr = Nd4j.create(mb, nIn, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+
+
+        SDVariable[] vars = new SDVariable[]{in};
+
+        Pooling2DConfig pooling2DConfig = Pooling2DConfig.builder()
+                .kh(kH).kw(kW)
+                .ph(0).pw(0)
+                .sy(1).sx(1)
+                .dh(1).dw(1)
+                .isSameMode(false)
+                .build();
+
+        SDVariable out = sd.avgPooling2d(vars, pooling2DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        int[] outShape = outArr.shape();
+        // oH = (iH - (kH + (kH-1)*(dH-1)) + 2*pH)/sH + 1;
+        assertArrayEquals(new int[]{mb, nIn, 27, 27}, outShape);
+    }
+
+    @Test
+    public void testAvgPooling3dBasic() {
+        int nIn = 3;
+        int kH = 2;
+        int kW = 2;
+        int kD = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+        int imgD = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray inArr = Nd4j.create(mb, nIn, imgD, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+
+
+        SDVariable[] vars = new SDVariable[]{in};
+
+        Pooling3DConfig pooling3DConfig = Pooling3DConfig.builder()
+                .kH(kH).kW(kW).kT(kD)
+                .pH(0).pH(0).pT(0)
+                .sH(1).sW(1).sT(1)
+                .dilationH(0).dilationW(0).dilationT(0)
+                .ceilingMode(false)
+                .build();
+
+        SDVariable out = sd.avgPooling3d(vars, pooling3DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        int[] outShape = outArr.shape();
+        // oH = (iH - (kH + (kH-1)*(dH-1)) + 2*pH)/sH + 1;
+        assertArrayEquals(new int[]{mb, nIn, 27, 27, 27}, outShape);
+    }
+
+    @Test
+    public void testMaxPooling3dBasic() {
+        int nIn = 3;
+        int kH = 2;
+        int kW = 2;
+        int kD = 2;
+
+        int mb = 3;
+        int imgH = 28;
+        int imgW = 28;
+        int imgD = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray inArr = Nd4j.create(mb, nIn, imgD, imgH, imgW);
+
+        SDVariable in = sd.var("in", inArr);
+
+
+        SDVariable[] vars = new SDVariable[]{in};
+
+        Pooling3DConfig pooling3DConfig = Pooling3DConfig.builder()
+                .kH(kH).kW(kW).kT(kD)
+                .pH(0).pH(0).pT(0)
+                .sH(1).sW(1).sT(1)
+                .dilationH(0).dilationW(0).dilationT(0)
+                .ceilingMode(false)
+                .build();
+
+        SDVariable out = sd.maxPooling3d(vars, pooling3DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        int[] outShape = outArr.shape();
+        // oH = (iH - (kH + (kH-1)*(dH-1)) + 2*pH)/sH + 1;
+        assertArrayEquals(new int[]{mb, nIn, 27, 27, 27}, outShape);
+    }
+
+    @Test
+    public void testConv1dBasic() {
+        int nIn = 3;
+        int nOut = 4;
+        int k = 2;
+        int mb = 3;
+        int img = 28;
+
+        SameDiff sd = SameDiff.create();
+        INDArray wArr = Nd4j.create(nOut, nIn, k);
+        INDArray inArr = Nd4j.create(mb, nIn, img);
+
+        SDVariable in = sd.var("in", inArr);
+        SDVariable w = sd.var("W", wArr);
+
+        SDVariable[] vars = new SDVariable[]{in, w};
+
+        Conv1DConfig conv1DConfig = Conv1DConfig.builder()
+                .k(k).p(0).s(1)
+                .isSameMode(false)
+                .build();
+
+        SDVariable out = sd.conv1d(vars, conv1DConfig);
+        out = sd.tanh("out", out);
+
+        INDArray outArr = sd.execAndEndResult();
+        INDArray iOut = out.getArr();
+        //Expected output size: out = (in - k + 2*p)/s + 1 = (28-2+0)/1+1 = 27
+        int[] outShape = outArr.shape();
+        assertArrayEquals(new int[]{mb, nOut, 27}, outShape);
     }
 
     @Test
@@ -2487,6 +2828,34 @@ public class SameDiffTests {
         sd.associateArrayWithVariable(Nd4j.create(4, 5), var0);
         INDArray out2 = sd.execAndEndResult();
         assertEquals(Nd4j.ones(4, 5), out2);
+    }
+
+    @Test
+    public void testOneHot() {
+        //indices = [[0, 2], [1, -1]]
+        INDArray indicesArr = Nd4j.zeros(2, 2);
+        indicesArr.put(0, 1, 2);
+        indicesArr.put(1, 0, 1);
+        indicesArr.put(1, 1, -1);
+        INDArray expectedOut = Nd4j.zeros(new int[]{2, 2, 3});
+        /*
+        # output: [2 x 2 x 3]
+        # [[[1.0, 0.0, 0.0],   # one_hot(0)
+        #   [0.0, 0.0, 1.0]],  # one_hot(2)
+        #  [[0.0, 1.0, 0.0],   # one_hot(1)
+        #   [0.0, 0.0, 0.0]]]  # one_hot(-1)
+        */
+        expectedOut.putScalar(0, 0, 0, 1.0);
+        expectedOut.putScalar(0, 1, 2, 1.0);
+        expectedOut.putScalar(1, 0, 1, 1.0);
+
+        SameDiff sd = SameDiff.create();
+        SDVariable indices = sd.var("indices", new int[]{2, 2});
+        sd.associateArrayWithVariable(indicesArr, indices);
+        INDArray out1 = sd.execAndEndResult();
+        log.info(out1.toString());
+        assertEquals(expectedOut, out1);
+
     }
 
     @Test
