@@ -379,6 +379,14 @@ public class Transforms {
         return Nd4j.getExecutioner().execAndReturn(new RectifedLinear(((copy ? in.dup() : in))));
     }
 
+    public static INDArray relu6(INDArray arr) {
+        return relu6(arr, true);
+    }
+
+
+    public static INDArray relu6(INDArray in, boolean copy) {
+        return Nd4j.getExecutioner().execAndReturn(new Relu6(((copy ? in.dup() : in))));
+    }
 
 
     public static INDArray leakyRelu(INDArray arr) {
@@ -917,7 +925,7 @@ public class Transforms {
      * @return
      */
     public static INDArray expm1(INDArray ndArray, boolean dup) {
-        return exec(dup ? new Exp(ndArray, ndArray.dup()) : new Expm1(ndArray));
+        return exec(dup ? new Expm1(ndArray, ndArray.dup()) : new Expm1(ndArray));
     }
 
 
@@ -991,6 +999,17 @@ public class Transforms {
         return exec(dup ? new Log(ndArray, ndArray.dup()) : new Log(ndArray));
     }
 
+
+    /**
+     * Log of x + 1 function
+     *
+     * @param ndArray
+     * @param dup
+     * @return
+     */
+    public static INDArray log1p(INDArray ndArray, boolean dup) {
+        return exec(dup ? new Log1p(ndArray, ndArray.dup()) : new Log1p(ndArray));
+    }
 
     /**
      * Negative
