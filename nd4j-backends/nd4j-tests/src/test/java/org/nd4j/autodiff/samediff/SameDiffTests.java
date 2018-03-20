@@ -422,7 +422,7 @@ public class SameDiffTests {
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.tile(x, new int[]{2, 2});
-        assertArrayEquals(new int[]{2, 8}, result.getShape());
+        assertArrayEquals(new int[]{2, 8}, result.eval().shape());
         INDArray arr2 = Nd4j.concat(0, arr, arr);  // (1, 4), (1, 4) -> (2, 4)
         INDArray expected = Nd4j.concat(1, arr2, arr2);  // (2, 4), (2, 4) -> (2, 8)
         assertEquals(expected, result.eval());

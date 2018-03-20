@@ -96,7 +96,7 @@ public class Tile extends DynamicCustomOp {
 
         return ret;
     }
-
+    /*
     @Override
     public List<int[]> calculateOutputShape() {
         /**
@@ -105,6 +105,7 @@ public class Tile extends DynamicCustomOp {
          *
          * And during actual op invocation both inputs should be available due to topo sort
          */
+    /*
         if (inputArguments().length < 2)
             return Collections.emptyList();
 
@@ -119,6 +120,7 @@ public class Tile extends DynamicCustomOp {
         else
             return Nd4j.getExecutioner().calculateOutputShape(this);
     }
+    */
 
     @Override
     public String opName() {
