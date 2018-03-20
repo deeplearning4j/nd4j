@@ -67,11 +67,11 @@ public class ReverseSequence extends DynamicCustomOp {
         Map<String, PropertyMapping> attrs = new LinkedHashMap<>();
         val seqDim = PropertyMapping.builder()
                 .propertyNames(new String[]{"seqDim"})
-                .tfInputPosition(2)
+                .tfAttrName("seq_dim")
                 .build();
         val batchDim = PropertyMapping.builder()
                 .propertyNames(new String[]{"batchDim"})
-                .tfInputPosition(3)
+                .tfAttrName("batch_dim")
                 .build();
         attrs.put("seqDim", seqDim);
         attrs.put("batchDim", batchDim);
