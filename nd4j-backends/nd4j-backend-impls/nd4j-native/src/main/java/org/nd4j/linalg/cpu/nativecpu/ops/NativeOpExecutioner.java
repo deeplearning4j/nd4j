@@ -151,7 +151,8 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         if (extraz.get() == null)
             extraz.set(new PointerPointer(32));
 
-        Arrays.sort(dimension);
+        dimension = Shape.normalizeAxis(op.x().rank(), dimension);
+
         for (int i = 0; i < dimension.length; i++) {
             if (dimension[i] < 0)
                 dimension[i] += op.x().rank();
@@ -260,7 +261,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
     @Override
     public INDArray exec(Accumulation op, int... dimension) {
-        Arrays.sort(dimension);
+        dimension = Shape.normalizeAxis(op.x().rank(), dimension);
 
 
         validateDataType(Nd4j.dataType(), op);
@@ -561,7 +562,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
      * @param dimension
      */
     private void invoke(ScalarOp op, int[] dimension) {
-        Arrays.sort(dimension);
+        dimension = Shape.normalizeAxis(op.x().rank(), dimension);
         // do tad magic
         /**
          * Returns the {@link Shape#createShapeInformation(int[], int[], int, int, char)}
@@ -819,7 +820,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         long st = profilingHookIn(op);
         if(dimension == null)
             dimension = new int[] {Integer.MAX_VALUE};
-        Arrays.sort(dimension);
+        dimension = Shape.normalizeAxis(op.x().rank(), dimension);
 
         validateDataType(Nd4j.dataType(), op);
 
