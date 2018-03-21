@@ -308,8 +308,8 @@ public class Shape {
         dimensions = Shape.normalizeAxis(wholeShape.length, dimensions);
 
         // strip leading keepDims argument
-        if (newFormat)
-            dimensions = Arrays.copyOfRange(dimensions, 1, dimensions.length);
+        //if (newFormat)
+        //    dimensions = Arrays.copyOfRange(dimensions, 1, dimensions.length);
 
         if (!keepDims)
             if (!newFormat)
@@ -2467,7 +2467,7 @@ public class Shape {
         for (val v: axis) {
             val t = v < 0 ? v + rank : v;
 
-            if (t >= rank || t < 0)
+            if ((t >= rank && t != Integer.MAX_VALUE)|| t < 0)
                 throw new ND4JIllegalStateException("Axis array " + Arrays.toString(axis) + " contains values above rank " + rank);
 
             tmp[cnt++] = t;

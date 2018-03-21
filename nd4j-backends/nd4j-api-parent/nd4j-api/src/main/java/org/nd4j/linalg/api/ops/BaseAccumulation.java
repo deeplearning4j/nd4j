@@ -221,8 +221,8 @@ public abstract class BaseAccumulation extends BaseOp implements Accumulation {
                     boolean keepAxis = nodeDef.getAttrOrThrow("keep_dims").getB();
 
                     // keepAxis = false by default
-                    int[] dimensions = ArrayUtils.add(arr.data().asInt(), 0, keepAxis ? 1 : 0);
-
+                    //int[] dimensions = ArrayUtils.add(arr.data().asInt(), 0, keepAxis ? 1 : 0);
+                    int[] dimensions = arr.data().asInt();
 
                     this.dimensions = dimensions;
                     break;
