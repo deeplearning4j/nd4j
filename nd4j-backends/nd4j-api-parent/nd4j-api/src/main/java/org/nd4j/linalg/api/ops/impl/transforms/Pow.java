@@ -112,8 +112,10 @@ public class Pow extends BaseTransformOp {
         val tmp = initWith.getArrForVarName(weightsName);
 
         // if second argument is scalar - we should provide array of same shape
-        if (tmp.isScalar()) {
-            this.pow = tmp.getDouble(0);
+        if (tmp != null) {
+            if (tmp.isScalar()) {
+                this.pow = tmp.getDouble(0);
+            }
         }
     }
 
