@@ -685,6 +685,13 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
         PointerPointer dummy = extraz.get();
 
+        // Pow operations might be special
+        if (op.opNum() == 7) {
+            if (op.y() != null && op.y().isScalar()) {
+                op.setY(Nd4j.valueArrayOf(op.x().shape(), op.y().getDouble(0)));
+            }
+        }
+
         /**
          * This is the {@link org.nd4j.linalg.api.ops.impl.transforms.IsMax}
          * operation.
