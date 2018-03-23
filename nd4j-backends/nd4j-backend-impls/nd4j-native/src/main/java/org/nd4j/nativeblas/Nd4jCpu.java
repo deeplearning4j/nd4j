@@ -304,6 +304,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_random_normal.class,
         float_random_bernoulli.class,
         float_random_exponential.class,
+        float_random_crop.class,
         float_hinge_loss.class,
         float_huber_loss.class,
         float_log_loss.class,
@@ -608,6 +609,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_random_normal.class,
         half_random_bernoulli.class,
         half_random_exponential.class,
+        half_random_crop.class,
         half_hinge_loss.class,
         half_huber_loss.class,
         half_log_loss.class,
@@ -912,6 +914,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_random_normal.class,
         double_random_bernoulli.class,
         double_random_exponential.class,
+        double_random_crop.class,
         double_hinge_loss.class,
         double_huber_loss.class,
         double_log_loss.class,
@@ -16797,6 +16800,8 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 
 // #endif // CUDACC
 
+// #define CHECK_ALLOC(PTR, MSG) if (PTR == nullptr) { nd4j_printf("%s\n", MSG); throw std::bad_alloc(); };
+
 // #define LAMBDA_H(X, ...) [__VA_ARGS__] (float16 X) -> float16
 // #define LAMBDA_HH(X, Y, ...) [__VA_ARGS__] (float16 X, float16 Y) -> float16
 
@@ -20312,6 +20317,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //
 
 // #include <ops/declarable/headers/common.h>
+// #include <ops/declarable/generic/helpers/BroadcastHelper.h>
         // TODO: make broadcastables separate class
 
         /**
@@ -31232,6 +31238,51 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             }
         
                                                                                     public double_random_exponential() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        @Name("nd4j::ops::random_crop<float>") public static class float_random_crop extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_random_crop(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_random_crop(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_random_crop position(long position) {
+                return (float_random_crop)super.position(position);
+            }
+        
+                                                                                    public float_random_crop() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::random_crop<float16>") public static class half_random_crop extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_random_crop(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_random_crop(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_random_crop position(long position) {
+                return (half_random_crop)super.position(position);
+            }
+        
+                                                                                    public half_random_crop() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::random_crop<double>") public static class double_random_crop extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_random_crop(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_random_crop(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_random_crop position(long position) {
+                return (double_random_crop)super.position(position);
+            }
+        
+                                                                                    public double_random_crop() { super((Pointer)null); allocate(); }
                                                                                     private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
