@@ -5819,6 +5819,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
         val mC = Nd4j.create(128, 256);
         val mE = Nd4j.create(128, 256).assign(156.0f);
+        val mL = mA.mmul(mB);
 
         val op = DynamicCustomOp.builder("matmul")
                 .addInputs(mA, mB)
@@ -6083,7 +6084,6 @@ public class Nd4jTestsC extends BaseNd4jTest {
             assertEquals(String.valueOf(order), exp, out);
         }
     }
-
 
     @Override
     public char ordering() {

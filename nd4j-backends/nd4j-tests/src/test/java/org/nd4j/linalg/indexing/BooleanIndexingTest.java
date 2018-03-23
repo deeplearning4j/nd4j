@@ -1,6 +1,7 @@
 package org.nd4j.linalg.indexing;
 
 import com.google.common.base.Function;
+import lombok.val;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -574,6 +575,15 @@ public class BooleanIndexingTest extends BaseNd4jTest {
 
         Nd4j.getExecutioner().exec(new Where(new INDArray[]{mask,data,put},new INDArray[]{resultData}));
         assertEquals(assertion,resultData);
+    }
+
+    @Test
+    public void testEpsStuff_1() throws Exception {
+        val array = Nd4j.create(new float[]{0.001f, 5e-6f, 5e-6f, 5e-6f, 5e-6f});
+        val exp = Nd4j.create(new float[]{0.001f, 1.0f, 1.0f, 1.0f, 1.0f});
+        BooleanIndexing.replaceWhere(array, 1.0f, Conditions.epsEquals(0));
+
+        assertEquals(exp, array);
     }
 
     @Override

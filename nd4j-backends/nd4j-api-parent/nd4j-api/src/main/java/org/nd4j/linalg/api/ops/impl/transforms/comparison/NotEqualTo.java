@@ -58,7 +58,7 @@ public class NotEqualTo extends BaseDynamicTransformOp {
 
     @Override
     public String tensorflowName() {
-        return "NotEquals";
+        return "NotEqual";
     }
 
 
