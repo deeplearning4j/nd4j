@@ -29,6 +29,9 @@ public class NativeOpsHolder {
             Class<? extends NativeOps> nativeOpsClazz = Class.forName(name).asSubclass(NativeOps.class);
             deviceNativeOps = nativeOpsClazz.newInstance();
 
+            if (name.contains("Nd4jCuda")) {
+                log.info("Initializing device and functions... (may take 10 minutes or more)");
+            }
             deviceNativeOps.initializeDevicesAndFunctions();
             int numThreads;
             String numThreadsString = System.getenv("OMP_NUM_THREADS");
