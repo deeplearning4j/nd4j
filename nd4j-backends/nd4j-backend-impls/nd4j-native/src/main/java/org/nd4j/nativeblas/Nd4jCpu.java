@@ -16302,7 +16302,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 
 /** graph definitions */
 // #define REQUIRE_OK(A)  if (nd4j::ops::resultHelper( (A), #A, __FILE__, __LINE__ ) != 0) return ND4J_STATUS_VALIDATION;
-// #define REQUIRE_TRUE(...) if (nd4j::ops::conditionHelper(__FILE__, __LINE__, __VA_ARGS__) != 0) return ND4J_STATUS_VALIDATION;
+// #define REQUIRE_TRUE(...) if (nd4j::ops::conditionHelper(__FILE__, __LINE__, __VA_ARGS__) != 0) throw std::invalid_argument("Op validation failed");
 
 // #define DECLARE_ENTRY(NAME, ...)           template struct ND4J_EXPORT __registratorFloat<NAME<float>>;
 //                                       template struct ND4J_EXPORT __registratorHalf<NAME<float16>>;
@@ -27259,7 +27259,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
          * 0: vector with original values
          * 1: vector with values to exclude
          */
-        @Name("nd4j::ops::listdiff<float>") public static class float_listdiff extends FloatDeclarableOp {
+        @Name("nd4j::ops::listdiff<float>") public static class float_listdiff extends FloatDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public float_listdiff(Pointer p) { super(p); }
@@ -27269,12 +27269,12 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             @Override public float_listdiff position(long position) {
                 return (float_listdiff)super.position(position);
             }
-         
-                                                    public float_listdiff() { super((Pointer)null); allocate(); }
-                                                    private native void allocate();
-                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
-                                                }
-        @Name("nd4j::ops::listdiff<float16>") public static class half_listdiff extends HalfDeclarableOp {
+        
+                                                                                    public float_listdiff() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::listdiff<float16>") public static class half_listdiff extends HalfDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public half_listdiff(Pointer p) { super(p); }
@@ -27284,12 +27284,12 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             @Override public half_listdiff position(long position) {
                 return (half_listdiff)super.position(position);
             }
-         
-                                                    public half_listdiff() { super((Pointer)null); allocate(); }
-                                                    private native void allocate();
-                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
-                                                }
-        @Name("nd4j::ops::listdiff<double>") public static class double_listdiff extends DoubleDeclarableOp {
+        
+                                                                                    public half_listdiff() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::listdiff<double>") public static class double_listdiff extends DoubleDeclarableCustomOp {
             static { Loader.load(); }
             /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
             public double_listdiff(Pointer p) { super(p); }
@@ -27299,11 +27299,11 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             @Override public double_listdiff position(long position) {
                 return (double_listdiff)super.position(position);
             }
-         
-                                                    public double_listdiff() { super((Pointer)null); allocate(); }
-                                                    private native void allocate();
-                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
-                                                }
+        
+                                                                                    public double_listdiff() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
 
         /**
          * This operation applies Add opeartion to specific inputs wrt indices
