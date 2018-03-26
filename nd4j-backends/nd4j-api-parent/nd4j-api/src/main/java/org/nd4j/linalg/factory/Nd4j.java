@@ -2104,119 +2104,130 @@ public class Nd4j {
     }
 
     /**
-     * Read line via input streams
+     * Write NDArray to a text file
      *
-     * @param filePath the input stream ndarray
-     * @param split    the split separator, defaults to ", "
-     * @param precision digits after the decimal point, defaults to 2
-     * @return the read txt method
+     * @param filePath
+     * @param split    the split separator, defaults to ","
+     * @deprecated custom col separators are no longer supported; uses ","
+     * @param precision digits after the decimal point
+     * @deprecated Precision is no longer used.
+     * Defaults to scientific notation with 18 digits after the decimal
+     * Use {@link #writeTxt(INDArray, String)}
      */
     public static void writeTxt(INDArray write, String filePath, String split, int precision) {
-        //TO DO: Write to file one line at time
-        String lineOne = "{\n";
-        String lineTwo = "\"filefrom\": \"dl4j\",\n";
-        String lineThree = "\"ordering\": \"" + write.ordering() + "\",\n";
-        String lineFour = "\"shape\":\t" + java.util.Arrays.toString(write.shape()) + ",\n";
-        String lineFive = "\"data\":\n";
-        String fileData = new NDArrayStrings(" " + split + " ", precision).format(write);
-        String fileEnd = "\n}\n";
+        writeTxt(write,filePath);
+    }
 
-        String fileBegin = lineOne + lineTwo + lineThree + lineFour + lineFive;
+    /**
+     * Write NDArray to a text file
+     *
+     * @param write
+     * @param filePath
+     * @param precision
+     * @deprecated Precision is no longer used.
+     * Defaults to scientific notation with 18 digits after the decimal
+     * Use {@link #writeTxt(INDArray, String)}
+     */
+    public static void writeTxt(INDArray write, String filePath, int precision) {
+        writeTxt(write, filePath);
+    }
+
+    /**
+     * Write NDArray to a text file
+     *
+     * @param write
+     * @param filePath
+     * @param split
+     * @deprecated custom col and higher dimension separators are no longer supported; uses ","
+     * Use {@link #writeTxt(INDArray, String)}
+     */
+    public static void writeTxt(INDArray write, String filePath, String split) {
+        writeTxt(write,filePath);
+    }
+
+    /**
+     * Write NDArray to a text file
+     *
+     * @param write Array to write
+     * @param filePath
+     */
+    public static void writeTxt(INDArray write, String filePath) {
         try {
-            FileUtils.writeStringToFile(new File(filePath), fileBegin + fileData + fileEnd);
+            String toWrite = writeStringForArray(write, "0.000000000000000000E0");
+            FileUtils.writeStringToFile(new File(filePath), toWrite);
         } catch (IOException e) {
             throw new RuntimeException("Error writing output", e);
         }
     }
 
-    /**
-     *
-     * @param write
-     * @param filePath
-     * @param precision
-     */
-    public static void writeTxt(INDArray write, String filePath, int precision) {
-        writeTxt(write, filePath, ", ", precision);
-
-    }
-
-    /**
-     *
-     * @param write
-     * @param filePath
-     * @param split
-     */
-    public static void writeTxt(INDArray write, String filePath, String split) {
-        writeTxt(write, filePath, " " + split + "", 2);
-    }
-
-    /**
-     *
-     * @param write
-     * @param filePath
-     */
-    public static void writeTxt(INDArray write, String filePath) {
-        writeTxt(write, filePath, ", ", 2);
-    }
-
 
 
     /**
-     * Output line via input streams
+     * Array written to outputstream
      *
      * @param os the outputstream stream ndarray
-     * @param split    the split separator, defaults to ", "
-     * @param precision digits after the decimal point, defaults to 2
-     * @return the read txt method
+     * @param split
+     * @deprecated custom col separators are no longer supported; uses ","
+     * @param precision
+     * @deprecated precision can no longer be specified. The array is written in scientific notation.
+     * Use {@link #writeTxtString(INDArray, OutputStream)}
      */
     public static void writeTxtString(INDArray write, OutputStream os, String split, int precision) {
-        //TO DO: Write to file one line at time
-        String lineOne = "{\n";
-        String lineTwo = "\"filefrom\":\"dl4j\",\n";
+        writeTxtString(write,os);
+    }
 
-        String lineThree = "\"ordering\":\"" + write.ordering() + "\",\n";
-        String lineFour = "\"shape\":" + java.util.Arrays.toString(write.shape()) + ",\n";
-        String lineFive = "\"data\":\n";
-        String fileData = new NDArrayStrings(" " + split + " ", precision).format(write);
-        String fileEnd = "\n}\n";
+    /**
+     *
+     * @param write
+     * @param os
+     * @param precision
+     * @deprecated precision can no longer be specified. The array is written in scientific notation.
+     * Use {@link #writeTxtString(INDArray, OutputStream)}
+     */
+    @Deprecated
+    public static void writeTxtString(INDArray write, OutputStream os, int precision) {
+        writeTxtString(write,os);
+    }
 
-        String fileBegin = lineOne + lineTwo + lineThree + lineFour + lineFive;
+    /**
+     * @param write
+     * @param os
+     * @param split
+     * @deprecated column separator can longer be specified; Uses ","
+     * Use {@link #writeTxtString(INDArray, OutputStream)} instead
+     */
+    @Deprecated
+    public static void writeTxtString(INDArray write, OutputStream os, String split) {
+        writeTxtString(write, os);
+    }
+
+    /**
+     * Write ndarray as text to output stream
+     * @param write
+     * @param os
+     */
+    public static void writeTxtString(INDArray write, OutputStream os) {
         try {
-            String toWrite = fileBegin + fileData + fileEnd;
+            // default format is "0.000000000000000000E0"
+            String toWrite = writeStringForArray(write, "0.000000000000000000E0");
             os.write(toWrite.getBytes());
         } catch (IOException e) {
             throw new RuntimeException("Error writing output", e);
         }
     }
 
-    /**
-     *
-     * @param write
-     * @param os
-     * @param precision
-     */
-    public static void writeTxtString(INDArray write, OutputStream os, int precision) {
-        writeTxtString(write, os, ", ", precision);
-
-    }
-
-    /**
-     *
-     * @param write
-     * @param os
-     * @param split
-     */
-    public static void writeTxtString(INDArray write, OutputStream os, String split) {
-        writeTxtString(write, os, " " + split + "", 2);
-    }
-
-    /**
-     *
-     * @param write
-     * @param os
-     */
-    public static void writeTxtString(INDArray write, OutputStream os) {
-        writeTxtString(write, os, ", ", 2);
+    private static String writeStringForArray(INDArray write, String format) {
+        if (format.isEmpty()) format = "0.000000000000000000E0";
+        String lineOne = "{\n";
+        String lineTwo = "\"filefrom\": \"dl4j\",\n";
+        String lineThree = "\"ordering\": \"" + write.ordering() + "\",\n";
+        String lineFour = "\"shape\":\t" + java.util.Arrays.toString(write.shape()) + ",\n";
+        String lineFive = "\"data\":\n";
+        String fileData = new NDArrayStrings(",", format).format(write, false);
+        String fileEnd = "\n}\n";
+        String fileBegin = lineOne + lineTwo + lineThree + lineFour + lineFive;
+        String fileContents = fileBegin + fileData + fileEnd;
+        return fileContents;
     }
 
 
@@ -2380,38 +2391,33 @@ public class Nd4j {
     }
 
 
-
     /**
      * Read line via input streams
      *
      * @param ndarray the input stream ndarray
-     * @param  sep character, defaults to ","
      * @return NDArray
      */
-    public static INDArray readTxtString(InputStream ndarray, String sep) {
+    public static INDArray readTxtString(InputStream ndarray) {
+        String sep = ",";
         /*
          We could dump an ndarray to a file with the tostring (since that is valid json) and use put/get to parse it as json
-
          But here we leverage our information of the tostring method to be more efficient
          With our current toString format we use tads along dimension (rank-1,rank-2) to write to the array in two dimensional chunks at a time.
          This is more efficient than setting each value at a time with putScalar.
          This also means we can read the file one line at a time instead of loading the whole thing into memory
-
-         Future work involves enhancing the write json method to provide more features to make the load more efficient
         */
-        int lineNum = 0;
-        int rowNum = 0;
-        int tensorNum = 0;
-        char theOrder = 'c';
-        int[] theShape = {1, 1};
-        int rank = 0;
-        double[][] subsetArr = {{0.0, 0.0}, {0.0, 0.0}};
-        INDArray newArr = Nd4j.zeros(2, 2);
+        INDArray newArr = null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(ndarray));
         LineIterator it = IOUtils.lineIterator(reader);
         DecimalFormat format = (DecimalFormat) NumberFormat.getInstance(Locale.US);
         format.setParseBigDecimal(true);
         try {
+            int lineNum = 0;
+            int tensorNum = 0;
+            char theOrder = 'c';
+            int rank = 0;
+            int[] theShape = null;
+            double[] subsetArr = null;
             while (it.hasNext()) {
                 String line = it.nextLine();
                 lineNum++;
@@ -2423,7 +2429,7 @@ public class Nd4j {
                     String[] lineArr = line.split(":");
                     String fileSource = lineArr[1].replaceAll("\\W", "");
                     if (!fileSource.equals("dl4j"))
-                        return null;
+                        throw new IllegalArgumentException("Only files written out from Nd4j.writeTxT/writeTxtString can be read with the readTxt/readTxtString methods");
                 }
                 // parse ordering
                 if (lineNum == 3) {
@@ -2433,57 +2439,77 @@ public class Nd4j {
                 }
                 // parse shape
                 if (lineNum == 4) {
-                    String[] lineArr = line.split(":");
-                    String dropJsonComma = lineArr[1].split("]")[0];
-                    String[] shapeString = dropJsonComma.replace("[", "").split(",");
-                    rank = shapeString.length;
-                    theShape = new int[rank];
-                    for (int i = 0; i < rank; i++) {
-                        try {
-                            theShape[i] = Integer.parseInt(shapeString[i]);
-                        } catch (NumberFormatException nfe) {
-                        } ;
+                    String shapeString = line.split(":")[1].replace("[", "").replace("],", "");
+                    if (shapeString.isEmpty()) {
+                        newArr = Nd4j.trueScalar(0);
+                    } else {
+                        String[] shapeArr = shapeString.split(",");
+                        rank = shapeArr.length;
+                        theShape = new int[rank];
+                        for (int i = 0; i < rank; i++) {
+                            theShape[i] = Integer.parseInt(shapeArr[i]);
+                        }
+                        if (theOrder == 'f' && theShape[rank-1] == 1) {
+                            //Hack fix for tad issue with 'f' order and rank-1 dim shape == 1
+                            newArr = Nd4j.zeros(theShape, 'c');
+                        }
+                        else {
+                            newArr = Nd4j.zeros(theShape, theOrder);
+                        }
+                        subsetArr = new double[theShape[rank - 1]];
                     }
-                    subsetArr = new double[theShape[rank - 2]][theShape[rank - 1]];
-                    newArr = Nd4j.zeros(theShape, theOrder);
                     continue;
                 }
                 //parse data
                 if (lineNum > 5) {
-                    String[] entries = line.replace("\\],", "").replaceAll("\\[", "").replaceAll("\\],", "")
-                            .replaceAll("\\]", "").split(sep);
-                    for (int i = 0; i < theShape[rank - 1]; i++) {
+                    String[] entries = line.replace("\\],", "").replaceAll("\\]", "").replaceAll("\\[", "").split(sep);
+                    if (rank == 0) {
                         try {
-                            BigDecimal number = (BigDecimal) format.parse(entries[i]);
-                            subsetArr[rowNum][i] = number.doubleValue();
+                            newArr.addi((format.parse(entries[0])).doubleValue());
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-                    }
-                    rowNum++;
-                    if (rowNum == theShape[rank - 2]) {
+                    } else {
+                        for (int i = 0; i < theShape[rank - 1]; i++) {
+                            try {
+                                BigDecimal number = (BigDecimal) format.parse(entries[i]);
+                                subsetArr[i] = number.doubleValue();
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         INDArray subTensor = Nd4j.create(subsetArr);
-                        newArr.tensorAlongDimension(tensorNum, rank - 1, rank - 2).addi(subTensor);
-                        rowNum = 0;
+                        newArr.tensorAlongDimension(tensorNum, rank - 1).addi(subTensor);
                         tensorNum++;
                     }
                 }
             }
+            //Hack fix for tad issue with 'f' order and rank-1 dim shape == 1
+            if (theOrder == 'f' && rank > 1 && theShape[rank-1] == 1) {
+                newArr = newArr.dup('f');
+            }
+
         } finally {
             LineIterator.closeQuietly(it);
         }
         return newArr;
     }
 
-    /**
-     * Read from a file
-     * @param ndarray the file to read from
-     * @return an ndarray read from a text file
-     */
-    public static INDArray readTxtString(InputStream ndarray) {
-        return readTxtString(ndarray, ",");
-    }
 
+
+
+    /**
+     * Read line via input streams
+     *
+     * @param ndarray the input stream ndarray
+     * @param  sep character, defaults to ","
+     * @return NDArray
+     * Custom separators no longer supported; Use {@link #writeTxt(INDArray, String)} along with {@link #readTxt(String)}
+     */
+    @Deprecated
+    public static INDArray readTxtString(InputStream ndarray, String sep) {
+        return readTxtString(ndarray);
+    }
 
 
     /**
@@ -2492,13 +2518,26 @@ public class Nd4j {
      * @param filePath the input stream ndarray
      * @param  sep character, defaults to ","
      * @return NDArray
+     * Custom separators no longer supported; Use {@link #writeTxt(INDArray, String)} along with {@link #readTxt(String)}
      */
+    @Deprecated
     public static INDArray readTxt(String filePath, String sep) {
+        return readTxt(filePath);
+    }
+
+    /**
+     * Read line via input streams
+     *
+     * @param filePath the input stream ndarray
+     * @return NDArray
+     */
+    public static INDArray readTxt(String filePath) {
+        String sep = ",";
         File file = new File(filePath);
         InputStream is = null;
         try {
             is = new FileInputStream(file);
-            return readTxtString(is, sep);
+            return readTxtString(is);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } finally {
@@ -2511,16 +2550,6 @@ public class Nd4j {
             }
         }
     }
-
-    /**
-     * Read from a file
-     * @param filePath the file to read from
-     * @return an ndarray read from a text file
-     */
-    public static INDArray readTxt(String filePath) {
-        return readTxt(filePath, ",");
-    }
-
 
     private static int[] toIntArray(int length, DataBuffer buffer) {
         int[] ret = new int[length];
@@ -2949,10 +2978,24 @@ public class Nd4j {
      * @param shape the shape of the ndarray
      * @return the random ndarray with the specified shape
      */
+    public static IComplexNDArray complexRand(int... shape) {
+        INDArray based = Nd4j.rand(new int[] {1, ArrayUtil.prod(shape) * 2});
+        IComplexNDArray ret = Nd4j.createComplex(based.data(), shape);
+        logCreationIfNecessary(ret);
+        return ret;
+    }
+
+    /**
+     * Create a random ndarray with the given shape using
+     * the current time as the seed
+     *
+     * @param shape the shape of the ndarray
+     * @return the random ndarray with the specified shape
+     */
     public static INDArray rand(int[] shape) {
         INDArray ret = createUninitialized(shape, order()); //INSTANCE.rand(shape, Nd4j.getRandom());
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret);
     }
 
     /**
@@ -2965,24 +3008,8 @@ public class Nd4j {
     public static INDArray rand(char order, int[] shape) {
         INDArray ret = Nd4j.createUninitialized(shape, order); //INSTANCE.rand(order, shape);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret);
     }
-
-    /**
-     * Create a random ndarray with the given shape using
-     * the current time as the seed
-     *
-     * @param shape the shape of the ndarray
-     * @return the random ndarray with the specified shape
-     */
-    public static IComplexNDArray complexRand(int... shape) {
-        INDArray based = Nd4j.rand(new int[] {1, ArrayUtil.prod(shape) * 2});
-        IComplexNDArray ret = Nd4j.createComplex(based.data(), shape);
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-
 
     /**
      * Create a random ndarray with the given shape using
@@ -2998,7 +3025,7 @@ public class Nd4j {
 
         INDArray ret = createUninitialized(new int[] {rows, columns}, Nd4j.order());//INSTANCE.rand(rows, columns, Nd4j.getRandom());
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret);
     }
 
     /**
@@ -3014,9 +3041,8 @@ public class Nd4j {
 
         INDArray ret = createUninitialized(new int[] {rows, columns}, order);//INSTANCE.rand(order, rows, columns);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret);
     }
-
 
     /**
      * Create a random ndarray with the given shape using given seed
@@ -3028,8 +3054,7 @@ public class Nd4j {
     public static INDArray rand(int[] shape, long seed) {
         INDArray ret = createUninitialized(shape, Nd4j.order());//;INSTANCE.rand(shape, seed);
         logCreationIfNecessary(ret);
-        Nd4j.getRandom().setSeed(seed);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret, seed);
     }
 
     /**
@@ -3042,8 +3067,7 @@ public class Nd4j {
     public static INDArray rand(long seed, int... shape) {
         INDArray ret = createUninitialized(shape, Nd4j.order());//INSTANCE.rand(shape, seed);
         logCreationIfNecessary(ret);
-        Nd4j.getRandom().setSeed(seed);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret, seed);
     }
 
     /**
@@ -3057,8 +3081,7 @@ public class Nd4j {
     public static INDArray rand(int rows, int columns, long seed) {
         INDArray ret = createUninitialized(new int[] {rows, columns}, Nd4j.order());
         logCreationIfNecessary(ret);
-        Nd4j.getRandom().setSeed(seed);
-        return getExecutioner().exec(new UniformDistribution(ret), Nd4j.getRandom());
+        return rand(ret, seed);
     }
 
     /**
@@ -3071,7 +3094,7 @@ public class Nd4j {
     public static INDArray rand(int[] shape, org.nd4j.linalg.api.rng.Random rng) {
         INDArray ret = createUninitialized(shape, Nd4j.order()); //INSTANCE.rand(shape, rng);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), rng);
+        return rand(ret, rng);
     }
 
     /**
@@ -3098,7 +3121,7 @@ public class Nd4j {
     public static INDArray rand(int rows, int columns, org.nd4j.linalg.api.rng.Random rng) {
         INDArray ret = createUninitialized(new int[] {rows, columns}, order());//INSTANCE.rand(rows, columns, rng);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret), rng);
+        return rand(ret, rng);
     }
 
     /**
@@ -3113,7 +3136,7 @@ public class Nd4j {
     public static INDArray rand(int[] shape, double min, double max, org.nd4j.linalg.api.rng.Random rng) {
         INDArray ret = createUninitialized(shape, order()); //INSTANCE.rand(shape, min, max, rng);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret, min, max), rng);
+        return rand(ret, min, max, rng);
     }
 
     /**
@@ -3127,12 +3150,207 @@ public class Nd4j {
      * @return a drandom matrix of the specified shape and range
      */
     public static INDArray rand(int rows, int columns, double min, double max, org.nd4j.linalg.api.rng.Random rng) {
-        if (min > max)
-            throw new IllegalArgumentException("the maximum value supplied is smaller than the minimum");
         INDArray ret = createUninitialized(rows, columns);//INSTANCE.rand(rows, columns, min, max, rng);
         logCreationIfNecessary(ret);
-        return getExecutioner().exec(new UniformDistribution(ret, min, max), rng);
+        return rand(ret, min, max, rng);
     }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a normal distribution
+     *
+     * @param target  target array
+     * @return the given target array
+     */
+    public static INDArray randn(INDArray target) {
+        return getExecutioner().exec(new GaussianDistribution(target), Nd4j.getRandom());
+    }
+
+    /**
+     * Random normal using the current time stamp
+     * as the seed
+     *
+     * @param shape the shape of the ndarray
+     * @return
+     */
+    public static INDArray randn(int[] shape) {
+        INDArray ret = Nd4j.createUninitialized(shape, order());
+        logCreationIfNecessary(ret);
+        return randn(ret);
+    }
+
+    /**
+     * Random normal N(0,1) with the specified shape and array order
+     *
+     * @param order order of the output ndarray
+     * @param shape the shape of the ndarray
+     */
+    public static INDArray randn(char order, int[] shape) {
+        INDArray ret = Nd4j.createUninitialized(shape, order);
+        logCreationIfNecessary(ret);
+        return randn(ret);
+    }
+
+    /**
+     * Random normal using the specified seed
+     *
+     * @param shape the shape of the ndarray
+     * @return
+     */
+    public static INDArray randn(int[] shape, long seed) {
+        INDArray ret = Nd4j.createUninitialized(shape, order());
+        logCreationIfNecessary(ret);
+        return randn(ret, seed);
+    }
+
+    /**
+     * Random normal using the current time stamp
+     * as the seed
+     *
+     * @param rows    the number of rows in the matrix
+     * @param columns the number of columns in the matrix
+     * @return
+     */
+    public static INDArray randn(int rows, int columns) {
+        INDArray ret = Nd4j.createUninitialized(new int[]{rows, columns}, order());
+        logCreationIfNecessary(ret);
+        return randn(ret);
+    }
+
+    /**
+     * Random normal N(0,1) with the specified shape and array order
+     *
+     * @param order   the order of the output array
+     * @param rows    the number of rows in the matrix
+     * @param columns the number of columns in the matrix
+     */
+    public static INDArray randn(char order, int rows, int columns) {
+        INDArray ret = Nd4j.createUninitialized(new int[]{rows, columns}, order);
+        logCreationIfNecessary(ret);
+        return randn(ret);
+    }
+
+    /**
+     * Random normal using the specified seed
+     *
+     * @param rows    the number of rows in the matrix
+     * @param columns the number of columns in the matrix
+     * @return
+     */
+    public static INDArray randn(int rows, int columns, long seed) {
+        INDArray ret = Nd4j.createUninitialized(new int[]{rows, columns}, order());
+        logCreationIfNecessary(ret);
+        return randn(ret, seed);
+    }
+
+    /**
+     * Random normal using the given rng
+     *
+     * @param rows    the number of rows in the matrix
+     * @param columns the number of columns in the matrix
+     * @param r       the random generator to use
+     * @return
+     */
+    public static INDArray randn(int rows, int columns, org.nd4j.linalg.api.rng.Random r) {
+        INDArray ret = Nd4j.createUninitialized(new int[]{rows, columns}, order());
+        logCreationIfNecessary(ret);
+        return randn(ret, r);
+    }
+
+    /**
+     * Random normal using the given rng
+     *
+     * @param shape the shape of the ndarray
+     * @param r     the random generator to use
+     * @return
+     */
+    public static INDArray randn(int[] shape, org.nd4j.linalg.api.rng.Random r) {
+        final INDArray ret = Nd4j.createUninitialized(shape, order());
+        logCreationIfNecessary(ret);
+        return randn(ret, r);
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a uniform distribution
+     *
+     * @param target  target array
+     * @return the given target array
+     */
+    public static INDArray rand(INDArray target) {
+        return getExecutioner().exec(new UniformDistribution(target), Nd4j.getRandom());
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a uniform distribution
+     *
+     * @param target  target array
+     * @param seed the  seed to use
+     * @return the given target array
+     */
+    public static INDArray rand(INDArray target, long seed) {
+        Nd4j.getRandom().setSeed(seed);
+        return getExecutioner().exec(new UniformDistribution(target), Nd4j.getRandom());
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a uniform distribution using the given RandomGenerator
+     *
+     * @param target  target array
+     * @param rng     the random generator to use
+     * @return the given target array
+     */
+    public static INDArray rand(INDArray target, org.nd4j.linalg.api.rng.Random rng) {
+        return getExecutioner().exec(new UniformDistribution(target), rng);
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from the given distribution
+     *
+     * @param target  target array
+     * @param dist  distribution to use
+     * @return the random ndarray with the specified shape
+     */
+    public static INDArray rand(INDArray target, Distribution dist) {
+        return dist.sample(target);
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a uniform distribution using the given RandomGenerator
+     *
+     * @param target  target array
+     * @param min   the minimum number
+     * @param max   the maximum number
+     * @param rng     the random generator to use
+     * @return the given target array
+     */
+    public static INDArray rand(INDArray target,  double min, double max, org.nd4j.linalg.api.rng.Random rng) {
+        if (min > max)
+            throw new IllegalArgumentException("the maximum value supplied is smaller than the minimum");
+        return getExecutioner().exec(new UniformDistribution(target, min, max), rng);
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a normal distribution
+     *
+     * @param target  target array
+     * @return the given target array
+     */
+    public static INDArray randn(INDArray target, long seed) {
+        Nd4j.getRandom().setSeed(seed);
+        return getExecutioner().exec(new GaussianDistribution(target), Nd4j.getRandom());
+    }
+
+    /**
+     * Fill the given ndarray with random numbers drawn from a normal distribution utilizing the given random generator
+     *
+     * @param target  target array
+     * @param rng     the random generator to use
+     * @return the given target array
+     */
+    public static INDArray randn(INDArray target, org.nd4j.linalg.api.rng.Random rng) {
+        return getExecutioner().exec(new GaussianDistribution(target), rng);
+    }
+
+    ////////////////////// CREATE ///////////////////////////////
 
     /**
      * This method returns uninitialized 2D array of rows x columns
@@ -3146,125 +3364,6 @@ public class Nd4j {
     public static INDArray createUninitialized(int rows, int columns) {
         return createUninitialized(new int[] {rows, columns});
     }
-
-    /**
-     * Random normal using the current time stamp
-     * as the seed
-     *
-     * @param shape the shape of the ndarray
-     * @return
-     */
-    public static INDArray randn(int[] shape) {
-        INDArray ret = Nd4j.getExecutioner().exec(new GaussianDistribution(Nd4j.createUninitialized(shape, order())),
-                Nd4j.getRandom());
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal N(0,1) with the specified shape and array order
-     *
-     * @param order order of the output ndarray
-     * @param shape the shape of the ndarray
-     */
-    public static INDArray randn(char order, int[] shape) {
-        INDArray ret = Nd4j.getExecutioner().exec(new GaussianDistribution(Nd4j.createUninitialized(shape, order)),
-                Nd4j.getRandom());
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal using the specified seed
-     *
-     * @param shape the shape of the ndarray
-     * @return
-     */
-    public static INDArray randn(int[] shape, long seed) {
-        Nd4j.getRandom().setSeed(seed);
-        Nd4j.getExecutioner().exec(new GaussianDistribution(Nd4j.createUninitialized(shape, order())),
-                Nd4j.getRandom());
-        return randn(shape, Nd4j.getRandom());
-    }
-
-    /**
-     * Random normal using the current time stamp
-     * as the seed
-     *
-     * @param rows    the number of rows in the matrix
-     * @param columns the number of columns in the matrix
-     * @return
-     */
-    public static INDArray randn(int rows, int columns) {
-        INDArray ret = Nd4j.getExecutioner().exec(
-                new GaussianDistribution(Nd4j.createUninitialized(new int[] {rows, columns}, order())),
-                Nd4j.getRandom());
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal N(0,1) with the specified shape and array order
-     *
-     * @param order   the order of the output array
-     * @param rows    the number of rows in the matrix
-     * @param columns the number of columns in the matrix
-     */
-    public static INDArray randn(char order, int rows, int columns) {
-        INDArray ret = Nd4j.getExecutioner().exec(
-                new GaussianDistribution(Nd4j.createUninitialized(new int[] {rows, columns}, order)),
-                Nd4j.getRandom());
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal using the specified seed
-     *
-     * @param rows    the number of rows in the matrix
-     * @param columns the number of columns in the matrix
-     * @return
-     */
-    public static INDArray randn(int rows, int columns, long seed) {
-        Nd4j.getRandom().setSeed(seed);
-        INDArray ret = Nd4j.getExecutioner().exec(
-                new GaussianDistribution(Nd4j.createUninitialized(new int[] {rows, columns}, order())),
-                Nd4j.getRandom());
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal using the given rng
-     *
-     * @param rows    the number of rows in the matrix
-     * @param columns the number of columns in the matrix
-     * @param r       the random generator to use
-     * @return
-     */
-    public static INDArray randn(int rows, int columns, org.nd4j.linalg.api.rng.Random r) {
-        INDArray ret = Nd4j.getExecutioner().exec(
-                new GaussianDistribution(Nd4j.createUninitialized(new int[] {rows, columns}, order())), r);
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-    /**
-     * Random normal using the given rng
-     *
-     * @param shape the shape of the ndarray
-     * @param r     the random generator to use
-     * @return
-     */
-    public static INDArray randn(int[] shape, org.nd4j.linalg.api.rng.Random r) {
-        INDArray ret = Nd4j.getExecutioner().exec(new GaussianDistribution(Nd4j.createUninitialized(shape, order())),
-                r);
-        logCreationIfNecessary(ret);
-        return ret;
-    }
-
-
-    ////////////////////// CREATE ///////////////////////////////
 
     /**
      * Creates a row vector with the data
