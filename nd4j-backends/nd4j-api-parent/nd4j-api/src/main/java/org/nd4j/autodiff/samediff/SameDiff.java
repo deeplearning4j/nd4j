@@ -4608,7 +4608,7 @@ public class SameDiff {
     public SDVariable scatterMul(SDVariable ref, SDVariable indices, SDVariable updates) {
         return scatterMul(null, ref, indices, updates);
     }
-    
+
     public SDVariable scatterSub(SDVariable ref, SDVariable indices, SDVariable updates) {
         return scatterSub(null, ref, indices, updates);
     }
