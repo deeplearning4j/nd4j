@@ -11,6 +11,8 @@ public class ScatterDiv extends DynamicCustomOp {
         super(null, sameDiff, new SDVariable[]{ref, indices, updates}, false);
     }
 
+    public ScatterDiv() {}
+
     @Override
     public String opName() {
         return "scatter_div";
