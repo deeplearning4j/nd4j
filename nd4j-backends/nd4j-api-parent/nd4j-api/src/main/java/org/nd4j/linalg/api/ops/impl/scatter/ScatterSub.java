@@ -5,6 +5,11 @@ import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
+
+/**
+ * Created by farizrahman4u on 3/23/18.
+ */
+
 public class ScatterSub extends DynamicCustomOp {
 
     public ScatterSub(SameDiff sameDiff, SDVariable ref, SDVariable indices, SDVariable updates) {

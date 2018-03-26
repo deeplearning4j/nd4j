@@ -1,12 +1,14 @@
 package org.nd4j.linalg.api.ops.impl.scatter;
 
-import lombok.val;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.NoOpNameFoundException;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 
-import java.util.List;
+
+/**
+ * Created by farizrahman4u on 3/23/18.
+ */
 
 public class ScatterAdd extends DynamicCustomOp {
 
