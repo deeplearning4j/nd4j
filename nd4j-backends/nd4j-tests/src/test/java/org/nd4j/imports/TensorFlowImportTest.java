@@ -838,6 +838,22 @@ public class TensorFlowImportTest {
         tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/partition_stitch_misc.fb"));
     }
 
+    @Test
+    @Ignore
+    public void testCrash_119_tensor_dot_misc() throws Exception {
+        Nd4j.create(1);
+
+        val tg = TFGraphMapper.getInstance().importGraph(new ClassPathResource("tf_graphs/examples/tensor_dot_misc/frozen_model.pb").getInputStream());
+        assertNotNull(tg);
+
+        val input0 = Nd4j.create(36, 3, 4, 5).assign(1.0);
+        val input1 = Nd4j.create(5, 5, 3, 4).assign(2.0);
+
+        tg.associateArrayWithVariable(input0, tg.getVariable("input_a"));
+        tg.associateArrayWithVariable(input1, tg.getVariable("input_b"));
+
+        tg.asFlatFile(new File("../../../libnd4j/tests_cpu/resources/tensor_dot_misc.fb"));
+    }
 
     @Test(expected = ND4JIllegalStateException.class)
     public void testNonFrozenGraph1() throws Exception {

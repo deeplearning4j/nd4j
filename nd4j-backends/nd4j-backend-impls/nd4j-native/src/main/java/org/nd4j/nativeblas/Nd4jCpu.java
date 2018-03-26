@@ -133,6 +133,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_max_pool_with_argmax.class,
         float_depthwise_conv2d.class,
         float_depthwise_conv2d_bp.class,
+        float_pointwise_conv2d.class,
         float_maximum.class,
         float_maximum_bp.class,
         float_minimum.class,
@@ -438,6 +439,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_max_pool_with_argmax.class,
         half_depthwise_conv2d.class,
         half_depthwise_conv2d_bp.class,
+        half_pointwise_conv2d.class,
         half_maximum.class,
         half_maximum_bp.class,
         half_minimum.class,
@@ -743,6 +745,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_max_pool_with_argmax.class,
         double_depthwise_conv2d.class,
         double_depthwise_conv2d_bp.class,
+        double_pointwise_conv2d.class,
         double_maximum.class,
         double_maximum_bp.class,
         double_minimum.class,
@@ -6929,6 +6932,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
+        public native @StdString BytePointer asIndexedString(int limit/*=-1*/);
+        public native @StdString BytePointer asIndexedString();
+        public native @StdString BytePointer asString(int limit/*=-1*/);
+        public native @StdString BytePointer asString();
+
         /**
         *  this method assigns values of given array to this one
         */ 
@@ -8009,6 +8017,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
 
+        public native @StdString BytePointer asIndexedString(int limit/*=-1*/);
+        public native @StdString BytePointer asIndexedString();
+        public native @StdString BytePointer asString(int limit/*=-1*/);
+        public native @StdString BytePointer asString();
+
         /**
         *  this method assigns values of given array to this one
         */ 
@@ -9088,6 +9101,11 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native void printIndexedBuffer(@Cast("char*") String msg/*=nullptr*/, int limit/*=-1*/);
         public native void printIndexedBuffer();
         public native void printIndexedBuffer(@Cast("char*") BytePointer msg/*=nullptr*/, int limit/*=-1*/);
+
+        public native @StdString BytePointer asIndexedString(int limit/*=-1*/);
+        public native @StdString BytePointer asIndexedString();
+        public native @StdString BytePointer asString(int limit/*=-1*/);
+        public native @StdString BytePointer asString();
 
         /**
         *  this method assigns values of given array to this one
@@ -10282,7 +10300,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             return (FloatNDArrayFactory)super.position(position);
         }
     
-
         public static native FloatNDArray createUninitialized(FloatNDArray other);
 
         public static native FloatResultSet multipleTensorsAlongDimension(FloatNDArray ndArray, @StdVector IntPointer indices, @StdVector IntPointer dimensions);
@@ -10318,7 +10335,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public static native void tensorDot(@Const FloatNDArray a, @Const FloatNDArray b, FloatNDArray c, @StdVector int[] axes_a, @StdVector int[] axes_b);
 
 // #ifndef __JAVACPP_HACK__
-
 // #endif
 
         public static native FloatNDArray linspace(float from, float to, @Cast("Nd4jIndex") long numElements);
@@ -10353,7 +10369,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             return (HalfNDArrayFactory)super.position(position);
         }
     
-
         public static native HalfNDArray createUninitialized(HalfNDArray other);
 
         public static native HalfResultSet multipleTensorsAlongDimension(HalfNDArray ndArray, @StdVector IntPointer indices, @StdVector IntPointer dimensions);
@@ -10389,7 +10404,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public static native void tensorDot(@Const HalfNDArray a, @Const HalfNDArray b, HalfNDArray c, @StdVector int[] axes_a, @StdVector int[] axes_b);
 
 // #ifndef __JAVACPP_HACK__
-
 // #endif
 
         public static native HalfNDArray linspace(@Cast("float16") short from, @Cast("float16") short to, @Cast("Nd4jIndex") long numElements);
@@ -10424,7 +10438,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
             return (DoubleNDArrayFactory)super.position(position);
         }
     
-
         public static native DoubleNDArray createUninitialized(DoubleNDArray other);
 
         public static native DoubleResultSet multipleTensorsAlongDimension(DoubleNDArray ndArray, @StdVector IntPointer indices, @StdVector IntPointer dimensions);
@@ -10460,7 +10473,6 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public static native void tensorDot(@Const DoubleNDArray a, @Const DoubleNDArray b, DoubleNDArray c, @StdVector int[] axes_a, @StdVector int[] axes_b);
 
 // #ifndef __JAVACPP_HACK__
-
 // #endif
 
         public static native DoubleNDArray linspace(double from, double to, @Cast("Nd4jIndex") long numElements);
@@ -24148,6 +24160,63 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
                                                                                     private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
+
+        /**
+         * point-wise 2D convolution 
+         * Expected input: 
+         * x: 4D array
+         * weight: 4D Array [1,  1,  iC, oC] (NHWC) or [oC, iC,  1,  1] (NCHW)
+         * bias: optional vector, length of oC
+         * 
+         * IntArgs:
+         * 0: data format: 1 NHWC, 0 NCHW (optional, by default = NHWC)
+         */
+        @Name("nd4j::ops::pointwise_conv2d<float>") public static class float_pointwise_conv2d extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_pointwise_conv2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_pointwise_conv2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_pointwise_conv2d position(long position) {
+                return (float_pointwise_conv2d)super.position(position);
+            }
+        
+                                                                                    public float_pointwise_conv2d() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::pointwise_conv2d<float16>") public static class half_pointwise_conv2d extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_pointwise_conv2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_pointwise_conv2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_pointwise_conv2d position(long position) {
+                return (half_pointwise_conv2d)super.position(position);
+            }
+        
+                                                                                    public half_pointwise_conv2d() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::pointwise_conv2d<double>") public static class double_pointwise_conv2d extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_pointwise_conv2d(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_pointwise_conv2d(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_pointwise_conv2d position(long position) {
+                return (double_pointwise_conv2d)super.position(position);
+            }
+        
+                                                                                    public double_pointwise_conv2d() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+        
     
 
 
