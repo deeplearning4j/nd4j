@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
 import org.nd4j.linalg.api.ops.impl.controlflow.Where;
+import org.nd4j.linalg.api.ops.impl.controlflow.WhereNumpy;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndReplace;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
 import org.nd4j.linalg.factory.Nd4j;
@@ -573,7 +574,7 @@ public class BooleanIndexingTest extends BaseNd4jTest {
         }
 
 
-        Nd4j.getExecutioner().exec(new Where(new INDArray[]{mask,data,put},new INDArray[]{resultData}));
+        Nd4j.getExecutioner().exec(new WhereNumpy(new INDArray[]{mask,data,put},new INDArray[]{resultData}));
         assertEquals(assertion,resultData);
     }
 
