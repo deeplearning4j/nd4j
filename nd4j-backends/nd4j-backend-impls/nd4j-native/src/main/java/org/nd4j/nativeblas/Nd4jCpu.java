@@ -53,6 +53,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_crelu_bp.class,
         float_relu6.class,
         float_relu6_bp.class,
+        float_relu_layer.class,
         float_toggle_bits.class,
         float_matmul.class,
         float_tensormmul.class,
@@ -257,6 +258,11 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_broadcast_dynamic_shape.class,
         float_matrix_determinant.class,
         float_matrix_inverse.class,
+        float_segment_max.class,
+        float_segment_min.class,
+        float_segment_sum.class,
+        float_segment_prod.class,
+        float_segment_mean.class,
         float_set_seed.class,
         float_get_seed.class,
         float_randomuniform.class,
@@ -359,6 +365,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_crelu_bp.class,
         half_relu6.class,
         half_relu6_bp.class,
+        half_relu_layer.class,
         half_toggle_bits.class,
         half_matmul.class,
         half_tensormmul.class,
@@ -563,6 +570,11 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_broadcast_dynamic_shape.class,
         half_matrix_determinant.class,
         half_matrix_inverse.class,
+        half_segment_max.class,
+        half_segment_min.class,
+        half_segment_sum.class,
+        half_segment_prod.class,
+        half_segment_mean.class,
         half_set_seed.class,
         half_get_seed.class,
         half_randomuniform.class,
@@ -665,6 +677,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_crelu_bp.class,
         double_relu6.class,
         double_relu6_bp.class,
+        double_relu_layer.class,
         double_toggle_bits.class,
         double_matmul.class,
         double_tensormmul.class,
@@ -869,6 +882,11 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_broadcast_dynamic_shape.class,
         double_matrix_determinant.class,
         double_matrix_inverse.class,
+        double_segment_max.class,
+        double_segment_min.class,
+        double_segment_sum.class,
+        double_segment_prod.class,
+        double_segment_mean.class,
         double_set_seed.class,
         double_get_seed.class,
         double_randomuniform.class,
@@ -19673,6 +19691,55 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
                                                                                     private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
+
+        /**
+         * relu_layer = relu(x*w + b)
+         */
+        @Name("nd4j::ops::relu_layer<float>") public static class float_relu_layer extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_relu_layer(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_relu_layer(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_relu_layer position(long position) {
+                return (float_relu_layer)super.position(position);
+            }
+        
+                                                                                    public float_relu_layer() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::relu_layer<float16>") public static class half_relu_layer extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_relu_layer(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_relu_layer(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_relu_layer position(long position) {
+                return (half_relu_layer)super.position(position);
+            }
+        
+                                                                                    public half_relu_layer() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::relu_layer<double>") public static class double_relu_layer extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_relu_layer(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_relu_layer(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_relu_layer position(long position) {
+                return (double_relu_layer)super.position(position);
+            }
+        
+                                                                                    public double_relu_layer() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }        
     
 
 
@@ -30503,6 +30570,287 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
                                                     private native void allocate();
                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                 }
+
+        /**
+         * segment_max op. - make a tensor filled by max values according to index tensor given.
+         *
+         * input params:
+         *    0 - the tensor with data;
+         *    1 - the tensor with indices.
+         *
+         * return value:
+         *    tensor with max values according to indices sets.
+         */
+        @Name("nd4j::ops::segment_max<float>") public static class float_segment_max extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_segment_max(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_segment_max(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_segment_max position(long position) {
+                return (float_segment_max)super.position(position);
+            }
+        
+                                                                                    public float_segment_max() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_max<float16>") public static class half_segment_max extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_segment_max(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_segment_max(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_segment_max position(long position) {
+                return (half_segment_max)super.position(position);
+            }
+        
+                                                                                    public half_segment_max() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_max<double>") public static class double_segment_max extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_segment_max(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_segment_max(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_segment_max position(long position) {
+                return (double_segment_max)super.position(position);
+            }
+        
+                                                                                    public double_segment_max() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * segment_min op. - make a tensor filled by min values according to index tensor given.
+         *
+         * input params:
+         *    0 - the tensor with data;
+         *    1 - the tensor with indices.
+         *
+         * return value:
+         *    tensor with min values according to indices sets.
+         */
+        @Name("nd4j::ops::segment_min<float>") public static class float_segment_min extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_segment_min(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_segment_min(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_segment_min position(long position) {
+                return (float_segment_min)super.position(position);
+            }
+        
+                                                                                    public float_segment_min() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_min<float16>") public static class half_segment_min extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_segment_min(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_segment_min(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_segment_min position(long position) {
+                return (half_segment_min)super.position(position);
+            }
+        
+                                                                                    public half_segment_min() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_min<double>") public static class double_segment_min extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_segment_min(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_segment_min(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_segment_min position(long position) {
+                return (double_segment_min)super.position(position);
+            }
+        
+                                                                                    public double_segment_min() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * segment_sum op. - make a tensor filled by sum of values according to index tensor given.
+         *
+         * input params:
+         *    0 - the tensor with data;
+         *    1 - the tensor with indices.
+         *
+         * return value:
+         *    tensor with sum of values according to indices sets.
+         */
+        @Name("nd4j::ops::segment_sum<float>") public static class float_segment_sum extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_segment_sum(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_segment_sum(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_segment_sum position(long position) {
+                return (float_segment_sum)super.position(position);
+            }
+        
+                                                                                    public float_segment_sum() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_sum<float16>") public static class half_segment_sum extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_segment_sum(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_segment_sum(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_segment_sum position(long position) {
+                return (half_segment_sum)super.position(position);
+            }
+        
+                                                                                    public half_segment_sum() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_sum<double>") public static class double_segment_sum extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_segment_sum(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_segment_sum(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_segment_sum position(long position) {
+                return (double_segment_sum)super.position(position);
+            }
+        
+                                                                                    public double_segment_sum() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * segment_prod op. - make a tensor filled by product of values according to index tensor given.
+         *
+         * input params:
+         *    0 - the tensor with data;
+         *    1 - the tensor with indices.
+         *
+         * return value:
+         *    tensor with product of values according to indices sets.
+         */
+        @Name("nd4j::ops::segment_prod<float>") public static class float_segment_prod extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_segment_prod(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_segment_prod(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_segment_prod position(long position) {
+                return (float_segment_prod)super.position(position);
+            }
+        
+                                                                                    public float_segment_prod() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_prod<float16>") public static class half_segment_prod extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_segment_prod(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_segment_prod(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_segment_prod position(long position) {
+                return (half_segment_prod)super.position(position);
+            }
+        
+                                                                                    public half_segment_prod() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_prod<double>") public static class double_segment_prod extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_segment_prod(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_segment_prod(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_segment_prod position(long position) {
+                return (double_segment_prod)super.position(position);
+            }
+        
+                                                                                    public double_segment_prod() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+        /**
+         * segment_mean op. - make a tensor filled by average of values according to index tensor given.
+         *
+         * input params:
+         *    0 - the tensor with data;
+         *    1 - the tensor with indices.
+         *
+         * return value:
+         *    tensor with average of values according to indices sets.
+         */
+        @Name("nd4j::ops::segment_mean<float>") public static class float_segment_mean extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_segment_mean(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_segment_mean(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_segment_mean position(long position) {
+                return (float_segment_mean)super.position(position);
+            }
+        
+                                                                                    public float_segment_mean() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_mean<float16>") public static class half_segment_mean extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_segment_mean(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_segment_mean(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_segment_mean position(long position) {
+                return (half_segment_mean)super.position(position);
+            }
+        
+                                                                                    public half_segment_mean() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::segment_mean<double>") public static class double_segment_mean extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_segment_mean(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_segment_mean(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_segment_mean position(long position) {
+                return (double_segment_mean)super.position(position);
+            }
+        
+                                                                                    public double_segment_mean() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
     
 
 
