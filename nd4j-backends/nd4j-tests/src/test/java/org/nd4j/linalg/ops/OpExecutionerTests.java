@@ -20,6 +20,7 @@
 
 package org.nd4j.linalg.ops;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -109,6 +110,7 @@ public class OpExecutionerTests extends BaseNd4jTest {
 
 
     @Test
+    @Ignore
     public void testDistance() throws Exception {
         INDArray matrix = Nd4j.rand(new int[] {400,10});
         INDArray rowVector = matrix.getRow(70);

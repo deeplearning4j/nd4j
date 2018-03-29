@@ -258,6 +258,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_broadcast_dynamic_shape.class,
         float_matrix_determinant.class,
         float_matrix_inverse.class,
+        float_sequence_mask.class,
         float_segment_max.class,
         float_segment_min.class,
         float_segment_sum.class,
@@ -570,6 +571,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_broadcast_dynamic_shape.class,
         half_matrix_determinant.class,
         half_matrix_inverse.class,
+        half_sequence_mask.class,
         half_segment_max.class,
         half_segment_min.class,
         half_segment_sum.class,
@@ -882,6 +884,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_broadcast_dynamic_shape.class,
         double_matrix_determinant.class,
         double_matrix_inverse.class,
+        double_sequence_mask.class,
         double_segment_max.class,
         double_segment_min.class,
         double_segment_sum.class,
@@ -30570,6 +30573,62 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
                                                     private native void allocate();
                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                 }
+
+        /**
+         * sequence_mask op. - make mask for given tensor filled by (j > x[i_1, i_2,...,i_n]) -> z[i_1, i_2,...,i_n,j]
+         *
+         * input params:
+         *    0 - the ND-tensor filled by integer-like values
+         *
+         * optional int param - maxlength (maxlength >= max(x)). By default maxlength = max(x).
+         * return value:
+         *    (N+1)D tensor filled by 0 and 1 accordingly the mask
+         */
+        @Name("nd4j::ops::sequence_mask<float>") public static class float_sequence_mask extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_sequence_mask(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_sequence_mask(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_sequence_mask position(long position) {
+                return (float_sequence_mask)super.position(position);
+            }
+        
+                                                                                    public float_sequence_mask() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::sequence_mask<float16>") public static class half_sequence_mask extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_sequence_mask(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_sequence_mask(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_sequence_mask position(long position) {
+                return (half_sequence_mask)super.position(position);
+            }
+        
+                                                                                    public half_sequence_mask() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::sequence_mask<double>") public static class double_sequence_mask extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_sequence_mask(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_sequence_mask(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_sequence_mask position(long position) {
+                return (double_sequence_mask)super.position(position);
+            }
+        
+                                                                                    public double_sequence_mask() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
 
         /**
          * segment_max op. - make a tensor filled by max values according to index tensor given.
