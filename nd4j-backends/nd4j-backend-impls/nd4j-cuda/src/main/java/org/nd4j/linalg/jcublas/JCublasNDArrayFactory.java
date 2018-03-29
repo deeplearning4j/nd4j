@@ -1549,7 +1549,7 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
                     new PointerPointer(AtomicAllocator.getInstance().getPointer(tempX, context)),
                     (IntPointer) AtomicAllocator.getInstance().getPointer(result[0].shapeInfoDataBuffer(), context),
                     (IntPointer) AtomicAllocator.getInstance().getPointer(tadBuffers.getFirst(), context),
-                    new LongPointerWrapper((IntPointer) AtomicAllocator.getInstance().getPointer(tadBuffers.getSecond(), context))
+                    new LongPointerWrapper(AtomicAllocator.getInstance().getPointer(tadBuffers.getSecond(), context))
             );
         } else if (Nd4j.dataType() == DataBuffer.Type.FLOAT) {
             nativeOps.tearFloat(extraz,

@@ -915,6 +915,12 @@ public class CudaExecutioner extends DefaultOpExecutioner {
     protected CudaContext invoke(IndexAccumulation op, int[] dimension) {
         long st = profilingHookIn(op);
 
+        if (dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)) {
+            if(op.z() == op.x() || op.z() == null) {
+                op.setZ(Nd4j.scalar(0.0));
+            }
+        }
+
         checkForCompression(op);
 
         validateDataType(Nd4j.dataType(), op);

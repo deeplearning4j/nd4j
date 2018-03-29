@@ -20,6 +20,7 @@
 
 package org.nd4j.linalg.ops;
 
+import lombok.val;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -276,7 +277,9 @@ public class OpExecutionerTests extends BaseNd4jTest {
     public void testIamax2() {
         INDArray linspace = Nd4j.linspace(1, 4, 4);
         assertEquals(getFailureMessage(), 3, Nd4j.getBlasWrapper().iamax(linspace));
-        int iamax = Nd4j.getExecutioner().execAndReturn(new IAMax(linspace)).getFinalResult();
+        val op = new IAMax(linspace);
+
+        int iamax = Nd4j.getExecutioner().execAndReturn(op).getFinalResult();
         assertEquals(3, iamax);
     }
 
