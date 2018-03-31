@@ -14107,6 +14107,15 @@ public static final int PREALLOC_SIZE = 33554432;
 
 // #ifdef __CUDACC__
 // #endif
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") String msg, int rank, IntPointer shape, IntPointer strides);
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") BytePointer msg, int rank, IntBuffer shape, IntBuffer strides);
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") String msg, int rank, int[] shape, int[] strides);
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") BytePointer msg, int rank, IntPointer shape, IntPointer strides);
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") String msg, int rank, IntBuffer shape, IntBuffer strides);
+    @Namespace("shape") public static native void printShapeInfoLinear(@Cast("char*") BytePointer msg, int rank, int[] shape, int[] strides);
+
+// #ifdef __CUDACC__
+// #endif
     @Namespace("shape") public static native void printIntArray(IntPointer arr,int length);
     @Namespace("shape") public static native void printIntArray(IntBuffer arr,int length);
     @Namespace("shape") public static native void printIntArray(int[] arr,int length);
@@ -15078,6 +15087,10 @@ public static final int PREALLOC_SIZE = 33554432;
 // #ifdef __CUDACC__
 // #endif
 
+
+// #ifdef __CUDACC__
+// #endif
+
 // #ifdef __CUDACC__
 // #endif
 
@@ -15345,6 +15358,12 @@ public static native @MemberGetter int TAD_THRESHOLD();
 public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 
 // #define SHAPELIST(...)  new ShapeList({__VA_ARGS__}, block.workspace() != nullptr)
+
+// #ifdef __CUDA_ARCH__
+// #define PRINT_FIRST(...)    if (threadIdx.x == 0 && blockIdx.x == 0) {printf(__VA_ARGS__); }
+// #else
+// #define PRINT_FIRST(...)    printf(__VA_ARGS__); fflush(stdout)
+// #endif
 
 // #define EXTRACT(...) EXTRACT __VA_ARGS__ 
 // #define NOTHING_EXTRACT 

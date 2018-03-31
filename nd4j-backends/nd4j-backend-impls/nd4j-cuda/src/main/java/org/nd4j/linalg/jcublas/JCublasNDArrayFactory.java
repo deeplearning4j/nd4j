@@ -1179,6 +1179,8 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
 
             Pair<DataBuffer, DataBuffer> tadBuffers = tadManager.getTADOnlyShapeInfo(array, dimension);
 
+//            log.info("Original shape: {}; dimension: {}; TAD shape: {}", array.shapeInfoDataBuffer().asInt(), dimension, tadBuffers.getFirst().asInt());
+
             Pointer tadShapeInfo = AtomicAllocator.getInstance().getPointer(tadBuffers.getFirst(), context);
 
             DataBuffer offsets = tadBuffers.getSecond();
