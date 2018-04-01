@@ -235,6 +235,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
     }
 
+    @Ignore // with broadcastables mechanic it'll be ok
     @Test(expected = IllegalStateException.class)
     public void testShapeEqualsOnElementWise() {
         Nd4j.ones(10000, 1).sub(Nd4j.ones(1, 2));
