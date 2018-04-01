@@ -6140,6 +6140,25 @@ public class Nd4jTestsC extends BaseNd4jTest {
     }
 
 
+    @Test
+    public void testHalfStuff() {
+        if (!Nd4j.getExecutioner().getClass().getSimpleName().toLowerCase().contains("cuda"))
+            return;
+
+        val dtype = Nd4j.dataType();
+        Nd4j.setDataType(DataBuffer.Type.HALF);
+
+        val arr = Nd4j.ones(3, 3);
+        arr.addi(2.0f);
+
+        val exp = Nd4j.create(3, 3).assign(3.0f);
+
+        assertEquals(exp, arr);
+
+        Nd4j.setDataType(dtype);
+    }
+
+
     @Override
     public char ordering() {
         return 'c';
