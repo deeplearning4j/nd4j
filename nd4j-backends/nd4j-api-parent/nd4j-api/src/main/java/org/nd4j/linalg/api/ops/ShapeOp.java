@@ -65,10 +65,7 @@ public abstract class ShapeOp extends BaseOp {
 
     @Override
     public List<int[]> calculateOutputShape() {
-        List<int[]> ret = new ArrayList<>();
-        val vertexId = outputVariables()[0].getVarName();
-        ret.add(sameDiff.getShapeForVarName(vertexId));
-        return ret;
+        throw new UnsupportedOperationException();
     }
 
 
