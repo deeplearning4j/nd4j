@@ -457,9 +457,10 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                             (DoublePointer) op.y().data().addressPointer(),
                             (IntPointer) op.y().shapeInfoDataBuffer().addressPointer()));
                 } else {
+                    val p = (DoublePointer) getPointerForExtraArgs(op);
                     loop.execReduce3Double(dummy, op.opNum(), (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
-                            (DoublePointer) getPointerForExtraArgs(op),
+                            p,
                             (DoublePointer) op.y().data().addressPointer(),
                             (IntPointer) op.y().shapeInfoDataBuffer().addressPointer(),
                             (DoublePointer) op.z().data().addressPointer(),
