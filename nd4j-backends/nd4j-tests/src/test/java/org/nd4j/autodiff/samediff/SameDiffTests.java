@@ -3,6 +3,7 @@ package org.nd4j.autodiff.samediff;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.autodiff.functions.DifferentialFunction;
@@ -49,10 +50,22 @@ import static org.nd4j.linalg.indexing.NDArrayIndex.point;
  */
 @Slf4j
 public class SameDiffTests {
-    static {
+    private DataBuffer.Type initialType;
+
+    @Before
+    public void before() throws Exception {
         Nd4j.create(1);
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        initialType = Nd4j.dataType();
+
+        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.getRandom().setSeed(123);
     }
+
+    @After
+    public void after() throws Exception {
+        Nd4j.setDataType(initialType);
+    }
+
 
     @After
     public void tearDown() throws Exception {
