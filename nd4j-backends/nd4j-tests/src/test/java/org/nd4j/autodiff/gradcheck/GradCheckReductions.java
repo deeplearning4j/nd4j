@@ -395,9 +395,8 @@ public class GradCheckReductions {
         int d2 = 5;
 
         List<String> allFailed = new ArrayList<>();
-        //for (int[] reduceDims : new int[][]{{Integer.MAX_VALUE}, {0, 1, 2}, {0}, {1}, {2}, {0, 1}, {0, 2}, {1, 2}}) {
-        for (int[] reduceDims : new int[][]{{0, 1}, {0, 2}, {1, 2}}) {
-            for (int i = 2; i < 6; i++) {
+        for (int[] reduceDims : new int[][]{{Integer.MAX_VALUE}, {0, 1, 2}, {0}, {1}, {2}, {0, 1}, {0, 2}, {1, 2}}) {
+            for (int i = 0; i < 6; i++) {
 
                 SameDiff sd = SameDiff.create();
                 sd.setLogExecution(false);
