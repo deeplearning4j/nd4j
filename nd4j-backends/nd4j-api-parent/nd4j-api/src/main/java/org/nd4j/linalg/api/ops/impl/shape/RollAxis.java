@@ -100,11 +100,8 @@ public class RollAxis extends ShapeOp {
 
     @Override
     public List<int[]> calculateOutputShape() {
-        if (x == null) {
-            return new ArrayList<int[]>();
-        }
         List<int[]> ret = new ArrayList<int[]>();
-        int[] inputShape = x.shape();
+        int[] inputShape = arg().getShape();
         int[] outputShape = new int[inputShape.length];
         outputShape[0] = inputShape[axis];
         for(int i = 1; i <=axis; ++i) {
