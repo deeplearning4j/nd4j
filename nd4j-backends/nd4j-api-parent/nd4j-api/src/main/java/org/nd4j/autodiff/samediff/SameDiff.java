@@ -36,8 +36,6 @@ import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.controlflow.compat.*;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.GRUCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.LSTMCell;
@@ -2547,6 +2545,15 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable parallel_stack(SDVariable[] values) {
+        return parallel_stack(null, values);
+    }
+
+    public SDVariable parallel_stack(String name, SDVariable[] values) {
+        SDVariable ret = f().parallel_stack(values);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     public SDVariable[] unstack(SDVariable value, int axis) {
         return unstack(null, value, axis);
     }
@@ -2608,6 +2615,15 @@ public class SameDiff {
     public SDVariable oneHot(String name, SDVariable indices, int depth, int axis, double on, double off) {
         SDVariable ret = f().onehot(indices, depth, axis, on, off);
         return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable reciprocal(SDVariable a) {
+        return reciprocal(null,a);
+    }
+
+    public SDVariable reciprocal(String name, SDVariable a) {
+        SDVariable ret = f().reciprocal(a);
+        return updateVariableNameAndReference(ret,name);
     }
 
     /**
@@ -2928,24 +2944,51 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable reverse_sequence(String name, SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
-        SDVariable ret = f().reverse_sequence(x, seq_lengths, seqDim, batchDim);
+    public SDVariable reverseSequence(String name, SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
+        SDVariable ret = f().reverseSequence(x, seq_lengths, seqDim, batchDim);
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable reverse_sequence(String name, SDVariable x, SDVariable seq_lengths) {
-        SDVariable ret = f().reverse_sequence(x, seq_lengths);
+    public SDVariable reverseSequence(String name, SDVariable x, SDVariable seq_lengths) {
+        SDVariable ret = f().reverseSequence(x, seq_lengths);
         return updateVariableNameAndReference(ret, name);
     }
 
-    public SDVariable reverse_sequence(SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
-        return reverse_sequence(null, x, seq_lengths, seqDim, batchDim);
+    public SDVariable reverseSequence(SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
+        return reverseSequence(null, x, seq_lengths, seqDim, batchDim);
     }
 
-    public SDVariable reverse_sequence(SDVariable x, SDVariable seq_lengths){
-        return reverse_sequence(null, x, seq_lengths);
+    public SDVariable reverseSequence(SDVariable x, SDVariable seq_lengths){
+        return reverseSequence(null, x, seq_lengths);
     }
 
+    public SDVariable sequenceMask(String name, SDVariable lengths, SDVariable maxLen) {
+        SDVariable ret = f().sequenceMask(lengths, maxLen);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths, SDVariable maxLen) {
+        return sequenceMask(null, lengths, maxLen);
+    }
+
+    public SDVariable sequenceMask(String name, SDVariable lengths, int maxLen) {
+        SDVariable ret = f().sequenceMask(lengths, maxLen);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths, int maxLen) {
+        return sequenceMask(null, lengths, maxLen);
+    }
+
+    public SDVariable sequenceMask(String name, SDVariable lengths) {
+        SDVariable ret = f().sequenceMask(lengths);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths) {
+        SDVariable ret = f().sequenceMask(lengths);
+        return updateVariableNameAndReference(ret, null);
+    }
 
     public SDVariable assign(SDVariable x, SDVariable y){
         return assign(null, x, y);
@@ -3037,6 +3080,16 @@ public class SameDiff {
 
     public SDVariable xwPlusB(String name, SDVariable input, SDVariable weights, SDVariable bias) {
         SDVariable res = f().xwPlusB(input, weights, bias);
+        return updateVariableNameAndReference(res, name);
+    }
+
+
+    public SDVariable reluLayer(SDVariable input, SDVariable weights, SDVariable bias) {
+        return reluLayer(null, input, weights, bias);
+    }
+
+    public SDVariable reluLayer(String name, SDVariable input, SDVariable weights, SDVariable bias) {
+        SDVariable res = f().reluLayer(input, weights, bias);
         return updateVariableNameAndReference(res, name);
     }
 
@@ -4580,6 +4633,45 @@ public class SameDiff {
     }
 
 
+    public SDVariable scatterAdd(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterAdd(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterMul(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterMul(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterSub(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterSub(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterDiv(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterDiv(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    public SDVariable scatterAdd(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterAdd(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterMul(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterMul(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterSub(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterSub(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterDiv(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterDiv(null, ref, indices, updates);
+    }
+
+
+
     /**
      * Generate the variables based on the given input op
      * and return the output variable names.
@@ -6038,7 +6130,7 @@ public class SameDiff {
         }
     }
 
-    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap, Map<String, Integer> forwardMap, Map<String, Integer> framesMap, AtomicInteger idCounter) {
+    protected int  asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap, Map<String, Integer> forwardMap, Map<String, Integer> framesMap, AtomicInteger idCounter) {
         val opName = node.opName();
         val hash = getOpNum(node.opName(), node.opType());
         //log.info("Exporting node: [{}:<{}> ; OpType: {}; Hash/opNum: {}]", node.opName(), node.tensorflowName(), node.opType(), hash);

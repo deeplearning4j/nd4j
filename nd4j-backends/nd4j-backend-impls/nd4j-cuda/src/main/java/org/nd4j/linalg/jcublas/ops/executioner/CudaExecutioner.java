@@ -915,6 +915,12 @@ public class CudaExecutioner extends DefaultOpExecutioner {
     protected CudaContext invoke(IndexAccumulation op, int[] dimension) {
         long st = profilingHookIn(op);
 
+        if (dimension == null || (dimension.length == 1 && dimension[0] == Integer.MAX_VALUE)) {
+            if(op.z() == op.x() || op.z() == null) {
+                op.setZ(Nd4j.scalar(0.0));
+            }
+        }
+
         checkForCompression(op);
 
         validateDataType(Nd4j.dataType(), op);
@@ -2158,6 +2164,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
     @Override
     public void commit() {
         ((CudaContext) AtomicAllocator.getInstance().getDeviceContext().getContext()).syncOldStream();
+        ((CudaContext) AtomicAllocator.getInstance().getDeviceContext().getContext()).syncSpecialStream();
     }
 
     @Override
@@ -2482,6 +2489,9 @@ public class CudaExecutioner extends DefaultOpExecutioner {
 
     @Override
     public List<int[]> calculateOutputShape(@NonNull CustomOp op) {
+
+        Nd4j.getExecutioner().commit();
+
         val lc = op.opName().toLowerCase();
         val hash = op.opHash();
 
@@ -2575,7 +2585,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             val xArr = op.inputArguments()[0];
             val zArr = op.outputArguments()[0];
 
-            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr, xArr);
 
             if (extraz.get() == null)
                 extraz.set(new PointerPointer(32));
@@ -2590,7 +2600,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                             context.getBufferSpecial(),
                             null,
                             AddressRetriever.retrieveHostPointer(zArr.shapeInfoDataBuffer())
-                            );
+                    );
 
 
             val x = AtomicAllocator.getInstance().getPointer(xArr, context);
@@ -2604,7 +2614,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                 zeroPad = op.tArgs()[0];
             }
             val extrass = new double[]{op.iArgs()[0], op.iArgs()[1], op.iArgs()[2], op.iArgs()[3], op.iArgs()[4], op.iArgs()[5], op.iArgs()[6], op.iArgs()[7], op.iArgs()[8], zeroPad};
-            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
+            val extraArgsBuff = Nd4j.getConstantHandler().getConstantBuffer(extrass);
+            val extraArgs = AtomicAllocator.getInstance().getPointer(extraArgsBuff, context);
 
 
             if (dtype == DataBuffer.Type.DOUBLE) {
@@ -2615,7 +2626,10 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                 nativeOps.execTransformHalf(xShapeHost, 37, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
             }
 
-            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            //AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            AtomicAllocator.getInstance().getFlowController().registerAction(context, zArr, xArr);
+
+            //Nd4j.getExecutioner().commit();
 
             return;
         } else if (op.opName().equalsIgnoreCase("col2im")) {
@@ -2624,7 +2638,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             val xArr = op.inputArguments()[0];
             val zArr = op.outputArguments()[0];
 
-            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr, xArr);
 
             if (extraz.get() == null)
                 extraz.set(new PointerPointer(32));
@@ -2649,8 +2663,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             val zShape = AtomicAllocator.getInstance().getPointer(zArr.shapeInfoDataBuffer(), context);
 
             val extrass = new double[]{op.iArgs()[0], op.iArgs()[1], op.iArgs()[2], op.iArgs()[3], op.iArgs()[4], op.iArgs()[5], op.iArgs()[6], op.iArgs()[7]};
-            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
-
+            val extraArgsBuff = Nd4j.getConstantHandler().getConstantBuffer(extrass);
+            val extraArgs = AtomicAllocator.getInstance().getPointer(extraArgsBuff, context);
 
             if (dtype == DataBuffer.Type.DOUBLE) {
                 nativeOps.execTransformDouble(xShapeHost, 36, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
@@ -2660,7 +2674,10 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                 nativeOps.execTransformHalf(xShapeHost, 36, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
             }
 
-            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            //AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            AtomicAllocator.getInstance().getFlowController().registerAction(context, zArr, xArr);
+
+            //Nd4j.getExecutioner().commit();
 
             return;
         } else if (op.opName().equalsIgnoreCase("pooling2d")) {
@@ -2669,7 +2686,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             val xArr = op.inputArguments()[0];
             val zArr = op.outputArguments()[0];
 
-            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr);
+            CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareAction(zArr, xArr);
 
             if (extraz.get() == null)
                 extraz.set(new PointerPointer(32));
@@ -2694,8 +2711,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             val zShape = AtomicAllocator.getInstance().getPointer(zArr.shapeInfoDataBuffer(), context);
 
             val extrass = new double[]{op.iArgs()[0], op.iArgs()[1], op.iArgs()[2], op.iArgs()[3], op.iArgs()[4], op.iArgs()[5], op.iArgs()[6], op.iArgs()[7], op.iArgs()[8]};
-            val extraArgs = Nd4j.getConstantHandler().getConstantBuffer(extrass).addressPointer();
-
+            val extraArgsBuff = Nd4j.getConstantHandler().getConstantBuffer(extrass);
+            val extraArgs = AtomicAllocator.getInstance().getPointer(extraArgsBuff, context);
 
             if (dtype == DataBuffer.Type.DOUBLE) {
                 nativeOps.execTransformDouble(xShapeHost, 71, (DoublePointer) x, (IntPointer) xShape, (DoublePointer) z, (IntPointer) zShape, (DoublePointer) extraArgs);
@@ -2705,14 +2722,17 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                 nativeOps.execTransformHalf(xShapeHost, 71, (ShortPointer) x, (IntPointer) xShape, (ShortPointer) z, (IntPointer) zShape, (ShortPointer) extraArgs);
             }
 
-            AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            // AtomicAllocator.getInstance().getAllocationPoint(zArr).tickDeviceWrite();
+            AtomicAllocator.getInstance().getFlowController().registerAction(context, zArr, xArr);
 
+            //Nd4j.getExecutioner().commit();
 
             return;
         }
 
-
-        CudaContext context = AtomicAllocator.getInstance().getFlowController().prepareActionAllWrite(op.outputArguments());
+        Nd4j.getExecutioner().commit();
+        CudaContext context =(CudaContext) AtomicAllocator.getInstance().getDeviceContext().getContext();
+        //AtomicAllocator.getInstance().getFlowController().prepareActionAllWrite(op.outputArguments());
 
         if (extraz.get() == null)
             extraz.set(new PointerPointer(32));
@@ -2817,6 +2837,8 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             if (status != OpStatus.ND4J_STATUS_OK)
                 throw new ND4JIllegalStateException("Op execution failed: " + status);
         }
+
+        //AtomicAllocator.getInstance().getFlowController().prepareActionAllWrite(op.outputArguments());
     }
 
     @Override

@@ -3478,7 +3478,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }
 
         if (isScalar()) {
-            return other.divi(getDouble(0), result);
+            return other.rdivi(getDouble(0), result);
         }
 
 
@@ -3566,7 +3566,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return subi(other.getDouble(0), result);
         }
         if (isScalar()) {
-            return other.subi(getDouble(0), result);
+            return other.rsubi(getDouble(0), result);
         }
 
 
@@ -6052,6 +6052,12 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return DataBuffer.TypeEx.FLOAT;
         } else if (type == DataBuffer.Type.DOUBLE) {
             return DataBuffer.TypeEx.DOUBLE;
+
+        } else if(type == DataBuffer.Type.INT) {
+             return DataBuffer.TypeEx.INT8;
+        } else if(type == DataBuffer.Type.LONG) {
+            return DataBuffer.TypeEx.INT16;
+
         } else
             throw new IllegalStateException("Unknown dataType: [" + type + "]");
     }
