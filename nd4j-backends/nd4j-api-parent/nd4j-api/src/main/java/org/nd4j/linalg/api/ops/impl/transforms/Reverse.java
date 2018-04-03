@@ -31,7 +31,7 @@ public class Reverse extends DynamicCustomOp {
 
     @Override
     public String tensorflowName() {
-        throw new NoOpNameFoundException("Reverse");
+        return "Reverse";
     }
 
     @Override
