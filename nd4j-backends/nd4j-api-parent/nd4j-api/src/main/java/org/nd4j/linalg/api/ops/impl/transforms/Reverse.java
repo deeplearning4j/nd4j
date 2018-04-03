@@ -34,6 +34,11 @@ public class Reverse extends DynamicCustomOp {
         throw new NoOpNameFoundException("Reverse");
     }
 
+    @Override
+    public String[] tensorflowNames() {
+        return new String[] {"Reverse","ReverseV2"};
+    }
+
 
     @Override
     public List<SDVariable> doDiff(List<SDVariable> f1) {
