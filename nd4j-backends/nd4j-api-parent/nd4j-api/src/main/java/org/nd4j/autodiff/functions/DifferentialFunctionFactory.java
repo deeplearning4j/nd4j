@@ -817,7 +817,7 @@ public class DifferentialFunctionFactory {
     }
 
     public SDVariable reciprocal(SDVariable a) {
-        return new Reciprocal(sameDiff(), a, (Object[]) null).outputVariables()[0];
+        return new Reciprocal(sameDiff(), a, new Object[0]).outputVariables()[0];
     }
 
 
