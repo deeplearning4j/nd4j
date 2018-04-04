@@ -283,6 +283,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_lstm.class,
         float_gru.class,
         float_static_rnn.class,
+        float_static_bidirectional_rnn.class,
         float_permute.class,
         float_reshapeas.class,
         float_transpose.class,
@@ -600,6 +601,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_lstm.class,
         half_gru.class,
         half_static_rnn.class,
+        half_static_bidirectional_rnn.class,
         half_permute.class,
         half_reshapeas.class,
         half_transpose.class,
@@ -917,6 +919,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_lstm.class,
         double_gru.class,
         double_static_rnn.class,
+        double_static_bidirectional_rnn.class,
         double_permute.class,
         double_reshapeas.class,
         double_transpose.class,
@@ -25675,7 +25678,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
 
-           //////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////
     /**
        * Implementation of operation "static RNN time sequences" with peep hole connections:
        *
@@ -25733,6 +25736,73 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             }
         
                                                                                     public double_static_rnn() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+    //////////////////////////////////////////////////////////////////////////
+    /**
+       * Implementation of operation "static RNN time sequences" with peep hole connections:
+       *
+       * Input arrays: 
+       *    0: input with shape [time x batchSize x inSize], time - number of time steps, batchSize - batch size, inSize - number of features       
+       *    1: input-to-hidden  weights for forward RNN, [inSize   x numUnitsFW] 
+       *    2: hidden-to-hidden weights for forward RNN, [numUnitsFW x numUnitsFW] 
+       *    3: biases for forward RNN, [2*numUnitsFW] 
+       *    4: input-to-hidden  weights for backward RNN, [inSize   x numUnitsBW] 
+       *    5: hidden-to-hidden weights for backward RNN, [numUnitsBW x numUnitsBW] 
+       *    6: biases for backward RNN, [2*numUnitsBW] 
+       *    7: (optional) initial cell output for forward RNN [batchSize x numUnitsFW], that is at time step = 0       
+       *    8: (optional) initial cell output for backward RNN [batchSize x numUnitsBW], that is at time step = 0       
+       *    9: (optional) vector with shape [batchSize] containing integer values within [0,time), each element of this vector set max time step per each input in batch, this means there are no calculations for time >= maxTimeStep       
+       *  
+       * Output arrays: 
+       *    0: cell outputs [time x batchSize x (numUnitsFW + numUnitsBW)]
+       *    1: cell final non-zero output for forward RNN [batchSize x numUnitsFW]
+       *    2: cell final non-zero output for backward RNN [batchSize x numUnitsFW]
+       */                  
+        @Name("nd4j::ops::static_bidirectional_rnn<float>") public static class float_static_bidirectional_rnn extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_static_bidirectional_rnn(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_static_bidirectional_rnn(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_static_bidirectional_rnn position(long position) {
+                return (float_static_bidirectional_rnn)super.position(position);
+            }
+        
+                                                                                    public float_static_bidirectional_rnn() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }                  
+        @Name("nd4j::ops::static_bidirectional_rnn<float16>") public static class half_static_bidirectional_rnn extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_static_bidirectional_rnn(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_static_bidirectional_rnn(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_static_bidirectional_rnn position(long position) {
+                return (half_static_bidirectional_rnn)super.position(position);
+            }
+        
+                                                                                    public half_static_bidirectional_rnn() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }                  
+        @Name("nd4j::ops::static_bidirectional_rnn<double>") public static class double_static_bidirectional_rnn extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_static_bidirectional_rnn(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_static_bidirectional_rnn(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_static_bidirectional_rnn position(long position) {
+                return (double_static_bidirectional_rnn)super.position(position);
+            }
+        
+                                                                                    public double_static_bidirectional_rnn() { super((Pointer)null); allocate(); }
                                                                                     private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
