@@ -101,6 +101,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         float_floordiv_bp.class,
         float_realdiv.class,
         float_realdiv_bp.class,
+        float_truncatediv.class,
         float_assign.class,
         float_assign_bp.class,
         float_equals.class,
@@ -419,6 +420,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         half_floordiv_bp.class,
         half_realdiv.class,
         half_realdiv_bp.class,
+        half_truncatediv.class,
         half_assign.class,
         half_assign_bp.class,
         half_equals.class,
@@ -737,6 +739,7 @@ public class Nd4jCpu extends org.nd4j.nativeblas.Nd4jCpuPresets {
         double_floordiv_bp.class,
         double_realdiv.class,
         double_realdiv_bp.class,
+        double_truncatediv.class,
         double_assign.class,
         double_assign_bp.class,
         double_equals.class,
@@ -21910,6 +21913,58 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
             }
         
                                                                                     public double_realdiv_bp() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
+                                                                                }
+
+
+        /**
+         *
+         *
+         * \tparam T
+         */
+        @Name("nd4j::ops::truncatediv<float>") public static class float_truncatediv extends FloatDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public float_truncatediv(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public float_truncatediv(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public float_truncatediv position(long position) {
+                return (float_truncatediv)super.position(position);
+            }
+        
+                                                                                    public float_truncatediv() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef FloatContext block);
+                                                                                }
+        @Name("nd4j::ops::truncatediv<float16>") public static class half_truncatediv extends HalfDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public half_truncatediv(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public half_truncatediv(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public half_truncatediv position(long position) {
+                return (half_truncatediv)super.position(position);
+            }
+        
+                                                                                    public half_truncatediv() { super((Pointer)null); allocate(); }
+                                                                                    private native void allocate();
+                                                                                    public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef HalfContext block);
+                                                                                }
+        @Name("nd4j::ops::truncatediv<double>") public static class double_truncatediv extends DoubleDeclarableCustomOp {
+            static { Loader.load(); }
+            /** Pointer cast constructor. Invokes {@link Pointer#Pointer(Pointer)}. */
+            public double_truncatediv(Pointer p) { super(p); }
+            /** Native array allocator. Access with {@link Pointer#position(long)}. */
+            public double_truncatediv(long size) { super((Pointer)null); allocateArray(size); }
+            private native void allocateArray(long size);
+            @Override public double_truncatediv position(long position) {
+                return (double_truncatediv)super.position(position);
+            }
+        
+                                                                                    public double_truncatediv() { super((Pointer)null); allocate(); }
                                                                                     private native void allocate();
                                                                                     public native ShapeList calculateOutputShape(ShapeList inputShape, @ByRef DoubleContext block);
                                                                                 }
