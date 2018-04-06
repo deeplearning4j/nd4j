@@ -1839,8 +1839,8 @@ public class Shape {
     }
 
 
-    public static int length(int[] buffer) {
-        int ret = 1;
+    public static long length(int[] buffer) {
+        long ret = 1;
         int limit = Shape.rank(buffer) + 1;
         for (int i = 1; i < limit; i++)
             ret *= buffer[i];
