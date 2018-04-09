@@ -73,6 +73,10 @@ public class CudaTests extends BaseNd4jTest {
         arrayA.addi(2.0f);
 
         assertEquals(0, executioner.getQueueLength());
+
+        Nd4j.getExecutioner().commit();
+
+        assertEquals(2.0f, arrayA.getFloat(0), 1e-5f);
     }
 
 
