@@ -3,17 +3,14 @@ package org.nd4j.parameterserver.distributed.training;
 import lombok.NonNull;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.parameterserver.distributed.conf.VoidConfiguration;
-import org.nd4j.parameterserver.distributed.logic.completion.Clipboard;
 import org.nd4j.parameterserver.distributed.logic.Storage;
+import org.nd4j.parameterserver.distributed.logic.completion.Clipboard;
 import org.nd4j.parameterserver.distributed.messages.TrainingMessage;
 import org.nd4j.parameterserver.distributed.transport.Transport;
-import org.reflections.Reflections;
 
-import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.Set;
 
 /**
  * @author raver119@gmail.com
