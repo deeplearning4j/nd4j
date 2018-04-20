@@ -53,6 +53,25 @@ public class Preconditions {
     /**
      * See {@link #checkArgument(boolean, String, Object...)}
      */
+    public static void checkArgument(boolean b, String msg, double arg1) {
+        if (!b) {
+            throwEx(msg, arg1);
+        }
+    }
+
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, Object arg1) {
+        if (!b) {
+            throwEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
     public static void checkArgument(boolean b, String msg, int arg1, int arg2) {
         if (!b) {
             throwEx(msg, arg1, arg2);
@@ -63,6 +82,24 @@ public class Preconditions {
      * See {@link #checkArgument(boolean, String, Object...)}
      */
     public static void checkArgument(boolean b, String msg, long arg1, long arg2) {
+        if (!b) {
+            throwEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, double arg1, double arg2) {
+        if (!b) {
+            throwEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, Object arg1, Object arg2) {
         if (!b) {
             throwEx(msg, arg1, arg2);
         }
@@ -89,6 +126,24 @@ public class Preconditions {
     /**
      * See {@link #checkArgument(boolean, String, Object...)}
      */
+    public static void checkArgument(boolean b, String msg, double arg1, double arg2, double arg3) {
+        if (!b) {
+            throwEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, Object arg1, Object arg2, Object arg3) {
+        if (!b) {
+            throwEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
     public static void checkArgument(boolean b, String msg, int arg1, int arg2, int arg3, int arg4) {
         if (!b) {
             throwEx(msg, arg1, arg2, arg3, arg4);
@@ -99,6 +154,25 @@ public class Preconditions {
      * See {@link #checkArgument(boolean, String, Object...)}
      */
     public static void checkArgument(boolean b, String msg, long arg1, long arg2, long arg3, long arg4) {
+        if (!b) {
+            throwEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, double arg1, double arg2, double arg3, double arg4) {
+        if (!b) {
+            throwEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * See {@link #checkArgument(boolean, String, Object...)}
+     */
+    public static void checkArgument(boolean b, String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
         if (!b) {
             throwEx(msg, arg1, arg2, arg3, arg4);
         }
@@ -120,9 +194,315 @@ public class Preconditions {
         }
     }
 
+
+    /**
+     * Check the specified boolean argument. Throws an IllegalStateException if {@code b} is false
+     *
+     * @param b State to check
+     */
+    public static void checkState(boolean b) {
+        if (!b) {
+            throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Check the specified boolean argument. Throws an IllegalStateException with the specified message if {@code b} is false
+     *
+     * @param b       State to check
+     * @param message Message for exception. May be null
+     */
+    public static void checkState(boolean b, String message) {
+        if (!b) {
+            throwStateEx(message);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, int arg1) {
+        if (!b) {
+            throwStateEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, long arg1) {
+        if (!b) {
+            throwStateEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, Object arg1) {
+        if (!b) {
+            throwStateEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, int arg1, int arg2) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, long arg1, long arg2) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, Object arg1, Object arg2) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, int arg1, int arg2, int arg3) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, long arg1, long arg2, long arg3) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, Object arg1, Object arg2, Object arg3) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, int arg1, int arg2, int arg3, int arg4) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, long arg1, long arg2, long arg3, long arg4) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * See {@link #checkState(boolean, String, Object...)}
+     */
+    public static void checkState(boolean b, String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        if (!b) {
+            throwStateEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * Check the specified boolean argument. Throws an IllegalStateException with the specified message if {@code b} is false.
+     * Note that the message may specify argument locations using "%s" - for example,
+     * {@code checkArgument(false, "Got %s values, expected %s", 3, "more"} would throw an IllegalStateException
+     * with the message "Got 3 values, expected more"
+     *
+     * @param b       Argument to check
+     * @param message Message for exception. May be null.
+     * @param args    Arguments to place in message
+     */
+    public static void checkState(boolean b, String message, Object... args) {
+        if (!b) {
+            throwStateEx(message, args);
+        }
+    }
+
+
+    /**
+     * Check the specified boolean argument. Throws an NullPointerException if {@code o} is false
+     *
+     * @param o Object to check
+     */
+    public static void checkNotNull(Object o) {
+        if (o == null) {
+            throw new NullPointerException();
+        }
+    }
+
+    /**
+     * Check the specified boolean argument. Throws an NullPointerException with the specified message if {@code o} is false
+     *
+     * @param o       Object to check
+     * @param message Message for exception. May be null
+     */
+    public static void checkNotNull(Object o, String message) {
+        if (o == null) {
+            throwNullPointerEx(message);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, int arg1) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, long arg1) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, Object arg1) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, int arg1, int arg2) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, long arg1, long arg2) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, Object arg1, Object arg2) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, int arg1, int arg2, int arg3) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, long arg1, long arg2, long arg3) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, Object arg1, Object arg2, Object arg3) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, int arg1, int arg2, int arg3, int arg4) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, long arg1, long arg2, long arg3, long arg4) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * See {@link #checkNotNull(Object, String, Object...)}
+     */
+    public static void checkNotNull(Object o, String msg, Object arg1, Object arg2, Object arg3, Object arg4) {
+        if (o == null) {
+            throwNullPointerEx(msg, arg1, arg2, arg3, arg4);
+        }
+    }
+
+    /**
+     * Check the specified boolean argument. Throws an IllegalStateException with the specified message if {@code o} is false.
+     * Note that the message may specify argument locations using "%s" - for example,
+     * {@code checkArgument(false, "Got %s values, expected %s", 3, "more"} would throw an IllegalStateException
+     * with the message "Got 3 values, expected more"
+     *
+     * @param o       Object to check
+     * @param message Message for exception. May be null.
+     * @param args    Arguments to place in message
+     */
+    public static void checkNotNull(Object o, String message, Object... args) {
+        if (o == null) {
+            throwStateEx(message, args);
+        }
+    }
+
     private static void throwEx(String message, Object... args) {
         String f = format(message, args);
         throw new IllegalArgumentException(f);
+    }
+
+    private static void throwStateEx(String message, Object... args) {
+        String f = format(message, args);
+        throw new IllegalStateException(f);
+    }
+
+    private static void throwNullPointerEx(String message, Object... args) {
+        String f = format(message, args);
+        throw new NullPointerException(f);
     }
 
     private static String format(String message, Object... args) {

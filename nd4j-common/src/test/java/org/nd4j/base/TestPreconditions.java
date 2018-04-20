@@ -103,12 +103,106 @@ public class TestPreconditions {
         } catch (IllegalArgumentException e){
             assertEquals("This is A %s malformed", e.getMessage());
         }
+    }
 
 
+    @Test
+    public void testPreconditionsState(){
+
+        Preconditions.checkState(true);
+        try{
+            Preconditions.checkState(false);
+        } catch (IllegalStateException e){
+            assertNull(e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here", 10);
+        try{
+            Preconditions.checkState(false, "Message %s here", 10);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here %s there", 10, 20);
+        try{
+            Preconditions.checkState(false, "Message %s here %s there", 10, 20);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here 20 there", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here %s there %s more", 10, 20, 30);
+        try{
+            Preconditions.checkState(false, "Message %s here %s there %s more", 10, 20, 30);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here 20 there 30 more", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here", 10L);
+        try{
+            Preconditions.checkState(false, "Message %s here", 10L);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here %s there", 10L, 20L);
+        try{
+            Preconditions.checkState(false, "Message %s here %s there", 10L, 20L);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here 20 there", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here %s there %s more", 10L, 20L, 30L);
+        try{
+            Preconditions.checkState(false, "Message %s here %s there %s more", 10L, 20L, 30L);
+        } catch (IllegalStateException e){
+            assertEquals("Message 10 here 20 there 30 more", e.getMessage());
+        }
+
+        Preconditions.checkState(true, "Message %s here %s there %s more", "A", "B", "C");
+        try{
+            Preconditions.checkState(false, "Message %s here %s there %s more", "A", "B", "C");
+        } catch (IllegalStateException e){
+            assertEquals("Message A here B there C more", e.getMessage());
+        }
 
 
     }
 
+    @Test
+    public void testPreconditionsMalformedState(){
+
+        //No %s:
+        Preconditions.checkState(true, "This is malformed", "A", "B", "C");
+        try{
+            Preconditions.checkState(false, "This is malformed", "A", "B", "C");
+        } catch (IllegalStateException e){
+            assertEquals("This is malformed [A,B,C]", e.getMessage());
+        }
+
+        //More args than %s:
+        Preconditions.checkState(true, "This is %s malformed", "A", "B", "C");
+        try{
+            Preconditions.checkState(false, "This is %s malformed", "A", "B", "C");
+        } catch (IllegalStateException e){
+            assertEquals("This is A malformed [B,C]", e.getMessage());
+        }
+
+        //No args
+        Preconditions.checkState(true, "This is %s %s malformed");
+        try{
+            Preconditions.checkState(false, "This is %s %s malformed");
+        } catch (IllegalStateException e){
+            assertEquals("This is %s %s malformed", e.getMessage());
+        }
+
+        //More %s than args
+        Preconditions.checkState(true, "This is %s %s malformed", "A");
+        try{
+            Preconditions.checkState(false, "This is %s %s malformed", "A");
+        } catch (IllegalStateException e){
+            assertEquals("This is A %s malformed", e.getMessage());
+        }
+    }
 
 
 }
