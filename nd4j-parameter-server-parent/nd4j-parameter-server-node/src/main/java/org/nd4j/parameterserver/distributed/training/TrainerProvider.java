@@ -12,6 +12,7 @@ import org.reflections.Reflections;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
@@ -29,32 +30,21 @@ public class TrainerProvider {
     protected Storage storage;
 
     private TrainerProvider() {
-        scanClasspath();
+        loadProviders();
     }
 
     public static TrainerProvider getInstance() {
         return INSTANCE;
     }
 
-    protected void scanClasspath() {
-        // TODO: reflection stuff to fill trainers
-        Reflections reflections = new Reflections("org");
-        Set<Class<? extends TrainingDriver>> classes = reflections.getSubTypesOf(TrainingDriver.class);
-
-        for (Class clazz : classes) {
-            if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))
-                continue;
-
-            try {
-                TrainingDriver driver = (TrainingDriver) clazz.newInstance();
-                trainers.put(driver.targetMessageClass(), driver);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+    protected void loadProviders(){
+        ServiceLoader<TrainingDriver> serviceLoader = ServiceLoader.load(TrainingDriver.class);
+        for(TrainingDriver d : serviceLoader){
+            trainers.put(d.targetMessageClass(), d);
         }
 
         if (trainers.size() < 1)
-            throw new ND4JIllegalStateException("No TrainingDrivers were found");
+            throw new ND4JIllegalStateException("No TrainingDrivers were found via ServiceLoader mechanism");
     }
 
     public void init(@NonNull VoidConfiguration voidConfiguration, @NonNull Transport transport,
