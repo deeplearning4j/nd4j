@@ -1,5 +1,7 @@
 package org.nd4j.base;
 
+import java.util.Arrays;
+
 /**
  * Utility method for method checking arguments.
  *
@@ -526,7 +528,7 @@ public class Preconditions {
                     consumedMessageFully = true;
                     sb.append(" [");
                     while (i < args.length) {
-                        sb.append(args[i]);
+                        sb.append(formatArg(args[i]));
                         if (i < args.length - 1) {
                             sb.append(",");
                         }
@@ -536,7 +538,7 @@ public class Preconditions {
                 }
             } else {
                 sb.append(message.substring(indexOfStart, nextIdx))
-                        .append(args[i]);
+                        .append(formatArg(args[i]));
                 indexOfStart = nextIdx + 2;
             }
         }
@@ -545,6 +547,47 @@ public class Preconditions {
         }
 
         return sb.toString();
+    }
+
+    private static String formatArg(Object o){
+        if(o == null){
+            return "null";
+        }
+        if(o.getClass().isArray()){
+            return formatArray(o);
+        }
+        return o.toString();
+    }
+
+    private static String formatArray(Object o){
+        if(o == null)
+            return "null";
+
+        if(o.getClass().getComponentType().isPrimitive()){
+            if(o instanceof byte[]) {
+                return Arrays.toString((byte[])o);
+            } else if(o instanceof int[]){
+                return Arrays.toString((int[])o);
+            } else if(o instanceof long[]){
+                return Arrays.toString((long[])o);
+            } else if(o instanceof float[]){
+                return Arrays.toString((float[])o);
+            } else if(o instanceof double[]){
+                return Arrays.toString((double[])o);
+            } else if(o instanceof char[]){
+                return Arrays.toString((char[])o);
+            } else if(o instanceof boolean[]) {
+                return Arrays.toString((boolean[])o);
+            } else if(o instanceof short[]){
+                return Arrays.toString((short[])o);
+            } else {
+                //Should never happen
+                return o.toString();
+            }
+        } else {
+            Object[] arr = (Object[])o;
+            return Arrays.toString(arr);
+        }
     }
 
 }

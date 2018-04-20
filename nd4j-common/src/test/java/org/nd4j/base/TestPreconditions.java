@@ -164,8 +164,6 @@ public class TestPreconditions {
         } catch (IllegalStateException e){
             assertEquals("Message A here B there C more", e.getMessage());
         }
-
-
     }
 
     @Test
@@ -204,5 +202,79 @@ public class TestPreconditions {
         }
     }
 
+
+    @Test
+    public void testPreconditionsNull(){
+
+        Preconditions.checkNotNull("");
+        try{
+            Preconditions.checkNotNull(null);
+        } catch (NullPointerException e){
+            assertNull(e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here", 10);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here", 10);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there", 10, 20);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there", 10, 20);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here 20 there", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there %s more", 10, 20, 30);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there %s more", 10, 20, 30);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here 20 there 30 more", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here", 10L);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here", 10L);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there", 10L, 20L);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there", 10L, 20L);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here 20 there", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there %s more", 10L, 20L, 30L);
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there %s more", 10L, 20L, 30L);
+        } catch (NullPointerException e){
+            assertEquals("Message 10 here 20 there 30 more", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there %s more", "A", "B", "C");
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there %s more", "A", "B", "C");
+        } catch (NullPointerException e){
+            assertEquals("Message A here B there C more", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there %s more", new int[]{0,1}, new double[]{2.0, 3.0}, new boolean[]{true, false});
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there %s more", new int[]{0,1}, new double[]{2.0, 3.0}, new boolean[]{true, false});
+        } catch (NullPointerException e){
+            assertEquals("Message [0, 1] here [2.0, 3.0] there [true, false] more", e.getMessage());
+        }
+
+        Preconditions.checkNotNull("", "Message %s here %s there", new String[]{"A", "B"}, new Object[]{1.0, "C"});
+        try{
+            Preconditions.checkNotNull(null, "Message %s here %s there", new String[]{"A", "B"}, new Object[]{1.0, "C"});
+        } catch (NullPointerException e){
+            assertEquals("Message [A, B] here [1.0, C] there", e.getMessage());
+        }
+    }
 
 }
