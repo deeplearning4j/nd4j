@@ -1,12 +1,14 @@
 package org.nd4j.versioncheck;
 
 import lombok.extern.slf4j.Slf4j;
+/*
 import org.reflections.Reflections;
 import org.reflections.scanners.ResourcesScanner;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
+*/
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -202,6 +204,7 @@ public class VersionCheck {
      * @return A list of the property files containing the build/version info
      */
     public static List<String> listGitPropertiesFiles() {
+        /*
         Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
                 new FilterBuilder().exclude(".*").include("/ai/skymind/*")).setScanners(new ResourcesScanner()));
         Set<String> resources = reflections.getResources(Pattern.compile(".*-git.properties"));
@@ -210,6 +213,8 @@ public class VersionCheck {
         Collections.sort(out);      //Equivalent to sorting by groupID and artifactID
 
         return out;
+        */
+        throw new UnsupportedOperationException();  //TODO
     }
 
     /**
