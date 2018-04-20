@@ -21,7 +21,6 @@ package org.nd4j.linalg.factory;
 
 import org.nd4j.context.Nd4jContext;
 import org.nd4j.linalg.io.Resource;
-import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
