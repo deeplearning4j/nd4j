@@ -22,7 +22,7 @@
     <parent>
         <artifactId>nd4j</artifactId>
         <groupId>org.nd4j</groupId>
-        <version>0.9.2-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>nd4j-uberjar</artifactId>
@@ -92,6 +92,38 @@
                   </configuration>
                 </execution>
               </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <forceCreation>true</forceCreation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>empty-javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <skip>false</skip>
+                            <classifier>javadoc</classifier>
+                            <classesDirectory>${basedir}/javadoc</classesDirectory>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>empty-sources-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>sources</classifier>
+                            <classesDirectory>${basedir}/src</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
     </plugins>
 </build>
@@ -264,7 +296,7 @@
     <dependencies>
       <dependency>
         <groupId>org.nd4j</groupId>
-        <artifactId>nd4j-cuda-8.0</artifactId>
+        <artifactId>nd4j-cuda-9.1</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>
@@ -296,12 +328,12 @@
     <dependencies>
       <dependency>
         <groupId>org.nd4j</groupId>
-        <artifactId>nd4j-cuda-8.0</artifactId>
+        <artifactId>nd4j-cuda-9.1</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.nd4j</groupId>
-        <artifactId>nd4j-cuda-8.0-platform</artifactId>
+        <artifactId>nd4j-cuda-9.1-platform</artifactId>
         <version>${project.version}</version>
       </dependency>
     </dependencies>

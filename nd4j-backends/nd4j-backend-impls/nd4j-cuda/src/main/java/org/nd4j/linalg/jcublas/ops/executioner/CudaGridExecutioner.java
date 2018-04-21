@@ -574,7 +574,7 @@ public class CudaGridExecutioner extends CudaExecutioner implements GridExecutio
             retShape = new int[] {1, 1};
         }
 
-        if(op.z() == null){
+        if(op.z() == null || op.z() == op.x()){
             INDArray ret = null;
             if (Math.abs(op.zeroDouble()) < Nd4j.EPS_THRESHOLD) {
                 ret = Nd4j.zeros(retShape);
@@ -934,9 +934,10 @@ public class CudaGridExecutioner extends CudaExecutioner implements GridExecutio
     public void flushQueueBlocking() {
         flushQueue();
 
-        //    logger.info("Blocking flush");
+        //    logger.info("Blocking flush");n
 
         ((CudaContext) AtomicAllocator.getInstance().getDeviceContext().getContext()).syncOldStream();
+        ((CudaContext) AtomicAllocator.getInstance().getDeviceContext().getContext()).syncSpecialStream();
     }
 
     public void addToWatchdog(INDArray array, String tag) {

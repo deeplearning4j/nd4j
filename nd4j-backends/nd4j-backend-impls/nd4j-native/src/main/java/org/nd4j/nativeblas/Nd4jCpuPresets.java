@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Scanner;
 
 /**
@@ -109,11 +110,8 @@ import java.util.Scanner;
                                                                 "/usr/lib/powerpc64-linux-gnu/",
                                                                 "/usr/lib/powerpc64le-linux-gnu/"}),
                 @Platform(define = "LIBND4J_ALL_OPS"),
-                @Platform(value = "ios", includepath = "/usr/local/Cellar/llvm/4.0.0/include/c++/v1"),
-                @Platform(value = "windows", preload = {"libiomp5md#libiomp5md", "mkl_avx#mkl_avx", "mkl_avx2#mkl_avx2",
-                                "mkl_avx512#mkl_avx512", "mkl_avx512_mic#mkl_avx512_mic", "mkl_def#mkl_def",
-                                "mkl_mc#mkl_mc", "mkl_mc3#mkl_mc3", "mkl_core#mkl_core", "mkl_intel_lp64#mkl_intel_lp64",
-                                "mkl_intel_thread#mkl_intel_thread", "mkl_rt#mkl_rt", "libnd4jcpu"}),
+                @Platform(value = "macosx", preload = {"gcc_s@.1", "gomp@.1", "stdc++@.6"},
+                                preloadpath = {"/usr/local/lib/gcc/7/", "/usr/local/lib/gcc/6/", "/usr/local/lib/gcc/5/"}),
                 @Platform(extension = {"-avx512", "-avx2"}) })
 public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
 
@@ -151,6 +149,7 @@ public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
                .put(new Info("std::string").annotations("@StdString").valueTypes("BytePointer", "String")
                                            .pointerTypes("@Cast({\"char*\", \"std::string*\"}) BytePointer"))
                .put(new Info("std::pair<int,int>").pointerTypes("IntIntPair").define())
+               .put(new Info("std::vector<std::vector<int> >").pointerTypes("IntVectorVector").define())
                .put(new Info("std::vector<nd4j::NDArray<float>*>").pointerTypes("FloatNDArrayVector").define())
                .put(new Info("std::vector<nd4j::NDArray<float16>*>").pointerTypes("HalfNDArrayVector").define())
                .put(new Info("std::vector<nd4j::NDArray<double>*>").pointerTypes("DoubleNDArrayVector").define())
@@ -195,6 +194,7 @@ public class Nd4jCpuPresets implements InfoMapper, BuildEnabled {
         ArrayList<String> opTemplates = new ArrayList<String>();
         files.add(file);
         files.addAll(Arrays.asList(new File(file.getParent(), "headers").listFiles()));
+        Collections.sort(files);
         for (File f : files) {
             try (Scanner scanner = new Scanner(f)) {
                 while (scanner.hasNextLine()) {

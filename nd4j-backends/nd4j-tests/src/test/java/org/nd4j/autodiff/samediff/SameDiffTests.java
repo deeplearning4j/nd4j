@@ -2,13 +2,13 @@ package org.nd4j.autodiff.samediff;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.junit.Ignore;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.nd4j.autodiff.functions.DifferentialFunction;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
-import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Op;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
@@ -26,6 +26,7 @@ import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
+import org.nd4j.nativeblas.NativeOpsHolder;
 import org.nd4j.weightinit.impl.OneInitScheme;
 import org.nd4j.weightinit.impl.UniformInitScheme;
 import org.nd4j.weightinit.impl.ZeroInitScheme;
@@ -35,18 +36,34 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeNotNull;
-import static org.nd4j.linalg.indexing.NDArrayIndex.all;
-import static org.nd4j.linalg.indexing.NDArrayIndex.interval;
-import static org.nd4j.linalg.indexing.NDArrayIndex.point;
+import static org.nd4j.linalg.indexing.NDArrayIndex.*;
 
 /**
  * Created by agibsonccc on 4/11/17.
  */
 @Slf4j
 public class SameDiffTests {
-    static {
+    private DataBuffer.Type initialType;
+
+    @Before
+    public void before() throws Exception {
         Nd4j.create(1);
-        DataTypeUtil.setDTypeForContext(DataBuffer.Type.DOUBLE);
+        initialType = Nd4j.dataType();
+
+        Nd4j.setDataType(DataBuffer.Type.DOUBLE);
+        Nd4j.getRandom().setSeed(123);
+    }
+
+    @After
+    public void after() throws Exception {
+        Nd4j.setDataType(initialType);
+    }
+
+
+    @After
+    public void tearDown() throws Exception {
+        NativeOpsHolder.getInstance().getDeviceNativeOps().enableDebugMode(false);
+        NativeOpsHolder.getInstance().getDeviceNativeOps().enableVerboseMode(false);
     }
 
     public Map<String, INDArray> variablesForInput() {
@@ -248,6 +265,27 @@ public class SameDiffTests {
     }
 
     @Test
+    public void testReluLayer() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray input = Nd4j.create(new int[]{2, 2});
+        INDArray weights = Nd4j.create(new int[]{2, 2});
+        INDArray b = Nd4j.create(new int[]{1, 2});
+
+        SDVariable sdInput = sameDiff.var("input", input);
+        SDVariable sdWeights = sameDiff.var("weights", weights);
+        SDVariable sdBias = sameDiff.var("bias", b);
+
+        SDVariable res = sameDiff.reluLayer(sdInput, sdWeights, sdBias);
+        sameDiff.exec();
+
+        INDArray out = res.getArr();
+
+        assertArrayEquals(new int[]{2, 2}, res.getShape());
+
+    }
+
+
+    @Test
     public void testBiasAdd() {
         SameDiff sameDiff = SameDiff.create();
         INDArray ia = Nd4j.create(new int[]{2, 2});
@@ -384,6 +422,83 @@ public class SameDiffTests {
     }
 
     @Test
+
+    public void testShape() {
+        SameDiff sameDiff = SameDiff.create();
+        int[] shape = new int[]{2, 3};
+        SDVariable x = sameDiff.var("x", shape);
+        SDVariable result = sameDiff.shape(x);
+        assertArrayEquals(result.eval().toIntVector(), shape);
+}
+    @Test
+    public void testGather() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr = Nd4j.create(new float[]{1, 2, 3, 4}, new int[]{2, 2});
+        SDVariable x = sameDiff.var("x", arr);
+        SDVariable result = sameDiff.gather(x, 1, new int[]{1, 0});
+        INDArray expected = Nd4j.create(new float[]{2, 1, 4, 3}, new int[]{2, 2});
+        assertEquals(expected, result.eval());
+
+    }
+
+    @Test
+    public void testGatherNd() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 24, 24)).reshape(2, 3, 4);
+        INDArray arr2 = Nd4j.create(new float[]{1, 2, 3, 0, 1, 3, 1, 0, 2}, new int[]{3, 3});
+        SDVariable x = sameDiff.var("x", arr1);
+        SDVariable idxs = sameDiff.var("idxs", arr2);
+        SDVariable result = sameDiff.gatherNd(x, idxs);
+        // build expected output array
+        INDArray expected  = Nd4j.zeros(3);
+        for (int i=0; i<3; i++){
+            INDArray idx = arr2.get(NDArrayIndex.point(i));
+            expected.get(NDArrayIndex.point(i)).assign(
+                    arr1.get(NDArrayIndex.point(idx.getInt(0)),
+                            NDArrayIndex.point(idx.getInt(1)),
+                            NDArrayIndex.point(idx.getInt(2))));
+            }
+        assertEquals(expected, result.eval());
+        }
+
+    @Test
+    public void testStack() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 6, 6)).reshape(3, 2);
+        INDArray arr2 = Transforms.sigmoid(Nd4j.linspace(7, 12, 6)).reshape(3, 2);
+        SDVariable x1 = sameDiff.var("x1", arr1);
+        SDVariable x2 = sameDiff.var("x2", arr2);
+        SDVariable result = sameDiff.stack(new SDVariable[]{x1, x2}, 1);
+        assertArrayEquals(new int[]{3, 2, 2}, result.eval().shape());
+    }
+
+    @Test
+    public void testParallelStack() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 6, 6)).reshape(3, 2);
+        INDArray arr2 = Transforms.sigmoid(Nd4j.linspace(7, 12, 6)).reshape(3, 2);
+        SDVariable x1 = sameDiff.var("x1", arr1);
+        SDVariable x2 = sameDiff.var("x2", arr2);
+        SDVariable result = sameDiff.parallel_stack(new SDVariable[]{x1, x2});
+        assertArrayEquals(new int[]{2, 3, 2}, result.eval().shape());
+        assertEquals(Nd4j.concat(0, arr1, arr2).reshape(2, 3, 2), result.eval());
+    }
+
+    @Test
+    public void testUnStack() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr1 = Transforms.sigmoid(Nd4j.linspace(1, 6, 6)).reshape(3, 2);
+        INDArray arr2 = Transforms.sigmoid(Nd4j.linspace(7, 12, 6)).reshape(3, 2);
+        SDVariable x1 = sameDiff.var("x1", arr1);
+        SDVariable x2 = sameDiff.var("x2", arr2);
+        SDVariable stacked = sameDiff.stack(new SDVariable[]{x1, x2}, 1);
+        SDVariable[] result = sameDiff.unstack(stacked, 1);
+        assertEquals(arr1, result[0].eval());
+        assertEquals(arr2, result[1].eval());
+
+    }
+
+    @Test
     public void testPermute() {
         SameDiff sameDiff = SameDiff.create();
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 6, 6).reshape(2, 3));
@@ -401,7 +516,7 @@ public class SameDiffTests {
         SDVariable x1 = sameDiff.var("x1", arr1);
         SDVariable x2 = sameDiff.var("x2", arr2);
         SDVariable result = sameDiff.concat(0, x1, x2);
-        assertArrayEquals(new int[]{2, 4}, result.getShape());
+        assertArrayEquals(new int[]{2, 4}, result.eval().shape());
 
     }
 
@@ -411,11 +526,11 @@ public class SameDiffTests {
         INDArray arr = Transforms.sigmoid(Nd4j.linspace(1, 4, 4));
         SDVariable x = sameDiff.var("x", arr);
         SDVariable result = sameDiff.tile(x, new int[]{2, 2});
-        assertArrayEquals(new int[]{2, 8}, result.getShape());
+        assertArrayEquals(new int[]{2, 8}, result.eval().shape());
         INDArray arr2 = Nd4j.concat(0, arr, arr);  // (1, 4), (1, 4) -> (2, 4)
         INDArray expected = Nd4j.concat(1, arr2, arr2);  // (2, 4), (2, 4) -> (2, 8)
         assertEquals(expected, result.eval());
- 
+
     }
 
     @Test
@@ -428,6 +543,69 @@ public class SameDiffTests {
         SDVariable addResult = result.add(result);
         SDVariable finalReshape = sameDiff.reshape(addResult, 1, 2);
         assertArrayEquals(new int[]{1, 2}, finalReshape.getShape());
+    }
+
+    @Test
+    public void testReverseSequence() {
+        SameDiff sameDiff = SameDiff.create();
+        float[] input_data = new float[]{
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9,
+                0, 0, 0,
+                0, 0, 0,
+
+                1, 2, 3,
+                4, 5, 6,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        float[] expected_output = new float[]{
+                7, 8, 9,
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+
+                4, 5, 6,
+                1, 2, 3,
+                0, 0, 0,
+                0, 0, 0,
+                0, 0, 0
+        };
+        INDArray arr1 = Nd4j.create(input_data, new int[]{2, 5, 3});
+        INDArray arr2 = Nd4j.create(new float[]{3, 2}).reshape(2);
+        SDVariable x = sameDiff.var("x", arr1);
+        SDVariable seq_lengths = sameDiff.var("seq_lengths", arr2);
+        SDVariable result = sameDiff.reverseSequence(x, seq_lengths, 1, 0);
+        INDArray expected = Nd4j.create(expected_output, new int[]{2, 5, 3});
+        assertArrayEquals(arr1.shape(), result.eval().shape());
+        assertEquals(expected, result.eval());
+    }
+
+    @Test
+    public void testSequenceMask() {
+        SameDiff sameDiff = SameDiff.create();
+        INDArray arr = Nd4j.create(new float[] {1, 3, 2}).reshape(3);
+        SDVariable lengths = sameDiff.var("lengths", arr);
+
+        // Test with static max len
+        int maxlen = 5;
+        INDArray expected = Nd4j.create(new float[] {1, 0, 0, 0, 0,
+                                                     1, 1, 1, 0, 0,
+                                                     1, 1, 0, 0, 0},
+                                                   new int[]{3, 5});
+        SDVariable result1 = sameDiff.sequenceMask(lengths, maxlen);
+        assertArrayEquals(expected.shape(), result1.eval().shape());
+        assertEquals(expected, result1.eval());
+
+        // Test with dynamic maxlen
+        lengths = sameDiff.var("lengths2", arr); // required because of an internal samediff bug
+        SDVariable maxLen = sameDiff.var("maxLen", Nd4j.create(new float[]{5}).reshape(1));
+        SDVariable result2 = sameDiff.sequenceMask(lengths, maxLen);
+        assertArrayEquals(expected.shape(), result2.eval().shape());
+        assertEquals(expected, result2.eval());
     }
 
     @Test
@@ -2111,6 +2289,88 @@ public class SameDiffTests {
     }
 
     @Test
+    public void testLrn() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray input = Nd4j.create(new float[]{4, 4, 4, 4}, new int[]{1, 4, 1, 1});
+
+        SDVariable sdInput = sd.var("input", input);
+
+        LocalResponseNormalizationConfig lrn = LocalResponseNormalizationConfig.builder()
+                .alpha(1.0)
+                .beta(.5)
+                .bias(0.0)
+                .depth(1).build();
+
+        SDVariable out = sd.localResponseNormalization(sdInput, lrn);
+        SDVariable sdOut = sd.tanh("out", out);
+
+        sd.exec();
+
+        for (int i = 0; i < 4; i++)
+           assert out.getArr().get(all(), NDArrayIndex.point(i), all(), all()).getDouble(0) == 1;
+
+    }
+
+    @Test
+    public void testMoments() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray input = Nd4j.create(new float[]{1, 2, 3, 4}, new int[]{2, 2});
+
+        SDVariable sdInput = sd.var("input", input);
+
+        int[] axis = new int[]{0, 1};
+        SDVariable[] moments = sd.moments(sdInput, axis);
+        SDVariable mean = moments[0];
+        SDVariable variance = moments[1];
+
+        SDVariable sum = mean.add(variance);
+        SDVariable out = sd.tanh("out", sum);
+
+        INDArray outArr = sd.execAndEndResult();
+
+        INDArray meanArray = mean.getArr();
+        INDArray varArray = variance.getArr();
+
+        assert meanArray.getDouble(0) == 2.5;
+        assert varArray.getDouble(0) == 1.25;
+    }
+
+    @Test
+    public void testNormalizeMoments() {
+        SameDiff sd = SameDiff.create();
+
+        INDArray counts = Nd4j.create(new float[]{2}, new int[]{1, 1});
+        INDArray means = Nd4j.create(new float[]{2, 4}, new int[]{1, 2});
+        INDArray vars = Nd4j.create(new float[]{6, 8}, new int[]{1, 2});
+
+
+        SDVariable sdCounts = sd.var("counts", counts);
+        SDVariable sdMeans = sd.var("means", means);
+        SDVariable sdVars = sd.var("vars", vars);
+        double shift = 0.0;
+
+        SDVariable[] moments = sd.normalizeMoments(sdCounts, sdMeans, sdVars, shift);
+        SDVariable normMean = moments[0];
+        SDVariable normVariance = moments[1];
+
+        SDVariable sum = normMean.add(normVariance);
+        SDVariable out = sd.tanh("out", sum);
+
+        INDArray outArr = sd.execAndEndResult();
+
+        INDArray meanArray = normMean.getArr();
+        INDArray varArray = normVariance.getArr();
+
+        assert meanArray.getDouble(0, 0) == 1;
+        assert meanArray.getDouble(0, 1) == 2;
+        assert Arrays.equals(meanArray.shape(), varArray.shape());
+
+    }
+
+
+    @Test
     public void testDepthWiseConv2dBasic() {
         int nIn = 3;
         int depthWise = 4;
@@ -2707,11 +2967,11 @@ public class SameDiffTests {
     @Test
     public void testOneHot() {
         //indices = [[0, 2], [1, -1]]
-        INDArray indicesArr = Nd4j.zeros(2,2);
-        indicesArr.put(0,1,2);
-        indicesArr.put(1,0,1);
-        indicesArr.put(1,1,-1);
-        INDArray expectedOut = Nd4j.zeros(new int[] {2,2,3});
+        INDArray indicesArr = Nd4j.zeros(2, 2);
+        indicesArr.put(0, 1, 2);
+        indicesArr.put(1, 0, 1);
+        indicesArr.put(1, 1, -1);
+        INDArray expectedOut = Nd4j.zeros(new int[]{2, 2, 3});
         /*
         # output: [2 x 2 x 3]
         # [[[1.0, 0.0, 0.0],   # one_hot(0)
@@ -2719,21 +2979,21 @@ public class SameDiffTests {
         #  [[0.0, 1.0, 0.0],   # one_hot(1)
         #   [0.0, 0.0, 0.0]]]  # one_hot(-1)
         */
-        expectedOut.putScalar(0,0,0,1.0);
-        expectedOut.putScalar(0,1,2,1.0);
-        expectedOut.putScalar(1,0,1,1.0);
+        expectedOut.putScalar(0, 0, 0, 1.0);
+        expectedOut.putScalar(0, 1, 2, 1.0);
+        expectedOut.putScalar(1, 0, 1, 1.0);
 
         SameDiff sd = SameDiff.create();
-        SDVariable indices = sd.var("indices",new int[] {2,2});
-        sd.associateArrayWithVariable(indicesArr,indices);
+        SDVariable indices = sd.var("indices", new int[]{2, 2});
+        sd.associateArrayWithVariable(indicesArr, indices);
         INDArray out1 = sd.execAndEndResult();
         log.info(out1.toString());
-        assertEquals(expectedOut,out1);
+        assertEquals(expectedOut, out1);
 
     }
 
     @Test
-    public void testOnesLikeBackprop(){
+    public void testOnesLikeBackprop() {
         SameDiff sd = SameDiff.create();
         SDVariable var0 = sd.var("in", new int[]{3, 4});
         SDVariable ones = sd.onesLike("ones", var0);
@@ -3323,15 +3583,108 @@ public class SameDiffTests {
         }
     }
 
+    @Test
+    public void testScatterAdd() {
+        INDArray arr1 = Nd4j.zeros(3, 3);
+        INDArray arr2 = Nd4j.create(new float[]{0,1}, new int[]{2});
+        INDArray arr3 = Nd4j.ones(3, 3);
+        INDArray expected = Nd4j.create(new float[]{1, 1, 1,
+                                                    1, 1, 1,
+                                                    0, 0, 0},
+                                            new int[]{3, 3});
 
-    @Test  //*** Test is failing ***
+        SameDiff sd  = SameDiff.create();
+        SDVariable refs = sd.var("refs", arr1);
+        SDVariable idxs = sd.var("idxs", arr2);
+        SDVariable upds = sd.var("upds", arr3);
+
+        SDVariable result = sd.scatterAdd(refs, idxs, upds);
+        assertArrayEquals(new int[]{3, 3}, result.eval().shape());
+        assertEquals(expected, result.eval());
+
+    }
+
+    @Test
+    public void testScatterMul() {
+        INDArray arr1 = Nd4j.ones(3, 3);
+        INDArray arr2 = Nd4j.create(new float[]{0,1}, new int[]{2});
+        INDArray arr3 = Nd4j.zeros(3, 3);
+        INDArray expected = Nd4j.create(new float[]{0, 0, 0,
+                                                    0, 0, 0,
+                                                    1, 1, 1},
+                                            new int[]{3, 3});
+
+        SameDiff sd  = SameDiff.create();
+        SDVariable refs = sd.var("refs", arr1);
+        SDVariable idxs = sd.var("idxs", arr2);
+        SDVariable upds = sd.var("upds", arr3);
+
+        SDVariable result = sd.scatterMul(refs, idxs, upds);
+        assertArrayEquals(new int[]{3, 3}, result.eval().shape());
+        assertEquals(expected, result.eval());
+
+    }
+
+    @Test
+    public void testScatterSub() {
+        INDArray arr1 = Nd4j.ones(3, 3);
+        INDArray arr2 = Nd4j.create(new float[]{0,1}, new int[]{2});
+        INDArray arr3 = Nd4j.ones(3, 3);
+        INDArray expected = Nd4j.create(new float[]{0, 0, 0,
+                                                    0, 0, 0,
+                                                    1, 1, 1},
+                                            new int[]{3, 3});
+
+        SameDiff sd  = SameDiff.create();
+        SDVariable refs = sd.var("refs", arr1);
+        SDVariable idxs = sd.var("idxs", arr2);
+        SDVariable upds = sd.var("upds", arr3);
+
+        SDVariable result = sd.scatterSub(refs, idxs, upds);
+        assertArrayEquals(new int[]{3, 3}, result.eval().shape());
+        assertEquals(expected, result.eval());
+
+    }
+
+    @Test
+    public void testScatterDiv() {
+        INDArray arr1 = Nd4j.ones(3, 3);
+        INDArray arr2 = Nd4j.create(new float[]{0,1}, new int[]{2});
+        INDArray arr3 = Nd4j.ones(3, 3).assign(2);
+        INDArray expected = Nd4j.create(new float[]{0.5f, 0.5f, 0.5f,
+                                                    0.5f, 0.5f, 0.5f,
+                                                    1.0f, 1.0f, 1.0f},
+                                            new int[]{3, 3});
+
+        SameDiff sd  = SameDiff.create();
+        SDVariable refs = sd.var("refs", arr1);
+        SDVariable idxs = sd.var("idxs", arr2);
+        SDVariable upds = sd.var("upds", arr3);
+
+        SDVariable result = sd.scatterDiv(refs, idxs, upds);
+        assertArrayEquals(new int[]{3, 3}, result.eval().shape());
+        assertEquals(expected, result.eval());
+
+    }
+
+    @Test
     public void testRollAxis() {
         INDArray inArr = Nd4j.create(new int[]{2, 3, 4});
         SameDiff sd = SameDiff.create();
         SDVariable in = sd.var("in", inArr);
         SDVariable rolled = sd.rollAxis(in, 2);
-        sd.execAndEndResult();
-        assertEquals(Nd4j.rollAxis(inArr, 2), rolled.getArr());
+        assertArrayEquals(new int[]{4, 2, 3}, rolled.eval().shape());
+    }
+
+    @Test
+    public void testReciprocal() {
+        INDArray inArr = Nd4j.linspace(1,4,4).reshape(2,2);
+        INDArray expected = Nd4j.onesLike(inArr).divi(inArr);
+        SameDiff sd = SameDiff.create();
+        SDVariable in = sd.var("in", inArr);
+        SDVariable reciprocal = sd.reciprocal(in);
+        INDArray res = reciprocal.eval();
+        assertEquals(expected,res);
     }
 
 }

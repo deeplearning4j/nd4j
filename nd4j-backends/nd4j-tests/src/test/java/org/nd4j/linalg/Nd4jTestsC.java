@@ -28,6 +28,7 @@ import org.apache.commons.math3.util.FastMath;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.impl.accum.LogSumExp;
+import org.nd4j.linalg.api.ops.impl.accum.Mmul;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.Im2col;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.indexing.BooleanIndexing;
@@ -234,6 +235,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
     }
 
+    @Ignore // with broadcastables mechanic it'll be ok
     @Test(expected = IllegalStateException.class)
     public void testShapeEqualsOnElementWise() {
         Nd4j.ones(10000, 1).sub(Nd4j.ones(1, 2));
@@ -419,9 +421,24 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
         INDArray test = arr.mmul(arr.transpose());
         assertEquals(getFailureMessage(), assertion, test);
-
     }
 
+    @Test
+    public void testMmulOp() {
+        INDArray arr = Nd4j.create(new double[][] {{1, 2, 3}, {4, 5, 6}});
+        INDArray z = Nd4j.create(2, 2);
+        INDArray assertion = Nd4j.create(new double[][] {{14, 32}, {32, 77}});
+        MMulTranspose mMulTranspose = MMulTranspose.builder()
+          .transposeB(true)
+          .a(arr)
+          .b(arr)
+          .build();
+
+        DynamicCustomOp op = new Mmul(arr, arr, z, mMulTranspose);
+        Nd4j.getExecutioner().exec(op);
+        
+        assertEquals(getFailureMessage(), assertion, z);
+    }
 
 
     @Test
@@ -5813,6 +5830,26 @@ public class Nd4jTestsC extends BaseNd4jTest {
     }
 
     @Test
+    public void testMatmul_128by256() throws Exception {
+        val mA = Nd4j.create(128, 156).assign(1.0f);
+        val mB = Nd4j.create(156, 256).assign(1.0f);
+
+        val mC = Nd4j.create(128, 256);
+        val mE = Nd4j.create(128, 256).assign(156.0f);
+        val mL = mA.mmul(mB);
+
+        val op = DynamicCustomOp.builder("matmul")
+                .addInputs(mA, mB)
+                .addOutputs(mC)
+                .build();
+
+        Nd4j.getExecutioner().exec(op);
+
+        assertEquals(mE, mC);
+    }
+
+
+    @Test
     public void testScalarSqueeze() {
         val scalar = Nd4j.create(new float[]{2.0f}, new int[]{1, 1});
         val output = Nd4j.trueScalar(0.0f);
@@ -6063,6 +6100,63 @@ public class Nd4jTestsC extends BaseNd4jTest {
             INDArray exp = Nd4j.create(new double[][]{{1, 2}, {3, 4}});
             assertEquals(String.valueOf(order), exp, out);
         }
+    }
+
+    @Test
+    public void testRdiv()    {
+        final INDArray a = Nd4j.create(new double[]{2.0, 2.0, 2.0, 2.0});
+        final INDArray b = Nd4j.create(new double[]{1.0, 2.0, 4.0, 8.0});
+        final INDArray c = Nd4j.create(new double[]{2.0, 2.0}).reshape(2, 1);
+        final INDArray d = Nd4j.create(new double[]{1.0, 2.0, 4.0, 8.0}).reshape(2, 2);
+
+        final INDArray expected = Nd4j.create(new double[]{2.0, 1.0, 0.5, 0.25});
+        final INDArray expected2 = Nd4j.create(new double[]{2.0, 1.0, 0.5, 0.25}).reshape(2, 2);
+
+        assertEquals(expected, a.div(b));
+        assertEquals(expected, b.rdiv(a));
+        assertEquals(expected, b.rdiv(2));
+        assertEquals(expected2, d.rdivColumnVector(c));
+
+        assertEquals(expected, b.rdiv(Nd4j.scalar(2)));
+        assertEquals(expected, b.rdivColumnVector(Nd4j.scalar(2)));
+    }
+
+    @Test
+    public void testRsub()    {
+        final INDArray a = Nd4j.create(new double[]{2.0, 2.0, 2.0, 2.0});
+        final INDArray b = Nd4j.create(new double[]{1.0, 2.0, 4.0, 8.0});
+        final INDArray c = Nd4j.create(new double[]{2.0, 2.0}).reshape(2, 1);
+        final INDArray d = Nd4j.create(new double[]{1.0, 2.0, 4.0, 8.0}).reshape('c',2, 2);
+
+        final INDArray expected = Nd4j.create(new double[]{1.0, 0.0, -2.0, -6.0});
+        final INDArray expected2 = Nd4j.create(new double[]{1, 0, -2.0, -6.0}).reshape('c',2, 2);
+
+        assertEquals(expected, a.sub(b));
+        assertEquals(expected, b.rsub(a));
+        assertEquals(expected, b.rsub(2));
+        assertEquals(expected2, d.rsubColumnVector(c));
+
+        assertEquals(expected, b.rsub(Nd4j.scalar(2)));
+        assertEquals(expected, b.rsubColumnVector(Nd4j.scalar(2)));
+    }
+
+
+    @Test
+    public void testHalfStuff() {
+        if (!Nd4j.getExecutioner().getClass().getSimpleName().toLowerCase().contains("cuda"))
+            return;
+
+        val dtype = Nd4j.dataType();
+        Nd4j.setDataType(DataBuffer.Type.HALF);
+
+        val arr = Nd4j.ones(3, 3);
+        arr.addi(2.0f);
+
+        val exp = Nd4j.create(3, 3).assign(3.0f);
+
+        assertEquals(exp, arr);
+
+        Nd4j.setDataType(dtype);
     }
 
 

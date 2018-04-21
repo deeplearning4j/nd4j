@@ -1,6 +1,5 @@
 package org.nd4j.autodiff.samediff;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import com.google.common.primitives.Ints;
@@ -18,6 +17,7 @@ import org.nd4j.autodiff.functions.FunctionProperties;
 import org.nd4j.autodiff.samediff.flow.FlowPath;
 import org.nd4j.autodiff.util.cloner.DataBufferFastCloner;
 import org.nd4j.autodiff.util.cloner.INDArrayFastCloner;
+import org.nd4j.base.Preconditions;
 import org.nd4j.graph.*;
 import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
@@ -36,8 +36,6 @@ import org.nd4j.linalg.api.ops.impl.accum.distances.ManhattanDistance;
 import org.nd4j.linalg.api.ops.impl.controlflow.If;
 import org.nd4j.linalg.api.ops.impl.controlflow.While;
 import org.nd4j.linalg.api.ops.impl.controlflow.compat.*;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv2D;
-import org.nd4j.linalg.api.ops.impl.layers.convolution.Conv3D;
 import org.nd4j.linalg.api.ops.impl.layers.convolution.config.*;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.GRUCell;
 import org.nd4j.linalg.api.ops.impl.layers.recurrent.LSTMCell;
@@ -1783,6 +1781,32 @@ public class SameDiff {
 
 
     /**
+     * Local response normalization operation.
+     *
+     * @param inputs       the inputs to lrn
+     * @param lrnConfig the configuration
+     * @return
+     */
+    public SDVariable localResponseNormalization(SDVariable inputs, LocalResponseNormalizationConfig lrnConfig) {
+        return localResponseNormalization(null, inputs, lrnConfig);
+    }
+
+    /**
+     * Local response normalization operation.
+     *
+     * @param name         name of the operation in SameDiff
+     * @param inputs       the inputs to lrn
+     * @param lrnConfig the configuration
+     * @return
+     */
+    public SDVariable localResponseNormalization(String name, SDVariable inputs,
+                                                 LocalResponseNormalizationConfig lrnConfig) {
+        SDVariable ret = f().localResponseNormalization(inputs, lrnConfig);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    /**
      * Conv2d operation.
      *
      * @param inputs       the inputs to conv2d
@@ -2521,6 +2545,15 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable parallel_stack(SDVariable[] values) {
+        return parallel_stack(null, values);
+    }
+
+    public SDVariable parallel_stack(String name, SDVariable[] values) {
+        SDVariable ret = f().parallel_stack(values);
+        return updateVariableNameAndReference(ret, name);
+    }
+
     public SDVariable[] unstack(SDVariable value, int axis) {
         return unstack(null, value, axis);
     }
@@ -2582,6 +2615,15 @@ public class SameDiff {
     public SDVariable oneHot(String name, SDVariable indices, int depth, int axis, double on, double off) {
         SDVariable ret = f().onehot(indices, depth, axis, on, off);
         return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable reciprocal(SDVariable a) {
+        return reciprocal(null,a);
+    }
+
+    public SDVariable reciprocal(String name, SDVariable a) {
+        SDVariable ret = f().reciprocal(a);
+        return updateVariableNameAndReference(ret,name);
     }
 
     /**
@@ -2902,6 +2944,52 @@ public class SameDiff {
         return updateVariableNameAndReference(ret, name);
     }
 
+    public SDVariable reverseSequence(String name, SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
+        SDVariable ret = f().reverseSequence(x, seq_lengths, seqDim, batchDim);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable reverseSequence(String name, SDVariable x, SDVariable seq_lengths) {
+        SDVariable ret = f().reverseSequence(x, seq_lengths);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable reverseSequence(SDVariable x, SDVariable seq_lengths, int seqDim, int batchDim) {
+        return reverseSequence(null, x, seq_lengths, seqDim, batchDim);
+    }
+
+    public SDVariable reverseSequence(SDVariable x, SDVariable seq_lengths){
+        return reverseSequence(null, x, seq_lengths);
+    }
+
+    public SDVariable sequenceMask(String name, SDVariable lengths, SDVariable maxLen) {
+        SDVariable ret = f().sequenceMask(lengths, maxLen);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths, SDVariable maxLen) {
+        return sequenceMask(null, lengths, maxLen);
+    }
+
+    public SDVariable sequenceMask(String name, SDVariable lengths, int maxLen) {
+        SDVariable ret = f().sequenceMask(lengths, maxLen);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths, int maxLen) {
+        return sequenceMask(null, lengths, maxLen);
+    }
+
+    public SDVariable sequenceMask(String name, SDVariable lengths) {
+        SDVariable ret = f().sequenceMask(lengths);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable sequenceMask(SDVariable lengths) {
+        SDVariable ret = f().sequenceMask(lengths);
+        return updateVariableNameAndReference(ret, null);
+    }
+
     public SDVariable assign(SDVariable x, SDVariable y){
         return assign(null, x, y);
     }
@@ -2946,6 +3034,25 @@ public class SameDiff {
         return concat(null, dimension, inputs);
     }
 
+    public SDVariable[] moments(SDVariable input, int... axes) {
+        return moments(null, input, axes);
+    }
+
+    public SDVariable[] moments(String[] name, SDVariable input, int... axes) {
+        SDVariable[] res = f().moments(input, axes);
+        return updateVariableNamesAndReferences(res, name);
+    }
+
+    public SDVariable[] normalizeMoments(SDVariable counts, SDVariable means, SDVariable variances, double shift) {
+        return normalizeMoments(null, counts, means, variances, shift);
+    }
+
+    public SDVariable[] normalizeMoments(String[] name, SDVariable counts, SDVariable means, SDVariable variances,
+                                         double shift) {
+        SDVariable[] res = f().normalizeMoments(counts, means, variances, shift);
+        return updateVariableNamesAndReferences(res, name);
+    }
+
     /**
      * @param iX
      * @param repeat
@@ -2973,6 +3080,16 @@ public class SameDiff {
 
     public SDVariable xwPlusB(String name, SDVariable input, SDVariable weights, SDVariable bias) {
         SDVariable res = f().xwPlusB(input, weights, bias);
+        return updateVariableNameAndReference(res, name);
+    }
+
+
+    public SDVariable reluLayer(SDVariable input, SDVariable weights, SDVariable bias) {
+        return reluLayer(null, input, weights, bias);
+    }
+
+    public SDVariable reluLayer(String name, SDVariable input, SDVariable weights, SDVariable bias) {
+        SDVariable res = f().reluLayer(input, weights, bias);
         return updateVariableNameAndReference(res, name);
     }
 
@@ -4516,6 +4633,45 @@ public class SameDiff {
     }
 
 
+    public SDVariable scatterAdd(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterAdd(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterMul(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterMul(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterSub(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterSub(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+    public SDVariable scatterDiv(String name, SDVariable ref, SDVariable indices, SDVariable updates) {
+        SDVariable ret = f().scatterDiv(ref, indices, updates);
+        return updateVariableNameAndReference(ret, name);
+    }
+
+
+    public SDVariable scatterAdd(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterAdd(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterMul(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterMul(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterSub(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterSub(null, ref, indices, updates);
+    }
+
+    public SDVariable scatterDiv(SDVariable ref, SDVariable indices, SDVariable updates) {
+        return scatterDiv(null, ref, indices, updates);
+    }
+
+
+
     /**
      * Generate the variables based on the given input op
      * and return the output variable names.
@@ -5390,7 +5546,7 @@ public class SameDiff {
 
         for (int i = 0; i < numVariables; i++) {
             SDVariable varToUpdate = variablesToUpdate[i];
-            String name = newVariableNames[i];
+            String name = newVariableNames == null ? null : newVariableNames[i];
             updatedVariables[i] = updateVariableNameAndReference(varToUpdate, name);
         }
 
@@ -5451,7 +5607,7 @@ public class SameDiff {
 
             val args = getInputsForFunction(differentialFunction);
 
-            log.info("Step: {}; Executing op {} for node [{}]", exec_counter, opName, ownName);
+            log.debug("Step: {}; Executing op {} for node [{}]", exec_counter, opName, ownName);
 
             // check if inputs are active nodes. skip step otherwise
             // please note: Exit node can't be skipped, because it's either rewind point or exit loop point
@@ -5974,7 +6130,7 @@ public class SameDiff {
         }
     }
 
-    protected int asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap, Map<String, Integer> forwardMap, Map<String, Integer> framesMap, AtomicInteger idCounter) {
+    protected int  asFlatNode(@NonNull DifferentialFunction node, @NonNull FlatBufferBuilder bufferBuilder, List<SDVariable> variables, Map<String, Integer> reverseMap, Map<String, Integer> forwardMap, Map<String, Integer> framesMap, AtomicInteger idCounter) {
         val opName = node.opName();
         val hash = getOpNum(node.opName(), node.opType());
         //log.info("Exporting node: [{}:<{}> ; OpType: {}; Hash/opNum: {}]", node.opName(), node.tensorflowName(), node.opType(), hash);
@@ -6031,7 +6187,7 @@ public class SameDiff {
             //}
         }
 
-        log.info("Own Name: {}", node.getOwnName());
+        log.debug("Own Name: {}", node.getOwnName());
         int ownId = forwardMap.containsKey(node.getOwnName()) ? forwardMap.get(node.getOwnName()) : idCounter.incrementAndGet();
         reverseMap.put(node.getOwnName(), ownId);
 
@@ -6099,7 +6255,7 @@ public class SameDiff {
 
         int idx = 0;
         for (val variable : variables()) {
-            log.info("Exporting variable: [{}]", variable.getVarName());
+            log.debug("Exporting variable: [{}]", variable.getVarName());
             if (variable.getArr() == null || variable.getShape() == null) {
                 //putArrayForVarName(variable.getVarName(), Nd4j.scalar(1.0));
                 //addAsPlaceHolder(variable.getVarName());
@@ -6109,7 +6265,7 @@ public class SameDiff {
 
             val pair = parseVariable(variable.getVarName());
             reverseMap.put(pair.getFirst(), idCounter.incrementAndGet());
-            log.info("Adding [{}] as [{}]", pair.getFirst(), idCounter.get());
+            log.debug("Adding [{}] as [{}]", pair.getFirst(), idCounter.get());
 
             val arr = variable.getArr();
 
@@ -6149,7 +6305,7 @@ public class SameDiff {
                 val pair = parseVariable(node.getVarName());
                 reverseMap.put(pair.getFirst(), idx);
 
-                log.info("Adding [{}] as [{}]", pair.getFirst(), idx);
+                log.debug("Adding [{}] as [{}]", pair.getFirst(), idx);
 
                 int flatVariable = FlatVariable.createFlatVariable(bufferBuilder, id, name, 0, array, -1);
                 flatVariables.add(flatVariable);

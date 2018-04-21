@@ -31,6 +31,6 @@ public class Where extends DynamicCustomOp {
 
     @Override
     public String opName() {
-        return "where";
+        return "Where";
     }
 }

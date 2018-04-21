@@ -2,6 +2,7 @@ package org.nd4j.linalg.custom;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nd4j.linalg.api.ops.CustomOp;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
@@ -68,21 +69,26 @@ public class CustomOpsTests {
     }
 
     @Test
+    @Ignore // it's noop, we dont care anymore
     public void testNoOp1() throws Exception {
         val arrayX = Nd4j.create(10, 10);
-        val arrayY = Nd4j.create(10, 10);
+        val arrayY = Nd4j.create(5, 3);
 
         arrayX.assign(3.0);
         arrayY.assign(1.0);
 
-        val exp = Nd4j.create(10,10).assign(4.0);
+        val expX = Nd4j.create(10,10).assign(3.0);
+        val expY = Nd4j.create(5,3).assign(1.0);
 
         CustomOp op = DynamicCustomOp.builder("noop")
                 .addInputs(arrayX, arrayY)
-                .addOutputs(arrayX)
+                .addOutputs(arrayX, arrayY)
                 .build();
 
         Nd4j.getExecutioner().exec(op);
+
+        assertEquals(expX, arrayX);
+        assertEquals(expY, arrayY);
     }
 
     @Test
@@ -247,7 +253,7 @@ public class CustomOpsTests {
                 .addInputs(array0, array1)
                 .build();
 
-        val shapes = op.calculateOutputShape();
+        val shapes = Nd4j.getExecutioner().calculateOutputShape(op);
 
         assertEquals(1, shapes.size());
         assertArrayEquals(new int[]{5, 2}, shapes.get(0));

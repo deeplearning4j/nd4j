@@ -38,10 +38,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Encapsulates all shape related logic (vector of 0 dimension is a scalar is equivalent to
@@ -306,9 +303,12 @@ public class Shape {
      * @return the shape of the result array as the result of the reduce
      */
     public static int[] getReducedShape(int[] wholeShape, int[] dimensions, boolean keepDims, boolean newFormat) {
+        // we need to normalize dimensions, in case they have negative values or unsorted, or whatever
+        dimensions = Shape.normalizeAxis(wholeShape.length, dimensions);
+
         // strip leading keepDims argument
-        if (newFormat)
-            dimensions = Arrays.copyOfRange(dimensions, 1, dimensions.length);
+        //if (newFormat)
+        //    dimensions = Arrays.copyOfRange(dimensions, 1, dimensions.length);
 
         if (!keepDims)
             if (!newFormat)
@@ -623,7 +623,7 @@ public class Shape {
         for (int i = 0; i < shape.length; i++) {
             if (indices[i] >= shape[i])
                 throw new IllegalArgumentException(
-                        String.format("Index [%d] must not be >= shape[%d]=%d.", i, i, shape[i]));
+                        String.format("J: Index [%d] must not be >= shape[%d]=%d.", i, i, shape[i]));
             if (shape[i] != 1) {
                 offset += indices[i] * stride[i];
             }
@@ -669,7 +669,7 @@ public class Shape {
             int size_dimi = size(shapeInformation, i);
             if (indices[i] > size_dimi)
                 throw new IllegalArgumentException(
-                        String.format("Index [%d] must not be >= shape[%d]=%d.", i, i, size_dimi));
+                        String.format("J: Index [%d] must not be >= shape[%d]=%d.", i, i, size_dimi));
             if (size_dimi != 1) {
                 offset += indices[i] * stride(shapeInformation, i);
             }
@@ -680,14 +680,12 @@ public class Shape {
 
     public static long getOffset(int[] shapeInformation, int... indices) {
         int rank = rank(shapeInformation);
-        if (indices.length != rank)
-            throw new IllegalArgumentException("Indexes must be same length as array rank");
-        long offset = 0;
-        for (int i = 0; i < rank; i++) {
+         long offset = 0;
+        for (int i = 0; i < Math.min(rank,indices.length); i++) {
             int size_dimi = size(shapeInformation, i);
             if (indices[i] > size_dimi)
                 throw new IllegalArgumentException(
-                        String.format("Index [%d] must not be >= shape[%d]=%d.", i, i, size_dimi));
+                        String.format("J: Index [%d] must not be >= shape[%d]=%d.", i, i, size_dimi));
             if (size_dimi != 1) {
                 offset += indices[i] * stride(shapeInformation, i);
             }
@@ -1840,6 +1838,15 @@ public class Shape {
         return ret;
     }
 
+
+    public static long length(int[] buffer) {
+        long ret = 1;
+        int limit = Shape.rank(buffer) + 1;
+        for (int i = 1; i < limit; i++)
+            ret *= buffer[i];
+        return ret;
+    }
+
     /**
      * Gets the rank given the shape info buffer
      * @param buffer the buffer to get the rank for
@@ -2446,6 +2453,39 @@ public class Shape {
         return arr.length == 1 && arr[0] == Integer.MAX_VALUE;
     }
 
+    public static int[] uniquify(int[] array) {
+        if (array.length <= 1)
+            return array;
+
+        Set<Integer> ints = new LinkedHashSet<>();
+
+        for (val v: array)
+            ints.add(v);
+
+        return Ints.toArray(ints);
+    }
+
+    public static int[] normalizeAxis(int rank, int... axis) {
+        // first we should get rid of all negative axis
+        int[] tmp = new int[axis.length];
+
+        int cnt = 0;
+        for (val v: axis) {
+            val t = v < 0 ? v + rank : v;
+
+            if ((t >= rank && t != Integer.MAX_VALUE)|| t < 0)
+                throw new ND4JIllegalStateException("Axis array " + Arrays.toString(axis) + " contains values above rank " + rank);
+
+            tmp[cnt++] = t;
+        }
+
+        // now we're sorting array
+        Arrays.sort(tmp);
+
+        // and getting rid of possible duplicates
+        return uniquify(tmp);
+    }
+
     /**
      *
      * Compare the contents of a buffer and
@@ -2563,5 +2603,20 @@ public class Shape {
         }
 
         return true;
+    }
+
+
+    public static boolean hasDefaultStridesForShape(INDArray input){
+        if(!strideDescendingCAscendingF(input)){
+            return false;
+        }
+        char order = input.ordering();
+        int[] defaultStrides;
+        if(order == 'f'){
+            defaultStrides = ArrayUtil.calcStridesFortran(input.shape());
+        } else {
+            defaultStrides = ArrayUtil.calcStrides(input.shape());
+        }
+        return Arrays.equals(input.stride(), defaultStrides);
     }
 }

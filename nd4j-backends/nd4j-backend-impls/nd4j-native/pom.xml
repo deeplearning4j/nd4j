@@ -2,7 +2,7 @@
     <parent>
         <artifactId>nd4j-backend-impls</artifactId>
         <groupId>org.nd4j</groupId>
-        <version>0.9.2-SNAPSHOT</version>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -42,12 +42,12 @@
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>openblas</artifactId>
-            <version>${openblas.version}-1.4.1-SNAPSHOT</version>
+            <version>${openblas.version}-${javacpp-presets.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bytedeco.javacpp-presets</groupId>
             <artifactId>openblas</artifactId>
-            <version>${openblas.version}-1.4.1-SNAPSHOT</version>
+            <version>${openblas.version}-${javacpp-presets.version}</version>
             <classifier>${dependency.platform}</classifier>
         </dependency>
         <dependency>
@@ -316,12 +316,15 @@
                     <plugin>
                         <groupId>org.bytedeco</groupId>
                         <artifactId>javacpp</artifactId>
+<!-- We cannot use those to propagate C++ exceptions across shared libraries. -->
+<!--
                         <configuration>
                             <compilerOptions>
                                 <compilerOption>-static-libgcc</compilerOption>
                                 <compilerOption>-static-libstdc++</compilerOption>
                             </compilerOptions>
                         </configuration>
+-->
                     </plugin>
                 </plugins>
             </build>

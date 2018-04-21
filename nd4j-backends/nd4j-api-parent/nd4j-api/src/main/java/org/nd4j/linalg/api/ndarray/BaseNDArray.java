@@ -3478,7 +3478,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }
 
         if (isScalar()) {
-            return other.divi(getDouble(0), result);
+            return other.rdivi(getDouble(0), result);
         }
 
 
@@ -3566,7 +3566,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return subi(other.getDouble(0), result);
         }
         if (isScalar()) {
-            return other.subi(getDouble(0), result);
+            return other.rsubi(getDouble(0), result);
         }
 
 
@@ -3807,15 +3807,14 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         if (slice >= slices)
             throw new IllegalArgumentException("Illegal slice " + slice);
 
-        if (Shape.rank(javaShapeInformation) == 0 || isRowVector()) {
-            if (slice == 0)
+        if (Shape.rank(javaShapeInformation) == 0 || isVector()) {
+            if (slice == 0 || isVector()) {
                 return createScalarForIndex(slice, true);
-            else if (isRowVector())
-                return createScalarForIndex(slice, true);
-
+            }
             else {
                 throw new IllegalArgumentException("Can't slice a 0-d NDArray");
             }
+
         }
 
 
@@ -3832,7 +3831,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
 
     protected INDArray createScalarForIndex(int i, boolean applyOffset) {
-        return create(data(), new int[] {1, 1}, new int[] {1, 1}, applyOffset ? Shape.offset(javaShapeInformation) + i : i);
+        if(isVector())
+            return getScalar(i);
+        return create(data(), new int[] {1, 1}, new int[] {1, 1}, i);
     }
 
     protected INDArray createScalar(double d) {
@@ -4908,7 +4909,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public int length() {
-        return Shape.length(shapeInformation);
+        return (int) Shape.length(javaShapeInformation);
     }
 
     /**
@@ -4918,7 +4919,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public long lengthLong() {
-        return Shape.length(shapeInformation);
+        return Shape.length(javaShapeInformation);
     }
 
     /**
@@ -5305,6 +5306,12 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
     /**
      * Generate string representation of the matrix.
+     * Printing will switch to scientific notation on a per element basis
+     *      - when abs value is greater than or equal to 10000
+     *      - when abs value is less than or equal to 0.0001 and not zero
+     *
+     *  If the number of elements in the array is greater than 1000 only the first and last three elements in a dimension are included
+     *
      */
     @Override
     public String toString() {
@@ -6046,6 +6053,12 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             return DataBuffer.TypeEx.FLOAT;
         } else if (type == DataBuffer.Type.DOUBLE) {
             return DataBuffer.TypeEx.DOUBLE;
+
+        } else if(type == DataBuffer.Type.INT) {
+            return DataBuffer.TypeEx.INT8;
+        } else if(type == DataBuffer.Type.LONG) {
+            return DataBuffer.TypeEx.INT16;
+
         } else
             throw new IllegalStateException("Unknown dataType: [" + type + "]");
     }
