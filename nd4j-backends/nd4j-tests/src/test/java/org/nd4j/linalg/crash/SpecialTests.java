@@ -138,14 +138,11 @@ public class SpecialTests extends BaseNd4jTest {
 
         val executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
-        for (int e = 0; e < 10; e++) {
+        for (int e = 0; e < 1; e++) {
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
                     val arrayA = Nd4j.createUninitialized(shapeA);
-                    val arrayB = Nd4j.createUninitialized(shapeB);
-
-                    val arrayZ = Nd4j.concat(0, arrayA, arrayA);
                 }
             });
         }
