@@ -1,6 +1,7 @@
 package org.nd4j.linalg.crash;
 
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,8 @@ import org.nd4j.linalg.ops.transforms.Transforms;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author raver119@gmail.com
@@ -124,6 +127,31 @@ public class SpecialTests extends BaseNd4jTest {
 
             System.gc();
         }
+    }
+
+    @Test
+    public void testConcatMulti() throws Exception {
+        val shapeA = new int[] {50, 20};
+        val shapeB = new int[] {50, 497};
+
+        //Nd4j.create(1);
+
+        val executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+
+        for (int e = 0; e < 10; e++) {
+            executor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    val arrayA = Nd4j.createUninitialized(shapeA);
+                    val arrayB = Nd4j.createUninitialized(shapeB);
+
+                    val arrayZ = Nd4j.concat(0, arrayA, arrayA);
+                }
+            });
+        }
+
+
+        Thread.sleep(1000);
     }
 
     @Override
