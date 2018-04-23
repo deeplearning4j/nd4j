@@ -49,4 +49,9 @@ public class LegacyIActivationDeserializer extends BaseLegacyDeserializer<IActiv
     public ObjectMapper getLegacyJsonMapper() {
         return legacyMapper;
     }
+
+    @Override
+    public Class<?> getDeserializedType() {
+        return IActivation.class;
+    }
 }

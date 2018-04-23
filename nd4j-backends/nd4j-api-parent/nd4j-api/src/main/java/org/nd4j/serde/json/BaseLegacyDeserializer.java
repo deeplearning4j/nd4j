@@ -18,6 +18,8 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
 
     public abstract ObjectMapper getLegacyJsonMapper();
 
+    public abstract Class<?> getDeserializedType();
+
     @Override
     public T deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
         //Manually parse old format
@@ -51,6 +53,12 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         }
 
         ObjectMapper m = getLegacyJsonMapper();
+
+        if(m == null){
+            //Should never happen, unless the user is doing something unusual
+            throw new IllegalStateException("Cannot deserialize unknown subclass of type " +
+                    getDeserializedType() + ": no legacy JSON mapper has been set");
+        }
 
         String nodeAsString = value.toString();
         T t = m.readValue(nodeAsString, lClass);

@@ -49,4 +49,9 @@ public class LegacyILossFunctionDeserializer extends BaseLegacyDeserializer<ILos
     public ObjectMapper getLegacyJsonMapper() {
         return legacyMapper;
     }
+
+    @Override
+    public Class<?> getDeserializedType() {
+        return ILossFunction.class;
+    }
 }
