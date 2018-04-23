@@ -1,11 +1,9 @@
 package org.nd4j.linalg.activations;
 
-import org.nd4j.linalg.primitives.Pair;
-import org.nd4j.linalg.activations.impl.*;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.serde.json.LegacyIActivationDeserializerHelper;
 import org.nd4j.shade.jackson.annotation.JsonAutoDetect;
-import org.nd4j.shade.jackson.annotation.JsonSubTypes;
 import org.nd4j.shade.jackson.annotation.JsonTypeInfo;
 
 import java.io.Serializable;
