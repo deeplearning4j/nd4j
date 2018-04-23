@@ -1,5 +1,6 @@
 package org.nd4j.serde.json;
 
+import lombok.NonNull;
 import org.nd4j.shade.jackson.core.JsonParser;
 import org.nd4j.shade.jackson.databind.DeserializationContext;
 import org.nd4j.shade.jackson.databind.JsonDeserializer;
@@ -20,6 +21,14 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
 
     public abstract Class<?> getDeserializedType();
 
+    public void registerLegacyClassDefaultName(@NonNull Class<? extends T> clazz){
+        registerLegacyClassSpecifiedName(clazz.getSimpleName(), clazz);
+    }
+
+    public void registerLegacyClassSpecifiedName(String name, Class<? extends T> clazz){
+
+    }
+
     @Override
     public T deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
         //Manually parse old format
@@ -34,15 +43,18 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         }
 
         if(list.size() != 1){
+            //Should never happen
             throw new IllegalStateException("Expected size 1: " + list.size());
         }
 
         String name = list.get(0).getKey();
         JsonNode value = list.get(0).getValue();
 
-        String layerClass = getLegacyNamesMap().get(name);
+        Map<String,String> legacyNamesMap = getLegacyNamesMap();
+        String layerClass = legacyNamesMap.get(name);
         if(layerClass == null){
-            throw new IllegalStateException("Cannot deserialize: " + name);
+            throw new IllegalStateException("Cannot deserialize " + getDeserializedType() + " with name " + name
+                    + ": legacy class mapping with this name is unknown");
         }
 
         Class<? extends T> lClass;
