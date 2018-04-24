@@ -9,6 +9,7 @@ import org.junit.runners.Parameterized;
 import org.nd4j.linalg.BaseNd4jTest;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.rng.Random;
+import org.nd4j.linalg.convolution.Convolution;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
@@ -147,8 +148,19 @@ public class SpecialTests extends BaseNd4jTest {
             });
         }
 
-
         Thread.sleep(1000);
+    }
+
+    @Test
+    public void testConcatMulti2() throws Exception {
+        Nd4j.create(1);
+        val executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("A");
+            }
+        });
     }
 
     @Override

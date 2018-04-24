@@ -7594,7 +7594,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *      'u' - fill up, mathematically this corresponds to lower triangular matrix 
         *      'l' - fill down, mathematically this corresponds to upper triangular matrix
         */
-        public native void setValueIn2DMatrix(float value, int diag, char direction);
+        public native void setValueInDiagMatrix(float value, int diag, char direction);
 
 		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
@@ -8690,7 +8690,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *      'u' - fill up, mathematically this corresponds to lower triangular matrix 
         *      'l' - fill down, mathematically this corresponds to upper triangular matrix
         */
-        public native void setValueIn2DMatrix(@Cast("const float16") short value, int diag, char direction);
+        public native void setValueInDiagMatrix(@Cast("const float16") short value, int diag, char direction);
 
 		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
@@ -9786,7 +9786,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         *      'u' - fill up, mathematically this corresponds to lower triangular matrix 
         *      'l' - fill down, mathematically this corresponds to upper triangular matrix
         */
-        public native void setValueIn2DMatrix(double value, int diag, char direction);
+        public native void setValueInDiagMatrix(double value, int diag, char direction);
 
 		/**
         *  change an array by repeating it the number of times in order to acquire new shape equal to the input shape
@@ -16612,7 +16612,7 @@ public static final int TAD_THRESHOLD = TAD_THRESHOLD();
 //                                       template struct ND4J_EXPORT __registratorSynonymFloat<NAME<float>>;
 
 
-// #if defined(_MSC_VER) || defined(_WIN64) || defined(_WIN32) || defined(__CLION_IDE__)
+// #if defined(_MSC_VER) || defined(_WIN64) || defined(_WIN32) || defined(__CLION_IDE__) || defined(__VSCODE__)
 // #define NOT_EXCLUDED(NAME) 1>0
 // #else
 // #define NOT_EXCLUDED(NAME) defined(LIBND4J_ALL_OPS) || defined(NAME)
