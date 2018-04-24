@@ -1,6 +1,7 @@
 package org.nd4j.serde.json;
 
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.nd4j.shade.jackson.core.JsonParser;
 import org.nd4j.shade.jackson.databind.DeserializationContext;
 import org.nd4j.shade.jackson.databind.JsonDeserializer;
@@ -13,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
 
     public abstract Map<String,String> getLegacyNamesMap();
@@ -20,14 +22,6 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
     public abstract ObjectMapper getLegacyJsonMapper();
 
     public abstract Class<?> getDeserializedType();
-
-    public void registerLegacyClassDefaultName(@NonNull Class<? extends T> clazz){
-        registerLegacyClassSpecifiedName(clazz.getSimpleName(), clazz);
-    }
-
-    public void registerLegacyClassSpecifiedName(String name, Class<? extends T> clazz){
-
-    }
 
     @Override
     public T deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
@@ -44,7 +38,9 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
 
         if(list.size() != 1){
             //Should never happen
-            throw new IllegalStateException("Expected size 1: " + list.size());
+//            throw new IllegalStateException("Expected size 1: " + list.size());
+            log.warn("Error deserializing value: " + getDeserializedType().getName());
+            return null;
         }
 
         String name = list.get(0).getKey();

@@ -1,5 +1,6 @@
 package org.nd4j.serde.json;
 
+import lombok.NonNull;
 import org.nd4j.linalg.activations.IActivation;
 import org.nd4j.linalg.activations.impl.*;
 import org.nd4j.shade.jackson.databind.ObjectMapper;
@@ -53,5 +54,13 @@ public class LegacyIActivationDeserializer extends BaseLegacyDeserializer<IActiv
     @Override
     public Class<?> getDeserializedType() {
         return IActivation.class;
+    }
+
+    public static void registerLegacyClassDefaultName(@NonNull Class<? extends IActivation> clazz){
+        registerLegacyClassSpecifiedName(clazz.getSimpleName(), clazz);
+    }
+
+    public static void registerLegacyClassSpecifiedName(@NonNull String name, @NonNull Class<? extends IActivation> clazz){
+        LEGACY_NAMES.put(name, clazz.getName());
     }
 }

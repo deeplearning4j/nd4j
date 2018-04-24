@@ -1,6 +1,7 @@
 package org.nd4j.serde.json;
 
 
+import lombok.NonNull;
 import org.nd4j.linalg.lossfunctions.ILossFunction;
 import org.nd4j.linalg.lossfunctions.impl.*;
 import org.nd4j.shade.jackson.databind.ObjectMapper;
@@ -53,5 +54,13 @@ public class LegacyILossFunctionDeserializer extends BaseLegacyDeserializer<ILos
     @Override
     public Class<?> getDeserializedType() {
         return ILossFunction.class;
+    }
+
+    public static void registerLegacyClassDefaultName(@NonNull Class<? extends ILossFunction> clazz){
+        registerLegacyClassSpecifiedName(clazz.getSimpleName(), clazz);
+    }
+
+    public static void registerLegacyClassSpecifiedName(@NonNull String name, @NonNull Class<? extends ILossFunction> clazz){
+        LEGACY_NAMES.put(name, clazz.getName());
     }
 }
