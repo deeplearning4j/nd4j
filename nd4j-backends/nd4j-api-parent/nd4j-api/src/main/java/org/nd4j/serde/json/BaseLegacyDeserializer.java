@@ -49,15 +49,16 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         Map<String,String> legacyNamesMap = getLegacyNamesMap();
         String layerClass = legacyNamesMap.get(name);
         if(layerClass == null){
-            throw new IllegalStateException("Cannot deserialize " + getDeserializedType() + " with name " + name
-                    + ": legacy class mapping with this name is unknown");
+            throw new IllegalStateException("Cannot deserialize " + getDeserializedType() + " with name \"" + name
+                    + "\": legacy class mapping with this name is unknown");
         }
 
         Class<? extends T> lClass;
         try {
             lClass = (Class<? extends T>) Class.forName(layerClass);
         } catch (Exception e){
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not find class for deserialization: class " + layerClass
+                    + " is not on the classpath?", e);
         }
 
         ObjectMapper m = getLegacyJsonMapper();
