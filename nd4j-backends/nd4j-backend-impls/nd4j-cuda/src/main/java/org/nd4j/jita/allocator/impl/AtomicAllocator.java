@@ -472,6 +472,8 @@ public class AtomicAllocator implements Allocator {
         }
 
         allocationsMap.put(allocId, point);
+        point.tickHostRead();
+        point.tickDeviceWrite();
         return point;
     }
 
