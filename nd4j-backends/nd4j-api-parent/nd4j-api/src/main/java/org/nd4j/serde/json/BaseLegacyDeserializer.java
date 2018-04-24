@@ -69,8 +69,13 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         }
 
         String nodeAsString = value.toString();
-        T t = m.readValue(nodeAsString, lClass);
-        return t;
+        try {
+            T t = m.readValue(nodeAsString, lClass);
+            return t;
+        } catch (Throwable e){
+            throw new IllegalStateException("Cannot deserialize legacy object of type " +
+                    getDeserializedType().getName(), e);
+        }
     }
 
 
