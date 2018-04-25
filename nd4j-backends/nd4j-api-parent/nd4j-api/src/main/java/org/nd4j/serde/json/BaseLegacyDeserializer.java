@@ -1,6 +1,5 @@
 package org.nd4j.serde.json;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.nd4j.shade.jackson.core.JsonParser;
 import org.nd4j.shade.jackson.databind.DeserializationContext;
@@ -14,6 +13,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * A base deserialization class used to handle deserializing of a specific class given changes from subtype wrapper
+ * format to class field format.<br>
+ * That is: from...<br>
+ * {@literal {@code @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.WRAPPER_OBJECT)}}<br>
+ * {@literal {@code @JsonSubTypes(value = {@JsonSubTypes.Type(value = LossBinaryXENT.class, name = "BinaryXENT"),}...}}<br>
+ * <br>
+ * to<br>
+ * <br>
+ * {@literal {@code @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")}}
+ *
+ * @param <T>  Type to deserialize
+ * @author Alex Black
+ */
 @Slf4j
 public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
 
@@ -29,7 +42,6 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         JsonNode node = jp.getCodec().readTree(jp);
 
         Iterator<Map.Entry<String,JsonNode>> nodes = node.fields();
-        //For legacy format, ex
 
         List<Map.Entry<String,JsonNode>> list = new ArrayList<>();
         while(nodes.hasNext()){
@@ -37,9 +49,7 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         }
 
         if(list.size() != 1){
-            //Should never happen
-//            throw new IllegalStateException("Expected size 1: " + list.size());
-            log.warn("Error deserializing value: " + getDeserializedType().getName());
+            //Should only occur if field is null?
             return null;
         }
 
@@ -57,8 +67,8 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
         try {
             lClass = (Class<? extends T>) Class.forName(layerClass);
         } catch (Exception e){
-            throw new RuntimeException("Could not find class for deserialization: class " + layerClass
-                    + " is not on the classpath?", e);
+            throw new RuntimeException("Could not find class for deserialization of \"" + name + "\" of type " +
+                    getDeserializedType() + ": class " + layerClass + " is not on the classpath?", e);
         }
 
         ObjectMapper m = getLegacyJsonMapper();
@@ -74,8 +84,8 @@ public abstract class BaseLegacyDeserializer<T> extends JsonDeserializer<T> {
             T t = m.readValue(nodeAsString, lClass);
             return t;
         } catch (Throwable e){
-            throw new IllegalStateException("Cannot deserialize legacy object of type " +
-                    getDeserializedType().getName(), e);
+            throw new IllegalStateException("Cannot deserialize legacy JSON format of object with name \"" + name
+                    + "\" of type " + getDeserializedType().getName(), e);
         }
     }
 
