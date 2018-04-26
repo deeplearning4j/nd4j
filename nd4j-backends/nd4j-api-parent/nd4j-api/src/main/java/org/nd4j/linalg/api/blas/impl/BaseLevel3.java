@@ -46,20 +46,20 @@ public abstract class BaseLevel3 extends BaseLevel implements Level3 {
             OpProfiler.getInstance().processBlasCall(true, A, B, C);
 
         GemmParams params = new GemmParams(A, B, C);
+        Order = params.getOrdering();
 
-        int charOder = Order;
         if (A.data().dataType() == DataBuffer.Type.DOUBLE) {
             DefaultOpExecutioner.validateDataType(DataBuffer.Type.DOUBLE, params.getA(), params.getB(), params.getC());
-            dgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), 1.0,
-                            params.getA(), params.getLda(), params.getB(), params.getLdb(), 0, C, params.getLdc());
+            dgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), alpha,
+                            params.getA(), params.getLda(), params.getB(), params.getLdb(), beta, C, params.getLdc());
         } else if (A.data().dataType() == DataBuffer.Type.FLOAT) {
             DefaultOpExecutioner.validateDataType(DataBuffer.Type.FLOAT, params.getA(), params.getB(), params.getC());
-            sgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), 1.0f,
-                            params.getA(), params.getLda(), params.getB(), params.getLdb(), 0, C, params.getLdc());
+            sgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), (float)alpha,
+                            params.getA(), params.getLda(), params.getB(), params.getLdb(), (float)beta, C, params.getLdc());
         } else {
             DefaultOpExecutioner.validateDataType(DataBuffer.Type.HALF, params.getA(), params.getB(), params.getC());
-            hgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), 1.0f,
-                            params.getA(), params.getLda(), params.getB(), params.getLdb(), 0, C, params.getLdc());
+            hgemm(Order, params.getTransA(), params.getTransB(), params.getM(), params.getN(), params.getK(), (float)alpha,
+                            params.getA(), params.getLda(), params.getB(), params.getLdb(), (float)beta, C, params.getLdc());
         }
 
         OpExecutionerUtil.checkForAny(C);

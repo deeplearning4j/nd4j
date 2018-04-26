@@ -10,6 +10,7 @@ import org.nd4j.linalg.api.complex.IComplexNDArray;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.aggregates.impl.AggregateGEMM;
 import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.primitives.AtomicBoolean;
 import org.nd4j.nativeblas.Nd4jBlas;
 
 import static org.bytedeco.javacpp.openblas.*;
@@ -25,6 +26,8 @@ import static org.nd4j.linalg.cpu.nativecpu.blas.CpuBlas.*;
 public class CpuLevel3 extends BaseLevel3 {
     private Nd4jBlas nd4jBlas = (Nd4jBlas) Nd4j.factory().blas();
 
+    private static AtomicBoolean first = new AtomicBoolean(true);
+
     @Override
     protected void hgemm(char Order, char TransA, char TransB, int M, int N, int K, float alpha, INDArray A, int lda,
                     INDArray B, int ldb, float beta, INDArray C, int ldc) {
@@ -34,7 +37,36 @@ public class CpuLevel3 extends BaseLevel3 {
     @Override
     protected void sgemm(char Order, char TransA, char TransB, int M, int N, int K, float alpha, INDArray A, int lda,
                     INDArray B, int ldb, float beta, INDArray C, int ldc) {
+
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("order=").append(Order)
+//                .append(",transA=").append(TransA)
+//                .append(",transB=").append(TransB)
+//                .append(",[M,N,K]=[").append(M).append(",").append(N).append(",").append(K).append("]")
+//                .append(",[a,b]=[").append(alpha).append(",").append(beta).append("]")
+//                .append(",A=[").append(A.shapeInfoToString().replaceAll("\n| ","")).append("-isView=").append(A.isView()).append("]")
+//                .append(",B=[").append(B.shapeInfoToString().replaceAll("\n| ","")).append("-isView=").append(B.isView()).append("]")
+//                .append(",C=[").append(C.shapeInfoToString().replaceAll("\n| ","")).append("-isView=").append(C.isView()).append("]");
+//        System.out.println(sb.toString());
+
+        if(first.getAndSet(false)){
+            System.out.println("Sleeping - first sgemm call...");
+            try{
+                Thread.sleep(500);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
         if (!Nd4j.isFallbackModeEnabled()) {
+//            int o = convertOrder('f');
+//            int ta = convertTranspose(TransA);
+//            int tb = convertTranspose(TransB);
+//            FloatPointer pa = (FloatPointer) A.data().addressPointer();
+//            FloatPointer pb = (FloatPointer) B.data().addressPointer();
+//            FloatPointer pc = (FloatPointer) C.data().addressPointer();
+//            System.out.println("o=" + o + ",ta=" + ta + ",tb=" + tb + ",pa=" + pa + ",pb=" + pb + ",pc=" + pc);
+//            cblas_sgemm(o, ta, tb, M, N, K, alpha, pa, lda, pb, ldb, beta, pc, ldc);
             cblas_sgemm(convertOrder('f'), convertTranspose(TransA), convertTranspose(TransB), M, N, K, alpha,
                             (FloatPointer) A.data().addressPointer(), lda, (FloatPointer) B.data().addressPointer(),
                             ldb, beta, (FloatPointer) C.data().addressPointer(), ldc);
