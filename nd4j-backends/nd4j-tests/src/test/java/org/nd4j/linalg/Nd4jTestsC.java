@@ -6160,6 +6160,28 @@ public class Nd4jTestsC extends BaseNd4jTest {
     }
 
 
+    @Test
+    public void testInconsistentOutput(){
+        INDArray in = Nd4j.rand(1, 802816);
+        INDArray W = Nd4j.rand(802816, 1);
+        INDArray b = Nd4j.create(1);
+        INDArray out = fwd(in, W, b);
+
+        for(int i=0;i<100;i++){
+            INDArray out2 = fwd(in, W, b);  //l.activate(inToLayer1, false, LayerWorkspaceMgr.noWorkspaces());
+            assertEquals("Failed at iteration [" + String.valueOf(i) + "]", out, out2);
+        }
+    }
+
+    private static INDArray fwd(INDArray input, INDArray W, INDArray b){
+        INDArray ret = Nd4j.createUninitialized(input.size(0), W.size(1));
+        input.mmuli(W, ret);
+        ret.addiRowVector(b);       //Passes if this is commented out
+
+        return ret;
+    }
+
+
     @Override
     public char ordering() {
         return 'c';
