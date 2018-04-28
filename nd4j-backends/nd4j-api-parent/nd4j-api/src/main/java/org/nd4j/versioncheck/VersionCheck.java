@@ -2,16 +2,10 @@ package org.nd4j.versioncheck;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.reflections.Reflections;
-import org.reflections.scanners.ResourcesScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-
-
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * A runtime version check utility that does 2 things:<br>
@@ -29,6 +23,7 @@ public class VersionCheck {
      * warnings/errors. By default, the version check is unable.
      */
     public static final String VERSION_CHECK_PROPERTY = "org.nd4j.versioncheck";
+    public static final String GIT_PROPERTY_FILE_SUFFIX = "-git.properties";
 
     private static final String SCALA_210_SUFFIX = "_2.10";
     private static final String SCALA_211_SUFFIX = "_2.11";
@@ -204,13 +199,36 @@ public class VersionCheck {
      * @return A list of the property files containing the build/version info
      */
     public static List<String> listGitPropertiesFiles() {
-        Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
-                new FilterBuilder().exclude(".*").include("/ai/skymind/*")).setScanners(new ResourcesScanner()));
-        Set<String> resources = reflections.getResources(Pattern.compile(".*-git.properties"));
+        Enumeration<URL> roots;
+        try {
+            roots = VersionCheck.class.getClassLoader().getResources("ai/skymind/");
+        } catch (IOException e){
+            //Should never happen?
+            log.debug("Error listing resources for version check", e);
+            return Collections.emptyList();
+        }
 
-        List<String> out = new ArrayList<>(resources);
+        List<String> out = new ArrayList<>();
+        while(roots.hasMoreElements()){
+            URL u = roots.nextElement();
+            String rootPath = u.getFile();
+
+            try {
+                File f = new File(rootPath);
+                File[] fArr = f.listFiles();
+                if(fArr != null) {
+                    for(File file : fArr) {
+                        if (file.getPath().endsWith(GIT_PROPERTY_FILE_SUFFIX)) {
+                            out.add(file.getPath());
+                        }
+                    }
+                }
+            } catch (Exception e){
+                log.debug("Error parsing resource directory: {}", u);
+            }
+        }
+
         Collections.sort(out);      //Equivalent to sorting by groupID and artifactID
-
         return out;
     }
 
@@ -229,7 +247,7 @@ public class VersionCheck {
             try{
                 grs = new VersionInfo(s);
             } catch (Exception e){
-                log.warn("Error reading property files for {}", s);
+                log.debug("Error reading property files for {}", s);
                 continue;
             }
             repState.add(grs);
