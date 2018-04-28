@@ -6,9 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Properties;
 
 /**
@@ -55,15 +57,18 @@ public class VersionInfo {
     }
 
     public VersionInfo(String propertiesFilePath) throws IOException {
-        propertiesFilePath = FilenameUtils.normalize(propertiesFilePath, true);
-        //First: parse the properties file path, which is in format <groupid>-<artifactId>-git.properties
-        int idxOf = propertiesFilePath.lastIndexOf('/');
-        idxOf = Math.max(idxOf, propertiesFilePath.lastIndexOf('\\'));
+        this(new File(propertiesFilePath).toURI());
+    }
+
+    public VersionInfo(URI uri) throws IOException {
+        String path = uri.toString();
+        int idxOf = path.lastIndexOf('/');
+        idxOf = Math.max(idxOf, path.lastIndexOf('\\'));
         String filename;
         if (idxOf <= 0) {
-            filename = propertiesFilePath;
+            filename = path;
         } else {
-            filename = propertiesFilePath.substring(idxOf + 1);
+            filename = path.substring(idxOf + 1);
         }
 
         idxOf = filename.indexOf('-');
@@ -73,7 +78,7 @@ public class VersionInfo {
 
         //Extract values from properties file:
         Properties properties = new Properties();
-        try(InputStream is = new FileInputStream(propertiesFilePath)){
+        try (InputStream is = uri.toURL().openStream() ) {
             properties.load(is);
         }
 

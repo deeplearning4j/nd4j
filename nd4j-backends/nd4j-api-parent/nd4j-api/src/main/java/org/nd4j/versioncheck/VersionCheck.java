@@ -4,7 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 
 /**
@@ -198,7 +202,7 @@ public class VersionCheck {
     /**
      * @return A list of the property files containing the build/version info
      */
-    public static List<String> listGitPropertiesFiles() {
+    public static List<URI> listGitPropertiesFiles() {
         Enumeration<URL> roots;
         try {
             roots = VersionCheck.class.getClassLoader().getResources("ai/skymind/");
@@ -208,23 +212,29 @@ public class VersionCheck {
             return Collections.emptyList();
         }
 
-        List<String> out = new ArrayList<>();
+        final List<URI> out = new ArrayList<>();
         while(roots.hasMoreElements()){
             URL u = roots.nextElement();
-            String rootPath = u.getFile();
 
             try {
-                File f = new File(rootPath);
-                File[] fArr = f.listFiles();
-                if(fArr != null) {
-                    for(File file : fArr) {
-                        if (file.getPath().endsWith(GIT_PROPERTY_FILE_SUFFIX)) {
-                            out.add(file.getPath());
+                URI uri = u.toURI();
+                try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null)) {
+                    Path myPath = Paths.get(uri);
+                    Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                            URI fileUri = file.toUri();
+                            String s = fileUri.toString();
+                            if(s.endsWith(GIT_PROPERTY_FILE_SUFFIX)){
+                                out.add(fileUri);
+                            }
+                            return FileVisitResult.CONTINUE;
                         }
-                    }
+                    });
                 }
             } catch (Exception e){
-                log.debug("Error parsing resource directory: {}", u);
+                //log and skip
+                log.debug("Error finding/loading version check resources", e);
             }
         }
 
@@ -241,7 +251,7 @@ public class VersionCheck {
         boolean datavecFound = false;
 
         List<VersionInfo> repState = new ArrayList<>();
-        for(String s : listGitPropertiesFiles()){
+        for(URI s : listGitPropertiesFiles()){
             VersionInfo grs;
 
             try{
