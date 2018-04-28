@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -52,6 +55,7 @@ public class VersionInfo {
     }
 
     public VersionInfo(String propertiesFilePath) throws IOException {
+        propertiesFilePath = FilenameUtils.normalize(propertiesFilePath, true);
         //First: parse the properties file path, which is in format <groupid>-<artifactId>-git.properties
         int idxOf = propertiesFilePath.lastIndexOf('/');
         idxOf = Math.max(idxOf, propertiesFilePath.lastIndexOf('\\'));
@@ -69,7 +73,9 @@ public class VersionInfo {
 
         //Extract values from properties file:
         Properties properties = new Properties();
-        properties.load(VersionCheck.class.getClassLoader().getResourceAsStream(propertiesFilePath));
+        try(InputStream is = new FileInputStream(propertiesFilePath)){
+            properties.load(is);
+        }
 
         this.tags = String.valueOf(properties.get("git.tags"));
         this.branch = String.valueOf(properties.get("git.branch"));
