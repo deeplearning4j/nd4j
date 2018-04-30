@@ -274,8 +274,6 @@ public class ConvolutionTestsC extends BaseNd4jTest {
                                             reduced = reduced.reshape('c',m,d, outSize[0], outSize[1]);
 
                                             assertEquals("Failed opType: " + type, reduced, output);
-
-                                            log.info("-----------------------------------------------");
                                         }
                                     }
                                 }
