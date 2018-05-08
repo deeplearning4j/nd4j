@@ -6322,6 +6322,8 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertArrayEquals(out5, exp);
     }
 
+
+
     ///////////////////////////////////////////////////////
     protected static void fillJvmArray3D(float[][][] arr) {
         int cnt = 1;
