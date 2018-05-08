@@ -78,11 +78,11 @@ public class AMSGradUpdater implements GradientUpdater<AMSGrad> {
         double learningRate = config.getLearningRate(iteration, epoch);
         double epsilon = config.getEpsilon();
 
-        //m_t = b_1t * m_{t-1} + (1-b_1t) * g_t
+        //m_t = b_1 * m_{t-1} + (1-b_1) * g_t       eq 1 pg 3
         INDArray oneMinusBeta1Grad = gradient.mul(1.0 - beta1);
         m.muli(beta1).addi(oneMinusBeta1Grad);
 
-        //v_t = b_2 * v_{t-1} + (1-b_2) * (g_t)^2
+        //v_t = b_2 * v_{t-1} + (1-b_2) * (g_t)^2   eq 1 pg 3
         INDArray oneMinusBeta2GradSquared = gradient.mul(gradient).muli(1 - beta2);
         v.muli(beta2).addi(oneMinusBeta2GradSquared);
 
