@@ -90,7 +90,7 @@ public class PerformanceTrackerTests extends BaseNd4jTest {
 
     @Test
     public void testTrackerCpu_1() {
-        if (Nd4j.getExecutioner().getClass().getCanonicalName().toLowerCase().contains("native"))
+        if (!Nd4j.getExecutioner().getClass().getCanonicalName().toLowerCase().contains("native"))
             return;
 
         val fa = new float[100000000];
