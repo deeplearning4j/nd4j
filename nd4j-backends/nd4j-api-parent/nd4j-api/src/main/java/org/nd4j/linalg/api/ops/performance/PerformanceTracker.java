@@ -90,4 +90,20 @@ public class PerformanceTracker {
             addMemoryTransaction(deviceId, timeSpentNanos, numberOfBytes, direction);
         }
     }
+
+    public Map<Integer, Map<MemcpyDirection, Long>> getCurrentBandwidth() {
+        val result = new HashMap<Integer, Map<MemcpyDirection, Long>>();
+        val keys = bandwidth.keySet();
+        for (val d: keys) {
+
+            result.put(d, new HashMap<MemcpyDirection, Long>());
+
+            // get average for each MemcpyDirection and store it
+            for (val m: MemcpyDirection.values())
+                result.get(d).put(m, bandwidth.get(d).getAverageValue(m));
+
+        }
+
+        return result;
+    }
 }
