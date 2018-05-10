@@ -68,10 +68,14 @@ public class AveragingTransactionsHolder {
             locks.get(o).readLock().lock();
 
             val list = storage.get(o);
+
+            if (list.isEmpty())
+                return 0L;
+
             for (val v : list)
                 r += v;
 
-            return r / storage.get(o).size();
+            return r / list.size();
         } finally {
             locks.get(o).readLock().unlock();
         }

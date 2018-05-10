@@ -2126,7 +2126,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             props.put(Nd4jEnvironment.HOST_FREE_MEMORY_KEY, Pointer.maxBytes() - Pointer.totalBytes());
 
             // fill bandwidth information
-            props.put(Nd4jEnvironment.CUDA_DEVICE_BANDWIDTH_KEY, PerformanceTracker.getInstance().getCurrentBandwidth());
+            props.put(Nd4jEnvironment.MEMORY_BANDWIDTH_KEY, PerformanceTracker.getInstance().getCurrentBandwidth());
 
             properties = props;
         } else {
@@ -2146,7 +2146,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
             properties.put(Nd4jEnvironment.HOST_FREE_MEMORY_KEY, Pointer.maxBytes() - Pointer.totalBytes());
 
             // fill bandwidth information
-            properties.put(Nd4jEnvironment.CUDA_DEVICE_BANDWIDTH_KEY, PerformanceTracker.getInstance().getCurrentBandwidth());
+            properties.put(Nd4jEnvironment.MEMORY_BANDWIDTH_KEY, PerformanceTracker.getInstance().getCurrentBandwidth());
         }
         return properties;
     }

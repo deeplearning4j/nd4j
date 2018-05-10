@@ -65,7 +65,9 @@ public class PerformanceTracker {
         // we calculate bytes per microsecond now
         val bw = (long) (numberOfBytes / (timeSpentNanos / (double) 1000.0));
 
-        bandwidth.get(deviceId).addValue(direction, bw);
+        // we skip too small values
+        if (bw > 0)
+            bandwidth.get(deviceId).addValue(direction, bw);
 
         return bw;
     }
@@ -87,7 +89,7 @@ public class PerformanceTracker {
     public void helperRegisterTransaction(int deviceId, long timeSpentNanos, long numberOfBytes, @NonNull MemcpyDirection direction) {
         // only do something if profiling is enabled
         if (Nd4j.getExecutioner().getProfilingMode() == OpExecutioner.ProfilingMode.BANDWIDTH) {
-            addMemoryTransaction(deviceId, timeSpentNanos, numberOfBytes, direction);
+            addMemoryTransaction(deviceId, System.nanoTime() - timeSpentNanos, numberOfBytes, direction);
         }
     }
 
