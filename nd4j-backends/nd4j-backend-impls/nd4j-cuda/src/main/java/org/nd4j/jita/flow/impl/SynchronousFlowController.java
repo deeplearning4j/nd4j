@@ -14,9 +14,12 @@ import org.nd4j.jita.conf.CudaEnvironment;
 import org.nd4j.jita.flow.FlowController;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
+import org.nd4j.linalg.api.ops.performance.PerformanceTracker;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.jcublas.JCublasNDArray;
 import org.nd4j.linalg.jcublas.context.CudaContext;
+import org.nd4j.linalg.profiler.OpProfiler;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
 import org.slf4j.Logger;
@@ -57,12 +60,25 @@ public class SynchronousFlowController implements FlowController {
             // if this piece of memory is device-dependant, we'll also issue copyback once
             if (point.getAllocationStatus() == AllocationStatus.DEVICE && !point.isActualOnHostSide()) {
 
+                long timeStart = 0;
+                boolean profile = Nd4j.getExecutioner().getProfilingMode() == OpExecutioner.ProfilingMode.BANDWIDTH;
+
+                if (profile)
+                    timeStart = System.nanoTime();
+
                 if (nativeOps.memcpyAsync(point.getHostPointer(), point.getDevicePointer(),
                                 AllocationUtils.getRequiredMemory(point.getShape()),
                                 CudaConstants.cudaMemcpyDeviceToHost, context.getSpecialStream()) == 0)
                     throw new IllegalStateException("MemcpyAsync failed: " + point.getShape());
 
                 commitTransfer(context.getSpecialStream());
+
+                if (profile) {
+                    long timeSpent = System.nanoTime() - timeStart;
+
+                    PerformanceTracker.getInstance().addMemoryTransaction(point.getDeviceId(), timeSpent, point.getNumberOfBytes());
+                }
+
             } // else log.info("Not [DEVICE] memory, skipping...");
 
 
