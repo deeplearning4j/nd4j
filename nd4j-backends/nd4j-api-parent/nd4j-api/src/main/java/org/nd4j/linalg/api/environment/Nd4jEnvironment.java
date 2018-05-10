@@ -48,6 +48,7 @@ public class Nd4jEnvironment implements Serializable {
     public final static String CUDA_TOTAL_MEMORY_KEY = "cuda.totalMemory";
     public final static String CUDA_DEVICE_MAJOR_VERSION_KEY = "cuda.deviceMajor";
     public final static String CUDA_DEVICE_MINOR_VERSION_KEY = "cuda.deviceMinor";
+    public final static String CUDA_DEVICE_BANDWIDTH_KEY = "cuda.deviceBandwidth";
 
     public final static String BACKEND_KEY = "backend";
     public final static String CUDA_NUM_GPUS_KEY = "cuda.availableDevices";
