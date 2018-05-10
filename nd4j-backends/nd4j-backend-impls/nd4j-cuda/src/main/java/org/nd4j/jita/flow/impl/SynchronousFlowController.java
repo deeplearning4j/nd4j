@@ -19,6 +19,7 @@ import org.nd4j.linalg.api.ops.performance.PerformanceTracker;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.jcublas.JCublasNDArray;
 import org.nd4j.linalg.jcublas.context.CudaContext;
+import org.nd4j.linalg.memory.MemcpyDirection;
 import org.nd4j.linalg.profiler.OpProfiler;
 import org.nd4j.nativeblas.NativeOps;
 import org.nd4j.nativeblas.NativeOpsHolder;
@@ -60,25 +61,14 @@ public class SynchronousFlowController implements FlowController {
             // if this piece of memory is device-dependant, we'll also issue copyback once
             if (point.getAllocationStatus() == AllocationStatus.DEVICE && !point.isActualOnHostSide()) {
 
-                long timeStart = 0;
-                boolean profile = Nd4j.getExecutioner().getProfilingMode() == OpExecutioner.ProfilingMode.BANDWIDTH;
+                long perfD = PerformanceTracker.getInstance().helperStartTransaction();
 
-                if (profile)
-                    timeStart = System.nanoTime();
-
-                if (nativeOps.memcpyAsync(point.getHostPointer(), point.getDevicePointer(),
-                                AllocationUtils.getRequiredMemory(point.getShape()),
-                                CudaConstants.cudaMemcpyDeviceToHost, context.getSpecialStream()) == 0)
+                if (nativeOps.memcpyAsync(point.getHostPointer(), point.getDevicePointer(), AllocationUtils.getRequiredMemory(point.getShape()), CudaConstants.cudaMemcpyDeviceToHost, context.getSpecialStream()) == 0)
                     throw new IllegalStateException("MemcpyAsync failed: " + point.getShape());
 
                 commitTransfer(context.getSpecialStream());
 
-                if (profile) {
-                    long timeSpent = System.nanoTime() - timeStart;
-
-                    PerformanceTracker.getInstance().addMemoryTransaction(point.getDeviceId(), timeSpent, point.getNumberOfBytes());
-                }
-
+                PerformanceTracker.getInstance().helperRegisterTransaction(point.getDeviceId(), perfD, point.getNumberOfBytes(), MemcpyDirection.DEVICE_TO_HOST);
             } // else log.info("Not [DEVICE] memory, skipping...");
 
 
@@ -99,6 +89,8 @@ public class SynchronousFlowController implements FlowController {
             if (point.getAllocationStatus() == AllocationStatus.DEVICE) {
                 CudaContext context = (CudaContext) allocator.getDeviceContext().getContext();
 
+                long perfD = PerformanceTracker.getInstance().helperStartTransaction();
+
                 if (nativeOps.memcpyAsync(point.getDevicePointer(), point.getHostPointer(),
                         AllocationUtils.getRequiredMemory(point.getShape()),
                         CudaConstants.cudaMemcpyHostToDevice, context.getSpecialStream()) == 0)
@@ -106,6 +98,8 @@ public class SynchronousFlowController implements FlowController {
 
                 commitTransfer(context.getSpecialStream());
                 point.tickDeviceRead();
+
+                PerformanceTracker.getInstance().helperRegisterTransaction(point.getDeviceId(), perfD, point.getNumberOfBytes(), MemcpyDirection.HOST_TO_DEVICE);
             }
         }
     }
