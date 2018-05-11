@@ -61,6 +61,7 @@ import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.Eps;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
+import org.nd4j.linalg.cpu.nativecpu.NDArray;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
@@ -6336,6 +6337,16 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
         INDArray[] out5 = Nd4j.meshgrid(x2, y2);
         assertArrayEquals(out5, exp);
+    }
+
+    @Test
+    public void testAccumuationWithoutAxis_1() {
+        val array = Nd4j.create(3, 3).assign(1.0);
+
+        val result = array.sum();
+
+        assertEquals(1, result.length());
+        assertEquals(9.0, result.getDouble(0), 1e-5);
     }
 
 
