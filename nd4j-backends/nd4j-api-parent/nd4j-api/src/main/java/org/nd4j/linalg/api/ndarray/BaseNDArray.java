@@ -1782,7 +1782,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         } else if (Shape.rank(javaShapeInformation) == 1) {
             return shapeOf().getInt(0) == 1;
         } else if (Shape.rank(javaShapeInformation) == 2) {
-            return shapeOf().getInt(0) == 1 && shapeOf().getInt(1) == 1;
+            return shapeOf().getInt(0) == 1 && shapeOf().getInt(1) == 1 || length() == 1;
         }
 
         else
@@ -2492,10 +2492,38 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     protected INDArray doColumnWise(INDArray columnVector, char operation) {
         Nd4j.getCompressor().autoDecompress(this);
+       if(columnVector.isScalar()) {
+           switch (operation) {
+               case 'a':
+                   addi(columnVector.getDouble(0));
+                   break;
+               case 'p':
+                   assign(columnVector.getDouble(0));
+                   break;
+               case 's':
+                   subi(columnVector.getDouble(0));
+                   break;
+               case 'm':
+                   muli(columnVector.getDouble(0));
+                   break;
+               case 'd':
+                   divi(columnVector.getDouble(0));
+                   break;
+               case 'h':
+                   rsubi(columnVector.getDouble(0));
+                   break;
+               case 't':
+                   rdivi(columnVector.getDouble(0));
+                   break;
+
+           }
+
+           return this;
+       }
         //Input validation: require (a) columnVector to actually be a column vector, and (b) this.size(0) to match columnVector.size(0)
-        if (!columnVector.isColumnVector() || this.size(0) != columnVector.size(0)) {
+        if (!columnVector.isColumnVector() || this.size(0) != columnVector.size(0) || columnVector.length() <= 1) {
             throw new IllegalStateException("Mismatched shapes (shape = " + Arrays.toString(shape())
-                    + ", row vector shape =" + Arrays.toString(columnVector.shape()) + ")");
+                    + ", column vector shape =" + Arrays.toString(columnVector.shape()) + ")");
         }
 
         if (columnVector.data().sameUnderlyingData(data()))
@@ -2621,8 +2649,38 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     protected INDArray doRowWise(INDArray rowVector, final char operation) {
         Nd4j.getCompressor().autoDecompress(this);
 
+
+        if(rowVector.isScalar()) {
+            switch (operation) {
+                case 'a':
+                    addi(rowVector.getDouble(0));
+                    break;
+                case 'p':
+                    assign(rowVector.getDouble(0));
+                    break;
+                case 's':
+                    subi(rowVector.getDouble(0));
+                    break;
+                case 'm':
+                    muli(rowVector.getDouble(0));
+                    break;
+                case 'd':
+                    divi(rowVector.getDouble(0));
+                    break;
+                case 'h':
+                    rsubi(rowVector.getDouble(0));
+                    break;
+                case 't':
+                    rdivi(rowVector.getDouble(0));
+                    break;
+
+            }
+
+            return this;
+        }
+
         //Input validation: require (a) rowVector to actually be a row vector, and (b) this.size(1) to match rowVector.size(1)
-        if (!rowVector.isRowVector() ||this.rank() > 1 && rowVector.rank() > 1 &&  this.size(1) != rowVector.size(1)) {
+        if (!rowVector.isRowVector() || this.rank() > 1 && rowVector.rank() > 1 &&  this.size(1) != rowVector.size(1) || rowVector.length() <= 1) {
             throw new IllegalStateException("Mismatched shapes (shape = " + Arrays.toString(shape())
                     + ", row vector shape =" + Arrays.toString(rowVector.shape()) + ")");
         }
@@ -4190,8 +4248,9 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         long prod = ArrayUtil.prodLong(shape);
 
-        if (prod != this.lengthLong())
-            throw new ND4JIllegalStateException("New shape length doesn't match original length: [" + prod + "] vs [" + this.lengthLong() + "]");
+        if (prod != this.lengthLong()){
+            throw new ND4JIllegalStateException("New shape length doesn't match original length: [" + prod + "] vs [" + this.lengthLong() + "]. Original shape: "+Arrays.toString(this.shape())+" New Shape: "+Arrays.toString(newShape));
+        }
 
 
 
@@ -4924,16 +4983,11 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         return Shape.length(javaShapeInformation);
     }
 
-    /**
-     * Broadcasts this ndarray to be the specified shape
-     *
-     * @param shape the new shape of this ndarray
-     * @return the broadcasted ndarray
-     */
     @Override
-    public INDArray broadcast(int... shape) {
+    public INDArray broadcast(INDArray result) {
         Nd4j.getCompressor().autoDecompress(this);
 
+        int[] shape = result.shape();
 
         if (Shape.shapeEquals(shape, shape()))
             return this;
@@ -4941,6 +4995,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         // if we're on scalar, we can just create new array
         if (this.isScalar())
             return Nd4j.createUninitialized(shape).assign(this.getDouble(0));
+
+
 
 
         boolean compatible = true;
@@ -4993,30 +5049,51 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         }
 
-        INDArray ret = create(retShape, ordering());
 
         if (isRowVector()) {
             //number of times to repeat each value
-            for (int i = 0; i < ret.slices(); i++) {
-                ret.putSlice(i, this);
+            for (int i = 0; i < result.slices(); i++) {
+                result.putSlice(i, this);
             }
         } else if (isColumnVector()) {
-            for (int i = 0; i < ret.columns(); i++) {
-                ret.putColumn(i, this);
+            for (int i = 0; i < result.columns(); i++) {
+                result.putColumn(i, this);
             }
         }
 
         else {
-            int idx = 0;
-            //number of times to repeat each value
-            for(int i = 0; i < ret.length(); i++) {
-                ret.putScalar(i,getDouble(idx));
-                if(idx >= length())
-                    idx = 0;
-            }
-        }
-        return ret;
+            int[] repeat = new int[shape.length];
+            for(int i = 0; i < shape.length; i++) {
+                if(i < rank()) {
+                    if(size(i) == 1)
+                        repeat[i] = shape[i];
+                    else {
+                        repeat[i] = 1;
+                    }
+                }
 
+                else {
+                    repeat[i] = shape[i];
+                }
+            }
+
+            //Nd4j.getExecutioner().exec(new Tile(new INDArray[]{this},new INDArray[]{result},repeat));
+
+            result = Nd4j.tile(this,repeat);
+        }
+        return result;
+
+    }
+
+    /**
+     * Broadcasts this ndarray to be the specified shape
+     *
+     * @param shape the new shape of this ndarray
+     * @return the broadcasted ndarray
+     */
+    @Override
+    public INDArray broadcast(int... shape) {
+      return broadcast(Nd4j.createUninitialized(shape));
     }
 
 
@@ -5285,8 +5362,12 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     }
 
     @Override
-    public boolean isSquare() {
+    public boolean isVectorOrScalar() {
+        return isVector() || isScalar();
+    }
 
+    @Override
+    public boolean isSquare() {
         return isMatrix() && rows() == columns();
     }
 
@@ -5295,7 +5376,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isRowVector() {
-        return (rank() == 2 && rows() == 1) || rank() == 1;
+        return (rank() == 2 && rows() == 1) && length() > 1 || rank() == 1 && length() > 1;
     }
 
     /**
@@ -5303,7 +5384,17 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      */
     @Override
     public boolean isColumnVector() {
-        return rank() == 2 && columns() == 1;
+        return rank() == 2 && columns() == 1 && length() > 1;
+    }
+
+    @Override
+    public boolean isColumnVectorOrScalar() {
+        return isColumnVector() || isScalar();
+    }
+
+    @Override
+    public boolean isRowVectorOrScalar() {
+        return isRowVector() || isScalar();
     }
 
     /**
