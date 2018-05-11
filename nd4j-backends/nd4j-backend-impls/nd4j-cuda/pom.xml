@@ -11,8 +11,8 @@
 
     <properties>
         <cuda.version>9.1</cuda.version>
-        <cudnn.version>7.0</cudnn.version>
-        <javacpp-presets.cuda.version>1.4</javacpp-presets.cuda.version>
+        <cudnn.version>7.1</cudnn.version>
+        <javacpp-presets.cuda.version>1.4.1</javacpp-presets.cuda.version>
         <maven.compiler.target>1.7</maven.compiler.target>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
@@ -257,6 +257,19 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Reflections: required in one of the tests -->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>${reflections.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <profiles>

@@ -2,16 +2,12 @@ package org.nd4j.versioncheck;
 
 import lombok.extern.slf4j.Slf4j;
 
-import org.reflections.Reflections;
-import org.reflections.scanners.ResourcesScanner;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
-
-
+import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * A runtime version check utility that does 2 things:<br>
@@ -29,22 +25,20 @@ public class VersionCheck {
      * warnings/errors. By default, the version check is unable.
      */
     public static final String VERSION_CHECK_PROPERTY = "org.nd4j.versioncheck";
+    public static final String GIT_PROPERTY_FILE_SUFFIX = "-git.properties";
 
     private static final String SCALA_210_SUFFIX = "_2.10";
     private static final String SCALA_211_SUFFIX = "_2.11";
     private static final String SPARK_1_VER_STRING = "spark_1";
     private static final String SPARK_2_VER_STRING = "spark_2";
 
-    private static final String UNKNOWN_VERSION = "(Unknown, pre-0.9.1)";
-    private static final String UNKNOWN_VERSION_2 = "(Unknown)";
+    private static final String UNKNOWN_VERSION = "(Unknown)";
 
     private static final String DL4J_GROUPID = "org.deeplearning4j";
     private static final String DL4J_ARTIFACT = "deeplearning4j-nn";
-    private static final String DL4J_CLASS = "org.deeplearning4j.nn.conf.MultiLayerConfiguration";
 
     private static final String DATAVEC_GROUPID = "org.datavec";
     private static final String DATAVEC_ARTIFACT = "datavec-api";
-    private static final String DATAVEC_CLASS = "org.datavec.api.writable.DoubleWritable";
 
     private static final String ND4J_GROUPID = "org.nd4j";
 
@@ -112,10 +106,10 @@ public class VersionCheck {
             boolean datavecViaClass = false;
             for(VersionInfo vi : dependencies ){
                 if(DL4J_GROUPID.equals(vi.getGroupId()) && DL4J_ARTIFACT.equals(vi.getArtifactId())
-                        && (UNKNOWN_VERSION.equals(vi.getBuildVersion()) || UNKNOWN_VERSION_2.equals(vi.getBuildVersion()))){
+                        && (UNKNOWN_VERSION.equals(vi.getBuildVersion()))){
                     dl4jViaClass = true;
                 } else if(DATAVEC_GROUPID.equals(vi.getGroupId()) && DATAVEC_ARTIFACT.equals(vi.getArtifactId())
-                        && (UNKNOWN_VERSION.equals(vi.getBuildVersion()) || UNKNOWN_VERSION_2.equals(vi.getBuildVersion()))){
+                        && (UNKNOWN_VERSION.equals(vi.getBuildVersion()))){
                     datavecViaClass = true;
                 }
             }
@@ -150,12 +144,7 @@ public class VersionCheck {
             log.warn("*** ND4J VERSION CHECK FAILED - INCOMPATIBLE VERSIONS FOUND ***");
             log.warn("Incompatible versions (different version number) of DL4J, ND4J, RL4J, DataVec, Arbiter are unlikely to function correctly");
             logVersions = true;
-        } else if(foundVersions.size() == 1 && foundVersions.contains(UNKNOWN_VERSION)){
-            log.warn("*** ND4J VERSION CHECK FAILED - COULD NOT INFER VERSIONS ***");
-            log.warn("Incompatible versions (different version number) of DL4J, ND4J, RL4J, DataVec, Arbiter are unlikely to function correctly");
-            logVersions = true;
         }
-
 
         //Also: check for mixed scala versions - but only for our dependencies... These are in the artifact ID,
         // scored like dl4j-spack_2.10 and deeplearning4j-ui_2.11
@@ -203,14 +192,43 @@ public class VersionCheck {
     /**
      * @return A list of the property files containing the build/version info
      */
-    public static List<String> listGitPropertiesFiles() {
-        Reflections reflections = new Reflections(new ConfigurationBuilder().filterInputsBy(
-                new FilterBuilder().exclude(".*").include("/ai/skymind/*")).setScanners(new ResourcesScanner()));
-        Set<String> resources = reflections.getResources(Pattern.compile(".*-git.properties"));
+    public static List<URI> listGitPropertiesFiles() {
+        Enumeration<URL> roots;
+        try {
+            roots = VersionCheck.class.getClassLoader().getResources("ai/skymind/");
+        } catch (IOException e){
+            //Should never happen?
+            log.debug("Error listing resources for version check", e);
+            return Collections.emptyList();
+        }
 
-        List<String> out = new ArrayList<>(resources);
+        final List<URI> out = new ArrayList<>();
+        while(roots.hasMoreElements()){
+            URL u = roots.nextElement();
+
+            try {
+                URI uri = u.toURI();
+                try (FileSystem fileSystem = (uri.getScheme().equals("jar") ? FileSystems.newFileSystem(uri, Collections.<String, Object>emptyMap()) : null)) {
+                    Path myPath = Paths.get(uri);
+                    Files.walkFileTree(myPath, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                            URI fileUri = file.toUri();
+                            String s = fileUri.toString();
+                            if(s.endsWith(GIT_PROPERTY_FILE_SUFFIX)){
+                                out.add(fileUri);
+                            }
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+            } catch (Exception e){
+                //log and skip
+                log.debug("Error finding/loading version check resources", e);
+            }
+        }
+
         Collections.sort(out);      //Equivalent to sorting by groupID and artifactID
-
         return out;
     }
 
@@ -223,13 +241,13 @@ public class VersionCheck {
         boolean datavecFound = false;
 
         List<VersionInfo> repState = new ArrayList<>();
-        for(String s : listGitPropertiesFiles()){
+        for(URI s : listGitPropertiesFiles()){
             VersionInfo grs;
 
             try{
                 grs = new VersionInfo(s);
             } catch (Exception e){
-                log.warn("Error reading property files for {}", s);
+                log.debug("Error reading property files for {}", s);
                 continue;
             }
             repState.add(grs);
@@ -240,31 +258,6 @@ public class VersionCheck {
 
             if(!datavecFound && DATAVEC_GROUPID.equalsIgnoreCase(grs.getGroupId()) && DATAVEC_ARTIFACT.equalsIgnoreCase(grs.getArtifactId())){
                 datavecFound = true;
-            }
-        }
-
-        //Note that if NO git.properties files were found, it's still possible that the DL4J/DataVec versions found
-        // by their class names are correct. Consequently, only call them "pre-0.9.1" if we can be sure that's the case,
-        // otherwise just call them "Unknown"
-        String unknownVersionString = repState.size() == 0 ? UNKNOWN_VERSION_2 : UNKNOWN_VERSION;
-
-        if(!dl4jFound){
-            //See if pre-0.9.1 DL4J is present on classpath;
-            if(classExists(DL4J_CLASS)){
-                List<VersionInfo> temp = new ArrayList<>();
-                temp.add(new VersionInfo(DL4J_GROUPID, DL4J_ARTIFACT, unknownVersionString));
-                temp.addAll(repState);
-                repState = temp;
-            }
-        }
-
-        if(!datavecFound){
-            //See if pre-0.9.1 DataVec is present on classpath
-            if(classExists(DATAVEC_CLASS)){
-                List<VersionInfo> temp = new ArrayList<>();
-                temp.add(new VersionInfo(DATAVEC_GROUPID, DATAVEC_ARTIFACT, unknownVersionString));
-                temp.addAll(repState);
-                repState = temp;
             }
         }
 
@@ -279,7 +272,6 @@ public class VersionCheck {
             log.error("Found incompatible/obsolete library Canova on classpath. ND4J is unlikely to"
                     + " function correctly with this library on the classpath.");
         }
-
 
         return repState;
     }
