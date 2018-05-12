@@ -3407,7 +3407,8 @@ public abstract class BaseComplexNDArray extends BaseNDArray implements IComplex
      */
     @Override
     public IComplexNDArray broadcast(long[] shape) {
-        return (IComplexNDArray) super.broadcast(shape);
+        //return (IComplexNDArray) super.broadcast(shape);
+        throw new UnsupportedOperationException();
     }
 
 

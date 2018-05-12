@@ -5284,7 +5284,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
     public INDArray broadcast(INDArray result) {
         Nd4j.getCompressor().autoDecompress(this);
 
-        int[] shape = result.shape();
+        val shape = result.shape();
 
         if (Shape.shapeEquals(shape, shape()))
             return this;
@@ -5359,18 +5359,19 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         }
 
         else {
+            // FIXME: int cast
             int[] repeat = new int[shape.length];
             for(int i = 0; i < shape.length; i++) {
                 if(i < rank()) {
                     if(size(i) == 1)
-                        repeat[i] = shape[i];
+                        repeat[i] = (int) shape[i];
                     else {
                         repeat[i] = 1;
                     }
                 }
 
                 else {
-                    repeat[i] = shape[i];
+                    repeat[i] = (int) shape[i];
                 }
             }
 
@@ -5389,7 +5390,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
      * @return the broadcasted ndarray
      */
     @Override
-    public INDArray broadcast(int... shape) {
+    public INDArray broadcast(long... shape) {
       return broadcast(Nd4j.createUninitialized(shape));
     }
 
