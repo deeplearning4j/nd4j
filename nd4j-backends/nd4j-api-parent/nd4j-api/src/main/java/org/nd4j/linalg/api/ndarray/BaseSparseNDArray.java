@@ -85,6 +85,20 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
     }
 
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    @Override
+    public boolean isColumnVectorOrScalar() {
+        return isColumnVector() || isScalar();
+    }
+
+    @Override
+    public boolean isRowVectorOrScalar() {
+        return isRowVector() || isScalar();
+    }
 
     @Override
     public INDArray get(INDArray indices) {
@@ -1638,6 +1652,11 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
     }
 
     @Override
+    public INDArray broadcast(INDArray result) {
+        return null;
+    }
+
+    @Override
     public INDArray dimShuffle(Object[] rearrange, long[] newOrder, boolean[] broadCastable) {
         return null;
     }
@@ -1668,6 +1687,11 @@ public abstract class BaseSparseNDArray implements ISparseNDArray {
     @Override
     public boolean isVector() {
         return isRowVector() || isColumnVector();
+    }
+
+    @Override
+    public boolean isVectorOrScalar() {
+        return isVector() || isScalar();
     }
 
     @Override

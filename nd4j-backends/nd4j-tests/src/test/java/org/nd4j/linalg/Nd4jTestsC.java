@@ -41,6 +41,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.nd4j.linalg.api.blas.params.MMulTranspose;
 import org.nd4j.linalg.api.buffer.DataBuffer;
 import org.nd4j.linalg.api.buffer.util.DataTypeUtil;
 import org.nd4j.linalg.api.complex.IComplexNumber;
@@ -50,18 +51,20 @@ import org.nd4j.linalg.api.iter.NdIndexIterator;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.Accumulation;
 import org.nd4j.linalg.api.ops.BroadcastOp;
+import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.nd4j.linalg.api.ops.Op;
+import org.nd4j.linalg.api.ops.executioner.GridExecutioner;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.executioner.OpExecutionerUtil;
-import org.nd4j.linalg.api.ops.impl.accum.Norm1;
-import org.nd4j.linalg.api.ops.impl.accum.Norm2;
-import org.nd4j.linalg.api.ops.impl.accum.Sum;
+import org.nd4j.linalg.api.ops.impl.accum.*;
 import org.nd4j.linalg.api.ops.impl.accum.distances.*;
 import org.nd4j.linalg.api.ops.impl.broadcast.*;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IAMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IAMin;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMin;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.Im2col;
+import org.nd4j.linalg.api.ops.impl.layers.convolution.config.Conv2DConfig;
 import org.nd4j.linalg.api.ops.impl.transforms.*;
 import org.nd4j.linalg.api.ops.impl.transforms.Set;
 import org.nd4j.linalg.api.ops.impl.transforms.comparison.CompareAndSet;
@@ -71,13 +74,14 @@ import org.nd4j.linalg.checkutil.NDArrayCreationUtil;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.factory.Nd4jBackend;
+import org.nd4j.linalg.indexing.BooleanIndexing;
 import org.nd4j.linalg.indexing.INDArrayIndex;
 import org.nd4j.linalg.indexing.NDArrayIndex;
 import org.nd4j.linalg.indexing.conditions.Conditions;
 import org.nd4j.linalg.ops.transforms.Transforms;
+import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.linalg.util.MathUtils;
-import org.nd4j.nativeblas.NativeOpsHolder;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -6268,12 +6272,21 @@ public class Nd4jTestsC extends BaseNd4jTest {
     public void testBroadcast_1() {
         val array1 = Nd4j.linspace(1, 10, 10).reshape(5, 1, 2).broadcast(5, 4, 2);
         val array2 = Nd4j.linspace(1, 20, 20).reshape(5, 4, 1).broadcast(5, 4, 2);
-        val exp = Nd4j.create(new float[] {2.0f, 3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f, 6.0f, 8.0f, 9.0f, 9.0f, 10.0f, 10.0f, 11.0f, 11.0f, 12.0f, 14.0f, 15.0f, 15.0f, 16.0f, 16.0f, 17.0f, 17.0f, 18.0f, 20.0f, 21.0f, 21.0f, 22.0f, 22.0f, 23.0f, 23.0f, 24.0f, 26.0f, 27.0f, 27.0f, 28.0f, 28.0f, 29.0f, 29.0f, 30.0f});
+        val exp = Nd4j.create(new float[] {2.0f, 3.0f, 3.0f, 4.0f, 4.0f, 5.0f, 5.0f, 6.0f, 8.0f, 9.0f, 9.0f, 10.0f, 10.0f, 11.0f, 11.0f, 12.0f, 14.0f, 15.0f, 15.0f, 16.0f, 16.0f, 17.0f, 17.0f, 18.0f, 20.0f, 21.0f, 21.0f, 22.0f, 22.0f, 23.0f, 23.0f, 24.0f, 26.0f, 27.0f, 27.0f, 28.0f, 28.0f, 29.0f, 29.0f, 30.0f}).reshape(5,4,2);
 
         array1.addi(array2);
 
         assertEquals(exp, array1);
     }
+
+
+    @Test
+    public void testAddiColumnEdge(){
+        INDArray arr1 = Nd4j.create(1, 5);
+        arr1.addiColumnVector(Nd4j.ones(1));
+        assertEquals(Nd4j.ones(1,5), arr1);
+    }
+
 
     @Test
     public void testMmulViews_1() {
@@ -6292,6 +6305,102 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertEquals(exp, arraya.mmul(arraya));
 
         assertEquals(exp, arrayb.mmul(arrayb));
+    }
+
+    @Test
+    public void testTile_1() {
+        val array = Nd4j.linspace(1, 6, 6).reshape(2, 3);
+        val exp = Nd4j.create(new double[] {1.000000, 2.000000, 3.000000, 1.000000, 2.000000, 3.000000, 4.000000, 5.000000, 6.000000, 4.000000, 5.000000, 6.000000, 1.000000, 2.000000, 3.000000, 1.000000, 2.000000, 3.000000, 4.000000, 5.000000, 6.000000, 4.000000, 5.000000, 6.000000}, new int[] {4, 6});
+        val output = Nd4j.create(4, 6);
+
+        val op = DynamicCustomOp.builder("tile")
+                .addInputs(array)
+                .addIntegerArguments(2, 2)
+                .addOutputs(output)
+                .build();
+
+        Nd4j.getExecutioner().exec(op);
+
+        assertEquals(exp, output);
+    }
+
+    @Test
+    public void testRelativeError_1() throws Exception {
+        val arrayX = Nd4j.create(10, 10);
+        val arrayY = Nd4j.ones(10, 10);
+        val exp = Nd4j.ones(10, 10);
+
+        Nd4j.getExecutioner().exec(new BinaryRelativeError(arrayX, arrayY, arrayX, 0.1));
+
+        assertEquals(exp, arrayX);
+    }
+
+
+    @Test
+    public void testMeshGrid(){
+
+        INDArray x1 = Nd4j.create(new double[]{1,2,3,4});
+        INDArray y1 = Nd4j.create(new double[]{5,6,7});
+
+        INDArray expX = Nd4j.create(new double[][]{
+                {1,2,3,4},
+                {1,2,3,4},
+                {1,2,3,4}});
+        INDArray expY = Nd4j.create(new double[][]{
+                {5,5,5,5},
+                {6,6,6,6},
+                {7,7,7,7}});
+        INDArray[] exp = new INDArray[]{expX, expY};
+
+        INDArray[] out1 = Nd4j.meshgrid(x1, y1);
+        assertArrayEquals(out1, exp);
+
+        INDArray[] out2 = Nd4j.meshgrid(x1.transpose(), y1.transpose());
+        assertArrayEquals(out2, exp);
+
+        INDArray[] out3 = Nd4j.meshgrid(x1, y1.transpose());
+        assertArrayEquals(out3, exp);
+
+        INDArray[] out4 = Nd4j.meshgrid(x1.transpose(), y1);
+        assertArrayEquals(out4, exp);
+
+        //Test views:
+        INDArray x2 = Nd4j.create(1,9).get(NDArrayIndex.all(), NDArrayIndex.interval(1,2,7, true))
+                .assign(x1);
+        INDArray y2 = Nd4j.create(1,7).get(NDArrayIndex.all(), NDArrayIndex.interval(1,2,5, true))
+                .assign(y1);
+
+        INDArray[] out5 = Nd4j.meshgrid(x2, y2);
+        assertArrayEquals(out5, exp);
+    }
+
+    @Test
+    public void testAccumuationWithoutAxis_1() {
+        val array = Nd4j.create(3, 3).assign(1.0);
+
+        val result = array.sum();
+
+        assertEquals(1, result.length());
+        assertEquals(9.0, result.getDouble(0), 1e-5);
+    }
+
+    @Test
+    public void testSummaryStatsEquality_1() {
+        log.info("Datatype: {}", Nd4j.dataType());
+
+        for(boolean biasCorrected : new boolean[]{false, true}) {
+
+            INDArray indArray1 = Nd4j.rand(1, 4, 10);
+            double std = indArray1.stdNumber(biasCorrected).doubleValue();
+
+            val standardDeviation = new org.apache.commons.math3.stat.descriptive.moment.StandardDeviation(biasCorrected);
+            double std2 = standardDeviation.evaluate(indArray1.data().asDouble());
+            log.info("Bias corrected = {}", biasCorrected);
+            log.info("nd4j std: {}", std);
+            log.info("apache math3 std: {}", std2);
+
+            assertEquals(std, std2, 1e-5);
+        }
     }
 
     @Test
