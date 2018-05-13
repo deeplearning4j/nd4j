@@ -21,6 +21,7 @@ import org.nd4j.linalg.api.ops.executioner.DefaultOpExecutioner;
 import org.nd4j.linalg.api.ops.executioner.OpStatus;
 import org.nd4j.linalg.api.ops.impl.accum.MatchCondition;
 import org.nd4j.linalg.api.ops.impl.accum.Variance;
+import org.nd4j.linalg.api.ops.performance.PerformanceTracker;
 import org.nd4j.linalg.api.rng.Random;
 import org.nd4j.linalg.api.shape.Shape;
 import org.nd4j.linalg.cache.ConstantHandler;
@@ -32,6 +33,7 @@ import org.nd4j.linalg.cpu.nativecpu.CpuTADManager;
 import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.indexing.conditions.Conditions;
+import org.nd4j.linalg.memory.MemcpyDirection;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.util.ArrayUtil;
 import org.nd4j.nativeblas.LongPointerWrapper;
@@ -421,7 +423,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                     ret.putScalar(0, loop.execSummaryStatsScalarDouble(dummy, op.opNum(),
                             (DoublePointer) op.x().data().addressPointer(),
                             (IntPointer) op.x().shapeInfoDataBuffer().addressPointer(),
-                            (DoublePointer) getPointerForExtraArgs(op), true));
+                            (DoublePointer) getPointerForExtraArgs(op), ((Variance) op).isBiasCorrected()));
                 } else {
                     Variance var = (Variance) op;
                     loop.execSummaryStatsDouble(dummy, op.opNum(), (DoublePointer) op.x().data().addressPointer(),
@@ -1250,6 +1252,9 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
         properties.put(Nd4jEnvironment.BLAS_VENDOR_KEY, (Nd4j.factory().blas()).getBlasVendor().toString());
         properties.put(Nd4jEnvironment.HOST_FREE_MEMORY_KEY, Pointer.maxBytes() - Pointer.totalBytes());
 
+        // fill bandwidth information
+        properties.put(Nd4jEnvironment.MEMORY_BANDWIDTH_KEY, PerformanceTracker.getInstance().getCurrentBandwidth());
+
         return properties;
     }
 
@@ -1909,8 +1914,11 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 val order = Shape.order(jshape);
                 val array = Nd4j.create(shapeOf, stridesOf, 0, order);
 
+                val perfD = PerformanceTracker.getInstance().helperStartTransaction();
 
-                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
+                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType());
+
+                PerformanceTracker.getInstance().helperRegisterTransaction(0, perfD, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType(), MemcpyDirection.HOST_TO_HOST);
 
                 newMap.put(keySet.get(nodeId), array);
             }
@@ -1941,8 +1949,11 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 val order = Shape.order(jshape);
                 val array = Nd4j.create(shapeOf, stridesOf, 0, order);
 
+                val perfX = PerformanceTracker.getInstance().helperStartTransaction();
 
-                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
+                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType());
+
+                PerformanceTracker.getInstance().helperRegisterTransaction(0, perfX, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType(), MemcpyDirection.HOST_TO_HOST);
 
                 newMap.put(keySet.get(nodeId), array);
             }
@@ -1974,8 +1985,11 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
                 val order = Shape.order(jshape);
                 val array = Nd4j.create(shapeOf, stridesOf, 0, order);
 
+                val perfD = PerformanceTracker.getInstance().helperStartTransaction();
 
-                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prod(shapeOf) * Nd4j.sizeOfDataType());
+                Pointer.memcpy(array.data().addressPointer(), buffer, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType());
+
+                PerformanceTracker.getInstance().helperRegisterTransaction(0, perfD, ArrayUtil.prodLong(shapeOf) * Nd4j.sizeOfDataType(), MemcpyDirection.HOST_TO_HOST);
 
                 newMap.put(keySet.get(nodeId), array);
             }

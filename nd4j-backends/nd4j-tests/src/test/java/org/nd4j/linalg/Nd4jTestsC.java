@@ -6338,7 +6338,34 @@ public class Nd4jTestsC extends BaseNd4jTest {
         assertArrayEquals(out5, exp);
     }
 
+    @Test
+    public void testAccumuationWithoutAxis_1() {
+        val array = Nd4j.create(3, 3).assign(1.0);
 
+        val result = array.sum();
+
+        assertEquals(1, result.length());
+        assertEquals(9.0, result.getDouble(0), 1e-5);
+    }
+
+    @Test
+    public void testSummaryStatsEquality_1() {
+        log.info("Datatype: {}", Nd4j.dataType());
+
+        for(boolean biasCorrected : new boolean[]{false, true}) {
+
+            INDArray indArray1 = Nd4j.rand(1, 4, 10);
+            double std = indArray1.stdNumber(biasCorrected).doubleValue();
+
+            val standardDeviation = new org.apache.commons.math3.stat.descriptive.moment.StandardDeviation(biasCorrected);
+            double std2 = standardDeviation.evaluate(indArray1.data().asDouble());
+            log.info("Bias corrected = {}", biasCorrected);
+            log.info("nd4j std: {}", std);
+            log.info("apache math3 std: {}", std2);
+
+            assertEquals(std, std2, 1e-5);
+        }
+    }
 
     ///////////////////////////////////////////////////////
     protected static void fillJvmArray3D(float[][][] arr) {
