@@ -679,7 +679,8 @@ public class OpExecutionerTests extends BaseNd4jTest {
 
     @Test
     public void testVariance() {
-        INDArray arr = Nd4j.create(new float[] {0.9296161f, 0.31637555f, 0.1839188f}, new int[] {1, 3}, ordering());
+        val f = new double[] {0.9296161, 0.31637555, 0.1839188};
+        INDArray arr = Nd4j.create(f, new int[] {1, 3}, ordering());
         double var = arr.varNumber().doubleValue();
 
         INDArray var1 = arr.var(1);
@@ -687,6 +688,9 @@ public class OpExecutionerTests extends BaseNd4jTest {
         assertEquals(var, var2, 1e-3);
 
         double exp = 0.136926531791687;
+        val variance = new org.apache.commons.math3.stat.descriptive.moment.Variance(false);
+        double j = variance.evaluate(f);
+
         assertEquals(exp, var, 1e-7f);
     }
 

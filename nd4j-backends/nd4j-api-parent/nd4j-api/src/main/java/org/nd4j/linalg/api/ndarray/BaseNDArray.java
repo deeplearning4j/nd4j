@@ -1096,7 +1096,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         long sliceIdx = NDArrayMath.sliceOffsetForTensor(index, permuted, tensorShape);
 
         INDArray ret2 = permuted.slice(sliceIdx);
-        if (dimension.length == tensorShape.length && ArrayUtil.prod(tensorShape) == ret2.length()) {
+        if (dimension.length == tensorShape.length && ArrayUtil.prodLong(tensorShape) == ret2.length()) {
             if (dimension.length == 1 && ret2.isRowVector())
                 return ret2;
             if (finalPermuteDims.length != ret2.rank()) {
@@ -1139,6 +1139,7 @@ public abstract class BaseNDArray implements INDArray, Iterable {
 
         if (dimension.length == 1 && ret2.isRowVector())
             return ret2;
+
         return ret2.permutei(finalPermuteDims);
     }
 

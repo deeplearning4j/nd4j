@@ -943,8 +943,12 @@ public class OpExecutionerTestsC extends BaseNd4jTest {
 
             INDArray out = Nd4j.getExecutioner().exec(new EuclideanDistance(first, second), 1, 2, 3);
             for (int i = 0; i < first.tensorssAlongDimension(1, 2, 3); i++) {
-                assertEquals(first.javaTensorAlongDimension(i, 1, 2, 3).shapeInfoDataBuffer(),
-                                first.tensorAlongDimension(i, 1, 2, 3).shapeInfoDataBuffer());
+                val j = first.javaTensorAlongDimension(i, 1, 2, 3).shapeInfoDataBuffer().asLong();
+                val t = first.tensorAlongDimension(i, 1, 2, 3).shapeInfoDataBuffer().asLong();
+
+                log.info("J: {}", j);
+                log.info("T: {}\n\n", t);
+                assertArrayEquals(j, t);
             }
             Pair<DataBuffer, DataBuffer> firstTadInfo =
                             Nd4j.getExecutioner().getTADManager().getTADOnlyShapeInfo(first, 1, 2, 3);

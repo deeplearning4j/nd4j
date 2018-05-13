@@ -3150,6 +3150,8 @@ public class Shape {
     }
 
     public static DataBuffer createShapeInformation(long[] shape, long[] stride, long offset, long elementWiseStride, char order) {
+        offset = 0;
+
         if (shape.length != stride.length)
             throw new IllegalStateException("Shape and stride must be the same length");
 
