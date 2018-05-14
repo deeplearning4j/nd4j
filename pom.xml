@@ -47,6 +47,11 @@
 
 
     <profiles>
+        <!--
+        testresources profile must be running when executing tests. However, maven enforcer plugin seems to be unable
+         to enforce only when actually running tests - so we'll skip the enforcement (using profiles skipTestRun and skipTestCompileAndRun)
+         when -DskipTests or -Dmaven.test.skip=true is used
+         -->
         <profile>
             <id>testresources</id>
             <activation>
@@ -61,28 +66,52 @@
                 </dependency>
             </dependencies>
         </profile>
-      <profile>
-        <id>libnd4jhome-defined</id>
-        <activation>
-          <property>
-            <name>env.LIBND4J_HOME</name>
-          </property>
-        </activation>
-        <properties>
-          <libnd4jhome>${env.LIBND4J_HOME}</libnd4jhome>
-        </properties>
-      </profile>
-      <profile>
-        <id>libnd4jhome-undefined</id>
-        <activation>
-          <property>
-            <name>!env.LIBND4J_HOME</name>
-          </property>
-        </activation>
-        <properties>
-          <libnd4jhome>${basedir}/../../../../libnd4j/</libnd4jhome>
-        </properties>
-      </profile>
+        <profile>
+            <id>skipTestRun</id>
+            <activation>
+                <property>
+                    <name>skipTests</name>
+                </property>
+            </activation>
+            <properties>
+                <skipTestResourceEnforcement>true</skipTestResourceEnforcement>
+            </properties>
+        </profile>
+        <profile>
+            <id>skipTestCompileAndRun</id>
+            <activation>
+                <property>
+                    <name>maven.test.skip</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <skipTestResourceEnforcement>true</skipTestResourceEnforcement>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>libnd4jhome-defined</id>
+            <activation>
+                <property>
+                    <name>env.LIBND4J_HOME</name>
+                </property>
+            </activation>
+            <properties>
+                <libnd4jhome>${env.LIBND4J_HOME}</libnd4jhome>
+            </properties>
+        </profile>
+        <profile>
+            <id>libnd4jhome-undefined</id>
+            <activation>
+                <property>
+                    <name>!env.LIBND4J_HOME</name>
+                </property>
+            </activation>
+            <properties>
+                <libnd4jhome>${basedir}/../../../../libnd4j/</libnd4jhome>
+            </properties>
+        </profile>
 
         <profile>
             <id>1.9build</id>
@@ -574,6 +603,7 @@
         <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <fbs.version>1.2.0-3f79e055</fbs.version>
+        <skipTestResourceEnforcement>false</skipTestResourceEnforcement> <!-- Test resource profile must be enabled unless using -DskipTests etc -->
     </properties>
 
     <developers>
@@ -758,6 +788,7 @@
                             <goal>enforce</goal>
                         </goals>
                         <configuration>
+                            <skip>${skipTestResourceEnforcement}</skip>
                             <rules>
                                 <requireActiveProfile>
                                     <profiles>testresources</profiles>
