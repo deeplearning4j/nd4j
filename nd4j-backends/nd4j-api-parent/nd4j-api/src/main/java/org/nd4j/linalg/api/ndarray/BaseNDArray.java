@@ -2169,8 +2169,6 @@ public abstract class BaseNDArray implements INDArray, Iterable {
                 }
             }
 
-
-
             return Nd4j.concat(0,arrList.toArray(new INDArray[arrList.size()]));
 
         }
