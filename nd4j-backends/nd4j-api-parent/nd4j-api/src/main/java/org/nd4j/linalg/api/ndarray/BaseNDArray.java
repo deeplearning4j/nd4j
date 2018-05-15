@@ -5122,7 +5122,10 @@ public abstract class BaseNDArray implements INDArray, Iterable {
                 }
             }
 
-            Nd4j.getExecutioner().exec(new Tile(new INDArray[]{this},new INDArray[]{result},repeat));
+            if (this.isView()) {
+                Nd4j.getExecutioner().exec(new Tile(new INDArray[]{this.dup(this.ordering())},new INDArray[]{result},repeat));
+            } else
+                Nd4j.getExecutioner().exec(new Tile(new INDArray[]{this},new INDArray[]{result},repeat));
 
             //result = Nd4j.tile(this,repeat);
         }

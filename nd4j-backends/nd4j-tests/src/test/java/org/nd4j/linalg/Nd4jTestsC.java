@@ -3002,7 +3002,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
         }
 
         INDArray fourD = Nd4j.create(1, 2, 1, 1);
-        INDArray broadCasted3 = fourD.broadcast(1, 1, 36, 36);
+        INDArray broadCasted3 = fourD.broadcast(1, 2, 36, 36);
         assertTrue(Arrays.equals(new int[] {1, 2, 36, 36}, broadCasted3.shape()));
 
 
@@ -6365,6 +6365,52 @@ public class Nd4jTestsC extends BaseNd4jTest {
 
             assertEquals(std, std2, 1e-5);
         }
+    }
+
+    @Test
+    public void testMeanEdgeCase_C(){
+        INDArray arr = Nd4j.linspace(1, 30,30).reshape(new int[]{3,10,1}).dup('c');
+        INDArray arr2 = arr.mean(2);
+
+        INDArray exp = arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(0));
+
+        assertEquals(exp, arr2);
+    }
+
+    @Test
+    public void testMeanEdgeCase_F(){
+        INDArray arr = Nd4j.linspace(1, 30,30).reshape(new int[]{3,10,1}).dup('f');
+        INDArray arr2 = arr.mean(2);
+
+        INDArray exp = arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(0));
+
+        assertEquals(exp, arr2);
+    }
+
+    @Test
+    public void testMeanEdgeCase2_C(){
+        INDArray arr = Nd4j.linspace(1, 60,60).reshape(new int[]{3,10,2}).dup('c');
+        INDArray arr2 = arr.mean(2);
+
+        INDArray exp = arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(0));
+        exp.addi(arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(1)));
+        exp.divi(2);
+
+
+        assertEquals(exp, arr2);
+    }
+
+    @Test
+    public void testMeanEdgeCase2_F(){
+        INDArray arr = Nd4j.linspace(1, 60,60).reshape(new int[]{3,10,2}).dup('f');
+        INDArray arr2 = arr.mean(2);
+
+        INDArray exp = arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(0));
+        exp.addi(arr.get(NDArrayIndex.all(), NDArrayIndex.all(), NDArrayIndex.point(1)));
+        exp.divi(2);
+
+
+        assertEquals(exp, arr2);
     }
 
     ///////////////////////////////////////////////////////
