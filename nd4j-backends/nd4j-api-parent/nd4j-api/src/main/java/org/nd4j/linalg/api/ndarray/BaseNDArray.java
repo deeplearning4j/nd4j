@@ -2142,7 +2142,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
         else {
             List<INDArray> arrList = new ArrayList<>();
 
-            if(indices.isMatrix() || indices.isColumnVector()) {
+            if(indices.isMatrix() || indices.isColumnVector()
+                    || (indices.isScalar() && indices.rank() == 2)) { // we need this for compatibility with legacy code
                 for(int i = 0; i < indices.rows(); i++) {
                     if(i == 0)  {
                         INDArray row = indices.getRow(i);
