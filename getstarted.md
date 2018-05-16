@@ -83,13 +83,13 @@ The default backend for CPUs is `nd4j-native-platform`, and for CUDA it is `nd4j
 ```
 ND4J's version is a variable here. It will refer to another line higher in the POM, in the `<properties> ... </properties>` section, specifying the nd4j version and appearing similar to this:
 ```xml
-<nd4j.version>0.9.1</nd4j.version>
+<nd4j.version>1.0.0-alpha</nd4j.version>
 ```
-*The dl4j version and DataVec version are also 0.9.1.*
+*The dl4j version and DataVec version are also 1.0.0-alpha.*
 
 Version `0.4.0` or higher now includes all backends by default and binaries for all platforms are automatically pulled. It is recommended to not alter this behavior *especially* if you are building on one platform but deploying to another (OS X vs. Linux). However, you can also explicitly pull binaries only for the platforms you are using. Information on how to do this can be found on the [dependencies](./dependencies) page.
 
-Further, additional but optional binaries targeting processors with AVX2 or AVX512 instructions are also available since version 0.9.2-SNAPSHOT. You just need to add them to your dependencies and ND4J will automatically pick them up, as below for AVX2 (Linux, Mac, and Windows), and similarly for AVX512 (Linux and Mac only).
+Further, additional but optional binaries targeting processors with AVX2 or AVX512 instructions are also available since version 1.0.0-SNAPSHOT. You just need to add them to your dependencies and ND4J will automatically pick them up, as below for AVX2 (Linux, Mac, and Windows), and similarly for AVX512 (Linux and Mac only).
 ```xml
  <dependency>
    <groupId>org.nd4j</groupId>
@@ -120,7 +120,7 @@ repositories {
     mavenCentral()
 }
 dependencies {
-    compile 'org.nd4j:nd4j-native-platform:0.9.1'
+    compile 'org.nd4j:nd4j-native-platform:1.0.0-alpha'
 }
 ```
 
@@ -148,7 +148,7 @@ Similarly, for sbt, we need to include something like the following inside `buil
 ```scala
 classpathTypes += "maven-plugin"
 
-libraryDependencies += "org.nd4j" % "nd4j-native-platform" % "0.9.1"
+libraryDependencies += "org.nd4j" % "nd4j-native-platform" % "1.0.0-alpha"
 ```
 
 ### Stay Up-to-date
