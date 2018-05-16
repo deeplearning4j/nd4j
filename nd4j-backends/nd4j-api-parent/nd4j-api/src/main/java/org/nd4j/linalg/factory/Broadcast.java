@@ -43,8 +43,8 @@ public class Broadcast {
      */
     public static INDArray add(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldAddOp(x,y,z));
         }
 
@@ -56,8 +56,8 @@ public class Broadcast {
      */
     public static INDArray copy(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new CopyOp(x,y,z));
         }
 
@@ -69,8 +69,8 @@ public class Broadcast {
      */
     public static INDArray div(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldDivOp(x,y,z));
         }
 
@@ -82,8 +82,8 @@ public class Broadcast {
      */
     public static INDArray eq(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldEqualTo(x,y,z,x.length()));
         }
         return Nd4j.getExecutioner().execAndReturn(new BroadcastEqualTo(x,y,z,dimensions));
@@ -94,8 +94,8 @@ public class Broadcast {
      */
     public static INDArray gt(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldGreaterThan(x,y,z,x.length()));
         }
 
@@ -107,8 +107,8 @@ public class Broadcast {
      */
     public static INDArray gte(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldGreaterThanOrEqual(x,y,z,x.length()));
         }
 
@@ -120,8 +120,8 @@ public class Broadcast {
      */
     public static INDArray lt(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldLessThan(x,y,z,x.length()));
         }
 
@@ -133,8 +133,8 @@ public class Broadcast {
      */
     public static INDArray lte(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldLessThanOrEqual(x,y,z,x.length()));
         }
 
@@ -157,8 +157,8 @@ public class Broadcast {
      */
     public static INDArray neq(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldNotEqualTo(x,y,z,x.length()));
         }
 
@@ -170,8 +170,8 @@ public class Broadcast {
      */
     public static INDArray rdiv(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldRDivOp(x,y,z,x.length()));
         }
 
@@ -183,8 +183,8 @@ public class Broadcast {
      */
     public static INDArray rsub(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldSubOp(x,y,z,x.length()));
         }
 
@@ -207,8 +207,8 @@ public class Broadcast {
      */
     public static INDArray max(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldMax(x,y,z,x.length()));
         }
 
@@ -221,8 +221,8 @@ public class Broadcast {
      */
     public static INDArray min(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new OldMin(x,y,z,x.length()));
         }
 
@@ -235,8 +235,8 @@ public class Broadcast {
      */
     public static INDArray amax(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new AMax(x,y,z,x.length())).z();
         }
 
@@ -248,11 +248,21 @@ public class Broadcast {
      */
     public static INDArray amin(INDArray x, INDArray y, INDArray z, int... dimensions) {
         if(dimensions == null) {
-            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),"Shapes for x and y must be equal!");
-            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),"Shapes for x and z must be equal!");
+            Preconditions.checkArgument(Arrays.equals(x.shape(),y.shape()),getFormattedShapeErrorMessageXy(x,y));
+            Preconditions.checkArgument(Arrays.equals(x.shape(),z.shape()),getFormattedShapeErrorMessageXResult(x,z));
             return Nd4j.getExecutioner().execAndReturn(new AMin(x,y,z,x.length())).z();
         }
 
         return Nd4j.getExecutioner().execAndReturn(new BroadcastAMin(x,y,z,dimensions));
     }
+    
+    private static String getFormattedShapeErrorMessageXy(INDArray arr1,INDArray arr2) {
+        return String.format("Shapes for x(%s) and y(%s) must be equal!", Arrays.toString(arr1.shape()),Arrays.toString(arr2.shape()));
+    }
+
+
+    private static String getFormattedShapeErrorMessageXResult(INDArray arr1,INDArray arr2) {
+        return String.format("Shapes for x(%s) and result array(%s) must be equal!", Arrays.toString(arr1.shape()),Arrays.toString(arr2.shape()));
+    }
+
 }
