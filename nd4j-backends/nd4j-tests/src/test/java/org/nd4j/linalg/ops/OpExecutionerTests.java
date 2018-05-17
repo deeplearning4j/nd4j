@@ -690,8 +690,6 @@ public class OpExecutionerTests extends BaseNd4jTest {
 
         val variance = new org.apache.commons.math3.stat.descriptive.moment.Variance(true);
         double exp = variance.evaluate(arr.toDoubleVector());
-        val variance = new org.apache.commons.math3.stat.descriptive.moment.Variance(false);
-        double j = variance.evaluate(f);
         assertEquals(exp, var, 1e-7f);
     }
 
