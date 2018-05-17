@@ -6679,10 +6679,8 @@ public class Nd4j {
             throw new ND4JIllegalStateException("Target dimensions number should be less tensor rank");
 
         for (int e = 0; e < dimensions.length; e++)
-            if (dimensions[e] < 1)
+            if (dimensions[e] < 0)
                 throw new ND4JIllegalStateException("Target dimensions can't have negative values");
-
-
 
         return factory().tear(tensor, dimensions);
     }
