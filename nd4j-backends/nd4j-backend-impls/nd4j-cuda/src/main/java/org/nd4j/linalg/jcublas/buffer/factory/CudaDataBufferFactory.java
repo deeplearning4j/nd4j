@@ -465,6 +465,8 @@ public class CudaDataBufferFactory implements DataBufferFactory {
     @Override
     public DataBuffer create(Pointer pointer, DataBuffer.Type type, long length, Indexer indexer) {
         switch (type) {
+            case LONG:
+                return new CudaLongDataBuffer(pointer, indexer, length);
             case INT:
                 return new CudaIntDataBuffer(pointer, indexer, length);
             case DOUBLE:
@@ -475,7 +477,7 @@ public class CudaDataBufferFactory implements DataBufferFactory {
                 return new CudaHalfDataBuffer(pointer, indexer, length);
         }
 
-        throw new IllegalArgumentException("Illegal opType " + type);
+        throw new IllegalArgumentException("Illegal dtype " + type);
     }
 
     /**

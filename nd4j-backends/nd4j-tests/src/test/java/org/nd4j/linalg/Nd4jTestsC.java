@@ -945,6 +945,7 @@ public class Nd4jTestsC extends BaseNd4jTest {
         INDArray javaTad = arr.javaTensorAlongDimension(0, 0, 2, 3);
         assertArrayEquals(new long[] {4, 1, 1}, javaTad.shape());
         INDArray tad = arr.tensorAlongDimension(0, 0, 2, 3);
+        assertArrayEquals(javaTad.shapeInfoDataBuffer().asLong(), tad.shapeInfoDataBuffer().asLong());
         assertEquals(javaTad.shapeInfoDataBuffer(), tad.shapeInfoDataBuffer());
     }
 

@@ -2478,10 +2478,11 @@ public class Shape {
      */
     public static int length(DataBuffer buffer) {
         int ret = 1;
+        val rr = buffer.asLong();
         DataBuffer shape = Shape.shapeOf(buffer);
         int rank = Shape.rank(buffer);
         for (int i = 0; i < rank; i++)
-            ret *= shape.getInt(i);
+            ret *= shape.getLong(i);
         return ret;
     }
 

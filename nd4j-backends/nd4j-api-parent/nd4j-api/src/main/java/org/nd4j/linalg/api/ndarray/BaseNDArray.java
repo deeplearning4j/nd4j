@@ -5593,8 +5593,8 @@ public abstract class BaseNDArray implements INDArray, Iterable {
             throw new RuntimeException("EWS is -1");
             */
 
-        setShapeInformation(Nd4j.getShapeInfoProvider().createShapeInformation(newShape, newStride, offset(), ews,
-                newOrder));
+        val si = Nd4j.getShapeInfoProvider().createShapeInformation(newShape, newStride, 0, ews, newOrder);
+        setShapeInformation(si);
 
 
         if (shapeInfo.get(2 * rank + 2) > 0) {

@@ -2690,7 +2690,7 @@ public class Nd4j {
      * @throws IOException
      */
     public static INDArray read(DataInputStream dis) throws IOException {
-        DataBuffer shapeInformation = Nd4j.createBufferDetached(new int[1], DataBuffer.Type.LONG);
+        DataBuffer shapeInformation = Nd4j.createBufferDetached(new long[1], DataBuffer.Type.LONG);
         shapeInformation.read(dis);
         int length = Shape.length(shapeInformation);
         DataBuffer data = CompressedDataBuffer.readUnknown(dis, length);

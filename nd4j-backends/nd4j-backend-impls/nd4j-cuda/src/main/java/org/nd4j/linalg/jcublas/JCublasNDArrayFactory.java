@@ -1493,9 +1493,9 @@ public class JCublasNDArrayFactory extends BaseNDArrayFactory {
         shapeBufferPointer.limit(4 * length);
         shapeBufferPointer.position(0);
 
-        IntPointer intPointer = new IntPointer(shapeBufferPointer);
+        val intPointer = new LongPointer(shapeBufferPointer);
 
-        DataBuffer shapeBuffer = Nd4j.createBuffer(shapeBufferPointer, DataBuffer.Type.INT,length, IntIndexer.create(intPointer));
+        DataBuffer shapeBuffer = Nd4j.createBuffer(shapeBufferPointer, DataBuffer.Type.LONG,length, LongRawIndexer.create(intPointer));
 
         dataPointer.position(0);
         dataPointer.limit(dataBufferElementSize * Shape.length(shapeBuffer));

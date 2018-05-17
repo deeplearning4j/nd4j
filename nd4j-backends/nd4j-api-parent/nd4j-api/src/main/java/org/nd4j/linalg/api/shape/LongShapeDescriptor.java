@@ -1,5 +1,8 @@
 package org.nd4j.linalg.api.shape;
 
+import lombok.NonNull;
+import org.nd4j.linalg.util.ArrayUtil;
+
 import java.util.Arrays;
 
 /**
@@ -83,5 +86,10 @@ public class LongShapeDescriptor {
         result = "[" + result + "]";
 
         return result;
+    }
+
+
+    public static LongShapeDescriptor fromShapeDescriptor(@NonNull ShapeDescriptor descriptor) {
+        return new LongShapeDescriptor(ArrayUtil.toLongArray(descriptor.getShape()), ArrayUtil.toLongArray(descriptor.getStride()), descriptor.getOffset(), descriptor.getEws(), descriptor.getOrder());
     }
 }

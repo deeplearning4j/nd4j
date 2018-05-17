@@ -140,7 +140,7 @@ public abstract class BaseDataBuffer implements DataBuffer {
             throw new IllegalArgumentException("Length must be >= 1");
         initTypeAndSize();
         this.length = length;
-        this.allocationMode = AllocationMode.JAVACPP;
+        this.allocationMode = AllocationMode.LONG_SHAPE;
         this.underlyingLength = length;
         this.wrappedDataBuffer = this;
 
