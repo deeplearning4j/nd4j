@@ -6096,6 +6096,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native FloatNDArray permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank);
         public native FloatNDArray permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank);
         public native FloatNDArray permute(@Cast("const Nd4jLong*") long[] dimensions, int rank);
+
         public native void permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank, @ByRef FloatNDArray target);
         public native void permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank, @ByRef FloatNDArray target);
         public native void permute(@Cast("const Nd4jLong*") long[] dimensions, int rank, @ByRef FloatNDArray target);
@@ -7220,6 +7221,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native HalfNDArray permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank);
         public native HalfNDArray permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank);
         public native HalfNDArray permute(@Cast("const Nd4jLong*") long[] dimensions, int rank);
+
         public native void permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank, @ByRef HalfNDArray target);
         public native void permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank, @ByRef HalfNDArray target);
         public native void permute(@Cast("const Nd4jLong*") long[] dimensions, int rank, @ByRef HalfNDArray target);
@@ -8344,6 +8346,7 @@ public static class NativeOps extends org.nd4j.nativeblas.NativeOps {
         public native DoubleNDArray permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank);
         public native DoubleNDArray permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank);
         public native DoubleNDArray permute(@Cast("const Nd4jLong*") long[] dimensions, int rank);
+
         public native void permute(@Cast("const Nd4jLong*") LongPointer dimensions, int rank, @ByRef DoubleNDArray target);
         public native void permute(@Cast("const Nd4jLong*") LongBuffer dimensions, int rank, @ByRef DoubleNDArray target);
         public native void permute(@Cast("const Nd4jLong*") long[] dimensions, int rank, @ByRef DoubleNDArray target);
@@ -11961,9 +11964,7 @@ public static final int PREALLOC_SIZE = 33554432;
     @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer shapeBufferFortran(int rank, @Cast("Nd4jLong*") LongBuffer shape, @Cast("Nd4jLong*") LongBuffer output);
     @Namespace("shape") public static native @Cast("Nd4jLong*") long[] shapeBufferFortran(int rank, @Cast("Nd4jLong*") long[] shape, @Cast("Nd4jLong*") long[] output);
 
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongPointer shapeBuffer, IntPointer rearrange, @Cast("Nd4jLong*") LongPointer tmpBuffer);
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongBuffer shapeBuffer, IntBuffer rearrange, @Cast("Nd4jLong*") LongBuffer tmpBuffer);
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") long[] shapeBuffer, int[] rearrange, @Cast("Nd4jLong*") long[] tmpBuffer);
+    //ND4J_EXPORT _CUDA_HD void doPermuteShapeBuffer(Nd4jLong *shapeBuffer, int* rearrange, Nd4jLong *tmpBuffer);
 
     @Namespace("shape") public static native void doPermuteShapeBuffer(int rank, @Cast("Nd4jLong*") LongPointer shapeBuffer, IntPointer rearrange, @Cast("Nd4jLong*") LongPointer tmpBuffer);
     @Namespace("shape") public static native void doPermuteShapeBuffer(int rank, @Cast("Nd4jLong*") LongBuffer shapeBuffer, IntBuffer rearrange, @Cast("Nd4jLong*") LongBuffer tmpBuffer);
@@ -12011,9 +12012,6 @@ public static final int PREALLOC_SIZE = 33554432;
 
 
 // check whether input dimensions are permuted, not permuted dimensions order have to be 0,....,rank-1
-    @Namespace("shape") public static native @Cast("bool") boolean isDimPermuted(@Cast("const Nd4jLong*") LongPointer dimensions, int dimSize);
-    @Namespace("shape") public static native @Cast("bool") boolean isDimPermuted(@Cast("const Nd4jLong*") LongBuffer dimensions, int dimSize);
-    @Namespace("shape") public static native @Cast("bool") boolean isDimPermuted(@Cast("const Nd4jLong*") long[] dimensions, int dimSize);
 
 /**
  * Computes the standard packed array strides for a given shape.
@@ -12126,6 +12124,10 @@ public static final int PREALLOC_SIZE = 33554432;
     @Namespace("shape") public static native void doPermuteShapeInfo(@Cast("Nd4jLong*") LongBuffer shapeBuffer, @Const IntBuffer rearrange);
     @Namespace("shape") public static native void doPermuteShapeInfo(@Cast("Nd4jLong*") long[] shapeBuffer, @Const int[] rearrange);
 
+    @Namespace("shape") public static native void doPermuteShapeInfo(@Cast("Nd4jLong*") LongPointer shapeBuffer, @Cast("const Nd4jLong*") LongPointer rearrange);
+    @Namespace("shape") public static native void doPermuteShapeInfo(@Cast("Nd4jLong*") LongBuffer shapeBuffer, @Cast("const Nd4jLong*") LongBuffer rearrange);
+    @Namespace("shape") public static native void doPermuteShapeInfo(@Cast("Nd4jLong*") long[] shapeBuffer, @Cast("const Nd4jLong*") long[] rearrange);
+
     @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongPointer shapeBuffer, IntPointer rearrange);
     @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongBuffer shapeBuffer, IntBuffer rearrange);
     @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") long[] shapeBuffer, int[] rearrange);
@@ -12148,13 +12150,13 @@ public static final int PREALLOC_SIZE = 33554432;
      * wise stride.
      */
 
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer createPermuteIndexes(int originalRank,@Cast("Nd4jLong*") LongPointer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer createPermuteIndexes(int originalRank,@Cast("Nd4jLong*") LongBuffer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] createPermuteIndexes(int originalRank,@Cast("Nd4jLong*") long[] dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer createPermuteIndexes(int originalRank, IntPointer dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer createPermuteIndexes(int originalRank, IntBuffer dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] createPermuteIndexes(int originalRank, int[] dimension,int dimensionLength);
 
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer computeResultShape(@Cast("Nd4jLong*") LongPointer originalShapeBuffer,@Cast("Nd4jLong*") LongPointer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer computeResultShape(@Cast("Nd4jLong*") LongBuffer originalShapeBuffer,@Cast("Nd4jLong*") LongBuffer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] computeResultShape(@Cast("Nd4jLong*") long[] originalShapeBuffer,@Cast("Nd4jLong*") long[] dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer computeResultShape(@Cast("Nd4jLong*") LongPointer originalShapeBuffer, IntPointer dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer computeResultShape(@Cast("Nd4jLong*") LongBuffer originalShapeBuffer, IntBuffer dimension,int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] computeResultShape(@Cast("Nd4jLong*") long[] originalShapeBuffer, int[] dimension,int dimensionLength);
 
     /**
      * This method does inplace transpose of given shapeBuffer
@@ -12194,10 +12196,10 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param rearrange the order to re arrange
  * @param rank the rank of the rearrange array
  */
-    @Namespace("shape") public static native void permute(@Cast("shape::ShapeInformation**") PointerPointer info, @Cast("Nd4jLong*") LongPointer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, @Cast("Nd4jLong*") LongPointer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, @Cast("Nd4jLong*") LongBuffer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, @Cast("Nd4jLong*") long[] rearrange, int rank);
+    @Namespace("shape") public static native void permute(@Cast("shape::ShapeInformation**") PointerPointer info, IntPointer rearrange, int rank);
+    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, IntPointer rearrange, int rank);
+    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, IntBuffer rearrange, int rank);
+    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, int[] rearrange, int rank);
 
 /**
  * Returns whether the
@@ -12288,9 +12290,7 @@ public static final int PREALLOC_SIZE = 33554432;
  * and all must be filled in)
  * @return the rearranged array
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer permutedStrides(@Cast("Nd4jLong*") LongPointer toPermute, int shapeRank, @Cast("Nd4jLong*") LongPointer rearrange);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer permutedStrides(@Cast("Nd4jLong*") LongBuffer toPermute, int shapeRank, @Cast("Nd4jLong*") LongBuffer rearrange);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] permutedStrides(@Cast("Nd4jLong*") long[] toPermute, int shapeRank, @Cast("Nd4jLong*") long[] rearrange);
+    //ND4J_EXPORT _CUDA_HD Nd4jLong *permutedStrides(Nd4jLong *toPermute, int shapeRank, Nd4jLong *rearrange);
 
 /**
  * Return the slice (shape + 1 in pointer arithmetic)
@@ -12398,9 +12398,9 @@ public static final int PREALLOC_SIZE = 33554432;
  * buffer
      * relative to a dimension and ordering for a reduction index
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongPointer buffer, @Cast("Nd4jLong*") LongPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongBuffer buffer, @Cast("Nd4jLong*") LongBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") long[] buffer, @Cast("Nd4jLong*") long[] dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongPointer buffer, IntPointer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongBuffer buffer, IntBuffer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") long[] buffer, int[] dimension, int dimensionLength);
 
 /**
  * Returns whether
@@ -12494,13 +12494,11 @@ public static final int PREALLOC_SIZE = 33554432;
  * at the specified increment
  *
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer range(int from, int to, int increment);
 
 /**
  * Range between from and two with an
  * increment of 1
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer range(int from, int to);
 
 /**
  * Keep the given indexes
@@ -12533,10 +12531,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param lengths
  * @return
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer concat(int numArrays, int numTotalElements, @Cast("Nd4jLong**") PointerPointer arr, @Cast("Nd4jLong*") LongPointer lengths);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer concat(int numArrays, int numTotalElements, @Cast("Nd4jLong**") @ByPtrPtr LongPointer arr, @Cast("Nd4jLong*") LongPointer lengths);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer concat(int numArrays, int numTotalElements, @Cast("Nd4jLong**") @ByPtrPtr LongBuffer arr, @Cast("Nd4jLong*") LongBuffer lengths);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] concat(int numArrays, int numTotalElements, @Cast("Nd4jLong**") @ByPtrPtr long[] arr, @Cast("Nd4jLong*") long[] lengths);
 
 /**
  * Get the length per slice of the
@@ -12550,9 +12544,9 @@ public static final int PREALLOC_SIZE = 33554432;
  * @return the length per slice of the given shape
  * along the given dimension
  */
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") LongPointer shape, @Cast("Nd4jLong*") LongPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") LongBuffer shape, @Cast("Nd4jLong*") LongBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") long[] shape, @Cast("Nd4jLong*") long[] dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long lengthPerSlice(int rank, @Cast("Nd4jLong*") LongPointer shape, IntPointer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long lengthPerSlice(int rank, @Cast("Nd4jLong*") LongBuffer shape, IntBuffer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long lengthPerSlice(int rank, @Cast("Nd4jLong*") long[] shape, int[] dimension, int dimensionLength);
 
 /**
  * calculates the offset for a tensor
@@ -12561,26 +12555,26 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tensorShape
  * @return
  */
-    @Namespace("shape") public static native int sliceOffsetForTensor(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank,
                                            int index,
                                            @Cast("Nd4jLong*") LongPointer shape,
                                            @Cast("Nd4jLong*") LongPointer tensorShape,
                                            int tensorShapeLength,
-                                           @Cast("Nd4jLong*") LongPointer dimension,
+                                           IntPointer dimension,
                                            int dimensionLength);
-    @Namespace("shape") public static native int sliceOffsetForTensor(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank,
                                            int index,
                                            @Cast("Nd4jLong*") LongBuffer shape,
                                            @Cast("Nd4jLong*") LongBuffer tensorShape,
                                            int tensorShapeLength,
-                                           @Cast("Nd4jLong*") LongBuffer dimension,
+                                           IntBuffer dimension,
                                            int dimensionLength);
-    @Namespace("shape") public static native int sliceOffsetForTensor(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank,
                                            int index,
                                            @Cast("Nd4jLong*") long[] shape,
                                            @Cast("Nd4jLong*") long[] tensorShape,
                                            int tensorShapeLength,
-                                           @Cast("Nd4jLong*") long[] dimension,
+                                           int[] dimension,
                                            int dimensionLength);
 
 /**
@@ -12590,7 +12584,7 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tensorShape
  * @return
  */
-    @Namespace("shape") public static native int sliceOffsetForTensor(int index,int tensorLength,int lengthPerSlice2);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int index,int tensorLength,int lengthPerSlice2);
 /**
  * Computes the tensor along dimension
  * offset
@@ -12599,11 +12593,7 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param info the shape information to use for tad
  * @param dimension the dimensions to use for computing the tensor along dimensions
  */
-//#ifdef __CUDACC__
-//    __host__ __device__
-//#endif
-//
-//    ND4J_EXPORT int offset(int index,
+//    ND4J_EXPORT _CUDA_HD int offset(int index,
 //                         int rank,
 //                         shape::ShapeInformation *info,
 //                         Nd4jLong *dimension,
@@ -12615,20 +12605,20 @@ public static final int PREALLOC_SIZE = 33554432;
  * of tensors along
  * a given dimension
  */
-    @Namespace("shape") public static native int tensorsAlongDimension(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank,
                                             int length,
                                             @Cast("Nd4jLong*") LongPointer shape,
-                                            @Cast("Nd4jLong*") LongPointer dimension,
+                                            IntPointer dimension,
                                             int dimensionLength);
-    @Namespace("shape") public static native int tensorsAlongDimension(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank,
                                             int length,
                                             @Cast("Nd4jLong*") LongBuffer shape,
-                                            @Cast("Nd4jLong*") LongBuffer dimension,
+                                            IntBuffer dimension,
                                             int dimensionLength);
-    @Namespace("shape") public static native int tensorsAlongDimension(int rank,
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank,
                                             int length,
                                             @Cast("Nd4jLong*") long[] shape,
-                                            @Cast("Nd4jLong*") long[] dimension,
+                                            int[] dimension,
                                             int dimensionLength);
 
 /**
@@ -12636,9 +12626,9 @@ public static final int PREALLOC_SIZE = 33554432;
  * of tensors along
  * a given dimension
  */
-    @Namespace("shape") public static native int tensorsAlongDimension(@Cast("Nd4jLong*") LongPointer shapeInfo, @Cast("Nd4jLong*") LongPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native int tensorsAlongDimension(@Cast("Nd4jLong*") LongBuffer shapeInfo, @Cast("Nd4jLong*") LongBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native int tensorsAlongDimension(@Cast("Nd4jLong*") long[] shapeInfo, @Cast("Nd4jLong*") long[] dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") LongPointer shapeInfo, IntPointer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") LongBuffer shapeInfo, IntBuffer dimension, int dimensionLength);
+    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") long[] shapeInfo, int[] dimension, int dimensionLength);
 
 
 
@@ -12658,11 +12648,7 @@ public static final int PREALLOC_SIZE = 33554432;
  */
     @Namespace("shape") public static native int tadsPerBlock(int blockSize, int tads);
 
-//#ifdef __CUDACC__
-//    __host__ __device__
-//#endif
-//
-//    ND4J_EXPORT Nd4jLong *tadShapeInfo(int index, Nd4jLong *xShapeInfo, Nd4jLong *dimension,
+//    ND4J_EXPORT _CUDA_HD Nd4jLong *tadShapeInfo(int index, Nd4jLong *xShapeInfo, Nd4jLong *dimension,
 //                                int dimensionLength);
 
 /**
@@ -12782,10 +12768,8 @@ public static final int PREALLOC_SIZE = 33554432;
      * since the first item won't match
      * the last item of the dimension array
      */
-//#ifdef __CUDACC__
-//    __host__ __device__
-//#endif
-//    int rearMostLeftOverItem(Nd4jLong *data,int length,Nd4jLong *dimension,int dimensionLength);
+
+//    ND4J_EXPORT _CUDA_HD int rearMostLeftOverItem(Nd4jLong *data,int length,Nd4jLong *dimension,int dimensionLength);
 
     /**
 * Get an offset for retrieval
@@ -12985,13 +12969,7 @@ public static final int PREALLOC_SIZE = 33554432;
     @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer shapeBufferOfNpy(int rank, @Cast("unsigned int*") IntBuffer shape,@Cast("bool") boolean fortranOrder);
     @Namespace("shape") public static native @Cast("Nd4jLong*") long[] shapeBufferOfNpy(int rank, @Cast("unsigned int*") int[] shape,@Cast("bool") boolean fortranOrder);
 
-
-
-
-//#ifdef __CUDACC__
-//    __host__ __device__
-//#endif
-//    ND4J_EXPORT Nd4jLong *shapeBufferOfNpyBuffer(char *buffer);
+//    ND4J_EXPORT _CUDA_HD Nd4jLong *shapeBufferOfNpyBuffer(char *buffer);
 
 
    // this function checks the consistence of dimensions with array rank (negative dimensions, too large dimensions, too big number of dimensions)
@@ -13067,49 +13045,9 @@ public static final int PREALLOC_SIZE = 33554432;
  * Again: this may not preserve ordering of the tad
  * but maybe used for reductions.
  */
-// #ifdef __CUDACC__
-// #endif
-    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") LongPointer shapeInfo,@Cast("Nd4jLong*") LongPointer dimension,int dimensionLength);
-    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") LongBuffer shapeInfo,@Cast("Nd4jLong*") LongBuffer dimension,int dimensionLength);
-    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") long[] shapeInfo,@Cast("Nd4jLong*") long[] dimension,int dimensionLength);
-
-
-
-
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer computeResultShape(@Cast("Nd4jLong*") LongPointer originalShapeBuffer, IntPointer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer computeResultShape(@Cast("Nd4jLong*") LongBuffer originalShapeBuffer, IntBuffer dimension,int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] computeResultShape(@Cast("Nd4jLong*") long[] originalShapeBuffer, int[] dimension,int dimensionLength);
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
+    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") LongPointer shapeInfo, IntPointer dimension,int dimensionLength);
+    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") LongBuffer shapeInfo, IntBuffer dimension,int dimensionLength);
+    @Namespace("shape") public static native int tadElementWiseStride(@Cast("Nd4jLong*") long[] shapeInfo, int[] dimension,int dimensionLength);
 
 /**
  * Computes the standard packed array strides for a given shape.
@@ -13118,11 +13056,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param startNum the start number for the strides
  * @return the strides for a matrix of n dimensions
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Computes the standard packed array strides for a given shape.
@@ -13131,12 +13064,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param startNum the start number for the strides
  * @return the strides for a matrix of n dimensions
  */
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Computes the standard packed array strides for a given shape.
@@ -13145,11 +13072,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param startNum the start number for the strides
  * @return the strides for a matrix of n dimensions
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Computes the standard packed array strides for a given shape.
@@ -13158,14 +13080,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param startNum the start number for the strides
  * @return the strides for a matrix of n dimensions
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 
 // check whether input dimensions are permuted, not permuted dimensions order have to be 0,....,rank-1
@@ -13175,51 +13089,30 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param toCopy the shape to copy
  * @return a copy of the original struct
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Get the shape info buffer
  * for the given rank and shape.
  */
-// #ifdef __CUDACC__
-// #endif
 
     /**
      * This is special method, it returns ONLY 2D shapebuffer.
      *
      * This method is used only for SoftMax
      */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Get the shape info buffer
 * for the given rank and shape.
 */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Compute the real linear indices for the given shape and stride
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Compute the real linear indices for the given shape and stride
 */
-// #ifdef __CUDACC__
-// #endif
 
 
 /**
@@ -13230,8 +13123,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * @return the linear index given the shape
 * and indices
 */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13241,8 +13132,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param numIndices the number of total indices (typically prod of shape(
  * @return the mapped indexes along each dimension
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13253,8 +13142,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param index the index to map
  * @return the mapped indexes along each dimension
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Convert a linear index to
@@ -13264,8 +13151,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * @param numIndices the number of total indices (typically prod of shape(
 * @return the mapped indexes along each dimension
 */
-// #ifdef __CUDACC__
-// #endif
 
 /**
      * Convert a linear index to
@@ -13276,8 +13161,6 @@ public static final int PREALLOC_SIZE = 33554432;
      * @param index the index to map
      * @return the mapped indexes along each dimension
      */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13287,8 +13170,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param numIndices the number of total indices (typically prod of shape(
  * @return the mapped indexes along each dimension
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13299,8 +13180,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param index the index to map
  * @return the mapped indexes along each dimension
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13310,8 +13189,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param numIndices the number of total indices (typically prod of shape(
  * @return the mapped indexes along each dimension
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
      * Convert a linear index to
@@ -13322,8 +13199,6 @@ public static final int PREALLOC_SIZE = 33554432;
      * @param index the index to map
      * @return the mapped indexes along each dimension
      */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Convert a linear index to
@@ -13333,8 +13208,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * @param numIndices the number of total indices (typically prod of shape(
 * @return the mapped indexes along each dimension
 */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Convert a linear index to
@@ -13344,8 +13217,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * @param numIndices the number of total indices (typically prod of shape(
 * @return the mapped indexes along each dimension
 */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Convert a linear index to
@@ -13365,8 +13236,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param rearrange
  * @return
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  *
@@ -13375,38 +13244,24 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param rearrange
  * @return
  */
-// #ifdef __CUDACC__
-// #endif
+/*
+    INLINEDEF _CUDA_HD void doPermuteShapeBuffer(Nd4jLong *shapeBuffer, int *rearrange, Nd4jLong *tmpBuffer) {
+        auto shapeRef = shapeBuffer;
+        //rank of the rearrange array == rank of shape buffer
+        int rearrageRank = shape::rank(shapeRef);
+        auto shape = shape::shapeOf(shapeRef);
+        auto stride = shape::stride(shapeRef);
 
+        shape::copyOf(rearrageRank,rearrange, tmpBuffer);
+        shape::doPermuteSwap(rearrageRank,&shape, tmpBuffer);
 
-// #ifdef __CUDACC__
-// #endif
+        shape::copyOf(rearrageRank,rearrange, tmpBuffer);
+        shape::doPermuteSwap(rearrageRank,&stride,tmpBuffer);
 
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongPointer shapeBuffer, IntPointer rearrange, IntPointer tmpBuffer);
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") LongBuffer shapeBuffer, IntBuffer rearrange, IntBuffer tmpBuffer);
-    @Namespace("shape") public static native void doPermuteShapeBuffer(@Cast("Nd4jLong*") long[] shapeBuffer, int[] rearrange, int[] tmpBuffer);
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
+        shapeRef[shapeInfoLength(rearrageRank) - 2] = -1;
+        shapeRef[shape::shapeInfoLength(rearrageRank) - 1] = shape::getOrder(rearrageRank,shape,stride,1);
+    }
+    */
 
 /**
  * Get the ordering for the device
@@ -13416,8 +13271,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param elementStride
  * @return
  */
-// #ifdef __CUDACC__
-// #endif
 
 
 
@@ -13433,24 +13286,12 @@ public static final int PREALLOC_SIZE = 33554432;
  * @return
  */
 
-
-
-// #ifdef __CUDACC__
-// #endif
-
 /**
  * Permute the shape information
  * @param info the shape information to permute
  * @param rearrange the order to re arrange
  * @param rank the rank of the rearrange array
  */
-// #ifdef __CUDACC__
-// #endif
-
-    @Namespace("shape") public static native void permute(@Cast("shape::ShapeInformation**") PointerPointer info, IntPointer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, IntPointer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, IntBuffer rearrange, int rank);
-    @Namespace("shape") public static native void permute(@ByPtrPtr ShapeInformation info, int[] rearrange, int rank);
 
 /**
  * Returns whether the
@@ -13458,34 +13299,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param shape the shape of the array
  * @param rank the rank of the shape
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Returns whether the
@@ -13493,18 +13306,11 @@ public static final int PREALLOC_SIZE = 33554432;
 * @param shape the shape of the array
 * @param rank the rank of the shape
 */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the shape portion of an information
  * buffer
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Return a copy of a buffer.
@@ -13523,8 +13329,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * This buffer allocates memory
 * that must be freed elsewhere.
 */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Permute the given strides
@@ -13535,22 +13339,21 @@ public static final int PREALLOC_SIZE = 33554432;
  * and all must be filled in)
  * @return the rearranged array
  */
-// #ifdef __CUDACC__
-// #endif
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer permutedStrides(@Cast("Nd4jLong*") LongPointer toPermute, int shapeRank, IntPointer rearrange);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer permutedStrides(@Cast("Nd4jLong*") LongBuffer toPermute, int shapeRank, IntBuffer rearrange);
-    @Namespace("shape") public static native @Cast("Nd4jLong*") long[] permutedStrides(@Cast("Nd4jLong*") long[] toPermute, int shapeRank, int[] rearrange);
+ /*
+    INLINEDEF _CUDA_HD Nd4jLong *permutedStrides(Nd4jLong *toPermute, int shapeRank, int *rearrange) {
+        Nd4jLong *strideCopy = copyOf(shapeRank, toPermute);
+        checkArrangeArray(rearrange, shapeRank, shapeRank);
+        Nd4jLong *newStride = doPermuteSwap(shapeRank, strideCopy, rearrange);
+        delete[] strideCopy;
+        return newStride;
+    }
+    */
 
 /**
  * Return the slice (shape + 1 in pointer arithmetic)
  * @param shape the shape to take the slice of
  * @return the shape array - the first entry
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the length of the
@@ -13560,24 +13363,11 @@ public static final int PREALLOC_SIZE = 33554432;
  * info length for
  * @return rank * 2 + 4
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the rank portion of
  * an information buffer
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Converts a raw int buffer of the layout:
@@ -13589,73 +13379,44 @@ public static final int PREALLOC_SIZE = 33554432;
  *
  * where shape and stride are both straight int pointers
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the stride portion of an information
  * buffer
  */
-// #ifdef __CUDACC__
-// #endif
 
 
 
 /**
  * Compute the length of the given shape
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-//     #ifdef __CUDACC__
-//     #endif
 
 /***
  * Returns the offset
  * portion of an information buffer
  */
-// #ifdef __CUDACC__
-// #endif
-
-//     #ifdef __CUDACC__
-// #endif
 
 
 /**
  * Returns the ordering
  * for this shape information buffer
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the element wise stride for this information
  * buffer
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
 * Returns the element wise stride for this information
 * buffer relative to a dimension and reduction index
 */
-// #ifdef __CUDACC__
-// #endif
-
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongPointer buffer, IntPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") LongBuffer buffer, IntBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long reductionIndexElementWiseStride(@Cast("Nd4jLong*") long[] buffer, int[] dimension, int dimensionLength);
 
 /**
  * Returns whether
  * the given shape info buffer
  * represents a scalar shape
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns whether
@@ -13663,8 +13424,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * represents a scalar
  * shape or not
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Return a copy of this array with the
@@ -13698,7 +13457,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * and the offset to be read.
  */
 // #ifdef __CUDACC__
-
 // #endif
 
 /**
@@ -13709,9 +13467,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * for the shape to be returned as
  * @return the new shape
  */
-// #ifdef __CUDACC__
-// #endif
-
     @Namespace("shape") public static native @Cast("Nd4jLong*") LongPointer ensureVectorShape(@Cast("Nd4jLong*") LongPointer shape, int dimension);
     @Namespace("shape") public static native @Cast("Nd4jLong*") LongBuffer ensureVectorShape(@Cast("Nd4jLong*") LongBuffer shape, int dimension);
     @Namespace("shape") public static native @Cast("Nd4jLong*") long[] ensureVectorShape(@Cast("Nd4jLong*") long[] shape, int dimension);
@@ -13724,8 +13479,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * for the shape to be returned as
  * @return the new shape
  */
-// #ifdef __CUDACC__
-// #endif
 
     /**
      * This method does STRICT comparison for two shape buffers
@@ -13733,11 +13486,6 @@ public static final int PREALLOC_SIZE = 33554432;
      * @param shape
      * @return
      */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
     /**
      * This method does SOFT comparison for two shape buffers, we compare only rank & shapes
@@ -13745,8 +13493,6 @@ public static final int PREALLOC_SIZE = 33554432;
      * @param shape
      * @return
      */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Generate an int buffer
@@ -13808,9 +13554,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @return the length per slice of the given shape
  * along the given dimension
  */
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") LongPointer shape, IntPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") LongBuffer shape, IntBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native int lengthPerSlice(int rank, @Cast("Nd4jLong*") long[] shape, int[] dimension, int dimensionLength);
 
 /**
  * calculates the offset for a tensor
@@ -13819,9 +13562,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tensorShape
  * @return
  */
-    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank, int index, @Cast("Nd4jLong*") LongPointer shape, @Cast("Nd4jLong*") LongPointer tensorShape, int tensorShapeLength, IntPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank, int index, @Cast("Nd4jLong*") LongBuffer shape, @Cast("Nd4jLong*") LongBuffer tensorShape, int tensorShapeLength, IntBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long sliceOffsetForTensor(int rank, int index, @Cast("Nd4jLong*") long[] shape, @Cast("Nd4jLong*") long[] tensorShape, int tensorShapeLength, int[] dimension, int dimensionLength);
 
     /**
  * calculates the offset for a tensor
@@ -13844,27 +13584,12 @@ public static final int PREALLOC_SIZE = 33554432;
  * of tensors along
  * a given dimension
  */
-// #ifdef __CUDACC__
-// #endif
-
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank, int length,
-                                            @Cast("Nd4jLong*") LongPointer shape, IntPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank, int length,
-                                            @Cast("Nd4jLong*") LongBuffer shape, IntBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(int rank, int length,
-                                            @Cast("Nd4jLong*") long[] shape, int[] dimension, int dimensionLength);
 
 /**
  * Computes the number
  * of tensors along
  * a given dimension
  */
-// #ifdef __CUDACC__
-// #endif
-
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") LongPointer shapeInfo, IntPointer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") LongBuffer shapeInfo, IntBuffer dimension, int dimensionLength);
-    @Namespace("shape") public static native @Cast("Nd4jLong") long tensorsAlongDimension(@Cast("Nd4jLong*") long[] shapeInfo, int[] dimension, int dimensionLength);
 
 
 
@@ -13880,8 +13605,6 @@ public static final int PREALLOC_SIZE = 33554432;
 * @param indices the indices to iterate over
 * @return the double at the specified index
 */
-// #ifdef __CUDACC__
-// #endif
 
 
 
@@ -13894,44 +13617,16 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param i
  * @return
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Computes the number of tads per block
  *
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns a shape buffer
  * for the shape information metadata.
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 /**
  * Given an linear index, element wise stride
  * and the length of each tad
@@ -13941,8 +13636,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param numElementsPerTad the number of elements
  * per tad
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Map a tad to a
@@ -13952,13 +13645,6 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tadsForReduced the number of tads for the shrunk down problem (eg: 2,3)
  * @param tadsForOriginal the number of tads for the smaller problem (eg: 3)
  */
-// #ifdef __CUDACC__
-// #endif
-
-
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Tad index for linear
@@ -13966,16 +13652,12 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tadLength
  * @return
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Computes the number of tads
  * per reduce index for the
  * reduction tad.
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Maps a linear index to a reduction index
@@ -13985,31 +13667,17 @@ public static final int PREALLOC_SIZE = 33554432;
  * @param tadNum the number of tads for the shrunken problem
  * @param originalTadNum the tad number for the reduced version of the problem
  */
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the prod of the data
  * up to the given length
  */
-// #ifdef __CUDACC__
-// #endif
 
 /**
  * Returns the prod of the data
  * up to the given length
  */
-// #ifdef __CUDACC__
-// #endif
 
-// #ifdef __CUDACC__
-// #endif
     @Namespace("shape") public static native int rearMostLeftOverItem(@Cast("Nd4jLong*") LongPointer data, @Cast("Nd4jLong*") LongPointer dimension,int dimensionLength);
     @Namespace("shape") public static native int rearMostLeftOverItem(@Cast("Nd4jLong*") LongBuffer data, @Cast("Nd4jLong*") LongBuffer dimension,int dimensionLength);
     @Namespace("shape") public static native int rearMostLeftOverItem(@Cast("Nd4jLong*") long[] data, @Cast("Nd4jLong*") long[] dimension,int dimensionLength);
@@ -14019,17 +13687,10 @@ public static final int PREALLOC_SIZE = 33554432;
 
 
 
-// #ifdef __CUDACC__
-// #endif
 
 
 
-
-
-//#ifdef __CUDACC__
-//    __host__ __device__
-//#endif
-//    INLINEDEF Nd4jLong *shapeBufferOfNpyBuffer(char *buffer) {
+//    INLINEDEF _CUDA_HD Nd4jLong *shapeBufferOfNpyBuffer(char *buffer) {
 //        unsigned Nd4jLong *shape;
 //        unsigned int ndims, wordSize;
 //        bool fortranOrder;
@@ -14039,37 +13700,12 @@ public static final int PREALLOC_SIZE = 33554432;
 //        return ret;
 //    }
 
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
     // this function checks the consistence of dimensions with array rank (negative dimensions, too large dimensions, too big number of dimensions)
     // also it sorts input array of dimensions, this operation is also necessary for creating TAD object
 
 
 
 // return absolute index of array min, min is sub-array of max, index to be returned is min's index and corresponds to maxIdx of max array 
-
-
-// #ifdef __CUDACC__
-// #endif
-
-// #ifdef __CUDACC__
-// #endif
-
-
-// #ifdef __CUDACC__
-// #endif
 
 
 
