@@ -88,15 +88,15 @@ public class DefaultOpExecutioner implements OpExecutioner {
 
         if (op.x() != null && op.x().data().dataType() == DataBuffer.Type.INT)
             throw new ND4JIllegalStateException(
-                            "Op.X contains INT data. Operations on INT dataType are not supported yet");
+                    "Op.X contains INT data. Operations on INT dataType are not supported yet");
 
         if (op.z() != null && op.z().data().dataType() == DataBuffer.Type.INT)
             throw new ND4JIllegalStateException(
-                            "Op.Z contains INT data. Operations on INT dataType are not supported yet");
+                    "Op.Z contains INT data. Operations on INT dataType are not supported yet");
 
         if (op.y() != null && op.y().data().dataType() == DataBuffer.Type.INT)
             throw new ND4JIllegalStateException(
-                            "Op.Y contains INT data. Operations on INT dataType are not supported yet.");
+                    "Op.Y contains INT data. Operations on INT dataType are not supported yet.");
     }
 
     @Override
@@ -280,7 +280,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
         if (op instanceof Accumulation || op instanceof IndexAccumulation) {
             //Overloaded exec(Accumulation,int...) and exec(IndexAccumulation,int...) should always be called instead of this
             throw new IllegalStateException(
-                            "exec(Op,int...) should never be invoked for Accumulation/IndexAccumulation");
+                    "exec(Op,int...) should never be invoked for Accumulation/IndexAccumulation");
         }
         if (op instanceof ScalarOp) {
             //Scalar op along dimension should be same as on the entire NDArray
@@ -288,7 +288,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
         }
         if (op instanceof TransformOp) {
             throw new UnsupportedOperationException(
-                            "Executing transform ops along a dimension should be done via exec special");
+                    "Executing transform ops along a dimension should be done via exec special");
         }
         throw new UnsupportedOperationException("Unknown op opType");
     }
@@ -597,18 +597,18 @@ public class DefaultOpExecutioner implements OpExecutioner {
 
 
         if (op.x() != null && op.x().data().dataType() != expectedType
-                        && op.x().data().dataType() != DataBuffer.Type.COMPRESSED)
+                && op.x().data().dataType() != DataBuffer.Type.COMPRESSED)
             throw new ND4JIllegalStateException("op.X dataType is [" + op.x().data().dataType()
-                            + "] instead of expected [" + expectedType + "]");
+                    + "] instead of expected [" + expectedType + "]");
 
         if (op.z() != null && op.z().data().dataType() != expectedType
-                        && op.z().data().dataType() != DataBuffer.Type.COMPRESSED)
+                && op.z().data().dataType() != DataBuffer.Type.COMPRESSED)
             throw new ND4JIllegalStateException("op.Z dataType is [" + op.z().data().dataType()
-                            + "] instead of expected [" + expectedType + "]");
+                    + "] instead of expected [" + expectedType + "]");
 
         if (op.y() != null && op.y().data().dataType() != expectedType)
             throw new ND4JIllegalStateException("op.Y dataType is [" + op.y().data().dataType()
-                            + "] instead of expected [" + expectedType + "]");
+                    + "] instead of expected [" + expectedType + "]");
 
 
     }
@@ -624,7 +624,7 @@ public class DefaultOpExecutioner implements OpExecutioner {
 
             if (operand.data().dataType() != expectedType)
                 throw new ND4JIllegalStateException("INDArray [" + cnt++ + "] dataType is [" + operand.data().dataType()
-                                + "] instead of expected [" + expectedType + "]");
+                        + "] instead of expected [" + expectedType + "]");
         }
     }
 
@@ -773,4 +773,20 @@ public class DefaultOpExecutioner implements OpExecutioner {
     public void setTadThreshold(int threshold) {
         // no-op
     }
+
+
+    protected INDArray[] allocateOutputsFor(CustomOp customOp) {
+        if(customOp.inputArguments() == null || customOp.inputArguments().length < 1) {
+            throw new IllegalStateException("Inputs must be set.");
+        }
+        List<int[]> arr = customOp.calculateOutputShape();
+        INDArray[] outputs = new INDArray[arr.size()];
+        for(int i = 0; i < arr.size(); i++) {
+            outputs[i] = Nd4j.createUninitialized(arr.get(i));
+        }
+
+        return outputs;
+
+    }
+
 }

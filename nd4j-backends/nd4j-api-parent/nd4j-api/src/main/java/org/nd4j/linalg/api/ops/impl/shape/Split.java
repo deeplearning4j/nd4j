@@ -1,9 +1,11 @@
 package org.nd4j.linalg.api.ops.impl.shape;
 
 import lombok.val;
+import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
 import org.nd4j.imports.graphmapper.tf.TFGraphMapper;
+import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.api.ops.DynamicCustomOp;
 import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
@@ -21,6 +23,28 @@ public class Split extends DynamicCustomOp {
     private int numSplit;
     private int splitDim;
 
+    public Split( INDArray[] inputs, INDArray[] outputs, int numSplit, int splitDim) {
+        super(null, inputs, outputs);
+        this.numSplit = numSplit;
+        this.splitDim = splitDim;
+        addIArgument(numSplit,splitDim);
+
+    }
+
+    public Split( INDArray inputs, int numSplit, int splitDim) {
+        super(null, new INDArray[]{inputs},null);
+        this.numSplit = numSplit;
+        this.splitDim = splitDim;
+        addIArgument(numSplit,splitDim);
+
+    }
+
+    public Split(SameDiff sameDiff, SDVariable[] args, boolean inPlace, int numSplit, int splitDim) {
+        super(null, sameDiff, args, inPlace);
+        this.numSplit = numSplit;
+        this.splitDim = splitDim;
+        addIArgument(numSplit,splitDim);
+    }
 
     @Override
     public String opName() {
@@ -80,5 +104,8 @@ public class Split extends DynamicCustomOp {
 
         return ret;
     }
+
+
+
 
 }
