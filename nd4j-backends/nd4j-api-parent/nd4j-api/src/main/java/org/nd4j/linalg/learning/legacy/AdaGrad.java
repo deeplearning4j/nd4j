@@ -57,7 +57,7 @@ public class AdaGrad implements Serializable {
     }
 
     public void setStateViewArray(INDArray viewArray, long[] gradientShape, char gradientOrder, boolean initialize) {
-        if (!viewArray.isRowVector())
+        if (!viewArray.isRowVector() && !(viewArray.rank() == 2 && viewArray.columns() == 1 && viewArray.rows() == 1))
             throw new IllegalArgumentException("Invalid input: expect row vector input");
         if (initialize)
             viewArray.assign(epsilon);
