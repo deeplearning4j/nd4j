@@ -6635,7 +6635,7 @@ public class Nd4j {
      */
     public static INDArray pile(INDArray... arrays) {
         // if we have vectors as input, it's just vstack use case
-        if (arrays[0].isRowVector()) {
+        if (arrays[0].isRowVector() && arrays[0].rank() == 2) {
             return Nd4j.vstack(arrays);
         }
 
