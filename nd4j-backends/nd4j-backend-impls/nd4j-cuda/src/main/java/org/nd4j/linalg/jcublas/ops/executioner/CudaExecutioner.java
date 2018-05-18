@@ -2584,6 +2584,7 @@ public class CudaExecutioner extends DefaultOpExecutioner {
      * PLEASE NOTE: right now this operations are executing on CPU
      * @param op
      */
+    @Override
     public void exec(CustomOp op) {
 
         Nd4j.getExecutioner().commit();
@@ -2785,6 +2786,12 @@ public class CudaExecutioner extends DefaultOpExecutioner {
                 AtomicAllocator.getInstance().getAllocationPoint(in).tickHostWrite();
 
             cnt++;
+        }
+
+        //dynamically allocate args when outputs not defined
+        if(op.outputArguments() == null || op.outputArguments().length < 1) {
+            op.addOutputArgument(allocateOutputsFor(op));
+
         }
 
 

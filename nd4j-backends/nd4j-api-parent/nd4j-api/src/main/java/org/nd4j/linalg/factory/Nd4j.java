@@ -57,7 +57,6 @@ import org.nd4j.linalg.api.ops.executioner.DefaultOpExecutioner;
 import org.nd4j.linalg.api.ops.executioner.OpExecutioner;
 import org.nd4j.linalg.api.ops.factory.DefaultOpFactory;
 import org.nd4j.linalg.api.ops.factory.OpFactory;
-import org.nd4j.linalg.api.ops.impl.controlflow.Select;
 import org.nd4j.linalg.api.ops.impl.indexaccum.IMax;
 import org.nd4j.linalg.api.ops.impl.shape.Diag;
 import org.nd4j.linalg.api.ops.impl.transforms.OldReverse;
@@ -81,7 +80,6 @@ import org.nd4j.linalg.exception.ND4JIllegalStateException;
 import org.nd4j.linalg.factory.Nd4jBackend.NoAvailableBackendException;
 import org.nd4j.linalg.memory.BasicMemoryManager;
 import org.nd4j.linalg.memory.MemoryManager;
-import org.nd4j.linalg.ops.transforms.Transforms;
 import org.nd4j.linalg.primitives.Pair;
 import org.nd4j.linalg.string.NDArrayStrings;
 import org.nd4j.linalg.util.ArrayUtil;
@@ -332,6 +330,8 @@ public class Nd4j {
 
         }
     }
+
+
 
 
 
@@ -6482,11 +6482,11 @@ public class Nd4j {
         }
         return (fallback.equalsIgnoreCase("true") || fallback.equalsIgnoreCase("1"));
     }
-    
+
     /**
      * Get ensured shapes that wind up being scalar end up with the write shape
      * @param shape
-     * @return 
+     * @return
      */
     private static int[] getEnsuredShape(int[] shape) {
         if (shape.length == 1 && shape[0] == 0) {
@@ -6494,12 +6494,12 @@ public class Nd4j {
         }
         return shape;
     }
-    
+
     /**
      * Get ensured shapes that wind up being scalar end up with the write shape
      * @param rows
      * @param columns
-     * @return 
+     * @return
      */
     private static int[] getEnsuredShape(int rows, int columns) {
         return getEnsuredShape(new int[] {rows, columns});

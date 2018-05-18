@@ -1,7 +1,6 @@
 package org.nd4j.linalg.api.ops.impl.transforms;
 
 import lombok.val;
-import org.apache.commons.lang3.ArrayUtils;
 import org.nd4j.autodiff.samediff.SDVariable;
 import org.nd4j.autodiff.samediff.SameDiff;
 import org.nd4j.imports.descriptors.properties.PropertyMapping;
@@ -11,7 +10,9 @@ import org.tensorflow.framework.AttrValue;
 import org.tensorflow.framework.GraphDef;
 import org.tensorflow.framework.NodeDef;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -36,6 +37,8 @@ public class DynamicPartition extends DynamicCustomOp {
 
     public DynamicPartition() {
     }
+
+
 
     public DynamicPartition(SameDiff sameDiff, SDVariable input,  SDVariable partitions, int numPartitions) {
         super(null, sameDiff,  new SDVariable[] {input, partitions}, false);

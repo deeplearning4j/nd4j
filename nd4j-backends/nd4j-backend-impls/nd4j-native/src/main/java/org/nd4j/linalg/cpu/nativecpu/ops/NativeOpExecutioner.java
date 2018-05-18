@@ -1619,7 +1619,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
 
 
     private PointerPointer getInputShapes(int numArguments) {
-       return getPointerPointerFrom(inputShapes,numArguments);
+        return getPointerPointerFrom(inputShapes,numArguments);
     }
 
     private PointerPointer getInputBuffers(int numArguments) {
@@ -1643,6 +1643,7 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
      * PLEASE NOTE: You're responsible for input/output validation
      * @param op
      */
+    @Override
     public void exec(@NonNull CustomOp op) {
         long st = profilingHookIn(op);
 
@@ -1665,6 +1666,14 @@ public class NativeOpExecutioner extends DefaultOpExecutioner {
             inputBuffers.put(cnt, in.data().addressPointer());
             inputShapes.put(cnt++, in.shapeInfoDataBuffer().addressPointer());
         }
+
+
+        //dynamically allocate outputs when not defined, note inputs must be defined in order for this to work
+        if(op.outputArguments() == null || op.outputArguments().length < 1) {
+            op.addOutputArgument(allocateOutputsFor(op));
+
+        }
+
 
         val outputArgs = op.outputArguments();
         for(int i = 0; i < outputArgs.length; i++) {

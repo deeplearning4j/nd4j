@@ -440,10 +440,11 @@ public class DynamicCustomOp extends DifferentialFunction implements CustomOp {
     @Override
     public List<int[]> calculateOutputShape() {
         val descriptor = getDescriptor();
-        for (val arg : args()) {
-            if (sameDiff.isPlaceHolder(arg.getVarName()) && !sameDiff.shapeAlreadyExistsForVarName(arg.getVarName()))
-                return Collections.emptyList();
-        }
+        if(args() != null)
+            for (val arg : args()) {
+                if (sameDiff.isPlaceHolder(arg.getVarName()) && !sameDiff.shapeAlreadyExistsForVarName(arg.getVarName()))
+                    return Collections.emptyList();
+            }
 
         if (outputShapes != null)
             return outputShapes;
