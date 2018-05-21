@@ -834,25 +834,10 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
     }
 
     /**
-     * Splits a dataset in to test and train randomly.
-     * This will modify the dataset in place to shuffle it before splitting into test/train!
+     * Split the DataSet into a test and a training DataSet object
      *
-     * @param numHoldout the number to hold out for training
-     * @param  rng Random Number Generator to use to shuffle the dataset
-     * @return the pair of datasets for the train test split
-     */
-    @Override
-    public SplitTestAndTrain splitTestAndTrain(int numHoldout, Random rng) {
-        long seed = rng.nextLong();
-        this.shuffle(seed);
-        return splitTestAndTrain(numHoldout);
-    }
-
-    /**
-     * Splits a dataset in to test and train
-     *
-     * @param numHoldout the number to hold out for training
-     * @return the pair of datasets for the train test split
+     * @param numHoldout Number of examples to be returned in the training DataSet object
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
      */
     @Override
     public SplitTestAndTrain splitTestAndTrain(int numHoldout) {
@@ -923,6 +908,56 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
         return new SplitTestAndTrain(first, second);
     }
 
+    /**
+     * Randomly split the DataSet into a test and a training DataSet object
+     *
+     * This will shuffle the original DataSet in place prior to splitting it.
+     *
+     * @param numHoldout the number to hold out for training
+     * @param  rng Random Number Generator to use to shuffle the dataset
+     * @return the pair of datasets for the train test split
+     */
+    @Override
+    public SplitTestAndTrain splitTestAndTrain(int numHoldout, Random rng) {
+        long seed = rng.nextLong();
+        this.shuffle(seed);
+        return splitTestAndTrain(numHoldout);
+    }
+
+    /**
+     * Split the DataSet into a test and a training DataSet object
+     *
+     * @param fractionTrain Fraction (in range 0 to 1) of examples to be returned in the training DataSet object
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
+    @Override
+    public SplitTestAndTrain splitTestAndTrain(double fractionTrain) {
+        Preconditions.checkArgument(fractionTrain > 0.0 && fractionTrain < 1.0,
+                "Train fraction must be > 0.0 and < 1.0 - got %s", fractionTrain);
+        int numTrain = (int) (fractionTrain * numExamples());
+        if (numTrain <= 0)
+            numTrain = 1;
+        return splitTestAndTrain(numTrain);
+    }
+
+    /**
+     * Randomly split the DataSet into a test and a training DataSet object
+     *
+     * This will shuffle the original DataSet in place prior to splitting it.
+     *
+     * @param fractionTrain Fraction (range 0 to 1) of examples to be returned in the training DataSet object
+     * @param rng Random number generator used to shuffle the original DataSet prior to splitting
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
+    @Override
+    public SplitTestAndTrain splitTestAndTrain(double fractionTrain, Random rng) {
+        Preconditions.checkArgument(fractionTrain > 0.0 && fractionTrain < 1.0,
+                "Train fraction must be > 0.0 and < 1.0 - got %s", fractionTrain);
+        int numTrain = (int) (fractionTrain * numExamples());
+        if (numTrain <= 0)
+            numTrain = 1;
+        return splitTestAndTrain(numTrain, rng);
+    }
 
     /**
      * Returns the labels for the dataset
@@ -1247,17 +1282,6 @@ public class DataSet implements org.nd4j.linalg.dataset.api.DataSet {
     public void setColumnNames(List<String> columnNames) {
         this.columnNames = columnNames;
     }
-
-    @Override
-    public SplitTestAndTrain splitTestAndTrain(double fractionTrain) {
-        Preconditions.checkArgument(fractionTrain > 0.0 && fractionTrain < 1.0,
-                "Train fraction must be > 0.0 and < 1.0 - got %s", fractionTrain);
-        int numTrain = (int) (fractionTrain * numExamples());
-        if (numTrain <= 0)
-            numTrain = 1;
-        return splitTestAndTrain(numTrain);
-    }
-
 
     @Override
     public Iterator<DataSet> iterator() {

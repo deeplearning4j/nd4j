@@ -192,9 +192,39 @@ public interface DataSet extends Iterable<org.nd4j.linalg.dataset.DataSet>, Seri
      */
     List<org.nd4j.linalg.dataset.DataSet> asList();
 
-    SplitTestAndTrain splitTestAndTrain(int numHoldout, java.util.Random rnd);
-
+    /**
+     * Split the DataSet into two DataSet objects
+     *
+     * @param numHoldout Number of of examples to be returned in the training DataSet object
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
     SplitTestAndTrain splitTestAndTrain(int numHoldout);
+
+    /**
+     * Randomly split the DataSet into two DataSet objects
+     *
+     * @param numHoldout Number of of examples to be returned in the training DataSet object
+     * @param rng Random number generator used for randomization of the splitting
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
+    SplitTestAndTrain splitTestAndTrain(int numHoldout, java.util.Random rng);
+
+    /**
+     * Split the DataSet into two DataSet objects
+     *
+     * @param fractionTrain Fraction (range 0 to 1) of examples to be returned in the training DataSet object
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
+    SplitTestAndTrain splitTestAndTrain(double fractionTrain);
+
+    /**
+     * Randomly split the DataSet into two DataSet objects
+     *
+     * @param fractionTrain Fraction (range 0 to 1) of examples to be returned in the training DataSet object
+     * @param rng Random number generator used for randomization of the splitting
+     * @return A {@link SplitTestAndTrain} object containing the two DataSets
+     */
+    SplitTestAndTrain splitTestAndTrain(double fractionTrain, java.util.Random rng);
 
     INDArray getLabels();
 
@@ -252,11 +282,6 @@ public interface DataSet extends Iterable<org.nd4j.linalg.dataset.DataSet>, Seri
 
     void setColumnNames(List<String> columnNames);
 
-    /**
-     * SplitV the DataSet into two DataSets randomly
-     * @param fractionTrain    Fraction (in range 0 to 1) of examples to be returned in the training DataSet object
-     */
-    SplitTestAndTrain splitTestAndTrain(double fractionTrain);
 
     @Override
     Iterator<org.nd4j.linalg.dataset.DataSet> iterator();

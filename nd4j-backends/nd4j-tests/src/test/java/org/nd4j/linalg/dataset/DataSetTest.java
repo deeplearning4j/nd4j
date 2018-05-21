@@ -105,11 +105,13 @@ public class DataSetTest extends BaseNd4jTest {
         INDArray labels = FeatureUtil.toOutcomeMatrix(new int[] {0, 0, 0, 0, 0, 0, 0, 0}, 1);
         DataSet data = new DataSet(Nd4j.rand(8, 1), labels);
 
-        SplitTestAndTrain train = data.splitTestAndTrain(6, new Random(1));
+        SplitTestAndTrain train = data.splitTestAndTrain(6);
         assertEquals(train.getTrain().getLabels().length(), 6);
+        assertEquals(train.getTest().getLabels().length(), 2);
 
-        SplitTestAndTrain train2 = data.splitTestAndTrain(6, new Random(1));
+        SplitTestAndTrain train2 = data.splitTestAndTrain(6);
         assertEquals(getFailureMessage(), train.getTrain().getFeatureMatrix(), train2.getTrain().getFeatureMatrix());
+        assertEquals(getFailureMessage(), train.getTest().getFeatureMatrix(), train2.getTest().getFeatureMatrix());
 
         DataSet x0 = new IrisDataSetIterator(150, 150).next();
         SplitTestAndTrain testAndTrain = x0.splitTestAndTrain(10);
@@ -117,6 +119,9 @@ public class DataSetTest extends BaseNd4jTest {
         assertEquals(x0.getFeatureMatrix().getRows(ArrayUtil.range(0, 10)), testAndTrain.getTrain().getFeatureMatrix());
         assertEquals(x0.getLabels().getRows(ArrayUtil.range(0, 10)), testAndTrain.getTrain().getLabels());
 
+        SplitTestAndTrain train3 = data.splitTestAndTrain(0.5);
+        assertEquals(train3.getTrain().getLabels().length(), 4);
+        assertEquals(train3.getTest().getLabels().length(), 4);
 
     }
 
