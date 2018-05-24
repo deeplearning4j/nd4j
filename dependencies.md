@@ -7,7 +7,7 @@ description: "Dependencies - How to change backends"
 
 ## Platform Specific Binaries
 
-Valid for version `0.9.0` and higher. (As of this writing, we're on `0.9.1`.)
+Valid for version `0.9.0` and higher. (As of this writing, we're on `1.0.0-beta`.)
 
 Certain build tools such as [Gradle](http://www.gradle.org) and [SBT](http://www.scala-sbt.org/) cannot resolve transitive dependencies for specific platforms. When using a build tool such as Gradle, you will need to either explicitly state the platform binary you need at runtime or create a command line parameter that will specify your required platform. Creating command line parameters will allow you to switch between multiple platforms, such as testing on OS X and submitting to an Apache Spark cluster using a Linux operating system.
 
@@ -17,8 +17,10 @@ Add the following to your dependencies in `build.gradle`:
 
 ```groovy
 dependencies {
-  compile 'org.nd4j:nd4j-native:0.9.1'
-  compile 'org.nd4j:nd4j-native:0.9.1:macosx-x86_64'
+  compile 'org.nd4j:nd4j-native:1.0.0-beta'
+  compile 'org.nd4j:nd4j-native:1.0.0-beta:macosx-x86_64'
+  compile 'org.bytedeco.javacpp-presets:openblas:0.2.20-1.4.1'
+  compile 'org.bytedeco.javacpp-presets:openblas:0.2.20-1.4.1:macosx-x86_64'
 }
 ```
 
@@ -29,7 +31,8 @@ Add the following to your dependencies in `build.sbt`:
 ```scala
 classpathTypes += "maven-plugin"
 
-libraryDependencies += "org.nd4j" % "nd4j-native" % "0.9.1" classifier "" classifier "linux-x86_64"
+libraryDependencies += "org.nd4j" % "nd4j-native" % "1.0.0-beta" classifier "" classifier "linux-x86_64"
+libraryDependencies += "org.bytedeco.javacpp-presets" % "openblas" % "0.2.20-1.4.1" classifier "" classifier "linux-x86_64"
 ```
 
 ### Command Line Option (Gradle)
@@ -58,8 +61,10 @@ switch(libnd4jOS) {
 }
 
 dependencies {
-  compile 'org.nd4j:nd4j-native:0.9.1'
-  compile 'org.nd4j:nd4j-native:0.9.1:'+libnd4jOS
+  compile 'org.nd4j:nd4j-native:1.0.0-beta'
+  compile 'org.nd4j:nd4j-native:1.0.0-beta:'+libnd4jOS
+  compile 'org.bytedeco.javacpp-presets:openblas:0.2.20-1.4.1'
+  compile 'org.bytedeco.javacpp-presets:openblas:0.2.20-1.4.1:'+libnd4jOS
 }
 ```
 
