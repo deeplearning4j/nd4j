@@ -169,8 +169,6 @@ public class Transforms {
         return toScale;
     }
 
-
-
     /**
      * Returns the negative of an ndarray
      *
@@ -236,7 +234,7 @@ public class Transforms {
     }
 
     /**
-     * Sin function
+     * Sine
      * @param in
      * @return
      */
@@ -245,7 +243,7 @@ public class Transforms {
     }
 
     /**
-     * Sin function
+     * Sine
      * @param in
      * @param copy
      * @return
@@ -256,7 +254,7 @@ public class Transforms {
 
 
     /**
-     * Sin function
+     * Area hyperbolic tangent
      * @param in
      * @return
      */
@@ -265,7 +263,7 @@ public class Transforms {
     }
 
     /**
-     * Sin function
+     * Area hyperbolic tangent
      * @param in
      * @param copy
      * @return
@@ -275,7 +273,45 @@ public class Transforms {
     }
 
     /**
-     * Sinh function
+     * Area hyperbolic sine
+     * @param in
+     * @return
+     */
+    public static INDArray asinh(INDArray in) {
+        return asinh(in, true);
+    }
+
+    /**
+     * Area hyperbolic cosine
+     * @param in
+     * @return
+     */
+    public static INDArray acosh(INDArray in) {
+        return atanh(in, true);
+    }
+
+    /**
+     * Area hyperbolic sine
+     * @param in
+     * @param copy
+     * @return
+     */
+    public static INDArray asinh(INDArray in, boolean copy) {
+        return Nd4j.getExecutioner().execAndReturn(new ASinh((copy ? in.dup() : in)));
+    }
+
+    /**
+     * Area hyperbolic cosine
+     * @param in
+     * @param copy
+     * @return
+     */
+    public static INDArray acosh(INDArray in, boolean copy) {
+        return Nd4j.getExecutioner().execAndReturn(new ACosh((copy ? in.dup() : in)));
+    }
+
+    /**
+     * Hyperbolic sine
      * @param in
      * @return
      */
@@ -284,7 +320,8 @@ public class Transforms {
     }
 
     /**
-     * Sinh function
+     * Hyperbolic sine
+     *
      * @param in
      * @param copy
      * @return
@@ -294,6 +331,7 @@ public class Transforms {
     }
 
     /**
+     * Cosine
      *
      * @param in
      * @return
@@ -303,6 +341,7 @@ public class Transforms {
     }
 
     /**
+     * Hyperbolic cosine
      *
      * @param in
      * @param copy
@@ -313,7 +352,7 @@ public class Transforms {
     }
 
     /**
-     *
+     * Hyperbolic cosine
      * @param in
      * @return
      */
@@ -322,7 +361,7 @@ public class Transforms {
     }
 
     /**
-     *
+     * Arc cosine
      * @param in
      * @param copy
      * @return
@@ -331,31 +370,78 @@ public class Transforms {
         return Nd4j.getExecutioner().execAndReturn(new Cos((copy ? in.dup() : in)));
     }
 
+    /**
+     * Tangent
+     * @param in
+     * @return
+     */
+    public static INDArray tan(INDArray in) {
+        return tan(in, true);
+    }
 
+    /**
+     * Tangent
+     * @param in
+     * @param copy
+     * @return
+     */
+    public static INDArray tan(INDArray in, boolean copy) {
+        return Nd4j.getExecutioner().execAndReturn(new Tan((copy ? in.dup() : in)));
+    }
+
+    /**
+     * Arc cosine
+     * @param arr
+     * @return
+     */
     public static INDArray acos(INDArray arr) {
         return acos(arr, true);
     }
 
-
+    /**
+     * Arc cosine
+     * @param in
+     * @param copy
+     * @return
+     */
     public static INDArray acos(INDArray in, boolean copy) {
         return Nd4j.getExecutioner().execAndReturn(new ACos(((copy ? in.dup() : in))));
     }
 
-
+    /**
+     * Arc sine
+     * @param arr
+     * @return
+     */
     public static INDArray asin(INDArray arr) {
         return asin(arr, true);
     }
 
-
+    /**
+     * Arc sine
+     * @param in
+     * @param copy
+     * @return
+     */
     public static INDArray asin(INDArray in, boolean copy) {
         return Nd4j.getExecutioner().execAndReturn(new ASin(((copy ? in.dup() : in))));
     }
 
+    /**
+     * Arc tangent
+     * @param arr
+     * @return
+     */
     public static INDArray atan(INDArray arr) {
         return atan(arr, true);
     }
 
-
+    /**
+     * Arc tangent
+     * @param in
+     * @param copy
+     * @return
+     */
     public static INDArray atan(INDArray in, boolean copy) {
         return Nd4j.getExecutioner().execAndReturn(new ATan(((copy ? in.dup() : in))));
     }
