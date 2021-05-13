@@ -475,7 +475,7 @@ public class GradCheckTransforms {
                 case 9:
                     t = sd.tan(in);
                     ia = Nd4j.rand(minibatch, nOut);
-                    expOut = Nd4j.getExecutioner().execAndReturn(new Tan(ia.dup()));
+                    expOut = Transforms.tan(ia, true);
                     break;
                 case 10:
                     t = sd.cos(in);
@@ -507,7 +507,7 @@ public class GradCheckTransforms {
                 case 16:
                     t = sd.acosh(in);
                     ia = Nd4j.rand(minibatch, nOut).addi(1.01); //Only defined for x >= 1
-                    expOut = Nd4j.getExecutioner().execAndReturn(new ACosh(ia.dup()));
+                    expOut = Transforms.acosh(ia, true);
                     skipBackward = true;
                     break;
                 case 17:
